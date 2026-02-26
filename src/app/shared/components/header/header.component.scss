@@ -1,0 +1,60 @@
+.main-header {
+  width: 100%;
+  background: transparent; // ← allow sky to show
+  position: relative;
+  z-index: 10;
+
+  .container {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 5px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* glass effect layer */
+    background-image: url("/assets/images/auth-bg.png");
+    backdrop-filter: blur(6px);
+    border-radius: 0 0 14px 14px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .logo-icon {
+      font-weight: 700;
+      font-size: 22px;
+      color: #ff7a00;
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 18px;
+      color: #2c2c2c;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+
+    a {
+      text-decoration: none;
+      color: #3c3c3c;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  }
+
+  .logout-btn {
+    background: linear-gradient(to right, #ff9900, #ff7a00);
+    border: none;
+    padding: 8px 22px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}

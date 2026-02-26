@@ -1,0 +1,89 @@
+<div class="dashboard-wrapper">
+
+    <h1 class="dashboard-title">Dashboard</h1>
+
+    <div class="dashboard-panel">
+
+        <div class="stats-row">
+
+            <div class="stat-card blue">
+                <div class="stat-top">
+                    <div class="stat-value">{{ dashboardStats.totalOrders }}</div>
+                    <div class="stat-icon">📦</div>
+                </div>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-desc">Safe and fast handling for all your packages.</div>
+            </div>
+
+            <div class="stat-card orange">
+                <div class="stat-top">
+                    <div class="stat-value">{{ dashboardStats.activeOrders }}</div>
+                    <div class="stat-icon">🚚</div>
+                </div>
+                <div class="stat-label">Active Orders</div>
+                <div class="stat-desc">Reliable service for your shipments.</div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-top">
+                    <div class="stat-value">₹{{ dashboardStats.walletBalance }}</div>
+                    <div class="stat-icon">💰</div>
+                </div>
+                <div class="stat-label">Wallet Balance</div>
+                <div class="stat-desc">Main balance for outstanding or prepaid orders.</div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-row">
+
+            <!-- LEFT SIDE -->
+            <div class="recent-orders-container">
+
+                <div class="recent-orders">
+
+                    <h2 class="recent-title">Recent Orders</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Drop</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let order of recentOrders | slice:0:visibleOrdersCount">
+                                <td class="order-id">{{ order.id }}</td>
+                                <td>
+                                    <span class="icon">📍</span> {{ order.drop }}
+                                </td>
+                                <td>
+                                    <span class="icon">🕒</span> {{ order.time }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="view-all-wrapper">
+                    <button class="view-all" (click)="toggleRecentOrders()">
+                        {{ showAllOrders ? 'Show Less' : 'View All' }}
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="illustration">
+                <img src="assets/images/dashboard-boy.jpg">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

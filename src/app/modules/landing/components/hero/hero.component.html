@@ -1,0 +1,108 @@
+<section class="hero">
+
+    <div class="hero-content">
+
+        <!-- LEFT SIDE -->
+        <div class="hero-left">
+
+            <h1 class="hero-title">
+                FAST & RELIABLE <br />
+                DELIVERY SERVICE
+            </h1>
+
+            <p class="hero-sub">
+                Your trusted logistics partner for secure, on-time and professional deliveries.
+            </p>
+
+            <div class="hero-chips">
+                <span class="chip" (click)="scrollToBooking()">
+                    ⚡ Quick Delivery
+                </span>
+                <span class="chip" (click)="openSecureInfo()">
+                    🔒 Secure Handling
+                </span>
+                <span class="chip" (click)="goToTracking()">
+                    📍 Live Tracking
+                </span>
+            </div>
+
+            <div class="hero-buttons">
+                <button mat-raised-button color="primary" [disabled]="!price" (click)="bookDelivery()">
+                    Book Delivery
+                </button>
+
+                <button mat-stroked-button color="primary" routerLink="/auth/login">
+                    Track Order
+                </button>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="hero-right">
+
+            <!-- Booking Card -->
+            <div class="booking-card rider-bg" [formGroup]="quoteForm" id="booking-section">
+                <h2>Book Your Delivery</h2>
+
+                <mat-form-field appearance="outline" class="full">
+                    <mat-label>Pickup Location</mat-label>
+                    <input matInput formControlName="pickup" #pickupInput /> </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full">
+                    <mat-label>Drop Location</mat-label>
+                    <input matInput formControlName="drop" #dropInput /> </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full">
+                    <mat-label>Vehicle Type</mat-label>
+                    <mat-select formControlName="vehicleType">
+                        <mat-option value="1">Bike</mat-option>
+                        <mat-option value="2">Mini Truck</mat-option>
+                        <mat-option value="3">Cargo Van</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <button mat-raised-button class="quote-btn" (click)="getQuote()" [disabled]="loading">
+                    {{ loading ? 'Calculating...' : 'Get a Quote' }}
+                </button>
+
+
+
+                <!-- ERROR -->
+                <div class="error-text" *ngIf="errorMessage">
+                    {{ errorMessage }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="features">
+
+    <div class="features-container">
+
+        <div class="feature-card">
+            <mat-icon>local_shipping</mat-icon>
+            <h3>Fast Delivery</h3>
+            <p>Same day and express logistics service.</p>
+        </div>
+
+        <div class="feature-card">
+            <mat-icon>verified</mat-icon>
+            <h3>Secure Handling</h3>
+            <p>Your packages are always protected.</p>
+        </div>
+
+        <div class="feature-card">
+            <mat-icon>support_agent</mat-icon>
+            <h3>24/7 Support</h3>
+            <p>We are here whenever you need help.</p>
+        </div>
+
+    </div>
+
+</section>

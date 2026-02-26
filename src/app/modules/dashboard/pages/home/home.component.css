@@ -1,0 +1,24 @@
+.title {
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 14px;
+  color: #666;
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 10px;
+}

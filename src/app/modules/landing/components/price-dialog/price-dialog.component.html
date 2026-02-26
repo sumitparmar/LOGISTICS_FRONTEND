@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Estimated Price</h2>
+
+<div mat-dialog-content style="text-align:center">
+    <h1 style="margin:16px 0">₹{{ data.amount }}</h1>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>Close</button>
+
+    <button mat-raised-button color="primary" (click)="book()">
+        Book Delivery
+    </button>
+</div>

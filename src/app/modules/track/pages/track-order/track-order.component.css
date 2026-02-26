@@ -1,0 +1,147 @@
+.track-page {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.page-title {
+  margin-bottom: 16px;
+}
+
+/* SEARCH CARD */
+
+.track-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+}
+
+.search-row input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.primary {
+  padding: 12px 20px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.actions-row {
+  margin-top: 10px;
+}
+
+.cancel {
+  background: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+/* ERROR */
+
+.error {
+  color: #d32f2f;
+  margin-top: 10px;
+}
+
+/* DETAILS CARD */
+
+.details-card {
+  margin-top: 24px;
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.status-badge.created {
+  background: #9e9e9e;
+}
+.status-badge.assigned {
+  background: #1976d2;
+}
+.status-badge.picked_up {
+  background: #fb8c00;
+}
+.status-badge.delivered {
+  background: #2e7d32;
+}
+.status-badge.cancelled {
+  background: #d32f2f;
+}
+
+/* ADDRESS */
+
+.address-block {
+  margin-bottom: 14px;
+}
+
+.address-block label {
+  font-size: 12px;
+  color: #777;
+}
+
+/* META GRID */
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 16px 0;
+}
+
+/* TIMELINE */
+
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.step {
+  width: 22%;
+  text-align: center;
+  padding: 8px;
+  border-radius: 20px;
+  background: #e0e0e0;
+  font-size: 12px;
+}
+
+.step.done {
+  background: #1976d2;
+  color: #fff;
+}
+.actions {
+  margin-top: 20px;
+  text-align: right;
+}
+.timeline {
+  flex-wrap: wrap;
+  gap: 8px;
+}
