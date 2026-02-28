@@ -14,12 +14,43 @@ const routes: Routes = [
         redirectTo: 'dashboard',
         pathMatch: 'full',
       },
+
       {
         path: 'dashboard',
         loadChildren: () =>
           import('../dashboard/dashboard.module').then(
             (m) => m.DashboardModule,
           ),
+      },
+
+      {
+        path: 'orders',
+        loadChildren: () =>
+          import('../orders/orders.module').then((m) => m.OrdersModule),
+      },
+
+      {
+        path: 'wallet',
+        loadChildren: () =>
+          import('../wallet/wallet.module').then((m) => m.WalletModule),
+      },
+
+      {
+        path: 'pricing',
+        loadChildren: () =>
+          import('../pricing/pricing.module').then((m) => m.PricingModule),
+      },
+
+      {
+        path: 'about',
+        loadChildren: () =>
+          import('../about/about.module').then((m) => m.AboutModule),
+      },
+
+      {
+        path: 'contact',
+        loadChildren: () =>
+          import('../contact/contact.module').then((m) => m.ContactModule),
       },
     ],
   },

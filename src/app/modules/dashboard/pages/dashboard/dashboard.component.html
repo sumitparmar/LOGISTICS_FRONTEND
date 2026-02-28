@@ -2,11 +2,10 @@
 
     <h1 class="dashboard-title">Dashboard</h1>
 
-    <div class="dashboard-panel">
-
+    <div *ngIf="!isLoading; else loadingTemplate" class="dashboard-panel">
         <div class="stats-row">
 
-            <div class="stat-card blue">
+            <div class="stat-card blue" (click)="goToAllOrders()" style="cursor:pointer">
                 <div class="stat-top">
                     <div class="stat-value">{{ dashboardStats.totalOrders }}</div>
                     <div class="stat-icon">📦</div>
@@ -15,7 +14,7 @@
                 <div class="stat-desc">Safe and fast handling for all your packages.</div>
             </div>
 
-            <div class="stat-card orange">
+            <div class="stat-card orange" (click)="goToActiveOrders()" style="cursor:pointer">
                 <div class="stat-top">
                     <div class="stat-value">{{ dashboardStats.activeOrders }}</div>
                     <div class="stat-icon">🚚</div>
@@ -24,7 +23,7 @@
                 <div class="stat-desc">Reliable service for your shipments.</div>
             </div>
 
-            <div class="stat-card purple">
+            <div class="stat-card purple" (click)="goToWallet()" style="cursor:pointer">
                 <div class="stat-top">
                     <div class="stat-value">₹{{ dashboardStats.walletBalance }}</div>
                     <div class="stat-icon">💰</div>
@@ -45,7 +44,7 @@
 
                     <h2 class="recent-title">Recent Orders</h2>
 
-                    <table>
+                    <!-- <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -65,8 +64,39 @@
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table> -->
+                    <table class="recent-table">
+                        <thead>
+                            <tr>
+                                <th class="col-id">Order ID</th>
+                                <th class="col-drop">Drop Location</th>
+                                <th class="col-time">Created At</th>
+                            </tr>
+                        </thead>
 
+                        <tbody>
+                            <tr *ngFor="let order of recentOrders | slice:0:visibleOrdersCount" class="order-row"
+                                (click)="goToOrder(order.id)" style="cursor:pointer">
+                                <td class="order-id">{{ order.id }}</td>
+
+                                <td class="order-drop">
+                                    <span class="icon">📍</span>
+                                    <span class="drop-text">{{ order.drop }}</span>
+                                </td>
+
+                                <td class="order-time">
+                                    <span class="icon">🕒</span>
+                                    {{ order.time }}
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="recentOrders.length === 0">
+                                <td colspan="3" class="empty-state">
+                                    No recent orders found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="view-all-wrapper">
@@ -85,5 +115,12 @@
         </div>
 
     </div>
+    <ng-template #loadingTemplate>
+        <div class="dashboard-panel">
+            <div class="loading-container">
+                <p>Loading dashboard data...</p>
+            </div>
+        </div>
+    </ng-template>
 
 </div>

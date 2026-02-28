@@ -13,15 +13,14 @@
 
         <!-- Navigation -->
         <nav class="nav-links">
-            <a routerLink="/">Home</a>
-            <a>Pricing</a>
-            <a>Track Order</a>
-            <a>About Us</a>
-            <a>Contact</a>
+            <a routerLink="/app/dashboard" routerLinkActive="active">Home</a>
+            <a routerLink="/app/pricing" routerLinkActive="active">Pricing</a>
+            <a routerLink="/track" routerLinkActive="active">Track Order</a>
+            <a routerLink="/app/about" routerLinkActive="active">About Us</a>
+            <a routerLink="/app/contact" routerLinkActive="active">Contact</a>
         </nav>
 
         <!-- Logout Button -->
-        <button class="logout-btn">Logout</button>
-
+        <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
 </header>

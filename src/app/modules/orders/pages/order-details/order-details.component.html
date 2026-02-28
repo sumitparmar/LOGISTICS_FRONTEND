@@ -1,0 +1,10 @@
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<div *ngIf="order">
+    <h2>Order #{{ order._id }}</h2>
+    <p>Status: {{ order.status }}</p>
+    <p>Pickup: {{ order.pickup?.address }}</p>
+    <p>Drop: {{ order.drop?.address }}</p>
+    <p>Price: ₹{{ order.pricing?.amount }}</p>
+</div>

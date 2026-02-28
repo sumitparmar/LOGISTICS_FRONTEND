@@ -8,9 +8,10 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './shared/shared.module';
+import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, PublicLayoutComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

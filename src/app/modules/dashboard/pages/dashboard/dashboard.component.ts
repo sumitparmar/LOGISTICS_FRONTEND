@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../../../services/dashboard.service';
+import { Router } from '@angular/router';
 interface DashboardStats {
   totalOrders: number;
   activeOrders: number;
@@ -12,13 +13,28 @@ interface RecentOrder {
   time: string;
 }
 
+interface DashboardResponse {
+  data: {
+    totalOrders: number;
+    activeOrders: number;
+    walletBalance: number;
+    recentOrders: {
+      id: string;
+      drop: string;
+      createdAt: string;
+    }[];
+  };
+}
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router,
+  ) {}
 
   dashboardStats: DashboardStats = {
     totalOrders: 0,
@@ -31,6 +47,7 @@ export class DashboardComponent implements OnInit {
   showAllOrders = false;
   visibleOrdersCount = 3;
   isLoading = false;
+  hasError = false;
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -40,9 +57,14 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
 
     this.dashboardService.getSummary().subscribe({
-      next: (response: any) => {
-        const data = response.data;
+      next: (response: DashboardResponse) => {
+        if (!response?.data) {
+          this.hasError = true;
+          this.isLoading = false;
+          return;
+        }
 
+        const data = response.data;
         this.dashboardStats = {
           totalOrders: data.totalOrders,
           activeOrders: data.activeOrders,
@@ -57,9 +79,11 @@ export class DashboardComponent implements OnInit {
 
         this.visibleOrdersCount = 3;
         this.isLoading = false;
+        this.hasError = false;
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         console.error('Dashboard load failed', error);
+        this.hasError = true;
         this.isLoading = false;
       },
     });
@@ -72,5 +96,25 @@ export class DashboardComponent implements OnInit {
 
   private formatDate(date: string): string {
     return new Date(date).toLocaleString();
+  }
+  goToAllOrders(): void {
+    this.router.navigate(['/app/orders']);
+  }
+
+  goToActiveOrders(): void {
+    this.router.navigate(['/app/orders'], {
+      queryParams: { status: 'ACTIVE' },
+    });
+  }
+
+  goToWallet(): void {
+    this.router.navigate(['/app/wallet']);
+  }
+
+  goToOrder(id: string): void {
+    this.router.navigate(['/app/orders', id]);
+  }
+  trackByOrder(index: number, order: RecentOrder): string {
+    return order.id;
   }
 }
