@@ -309,10 +309,24 @@ export class CreateDeliveryComponent
         phone: form.pickupPhone,
       },
 
+      pickup: {
+        address: form.pickupAddress,
+        lat: form.pickupLat,
+        lng: form.pickupLng,
+      },
+
+      drop: {
+        address: form.stops[form.stops.length - 1].address,
+        lat: form.stops[form.stops.length - 1].lat,
+        lng: form.stops[form.stops.length - 1].lng,
+      },
+
       stops: [
         {
           type: 'PICKUP',
           address: form.pickupAddress,
+          lat: form.pickupLat,
+          lng: form.pickupLng,
           phone: form.pickupPhone,
           name: form.pickupName,
         },
@@ -320,6 +334,8 @@ export class CreateDeliveryComponent
         ...form.stops.map((stop: any) => ({
           type: 'DROP',
           address: stop.address,
+          lat: stop.lat,
+          lng: stop.lng,
           phone: stop.phone,
           name: stop.name,
         })),
@@ -354,9 +370,6 @@ export class CreateDeliveryComponent
     });
   }
 
-  /* -------------------------------
-      UI ACTIONS
-  -------------------------------- */
   selectPayment(type: string): void {
     this.deliveryForm.patchValue({
       paymentMethod: type,

@@ -29,6 +29,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   };
 
   orders: any[] = [];
+  filteredOrders: any[] = [];
   loading = false;
 
   statusFilter: string | null = null;
@@ -59,24 +60,31 @@ export class OrdersComponent implements OnInit, OnDestroy {
   loadOrders(): void {
     this.loading = true;
 
-    const query = {
+    const query: any = {
       page: this.page,
       limit: this.limit,
-      search: this.searchText || undefined,
-      status: this.statusFilter || undefined,
       sortBy: this.sortBy,
       sortOrder: this.sortOrder,
     };
+
+    if (this.searchText) {
+      query.search = this.searchText;
+    }
+
+    if (this.statusFilter) {
+      query.status = this.statusFilter;
+    }
+    console.log('Orders query:', query);
 
     this.ordersService.getOrders(query).subscribe({
       next: (res: OrdersResponse) => {
         const data = res?.data || [];
 
         this.orders = data;
+        this.applyStatusFilter();
 
         this.total = res?.meta?.total || 0;
         this.page = res?.meta?.page || this.page;
-        // this.limit = res?.meta?.limit || this.limit;
 
         this.totalPages = Math.ceil(this.total / this.limit);
 
@@ -123,7 +131,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
   //   ).length;
   // }
   searchTimeout: any;
+  applyStatusFilter(): void {
+    if (!this.statusFilter) {
+      this.filteredOrders = this.orders;
+      return;
+    }
 
+    this.filteredOrders = this.orders.filter(
+      (order) => order.status === this.statusFilter,
+    );
+  }
   onSearch(): void {
     clearTimeout(this.searchTimeout);
 
@@ -159,14 +176,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   setStatusFilter(status: string | null): void {
-    this.page = 1;
-
-    this.router.navigate([], {
-      queryParams: { status },
-      queryParamsHandling: 'merge',
-    });
+    this.statusFilter = status;
+    this.applyStatusFilter();
   }
-
   cancelOrder(orderId: string): void {
     if (!confirm('Cancel this order?')) return;
 
@@ -184,13 +196,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
   getVehicleIcon(id: number): string {
     switch (id) {
       case 1:
-        return '🛵';
+        return '🏍️'; // Bike
+
       case 2:
-        return '🛺';
+        return '🚚'; // Mini Truck
+
       case 3:
-        return '🚚';
-      case 4:
-        return '🚛';
+        return '🚛'; // Truck
+
       default:
         return '🚚';
     }
@@ -200,17 +213,55 @@ export class OrdersComponent implements OnInit, OnDestroy {
     switch (id) {
       case 1:
         return 'Bike';
+
       case 2:
-        return 'Auto';
-      case 3:
         return 'Mini Truck';
-      case 4:
-        return 'Van';
+
+      case 3:
+        return 'Truck';
+
       default:
         return 'Vehicle';
     }
   }
 
+  getEstimatedDuration(order: any): string {
+    const points = order?.rawProviderResponse?.order?.points;
+
+    if (!points || points.length < 2) return 'Calculating';
+
+    const pickup = points[0];
+    const drop = points[1];
+
+    if (!pickup?.latitude || !drop?.latitude) return 'Calculating';
+
+    const lat1 = Number(pickup.latitude);
+    const lng1 = Number(pickup.longitude);
+    const lat2 = Number(drop.latitude);
+    const lng2 = Number(drop.longitude);
+
+    const R = 6371;
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c;
+
+    const avgSpeed = 30;
+
+    const durationMinutes = Math.round((distance / avgSpeed) * 60);
+
+    return durationMinutes + ' mins';
+  }
   openOrder(id: string): void {
     this.router.navigate(['/app/orders', id]);
   }

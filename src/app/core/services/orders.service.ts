@@ -50,4 +50,23 @@ export class OrdersService {
   createOrder(payload: any) {
     return this.api.post('/orders/create', payload);
   }
+
+  getPricingBreakdown(orderId: string) {
+    return this.api.get(`/orders/${orderId}/pricing-breakdown`);
+  }
+  getCourier(orderId: string) {
+    return this.api.get(`/orders/${orderId}/courier`);
+  }
+
+  getPOD(orderId: string) {
+    return this.api.get(`/orders/${orderId}/pod`);
+  }
+
+  getDocuments(orderId: string) {
+    return this.api.get(`/orders/${orderId}/documents`);
+  }
+
+  getProviderHistory(orderId: string) {
+    return this.api.get(`/orders/${orderId}/history`);
+  }
 }

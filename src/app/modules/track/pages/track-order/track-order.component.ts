@@ -16,6 +16,11 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
   orderId = '';
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   currencySymbol = getCurrencySymbol();
+  autoFollowCourier = true;
+  routeBounds: any;
+  timelineMap: Record<string, Date> = {};
+  pricing: any = null;
+  pricingLoading = false;
   map: any;
   courierMarker: any;
   order: any = null;
@@ -34,14 +39,12 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
   distanceText: string = '';
   courier: any = null;
   courierLoading = false;
-
   statusSteps: string[] = [
     'CREATED',
     'ASSIGNED',
     'PICKED_UP',
     'IN_TRANSIT',
     'DELIVERED',
-    'CANCELLED',
   ];
 
   constructor(
@@ -98,8 +101,20 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.loading = false;
         this.order = res?.data;
+
+        this.buildTimelineMap();
+        this.loadPricingBreakdown();
         this.startTrackingPolling();
         this.loadCourierInfo();
+
+        setTimeout(() => {
+          const pickupLat = Number(this.order?.pickup?.lat);
+          const pickupLng = Number(this.order?.pickup?.lng);
+
+          if (pickupLat && pickupLng && this.mapContainer) {
+            this.initMap(pickupLat, pickupLng);
+          }
+        }, 200);
 
         // if (this.order?.user) {
         //   this.socketService.connect(this.order.user);
@@ -125,6 +140,35 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
           err?.error?.message || 'Unable to fetch order. Please try again.';
       },
     });
+  }
+
+  buildTimelineMap() {
+    this.timelineMap = {};
+
+    if (!this.order?.statusHistory?.length) {
+      return;
+    }
+
+    this.order.statusHistory.forEach((entry: any) => {
+      if (entry.status && entry.timestamp) {
+        this.timelineMap[entry.status] = new Date(entry.timestamp);
+      }
+    });
+  }
+
+  isPositive(value: any): boolean {
+    const num = Number(value);
+    return !isNaN(num) && num > 0;
+  }
+
+  formatAmount(value: any): string {
+    const amount = Number(value);
+
+    if (isNaN(amount)) {
+      return '0.00';
+    }
+
+    return amount.toFixed(2);
   }
 
   calculateETA(courierLat: number, courierLng: number) {
@@ -153,14 +197,29 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
 
   initMap(lat: number, lng: number) {
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-      zoom: 12,
+      zoom: 14,
       center: { lat, lng },
+
+      gestureHandling: 'greedy',
+
+      zoomControl: true,
+      mapTypeControl: true,
+      streetViewControl: false,
+      fullscreenControl: true,
+    });
+
+    this.map.addListener('dragstart', () => {
+      this.autoFollowCourier = false;
     });
 
     this.directionsService = new google.maps.DirectionsService();
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#f97316',
+        strokeWeight: 4,
+      },
     });
 
     this.directionsRenderer.setMap(this.map);
@@ -177,8 +236,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     const dropLat = Number(this.order.drop?.lat);
     const dropLng = Number(this.order.drop?.lng);
 
-    if (!pickupLat || !dropLat) return;
-
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return;
     this.pickupMarker = new google.maps.Marker({
       position: { lat: pickupLat, lng: pickupLng },
       map: this.map,
@@ -209,6 +267,15 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       (result: any, status: any) => {
         if (status === 'OK') {
           this.directionsRenderer.setDirections(result);
+
+          const bounds = new google.maps.LatLngBounds();
+
+          bounds.extend({ lat: pickupLat, lng: pickupLng });
+          bounds.extend({ lat: dropLat, lng: dropLng });
+
+          this.routeBounds = bounds;
+
+          this.map.fitBounds(bounds);
         }
       },
     );
@@ -219,6 +286,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       this.initMap(lat, lng);
     }
 
+    // First courier location
     if (!this.courierMarker) {
       this.courierMarker = new google.maps.Marker({
         position: { lat, lng },
@@ -231,16 +299,26 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
 
       this.previousLat = lat;
       this.previousLng = lng;
+
+      this.map.panTo({ lat, lng });
+
       return;
     }
 
-    if (this.previousLat === null || this.previousLng === null) {
-      this.previousLat = lat;
-      this.previousLng = lng;
+    // Ignore duplicate coordinates
+    if (this.previousLat === lat && this.previousLng === lng) {
+      return;
     }
 
-    this.animateMarker(this.previousLat, this.previousLng, lat, lng);
+    this.animateMarker(
+      this.previousLat as number,
+      this.previousLng as number,
+      lat,
+      lng,
+    );
+
     this.calculateETA(lat, lng);
+
     this.previousLat = lat;
     this.previousLng = lng;
   }
@@ -255,7 +333,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       clearInterval(this.animationInterval);
     }
 
-    const steps = 30;
+    const steps = 60;
     let step = 0;
 
     const deltaLat = (endLat - startLat) / steps;
@@ -270,12 +348,15 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       const position = new google.maps.LatLng(lat, lng);
 
       this.courierMarker.setPosition(position);
-      this.map.panTo(position);
+
+      if (this.autoFollowCourier) {
+        this.map.panTo(position);
+      }
 
       if (step >= steps) {
         clearInterval(this.animationInterval);
       }
-    }, 300);
+    }, 80);
   }
 
   getVehicleLabel(): string {
@@ -285,6 +366,78 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
 
     return this.vehicleMap[vehicleType] || 'Courier Vehicle';
   }
+  getEstimatedDuration(order: any): string {
+    const points = order?.rawProviderResponse?.order?.points;
+
+    if (!points || points.length < 2) return 'Calculating';
+
+    const pickup = points[0];
+    const drop = points[1];
+
+    if (!pickup?.latitude || !drop?.latitude) return 'Calculating';
+
+    const lat1 = Number(pickup.latitude);
+    const lng1 = Number(pickup.longitude);
+    const lat2 = Number(drop.latitude);
+    const lng2 = Number(drop.longitude);
+
+    const R = 6371;
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c;
+
+    const avgSpeed = 30;
+
+    const durationMinutes = Math.round((distance / avgSpeed) * 60);
+
+    return durationMinutes + ' mins';
+  }
+
+  getEstimatedDistance(order: any): string {
+    const points = order?.rawProviderResponse?.order?.points;
+
+    if (!points || points.length < 2) return 'Calculating';
+
+    const pickup = points[0];
+    const drop = points[1];
+
+    if (!pickup?.latitude || !drop?.latitude) return 'Calculating';
+
+    const lat1 = Number(pickup.latitude);
+    const lng1 = Number(pickup.longitude);
+    const lat2 = Number(drop.latitude);
+    const lng2 = Number(drop.longitude);
+
+    const R = 6371;
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c;
+
+    return distance.toFixed(1) + ' km';
+  }
+
   viewLiveTracking() {
     if (!this.order?._id) return;
 
@@ -293,14 +446,20 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
         const points = res?.data?.points;
 
         if (!points?.length) {
-          this.error = 'Courier location not available yet';
           return;
         }
 
         const courierPoint = points.find((p: any) => p.delivery);
 
+        // If courier GPS not available yet → show pickup route
         if (!courierPoint?.latitude) {
-          console.log('Courier location not started yet');
+          const pickupLat = Number(this.order.pickup?.lat);
+          const pickupLng = Number(this.order.pickup?.lng);
+
+          if (pickupLat && pickupLng) {
+            this.initMap(pickupLat, pickupLng);
+          }
+
           return;
         }
 
@@ -309,15 +468,16 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
 
         this.updateCourierLocation(lat, lng);
 
-        // start live updates
+        // Start polling for live movement
         this.startTrackingPolling();
       },
 
       error: () => {
-        this.error = 'Unable to fetch courier location';
+        console.error('Unable to fetch courier tracking');
       },
     });
   }
+
   startTrackingPolling() {
     if (
       this.order?.status !== 'PICKED_UP' &&
@@ -347,9 +507,26 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
           const lng = Number(courierPoint.longitude);
 
           this.updateCourierLocation(lat, lng);
+          this.loadPricingBreakdown();
         },
       });
     }, APP_CONFIG.TRACKING_POLL_INTERVAL);
+  }
+
+  loadPricingBreakdown() {
+    if (!this.order?._id) return;
+
+    this.pricingLoading = true;
+
+    this.api.get(`/orders/${this.order._id}/pricing-breakdown`).subscribe({
+      next: (res: any) => {
+        this.pricing = res?.data || null;
+        this.pricingLoading = false;
+      },
+      error: () => {
+        this.pricingLoading = false;
+      },
+    });
   }
 
   loadCourierInfo() {
@@ -374,8 +551,62 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
 
     return this.order.statusHistory.some((s: any) => s.status === step);
   }
-  cancel() {
-    this.router.navigate(['/']);
+
+  getStepTimestamp(step: string): string {
+    const date = this.timelineMap[step];
+
+    if (!date) {
+      return 'Waiting';
+    }
+
+    return new Intl.DateTimeFormat('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date);
+  }
+
+  resetTracking() {
+    this.orderId = '';
+    this.order = null;
+    this.error = '';
+
+    this.courier = null;
+    this.pricing = null;
+
+    this.etaText = '';
+    this.distanceText = '';
+
+    this.previousLat = null;
+    this.previousLng = null;
+
+    if (this.trackingInterval) {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+    }
+
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+      this.animationInterval = null;
+    }
+
+    if (this.courierMarker) {
+      this.courierMarker.setMap(null);
+      this.courierMarker = null;
+    }
+
+    if (this.pickupMarker) {
+      this.pickupMarker.setMap(null);
+      this.pickupMarker = null;
+    }
+
+    if (this.dropMarker) {
+      this.dropMarker.setMap(null);
+      this.dropMarker = null;
+    }
+
+    if (this.map) {
+      this.map = null;
+    }
   }
 
   ngOnDestroy(): void {

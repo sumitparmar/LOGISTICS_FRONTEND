@@ -3,19 +3,22 @@
 
         <h1 class="page-title">Track Your Order</h1>
 
+        <!-- SEARCH -->
         <div class="track-card">
 
             <div class="search-row">
+
                 <input type="text" placeholder="Enter Order ID" [(ngModel)]="orderId"
                     (input)="orderId = orderId.trim()" />
 
                 <button class="primary" (click)="trackOrder()" [disabled]="loading">
                     Track
                 </button>
-            </div>
 
-            <div class="actions-row">
-                <button class="cancel" (click)="cancel()">Cancel</button>
+                <button class="secondary reset-btn" (click)="resetTracking()">
+                    Reset
+                </button>
+
             </div>
 
             <div class="error" *ngIf="error">
@@ -24,67 +27,170 @@
 
         </div>
 
-        <!-- ORDER DETAILS CARD -->
-        <div class="details-card" *ngIf="order">
 
-            <div class="details-header">
-                <div>
-                    <h3>Order #{{ order._id }}</h3>
+        <!-- MAIN LAYOUT -->
+        <div class="tracking-layout" *ngIf="order">
+
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+
+                <!-- LIVE ROUTE -->
+                <div class="map-card">
+
+                    <div class="map-header">
+                        <h3>Live Route</h3>
+
+                        <button class="live-btn" (click)="viewLiveTracking()"
+                            *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'">
+                            View Live Tracking
+                        </button>
+                    </div>
+
+                    <div class="tracking-map">
+
+                        <!-- BEFORE PICKUP -->
+                        <div *ngIf="order.status === 'ASSIGNED' || order.status === 'CREATED'" class="waiting-msg">
+                            Courier assigned. Live tracking will start after pickup.
+                        </div>
+
+                        <!-- MAP -->
+                        <div #mapContainer class="map-container" *ngIf="order">
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
-                    {{ order.status }}
-                </span>
+
+                <!-- ROUTE ADDRESSES -->
+                <div class="route-card">
+
+                    <h3>Route</h3>
+
+                    <div class="address-block">
+                        <label>Pickup</label>
+                        <p>{{ order.pickup?.address }}</p>
+                    </div>
+
+                    <div class="address-block">
+                        <label>Drop</label>
+                        <p>{{ order.drop?.address }}</p>
+                    </div>
+
+                </div>
+
+
+                <!-- DELIVERY PROGRESS -->
+                <div class="timeline-card" *ngIf="order.statusHistory?.length">
+
+                    <h3>Delivery Progress</h3>
+
+                    <div class="timeline">
+
+                        <div class="step" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)"
+                            [class.pending]="!isStepDone(step)">
+
+                            <div class="step-title">
+                                {{ step.replace('_',' ') }}
+                            </div>
+
+                            <div class="step-time">
+                                {{ getStepTimestamp(step) }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CANCELLED STATE -->
+                <div class="cancelled-block" *ngIf="order.status === 'CANCELLED'">
+
+                    <div class="cancelled-label">
+                        Order Cancelled
+                    </div>
+
+                    <div class="cancelled-time">
+                        {{ getStepTimestamp('CANCELLED') }}
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- ADDRESSES -->
-            <div class="address-block">
-                <label>Pickup Address</label>
-                <p>{{ order.pickup?.address }}</p>
-            </div>
 
-            <div class="address-block">
-                <label>Drop Address</label>
-                <p>{{ order.drop?.address }}</p>
-            </div>
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
 
-            <!-- META -->
-            <div class="meta-grid">
-                <div>
-                    <label>Vehicle</label>
-                    <p>
-                        {{ getVehicleLabel() }} </p>
+                <!-- ORDER SUMMARY -->
+                <div class="summary-card">
+
+                    <div class="details-header">
+
+                        <div>
+                            <h3>Order #{{ order._id }}</h3>
+                        </div>
+
+                        <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
+                            {{ order.status }}
+                        </span>
+
+                    </div>
+
+                    <div class="meta-grid">
+
+                        <div>
+                            <label>Vehicle</label>
+                            <p>{{ getVehicleLabel() }}</p>
+                        </div>
+
+                        <div>
+                            <label>Delivery Type</label>
+                            <p>{{ order.deliveryType }}</p>
+                        </div>
+
+                        <div>
+                            <label>Price</label>
+                            <p>{{ currencySymbol }}{{ order.pricing?.amount }}</p>
+                        </div>
+
+                        <div>
+                            <label>ETA</label>
+
+                            <p *ngIf="etaText; else etaFallback">
+                                {{ etaText }}
+                            </p>
+
+                            <ng-template #etaFallback>
+                                <p>{{ getEstimatedDuration(order) }}</p>
+                            </ng-template>
+
+                        </div>
+
+                        <div>
+                            <label>Distance</label>
+
+                            <p *ngIf="distanceText; else distanceFallback">
+                                {{ distanceText }}
+                            </p>
+
+                            <ng-template #distanceFallback>
+                                <p>{{ getEstimatedDistance(order) }}</p>
+                            </ng-template>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <label>Delivery Type</label>
-                    <p>{{ order.deliveryType }}</p>
-                </div>
 
-                <div>
-                    <label>Price</label>
-                    <p>{{ currencySymbol }}{{ order.pricing?.amount }}</p>
-                </div>
-
-                <div>
-                    <label>ETA</label>
-                    <p *ngIf="etaText">{{ etaText }}</p>
-                    <p *ngIf="order.status !== 'PICKED_UP' && order.status !== 'IN_TRANSIT'">
-                        Available after pickup
-                    </p>
-                </div>
-
-                <div>
-                    <label>Distance</label>
-                    <p *ngIf="distanceText">{{ distanceText }}</p>
-                    <p *ngIf="order.status !== 'PICKED_UP' && order.status !== 'IN_TRANSIT'">
-                        Available after pickup
-                    </p>
-                </div>
-
+                <!-- COURIER -->
                 <div class="courier-card" *ngIf="courier">
 
-                    <h4>Courier Details</h4>
+                    <h3>Courier</h3>
 
                     <div class="courier-grid">
 
@@ -110,42 +216,58 @@
 
                     </div>
 
-                </div>
-                <a *ngIf="courier?.phone" [href]="'tel:' + courier.phone" class="call-btn">
-                    Call Courier
-                </a>
-            </div>
+                    <a *ngIf="courier?.phone" [href]="'tel:' + courier.phone" class="call-btn">
+                        Call Courier
+                    </a>
 
-            <!-- TIMELINE -->
-            <div class="timeline" *ngIf="order.statusHistory?.length">
-                <div class="step" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)">
-                    {{ step.replace('_', ' ') }}
                 </div>
 
-            </div>
 
-            <div class="tracking-map" *ngIf="order">
+                <!-- PRICING -->
+                <div class="pricing-card" *ngIf="pricing">
 
-                <h4>Courier Location</h4>
+                    <h3>Pricing</h3>
 
-                <div *ngIf="order.status === 'ASSIGNED'" class="waiting-msg">
-                    Courier assigned. Live tracking will start after pickup.
+                    <div class="pricing-row">
+                        <span>Delivery Fee</span>
+                        <span>
+                            {{ currencySymbol }}{{ formatAmount(pricing.deliveryFeeAmount) }}
+                        </span>
+                    </div>
+
+                    <div class="pricing-row" *ngIf="isPositive(pricing.codFeeAmount)">
+                        <span>COD Fee</span>
+                        <span>
+                            {{ currencySymbol }}{{ formatAmount(pricing.codFeeAmount) }}
+                        </span>
+                    </div>
+
+                    <div class="pricing-row" *ngIf="isPositive(pricing.waitingFeeAmount)">
+                        <span>Waiting Fee</span>
+                        <span>
+                            {{ currencySymbol }}{{ formatAmount(pricing.waitingFeeAmount) }}
+                        </span>
+                    </div>
+
+                    <div class="pricing-row discount" *ngIf="isPositive(pricing.promoDiscount)">
+                        <span>Promo Discount</span>
+                        <span>
+                            -{{ currencySymbol }}{{ formatAmount(pricing.promoDiscount) }}
+                        </span>
+                    </div>
+
+                    <div class="pricing-total">
+                        <span>Total</span>
+                        <span>
+                            {{ currencySymbol }}{{ formatAmount(pricing.total) }}
+                        </span>
+                    </div>
+
                 </div>
 
-                <div #mapContainer class="map-container"
-                    *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'">
-                </div>
-
-            </div>
-
-
-            <!-- ACTIONS -->
-            <div class="actions">
-                <button class="primary" (click)="viewLiveTracking()">
-                    View Live Tracking
-                </button>
             </div>
 
         </div>
+
     </div>
 </div>

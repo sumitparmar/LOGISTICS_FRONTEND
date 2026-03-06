@@ -8,7 +8,7 @@
 
             <h2>My Orders</h2>
 
-            <a routerLink="/app/create-order" class="create-order-btn">
+            <a routerLink="/app/delivery/create" class="create-order-btn">
                 + New Delivery
             </a>
 
@@ -51,8 +51,7 @@
 
             <div class="status-filters">
 
-                <button (click)="setStatusFilter(null)" [class.active]="!statusFilter">
-
+                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">
                     All
 
                 </button>
@@ -108,8 +107,7 @@
 
         <div class="orders-table" *ngIf="!loading">
 
-            <table *ngIf="orders.length">
-
+            <table *ngIf="filteredOrders.length">
                 <thead>
                     <tr>
 
@@ -145,7 +143,7 @@
 
                 <tbody>
 
-                    <tr *ngFor="let order of orders; trackBy: trackByOrder" class="order-row"
+                    <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="order-row"
                         [ngClass]="'row-' + order.status?.toLowerCase()">
                         <td class="progress-cell">
 
@@ -236,18 +234,27 @@
                         </td>
 
                         <!-- ETA -->
+
                         <td>
+
                             <ng-container
-                                *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else etaPending">
+                                *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
+
                                 {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime | date:'dd MMM
                                 HH:mm' }}
+
                             </ng-container>
 
-                            <ng-template #etaPending>
-                                <span class="eta-pending">
-                                    Calculating
+                            <ng-template #fallbackEta>
+
+                                <span class="eta-estimate">
+
+                                    {{ getEstimatedDuration(order) }}
+
                                 </span>
+
                             </ng-template>
+
                         </td>
 
                         <!-- Price -->
@@ -310,13 +317,12 @@
 
             <!-- Empty State -->
 
-            <div *ngIf="!orders.length" class="orders-empty">
-
+            <div *ngIf="!filteredOrders.length" class="orders-empty">
                 <h3>No deliveries yet</h3>
 
                 <p>Create your first delivery to get started.</p>
 
-                <a routerLink="/app/create-order" class="create-order-btn">
+                <a routerLink="/app/delivery/create" class="create-order-btn">
                     Create Delivery
                 </a>
 

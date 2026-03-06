@@ -5,15 +5,17 @@
         <!-- ================= HEADER ================= -->
 
         <div class="order-header">
-
             <div class="order-title">
                 Order #{{ order.borzoOrderId }}
+            </div>
+
+            <div class="order-meta">
+                Created {{ order.createdAt | date:'medium' }}
             </div>
 
             <div class="status-badge" [ngClass]="order.status?.toLowerCase()">
                 {{ order.status }}
             </div>
-
         </div>
 
 
@@ -57,8 +59,13 @@
 
                             <div class="route-content">
                                 <div class="route-label">Pickup</div>
+
                                 <div class="route-address">
                                     {{ order.pickup?.address }}
+                                </div>
+
+                                <div class="route-contact" *ngIf="order.customer">
+                                    {{ order.customer?.name }} • {{ order.customer?.phone }}
                                 </div>
                             </div>
 
@@ -72,9 +79,15 @@
 
                             <div class="route-content">
                                 <div class="route-label">Drop</div>
+
                                 <div class="route-address">
                                     {{ order.drop?.address }}
                                 </div>
+
+                                <div class="route-contact" *ngIf="order.customer">
+                                    {{ order.customer?.name }} • {{ order.customer?.phone }}
+                                </div>
+
                             </div>
 
                         </div>
@@ -102,31 +115,33 @@
                     <div class="summary-grid">
 
                         <div class="summary-item">
+                            <div class="summary-label">Customer</div>
+                            <div class="summary-value">{{ order.customer?.name }}</div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Phone</div>
+                            <div class="summary-value">{{ order.customer?.phone }}</div>
+                        </div>
+
+                        <div class="summary-item">
                             <div class="summary-label">Vehicle</div>
-                            <div class="summary-value">
-                                {{ order.vehicle?.type || 'Motorbike' }}
-                            </div>
+                            <div class="summary-value">{{ order.vehicle?.type || order.vehicleTypeId }}</div>
                         </div>
 
                         <div class="summary-item">
                             <div class="summary-label">Delivery Type</div>
-                            <div class="summary-value">
-                                {{ order.deliveryType }}
-                            </div>
+                            <div class="summary-value">{{ order.deliveryType }}</div>
                         </div>
 
                         <div class="summary-item">
                             <div class="summary-label">Package</div>
-                            <div class="summary-value">
-                                {{ order.package?.description }}
-                            </div>
+                            <div class="summary-value">{{ order.package?.description }}</div>
                         </div>
 
                         <div class="summary-item">
                             <div class="summary-label">Weight</div>
-                            <div class="summary-value">
-                                {{ order.package?.weight }} kg
-                            </div>
+                            <div class="summary-value">{{ order.package?.weight }} kg</div>
                         </div>
 
                     </div>
@@ -153,7 +168,7 @@
                             <div class="courier-meta">
 
                                 <div class="courier-name">
-                                    {{ order.courier?.name }}
+                                    {{ order.courier?.name }} {{ order.courier?.surname }}
                                 </div>
 
                                 <div class="courier-phone">
@@ -161,6 +176,12 @@
                                 </div>
 
                             </div>
+
+                            <a *ngIf="order.courier?.phone" class="courier-call" [href]="'tel:' + order.courier.phone">
+
+                                Call Courier
+
+                            </a>
 
                         </div>
 
@@ -183,28 +204,124 @@
                         <h3>Pricing</h3>
                     </div>
 
-                    <div class="price-block">
+                    <div class="pricing-breakdown" *ngIf="pricingBreakdown; else basicPrice">
 
-                        <div class="price-label">Total Price</div>
+                        <div class="price-row">
+                            <span>Delivery Fee</span>
+                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.deliveryFeeAmount }}</span>
+                        </div>
 
-                        <div class="price-value">
-                            ₹{{ order.pricing?.amount }}
+                        <div class="price-row" *ngIf="pricingBreakdown.waitingFeeAmount > 0">
+                            <span>Waiting Fee</span>
+                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.waitingFeeAmount }}</span>
+                        </div>
+
+                        <div class="price-row" *ngIf="pricingBreakdown.codFeeAmount > 0">
+                            <span>COD Fee</span>
+                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.codFeeAmount }}</span>
+                        </div>
+
+                        <div class="price-row discount" *ngIf="pricingBreakdown.promoDiscount > 0">
+                            <span>Discount</span>
+                            <span>-{{ order.pricing?.currency }} {{ pricingBreakdown.promoDiscount }}</span>
+                        </div>
+
+                        <div class="price-total">
+                            <span>Total</span>
+                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.total }}</span>
                         </div>
 
                     </div>
 
-                    <div class="track-action">
+                    <ng-template #basicPrice>
+                        <div class="price-block">
+                            <div class="price-label">Total Price</div>
+                            <div class="price-value">
+                                {{ order.pricing?.currency }}
+                                {{ order.pricing?.amount | number:'1.2-2' }}
+                            </div>
+                        </div>
+                    </ng-template>
 
+                    <div class="track-action">
                         <button class="live-track-btn" [routerLink]="['/app/track']"
                             [queryParams]="{ orderId: order._id }">
-
                             Live Tracking
-
                         </button>
+                    </div>
+
+                </div>
+
+
+                <!-- DELIVERY DOCUMENTS -->
+
+                <div class="order-card documents-card" *ngIf="documents">
+
+                    <div class="card-header">
+                        <h3>Delivery Documents</h3>
+                    </div>
+
+                    <div class="documents-list">
+
+                        <a *ngIf="documents.waybillUrl" [href]="documents.waybillUrl" target="_blank" class="doc-link">
+                            Download Waybill
+                        </a>
+
+                        <a *ngIf="documents.itineraryUrl" [href]="documents.itineraryUrl" target="_blank"
+                            class="doc-link">
+                            Download Itinerary
+                        </a>
+
+                        <div *ngIf="!documents.waybillUrl && !documents.itineraryUrl" class="empty-state">
+                            Documents will appear after courier assignment
+                        </div>
 
                     </div>
 
                 </div>
+
+
+                <!-- PROOF OF DELIVERY -->
+
+                <div class="order-card pod-card" *ngIf="order.status === 'DELIVERED'">
+
+                    <div class="card-header">
+                        <h3>Proof of Delivery</h3>
+                    </div>
+
+                    <div *ngIf="podData; else noPOD">
+
+                        <div class="pod-images">
+
+                            <div *ngIf="podData.placePhotoUrl" class="pod-image">
+                                <img [src]="podData.placePhotoUrl">
+                                <div class="pod-label">Delivery Location</div>
+                            </div>
+
+                            <div *ngIf="podData.signPhotoUrl" class="pod-image">
+                                <img [src]="podData.signPhotoUrl">
+                                <div class="pod-label">Customer Signature</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <ng-template #noPOD>
+                        <div class="empty-state">
+                            Proof of delivery not available yet
+                        </div>
+                    </ng-template>
+
+                </div>
+
+
+                <!-- CANCEL ORDER -->
+
+                <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="cancel-order-btn"
+                    (click)="openCancelModal()">
+                    Cancel Order
+                </button>
 
 
                 <!-- DELIVERY PROGRESS -->
@@ -217,29 +334,18 @@
 
                     <div class="progress-bar">
 
-                        <div class="progress-step" [class.active]="isStepActive('CREATED')">
-                            Created
-                        </div>
-
-                        <div class="progress-step" [class.active]="isStepActive('ASSIGNED')">
-                            Assigned
-                        </div>
-
-                        <div class="progress-step" [class.active]="isStepActive('PICKED_UP')">
-                            Picked Up
-                        </div>
-
-                        <div class="progress-step" [class.active]="isStepActive('IN_TRANSIT')">
-                            In Transit
-                        </div>
-
-                        <div class="progress-step" [class.active]="isStepActive('DELIVERED')">
-                            Delivered
-                        </div>
+                        <div class="progress-step" [class.active]="isStepActive('CREATED')">Created</div>
+                        <div class="progress-step" [class.active]="isStepActive('ASSIGNED')">Assigned</div>
+                        <div class="progress-step" [class.active]="isStepActive('PICKED_UP')">Picked Up</div>
+                        <div class="progress-step" [class.active]="isStepActive('IN_TRANSIT')">In Transit</div>
+                        <div class="progress-step" [class.active]="isStepActive('DELIVERED')">Delivered</div>
 
                     </div>
 
                 </div>
+
+
+                <!-- TIMELINE -->
 
                 <div class="order-card timeline-card">
 
@@ -261,7 +367,7 @@
                                 </div>
 
                                 <div class="timeline-time" *ngIf="getStatusTimestamp(step)">
-                                    {{ getStatusTimestamp(step) }}
+                                    {{ getStatusTimestamp(step) | date:'medium' }}
                                 </div>
 
                             </div>
@@ -284,27 +390,17 @@
                     <div class="estimate-grid">
 
                         <div class="estimate-item">
-
-                            <div class="estimate-label">
-                                Distance
-                            </div>
-
+                            <div class="estimate-label">Distance</div>
                             <div class="estimate-value">
                                 {{ distanceText || 'Available after pickup' }}
                             </div>
-
                         </div>
 
                         <div class="estimate-item">
-
-                            <div class="estimate-label">
-                                ETA
-                            </div>
-
+                            <div class="estimate-label">ETA</div>
                             <div class="estimate-value">
                                 {{ etaText || 'Available after pickup' }}
                             </div>
-
                         </div>
 
                     </div>
@@ -330,6 +426,36 @@
 
 
             </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CANCEL MODAL -->
+
+<div class="cancel-overlay" *ngIf="showCancelModal">
+
+    <div class="cancel-modal">
+
+        <h3>Cancel Order</h3>
+
+        <p>
+            Are you sure you want to cancel this delivery?
+            This action cannot be undone.
+        </p>
+
+        <div class="cancel-actions">
+
+            <button class="cancel-no-btn" (click)="closeCancelModal()">
+                No, Keep Order
+            </button>
+
+            <button class="cancel-yes-btn" (click)="confirmCancelOrder()">
+                Yes, Cancel Order
+            </button>
 
         </div>
 

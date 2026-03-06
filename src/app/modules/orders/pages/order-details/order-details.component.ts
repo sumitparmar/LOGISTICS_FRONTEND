@@ -11,7 +11,13 @@ import { SocketService } from '../../../../core/services/socket.service';
 })
 export class OrderDetailsComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
+  courierInfo: any = null;
+  providerHistory: any = null;
+  documents: any = null;
+  podData: any = null;
   courierPosition: any = null;
+  pricingBreakdown: any = null;
+  showCancelModal = false;
   animationFrame: any = null;
   courierMarker: any = null;
   trackingInterval: any = null;
@@ -55,7 +61,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.order = res?.data || res;
         this.loading = false;
-
+        this.loadPricingBreakdown();
+        this.loadCourier();
+        this.loadDocuments();
+        this.loadProviderHistory();
         const userId = this.order.user;
 
         this.socketService.connect(userId);
@@ -65,6 +74,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
             this.order.status = data.status;
           }
         });
+        if (this.order.status === 'DELIVERED') {
+          this.loadPOD();
+        }
 
         setTimeout(() => {
           if (this.mapContainer) {
@@ -79,6 +91,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   initializeMap() {
+    if (!this.mapContainer?.nativeElement) return;
     const points = this.order?.rawProviderResponse?.order?.points;
 
     if (!points || points.length === 0) return;
@@ -147,7 +160,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     const date = new Date(record.timestamp);
 
-    return date.toLocaleString();
+    return record.timestamp;
   }
 
   statusLabel(status: string): string {
@@ -248,6 +261,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     }, 5000); // update every 5 seconds
   }
 
+  cancelOrder() {
+    this.ordersService.cancelOrder(this.order._id).subscribe(() => {
+      this.loadOrder();
+    });
+  }
+
   ngOnDestroy(): void {
     if (this.trackingInterval) {
       clearInterval(this.trackingInterval);
@@ -290,5 +309,100 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     };
 
     animate();
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancelOrder(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.cancelOrder(this.order._id).subscribe({
+      next: () => {
+        this.showCancelModal = false;
+
+        alert('Order cancelled successfully');
+
+        this.loadOrder();
+      },
+
+      error: (err) => {
+        console.error('Cancel failed', err);
+
+        this.showCancelModal = false;
+      },
+    });
+  }
+
+  loadPricingBreakdown(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getPricingBreakdown(this.order._id).subscribe({
+      next: (res: any) => {
+        this.pricingBreakdown = res.data;
+      },
+
+      error: (err) => {
+        console.error('Pricing breakdown failed', err);
+      },
+    });
+  }
+  loadCourier(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getCourier(this.order._id).subscribe({
+      next: (res: any) => {
+        this.courierInfo = res.data;
+      },
+
+      error: (err) => {
+        console.error('Courier fetch failed', err);
+      },
+    });
+  }
+  loadPOD(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getPOD(this.order._id).subscribe({
+      next: (res: any) => {
+        this.podData = res.data;
+      },
+
+      error: (err) => {
+        console.error('POD fetch failed', err);
+      },
+    });
+  }
+  loadDocuments(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getDocuments(this.order._id).subscribe({
+      next: (res: any) => {
+        this.documents = res.data;
+      },
+
+      error: (err) => {
+        console.error('Documents fetch failed', err);
+      },
+    });
+  }
+
+  loadProviderHistory(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getProviderHistory(this.order._id).subscribe({
+      next: (res: any) => {
+        this.providerHistory = res.data;
+      },
+
+      error: (err) => {
+        console.error('History fetch failed', err);
+      },
+    });
   }
 }
