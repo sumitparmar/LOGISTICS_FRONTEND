@@ -28,7 +28,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('../orders/orders.module').then((m) => m.OrdersModule),
       },
-
+      {
+        path: 'track',
+        loadChildren: () =>
+          import('../track/track.module').then((m) => m.TrackModule),
+      },
       {
         path: 'wallet',
         loadChildren: () =>
@@ -51,6 +55,11 @@ const routes: Routes = [
         path: 'contact',
         loadChildren: () =>
           import('../contact/contact.module').then((m) => m.ContactModule),
+      },
+      {
+        path: 'delivery',
+        loadChildren: () =>
+          import('../delivery/delivery.module').then((m) => m.DeliveryModule),
       },
     ],
   },

@@ -128,8 +128,10 @@ export class HeroComponent implements OnInit, AfterViewInit {
 
         this.loading = false;
 
-        // ✅ IMPORTANT LINE
-        const amount = res?.data?.amount;
+        const amount = res?.data?.amount || null;
+
+        // ✅ set price in parent component
+        this.price = amount;
 
         this.dialog.open(PriceDialogComponent, {
           width: '350px',

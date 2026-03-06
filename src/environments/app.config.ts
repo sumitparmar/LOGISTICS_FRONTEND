@@ -1,0 +1,3 @@
+export const APP_CONFIG = {
+  TRACKING_POLL_INTERVAL: 15000,
+};

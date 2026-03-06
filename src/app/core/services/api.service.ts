@@ -1,28 +1,34 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  private baseUrl = environment.apiBaseUrl;
+  private readonly baseUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 
-  get<T>(url: string) {
-    return this.http.get<T>(`${this.baseUrl}${url}`);
+  private buildUrl(endpoint: string): string {
+    return `${this.baseUrl}${endpoint}`;
   }
 
-  post<T>(url: string, body: any) {
-    return this.http.post<T>(`${this.baseUrl}${url}`, body);
+  get<T>(endpoint: string, params?: any) {
+    const httpParams = new HttpParams({ fromObject: params || {} });
+
+    return this.http.get<T>(this.buildUrl(endpoint), { params: httpParams });
   }
 
-  put<T>(url: string, body: any) {
-    return this.http.put<T>(`${this.baseUrl}${url}`, body);
+  post<T>(endpoint: string, body: any) {
+    return this.http.post<T>(this.buildUrl(endpoint), body);
   }
 
-  delete<T>(url: string) {
-    return this.http.delete<T>(`${this.baseUrl}${url}`);
+  put<T>(endpoint: string, body: any) {
+    return this.http.put<T>(this.buildUrl(endpoint), body);
+  }
+
+  delete<T>(endpoint: string) {
+    return this.http.delete<T>(this.buildUrl(endpoint));
   }
 }

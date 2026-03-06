@@ -117,4 +117,8 @@ export class DashboardComponent implements OnInit {
   trackByOrder(index: number, order: RecentOrder): string {
     return order.id;
   }
+
+  goToBookDelivery(): void {
+    this.router.navigate(['/app/delivery/create']);
+  }
 }

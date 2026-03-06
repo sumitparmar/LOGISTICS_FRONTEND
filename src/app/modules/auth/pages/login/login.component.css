@@ -60,22 +60,16 @@ LEFT SIDE
   position: relative;
 }
 
-/* PAGE TITLE */
-
 .page-title {
-  position: absolute;
-  top: -45px;
-  left: 0;
+  margin-bottom: 30px;
   font-size: 42px;
   font-weight: 800;
   color: #3f6cff;
   text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
-
-/* ================================
-CARD
-================================ */
-
+.mode-switch {
+  margin-bottom: 28px;
+}
 .login-card {
   background: rgba(255, 255, 255, 0.97);
   padding: 42px;
@@ -221,4 +215,45 @@ RESPONSIVE BREAKPOINTS
     max-width: 320px;
     transform: none;
   }
+}
+.mode-switch {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.mode-switch button {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  background: #f5f7fb;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Active */
+.mode-switch button.active {
+  background: linear-gradient(135deg, #2f6bff, #4aa3ff);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 20px rgba(47, 107, 255, 0.35);
+}
+
+/* ERROR MESSAGE */
+
+.error-message {
+  margin-top: 18px;
+  text-align: center;
+  color: #d32f2f;
+  font-size: 14px;
+}
+.otp-switch {
+  margin-top: 16px;
+}
+
+.change-phone {
+  cursor: pointer;
 }

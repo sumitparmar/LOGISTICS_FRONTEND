@@ -1,0 +1,387 @@
+/* ================= PAGE ================= */
+
+.order-page {
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.order-container {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* ================= HEADER ================= */
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.order-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* ================= STATUS BADGE ================= */
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e2e8f0;
+}
+
+.status-badge.created {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-badge.assigned {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-badge.picked_up {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.status-badge.in_transit {
+  background: #fde68a;
+  color: #b45309;
+}
+
+.status-badge.delivered {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ================= LAYOUT ================= */
+
+.order-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.order-left,
+.order-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ================= CARDS ================= */
+
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #eef1f6;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  margin-bottom: 16px;
+}
+
+.card-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ================= MAP ================= */
+
+.map-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-wrapper {
+  width: 100%;
+  height: 380px;
+}
+
+#orderMap {
+  width: 100%;
+  height: 100%;
+}
+
+/* ================= ROUTE ================= */
+
+.route-container {
+  position: relative;
+}
+
+.route-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.route-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.route-icon.pickup {
+  background: #22c55e;
+}
+
+.route-icon.drop {
+  background: #ef4444;
+}
+
+.route-line {
+  height: 26px;
+  border-left: 2px dashed #cbd5f5;
+  margin: 4px 0 6px 5px;
+}
+
+.route-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.route-address {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ================= SUMMARY ================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.summary-item {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.summary-value {
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+/* ================= COURIER ================= */
+
+.courier-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.courier-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff7a00;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.courier-name {
+  font-weight: 600;
+}
+
+.courier-phone {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.empty-state {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ================= PRICING ================= */
+
+.pricing-card {
+  text-align: center;
+}
+
+.price-block {
+  margin: 14px 0 16px;
+}
+
+.price-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.price-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #ff7a00;
+  margin-top: 4px;
+}
+
+.track-action {
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= TRACK BUTTON ================= */
+
+.live-track-btn {
+  background: #ff7a00;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.live-track-btn:hover {
+  background: #e66c00;
+}
+
+.live-track-btn:active {
+  transform: translateY(1px);
+}
+
+/* ================= DELIVERY PROGRESS ================= */
+
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.progress-step {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f1f5f9;
+}
+
+/* ================= DELIVERY ESTIMATE ================= */
+
+.estimate-grid {
+  display: flex;
+  gap: 30px;
+}
+
+.estimate-item {
+  flex: 1;
+}
+
+.estimate-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.estimate-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+/* ================= TRACKING ================= */
+
+.tracking-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tracking-link:hover {
+  text-decoration: underline;
+}
+
+/* ================= LOADING ================= */
+
+.loading {
+  text-align: center;
+  padding: 40px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+  .order-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-wrapper {
+    height: 300px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.progress-step.active {
+  background: #ff7a00;
+  color: white;
+}
+/* ================= TIMELINE ================= */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  margin-top: 4px;
+}
+
+.timeline-dot.active {
+  background: #ff7a00;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.timeline-time {
+  font-size: 12px;
+  color: #64748b;
+}

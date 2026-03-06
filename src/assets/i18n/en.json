@@ -1,0 +1,18 @@
+{
+  "ORDER": {
+    "LOADING": "Loading order...",
+    "ROUTE": "Route",
+    "LIVE_ROUTE": "Live Route",
+    "PICKUP": "Pickup",
+    "DROP": "Drop",
+    "COURIER": "Courier",
+    "PRICING": "Pricing",
+    "TOTAL_PRICE": "Total Price",
+    "DELIVERY_PROGRESS": "Delivery Progress",
+    "DELIVERY_ESTIMATE": "Delivery Estimate",
+    "DISTANCE": "Distance",
+    "ETA": "ETA",
+    "TRACKING": "Tracking",
+    "OPEN_TRACKING": "Open Tracking Page"
+  }
+}

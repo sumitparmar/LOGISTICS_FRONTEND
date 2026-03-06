@@ -1,0 +1,372 @@
+<form [formGroup]="deliveryForm">
+
+    <div class="delivery-page">
+        <div class="delivery-container">
+
+            <!-- HEADER -->
+
+            <div class="delivery-header">
+
+                <h1 class="page-title">Create Delivery</h1>
+
+                <div class="delivery-steps">
+
+                    <div class="step active">
+                        <div class="circle">1</div>
+                        <span>Addresses</span>
+                    </div>
+
+                    <div class="step-line"></div>
+
+                    <div class="step">
+                        <div class="circle">2</div>
+                        <span>Package</span>
+                    </div>
+
+                    <div class="step-line"></div>
+
+                    <div class="step">
+                        <div class="circle">3</div>
+                        <span>Payment</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="delivery-layout">
+
+                <!-- LEFT PANEL -->
+
+                <div class="left-panel">
+
+                    <!-- ROUTE SECTION -->
+
+                    <div class="card-section route-section">
+
+                        <h2>Pickup & Delivery</h2>
+
+                        <div class="route-grid">
+
+                            <!-- PICKUP -->
+
+                            <div class="route-row">
+
+                                <div class="route-step">
+                                    <div class="step-circle">1</div>
+                                    <span class="step-text">From</span>
+                                </div>
+
+                                <div class="route-form">
+
+                                    <div class="route-header">
+                                        <span class="route-title">Pickup Address</span>
+                                    </div>
+
+                                    <input #pickupInput class="form-input" placeholder="Street name & locality *"
+                                        formControlName="pickupAddress" />
+
+                                    <div class="two-col">
+
+                                        <input class="form-input" placeholder="Sender name *"
+                                            formControlName="pickupName" />
+
+                                        <input class="form-input" placeholder="+91 phone *"
+                                            formControlName="pickupPhone" />
+
+                                    </div>
+
+                                    <div class="form-error"
+                                        *ngIf="deliveryForm.get('pickupPhone')?.touched && deliveryForm.get('pickupPhone')?.invalid">
+                                        Phone number must be 10 digits
+                                    </div>
+
+                                    <input class="form-input" placeholder="Landmarks, building, floor etc"
+                                        formControlName="pickupNotes" />
+
+                                </div>
+
+                            </div>
+
+                            <!-- DELIVERY STOPS -->
+
+                            <ng-container formArrayName="stops">
+
+                                <div class="route-row" *ngFor="let stop of stops.controls; let i=index"
+                                    [formGroupName]="i">
+
+                                    <div class="route-step">
+
+                                        <div class="step-circle">
+                                            {{ i + 2 }}
+                                        </div>
+
+                                        <span class="step-text">To</span>
+
+                                    </div>
+
+                                    <div class="route-form">
+
+                                        <div class="route-header">
+
+                                            <span class="route-title">Delivery Address</span>
+
+                                            <button type="button" class="close-stop" *ngIf="stops.length > 1"
+                                                (click)="removeStop(i)">
+                                                <span class="material-icons">close</span>
+                                            </button>
+
+                                        </div>
+
+                                        <input #stopInput class="form-input" placeholder="Street name & locality *"
+                                            formControlName="address" />
+
+                                        <div class="form-error"
+                                            *ngIf="stop.get('address')?.touched && stop.get('address')?.invalid">
+                                            Delivery address is required
+                                        </div>
+
+                                        <div class="two-col">
+
+                                            <input class="form-input" placeholder="Recipient name"
+                                                formControlName="name" />
+
+                                            <input class="form-input" placeholder="+91 phone" formControlName="phone" />
+
+                                        </div>
+
+                                        <input class="form-input" placeholder="Landmarks, building, floor etc"
+                                            formControlName="notes" />
+
+                                    </div>
+
+                                </div>
+
+                            </ng-container>
+
+                        </div>
+
+                        <!-- ACTIONS -->
+
+                        <div class="stop-actions">
+
+                            <button type="button" class="btn-add-stop" (click)="addStop()">
+                                + Add delivery address
+                            </button>
+
+                            <button type="button" class="btn-reorder" (click)="openReorderModal()">
+                                Rearrange addresses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- PACKAGE -->
+
+                    <div class="card-section" formGroupName="package">
+
+                        <h2>Package</h2>
+
+                        <!-- WEIGHT -->
+
+                        <div class="weight-selector">
+
+                            <button type="button" class="weight-option" *ngFor="let weight of weightOptions"
+                                [class.active]="deliveryForm.get('package.weight')?.value === weight"
+                                (click)="selectWeight(weight)">
+                                Up to {{ weight }} kg
+                            </button>
+
+                        </div>
+
+                        <!-- CATEGORY -->
+
+                        <div class="package-categories">
+
+                            <span class="category" *ngFor="let category of packageCategories"
+                                [class.active]="deliveryForm.get('package.category')?.value === category"
+                                (click)="deliveryForm.get('package.category')?.setValue(category)">
+                                {{ category }}
+                            </span>
+
+                        </div>
+
+                        <input class="form-input" placeholder="What's inside the parcel? *"
+                            formControlName="description" />
+                        <div class="form-error" *ngIf="deliveryForm.get('package.description')?.touched &&
+deliveryForm.get('package.description')?.invalid">
+                            Please describe the parcel
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT PANEL -->
+
+                <div class="right-panel">
+
+
+                    <div class="card-section">
+
+                        <h3>Delivery Speed</h3>
+
+                        <div class="delivery-card" *ngFor="let speed of deliverySpeedOptions"
+                            [class.active]="deliveryForm.get('deliveryType')?.value === speed.code"
+                            (click)="selectDeliveryType(speed.code)">
+
+                            <span class="material-icons delivery-icon">
+                                {{ speed.icon }}
+                            </span>
+
+                            <div class="delivery-info">
+                                <h4>{{ speed.title }}</h4>
+                                <p>{{ speed.description }}</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- VEHICLE -->
+
+                    <div class="card-section">
+
+                        <h3>Vehicle Type</h3>
+
+                        <div class="vehicle-card" *ngFor="let vehicle of vehicleOptions"
+                            [class.active]="deliveryForm.get('vehicleTypeId')?.value === vehicle.id"
+                            (click)="selectVehicle(vehicle.id)">
+
+                            <span class="material-icons vehicle-icon">
+                                {{ vehicle.icon }}
+                            </span>
+
+                            <div>
+                                <h4>{{ vehicle.title }}</h4>
+                                <p>{{ vehicle.description }}</p>
+                                <span class="vehicle-limit">{{ vehicle.limit }}</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- INSURANCE -->
+
+                    <div class="card-section">
+
+                        <h4>Secure your parcel</h4>
+
+                        <p class="insurance-text">
+                            Declare parcel value for compensation if parcel is lost or damaged.
+                        </p>
+
+                        <input type="number" class="form-input" placeholder="Parcel value"
+                            formControlName="parcelValue" />
+                    </div>
+                    <div class="card-section">
+
+                        <h4>Route Preview</h4>
+
+                        <div #routeMap class="route-map"></div>
+
+                    </div>
+                    <!-- PRICE SUMMARY -->
+
+                    <div class="card-section price-summary">
+
+                        <h4>Price Summary</h4>
+
+                        <div class="price-row">
+                            <span>Delivery Fee</span>
+                            <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : '—' }}</span>
+                        </div>
+
+                        <div class="price-row">
+                            <span>Insurance</span>
+                            <span>{{ priceSummary.insurance ? ('₹ ' + priceSummary.insurance) : '—' }}</span>
+                        </div>
+
+                        <div class="price-total">
+                            <span>Total</span>
+                            <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : '—' }}</span>
+                        </div>
+
+                        <button type="button" class="btn-price" (click)="calculatePrice()">
+
+                            {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
+
+                        </button>
+
+                    </div>
+
+                    <!-- PAYMENT -->
+
+                    <div class="card-section">
+
+                        <h4>Payment Type</h4>
+
+                        <div class="payment-types">
+
+                            <button type="button" class="payment-option" *ngFor="let payment of paymentOptions"
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === payment.value"
+                                (click)="selectPayment(payment.value)">
+                                {{ payment.label }}
+                            </button>
+
+                        </div>
+
+                        <button type="button" class="btn-submit" (click)="createOrder()"
+                            [disabled]="priceSummary.total === 0">
+                            Create Order
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+<!-- REORDER MODAL -->
+
+<div class="reorder-overlay" *ngIf="showReorderModal">
+
+    <div class="reorder-modal">
+
+        <div class="reorder-header">
+
+            <h3>Rearrange addresses</h3>
+
+            <button type="button" class="modal-close" (click)="closeReorderModal()">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="reorder-item" *ngFor="let stop of stops.controls; let i=index">
+
+            <span class="reorder-number">
+                {{ i + 1 }}
+            </span>
+
+            <span class="reorder-text">
+                Address {{ i + 1 }}
+            </span>
+
+            <span class="drag-icon">☰</span>
+
+        </div>
+
+        <button class="confirm-btn" (click)="closeReorderModal()">
+            Confirm
+        </button>
+
+    </div>
+
+</div>

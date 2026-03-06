@@ -24,7 +24,7 @@
             <!-- LOGIN CARD -->
             <div class="login-card">
 
-                <form [formGroup]="loginForm" (ngSubmit)="submit()">
+                <!-- <form [formGroup]="loginForm" (ngSubmit)="submit()">
 
                     <div class="input-group">
                         <input type="email" placeholder="Email" formControlName="email" />
@@ -45,8 +45,84 @@
                         <a routerLink="/auth/register">Register</a>
                     </p>
 
+                </form> -->
+                <!-- MODE SWITCH -->
+                <div class="mode-switch">
+                    <button type="button" [class.active]="loginMode === 'BUSINESS'" (click)="switchMode('BUSINESS')">
+                        Business Login
+                    </button>
+
+                    <button type="button" [class.active]="loginMode === 'INDIVIDUAL'"
+                        (click)="switchMode('INDIVIDUAL')">
+                        Individual Login
+                    </button>
+                </div>
+
+                <!-- =========================
+     BUSINESS LOGIN
+========================= -->
+                <form *ngIf="loginMode === 'BUSINESS'" [formGroup]="businessForm" (ngSubmit)="submitBusiness()">
+
+                    <div class="input-group">
+                        <input type="email" placeholder="Email" formControlName="email" />
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" placeholder="Password" formControlName="password" />
+                    </div>
+
+                    <a class="forgot">Forgot password?</a>
+
+                    <button type="submit" [disabled]="loading">
+                        {{ loading ? 'Logging in...' : 'Login' }}
+                    </button>
+
+                    <p class="switch">
+                        Don’t have an account?
+                        <a routerLink="/auth/register">Register</a>
+                    </p>
                 </form>
 
+                <!-- =========================
+     INDIVIDUAL LOGIN
+========================= -->
+                <div *ngIf="loginMode === 'INDIVIDUAL'">
+
+                    <!-- PHONE STEP -->
+                    <form *ngIf="otpStep === 'PHONE'" [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
+
+                        <div class="input-group">
+                            <input type="text" placeholder="Phone Number" formControlName="phone" />
+                        </div>
+
+                        <button type="submit" [disabled]="loading">
+                            {{ loading ? 'Sending OTP...' : 'Send OTP' }}
+                        </button>
+                    </form>
+
+                    <!-- OTP STEP -->
+                    <form *ngIf="otpStep === 'OTP'" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+
+                        <div class="input-group">
+                            <input type="text" placeholder="Enter OTP" formControlName="otp" />
+                        </div>
+
+                        <button type="submit" [disabled]="loading">
+                            {{ loading ? 'Verifying...' : 'Verify OTP' }}
+                        </button>
+
+                        <p class="switch otp-switch"> Didn’t receive OTP?
+                            <a class="change-phone" (click)="otpStep = 'PHONE'"> Change phone
+                            </a>
+                        </p>
+                    </form>
+
+                </div>
+
+                <!-- ERROR MESSAGE -->
+                <div class="error-message" *ngIf="errorMessage">
+                    {{ errorMessage }}
+                </div>
             </div>
 
         </div>
