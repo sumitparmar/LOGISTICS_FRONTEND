@@ -8,24 +8,23 @@
             <div class="delivery-header">
 
                 <h1 class="page-title">Create Delivery</h1>
-
                 <div class="delivery-steps">
 
-                    <div class="step active">
+                    <div class="step" [class.active]="currentStep === 1">
                         <div class="circle">1</div>
                         <span>Addresses</span>
                     </div>
 
                     <div class="step-line"></div>
 
-                    <div class="step">
+                    <div class="step" [class.active]="currentStep === 2">
                         <div class="circle">2</div>
                         <span>Package</span>
                     </div>
 
                     <div class="step-line"></div>
 
-                    <div class="step">
+                    <div class="step" [class.active]="currentStep === 3">
                         <div class="circle">3</div>
                         <span>Payment</span>
                     </div>
@@ -65,7 +64,10 @@
 
                                     <input #pickupInput class="form-input" placeholder="Street name & locality *"
                                         formControlName="pickupAddress" />
-
+                                    <div class="form-error" *ngIf="deliveryForm.get('pickupAddress')?.touched &&
+deliveryForm.get('pickupAddress')?.invalid">
+                                        Pickup address is required
+                                    </div>
                                     <div class="two-col">
 
                                         <input class="form-input" placeholder="Sender name *"
@@ -134,6 +136,10 @@
                                             <input class="form-input" placeholder="+91 phone" formControlName="phone" />
 
                                         </div>
+                                        <div class="form-error"
+                                            *ngIf="stop.get('phone')?.touched && stop.get('phone')?.invalid">
+                                            Phone number must be 10 digits
+                                        </div>
 
                                         <input class="form-input" placeholder="Landmarks, building, floor etc"
                                             formControlName="notes" />
@@ -198,6 +204,44 @@
 deliveryForm.get('package.description')?.invalid">
                             Please describe the parcel
                         </div>
+                    </div>
+
+
+                    <div class="card-section">
+
+                        <h4>Route Preview</h4>
+
+                        <div #routeMap class="route-map"></div>
+
+                    </div>
+                    <!-- PRICE SUMMARY -->
+                    <div class="pricesummary">
+                        <div class="card-section price-summary">
+
+                            <h4>Price Summary</h4>
+
+                            <div class="price-row">
+                                <span>Delivery Fee</span>
+                                <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : '—' }}</span>
+                            </div>
+
+                            <div class="price-row">
+                                <span>Insurance</span>
+                                <span>{{ priceSummary.insurance ? ('₹ ' + priceSummary.insurance) : '—' }}</span>
+                            </div>
+
+                            <div class="price-total">
+                                <span>Total</span>
+                                <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : '—' }}</span>
+                            </div>
+
+                            <button type="button" class="btn-price" (click)="calculatePrice()"
+                                [disabled]="isCalculatingPrice">
+                                {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
+                            </button>
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -265,64 +309,48 @@ deliveryForm.get('package.description')?.invalid">
                         <input type="number" class="form-input" placeholder="Parcel value"
                             formControlName="parcelValue" />
                     </div>
-                    <div class="card-section">
-
-                        <h4>Route Preview</h4>
-
-                        <div #routeMap class="route-map"></div>
-
-                    </div>
-                    <!-- PRICE SUMMARY -->
-
-                    <div class="card-section price-summary">
-
-                        <h4>Price Summary</h4>
-
-                        <div class="price-row">
-                            <span>Delivery Fee</span>
-                            <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : '—' }}</span>
-                        </div>
-
-                        <div class="price-row">
-                            <span>Insurance</span>
-                            <span>{{ priceSummary.insurance ? ('₹ ' + priceSummary.insurance) : '—' }}</span>
-                        </div>
-
-                        <div class="price-total">
-                            <span>Total</span>
-                            <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : '—' }}</span>
-                        </div>
-
-                        <button type="button" class="btn-price" (click)="calculatePrice()">
-
-                            {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
-
-                        </button>
-
-                    </div>
 
                     <!-- PAYMENT -->
 
                     <div class="card-section">
 
-                        <h4>Payment Type</h4>
+                        <h4>Payment Method</h4>
 
-                        <div class="payment-types">
+                        <div class="payment-section">
 
-                            <button type="button" class="payment-option" *ngFor="let payment of paymentOptions"
-                                [class.active]="deliveryForm.get('paymentMethod')?.value === payment.value"
-                                (click)="selectPayment(payment.value)">
-                                {{ payment.label }}
-                            </button>
+                            <!-- CASH ON DELIVERY -->
+                            <div class="payment-card"
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'CASH'"
+                                (click)="selectPayment('CASH')">
+                                <span class="material-icons payment-icon">payments</span>
+
+                                <div class="payment-info">
+                                    <h4>Cash on Delivery</h4>
+                                    <p>Pay courier when the parcel is delivered</p>
+                                </div>
+                            </div>
+
+                            <!-- ONLINE PAYMENT -->
+                            <div class="payment-card"
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'ONLINE'"
+                                (click)="selectPayment('CARD')">
+                                <span class="material-icons payment-icon">credit_card</span>
+
+                                <div class="payment-info">
+                                    <h4>Pay Online</h4>
+                                    <p>Secure payment via payment gateway</p>
+                                </div>
+                            </div>
 
                         </div>
 
-                        <button type="button" class="btn-submit" (click)="createOrder()"
-                            [disabled]="priceSummary.total === 0">
-                            Create Order
+                        <button type="button" class="btn-submit" (click)="handleCheckout()"
+                            [disabled]="priceSummary.total === 0 || isPaymentProcessing">
+                            {{ isPaymentProcessing ? 'Processing Payment...' : 'Pay & Create Order' }}
                         </button>
 
                     </div>
+
 
                 </div>
 

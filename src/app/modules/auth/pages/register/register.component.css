@@ -1,7 +1,3 @@
-/* ================================
-PAGE
-================================ */
-
 .login-page {
   min-height: 100vh;
   background: url("/assets/images/auth-bg.png") no-repeat center center / cover;
@@ -9,83 +5,73 @@ PAGE
   flex-direction: column;
 }
 
-/* ================================
-HEADER
-================================ */
-
+/* HEADER */
 .top-header {
   height: 70px;
-  padding: 0 6vw;
+  padding: 0 var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.85);
   box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .logo {
-  font-size: 22px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: #1e3c72;
 }
 
+.top-header nav {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
 .top-header nav a {
-  margin-left: 28px;
   text-decoration: none;
   color: #333;
   font-weight: 500;
 }
 
-/* ================================
-HERO
-================================ */
-
+/* HERO */
 .hero {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 60px 6vw;
+  padding: var(--spacing-lg);
   box-sizing: border-box;
 }
 
-/* ================================
-LEFT SIDE
-================================ */
-
+/* LEFT */
 .hero-left {
   flex: 1;
-  max-width: 480px;
+  min-width: 0;
 }
 
-/* FIXED TITLE POSITION */
-
 .page-title {
-  font-size: 42px;
+  font-size: var(--font-xxl);
   font-weight: 800;
   color: #3f6cff;
   text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-md);
 }
 
-/* ================================
-CARD
-================================ */
-
+/* CARD */
 .login-card {
   background: rgba(255, 255, 255, 0.96);
-  padding: 24px 26px;
+  padding: var(--spacing-md);
   border-radius: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
   box-sizing: border-box;
 }
 
 /* INPUTS */
-
 .input-group {
-  margin-bottom: 22px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .input-group input {
@@ -94,14 +80,13 @@ CARD
   border-radius: 14px;
   border: none;
   background: #eef4ff;
-  padding: 0 18px;
-  font-size: 15px;
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-md);
   outline: none;
   box-sizing: border-box;
 }
 
 /* BUTTON */
-
 button {
   width: 100%;
   height: 54px;
@@ -109,18 +94,16 @@ button {
   border: none;
   background: linear-gradient(135deg, #2f6bff, #4aa3ff);
   color: white;
-  font-size: 16px;
+  font-size: var(--font-md);
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(47, 107, 255, 0.45);
 }
 
 /* SWITCH */
-
 .switch {
-  margin-top: 18px;
+  margin-top: var(--spacing-sm);
   text-align: center;
-  font-size: 14px;
+  font-size: var(--font-md);
 }
 
 .switch a {
@@ -129,12 +112,10 @@ button {
   font-weight: 600;
 }
 
-/* ================================
-RIGHT SIDE IMAGE
-================================ */
-
+/* RIGHT IMAGE */
 .hero-image {
   flex: 1;
+  min-width: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -146,23 +127,17 @@ RIGHT SIDE IMAGE
   height: auto;
 }
 
-/* ================================
-FOOTER
-================================ */
-
+/* FOOTER */
 .footer {
   height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
+  font-size: var(--font-sm);
 }
 
-/* ================================
-RESPONSIVE
-================================ */
-
+/* RESPONSIVE */
 @media (max-width: 1024px) {
   .hero-image img {
     max-width: 420px;
@@ -176,14 +151,29 @@ RESPONSIVE
   }
 
   .hero-left {
-    max-width: 100%;
+    width: 100%;
   }
 
   .hero-image {
-    margin-top: 40px;
+    margin-top: var(--spacing-lg);
   }
 
   .hero-image img {
     max-width: 320px;
+  }
+
+  .top-header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: var(--font-xl);
+  }
+
+  .login-card {
+    padding: var(--spacing-sm);
   }
 }

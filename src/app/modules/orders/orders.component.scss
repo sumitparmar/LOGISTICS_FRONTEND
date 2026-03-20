@@ -1,8 +1,8 @@
 .orders-page {
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
+  padding: 24px;
   background: #f8fafc;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .order-id-cell {
@@ -472,4 +472,64 @@
 
 .row-delivered {
   background: transparent;
+}
+.cancel-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.cancel-modal {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 360px;
+  max-width: 90%;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-modal h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cancel-modal p {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.cancel-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-keep-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #e5e7eb;
+  cursor: pointer;
+}
+
+.cancel-confirm-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
 }

@@ -175,6 +175,17 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     return map[status] || status;
   }
 
+  getVehicleLabel(id: number): string {
+    const map: Record<number, string> = {
+      7: 'Bike Courier',
+      8: 'Bike Courier',
+      9: 'Mini Truck',
+      10: 'Truck',
+    };
+
+    return map[id] || 'Vehicle';
+  }
+
   addMarkers(
     pickupLat: number,
     pickupLng: number,

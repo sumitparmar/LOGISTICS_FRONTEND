@@ -15,6 +15,7 @@ interface LoginResponse {
 })
 export class AuthService {
   private tokenKey = 'LOGISTICS_TOKEN';
+  private userKey = 'LOGISTICS_USER';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken(),
@@ -32,6 +33,7 @@ export class AuthService {
       tap((res) => {
         if (res?.data?.token) {
           this.setToken(res.data.token);
+          this.setUser(res.data.user); // ← store user
           this.isAuthenticatedSubject.next(true);
         }
       }),
@@ -59,11 +61,12 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('LOGISTICS_TOKEN');
+    return localStorage.getItem(this.tokenKey);
   }
 
   removeToken() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey); // remove user on logout
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -73,5 +76,18 @@ export class AuthService {
 
   logout() {
     this.removeToken();
+  }
+
+  // ------------------------
+  // USER MANAGEMENT
+  // ------------------------
+
+  setUser(user: any) {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
+  getUser() {
+    const user = localStorage.getItem(this.userKey);
+    return user ? JSON.parse(user) : null;
   }
 }

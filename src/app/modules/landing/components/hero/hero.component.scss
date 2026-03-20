@@ -1,21 +1,17 @@
-/* ================================
-   HERO BASE
-================================ */
-
 .hero {
   min-height: 84vh;
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   display: flex;
   align-items: center;
-  padding: 0 8%;
+  padding: 0 var(--spacing-lg);
   color: #fff;
 }
 
 .hero-content {
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-lg);
 }
 
 /* ================================
@@ -23,25 +19,26 @@
 ================================ */
 
 .hero-left {
-  max-width: 520px;
+  flex: 1;
+  min-width: 0; /* 🔥 prevents overflow */
 }
 
 .hero-title {
-  font-size: 54px;
+  font-size: var(--font-xxl);
   font-weight: 800;
   line-height: 1.1;
 }
 
 .hero-sub {
-  margin-top: 18px;
-  font-size: 18px;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-lg);
   opacity: 0.9;
 }
 
 .hero-chips {
-  margin-top: 16px;
+  margin-top: var(--spacing-sm);
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-xs);
   flex-wrap: wrap;
 }
 
@@ -49,13 +46,15 @@
   background: rgba(255, 255, 255, 0.15);
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: var(--font-md);
+  cursor: pointer;
 }
 
 .hero-buttons {
-  margin-top: 26px;
+  margin-top: var(--spacing-lg);
   display: flex;
-  gap: 16px;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 /* ================================
@@ -63,7 +62,10 @@
 ================================ */
 
 .hero-right {
-  width: 420px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
 }
 
 /* ================================
@@ -72,8 +74,10 @@
 
 .booking-card {
   position: relative;
+  width: 100%;
+  max-width: 420px;
   background: #ffffff;
-  padding: 30px;
+  padding: var(--spacing-lg);
   border-radius: 18px;
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -101,14 +105,14 @@
 
 .booking-card h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-md);
   color: #1e3c72;
   font-weight: 700;
 }
 
 .full {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .quote-btn {
@@ -120,40 +124,25 @@
 }
 
 /* ================================
-   RESPONSIVE
-================================ */
-
-@media (max-width: 900px) {
-  .hero-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .hero-right {
-    width: 100%;
-    margin-top: 40px;
-  }
-}
-/* ================================
    FEATURES SECTION
 ================================ */
 
 .features {
-  padding: 80px 8%;
+  padding: 80px var(--spacing-lg);
   background: #f5f7fb;
 }
 
 .features-container {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  gap: var(--spacing-lg);
 }
 
 .feature-card {
   background: #ffffff;
-  padding: 32px 26px;
+  padding: var(--spacing-lg);
   text-align: center;
   border-radius: 18px;
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
@@ -161,6 +150,49 @@
     transform 0.3s ease,
     box-shadow 0.3s ease;
 }
-.chip {
-  cursor: pointer;
+
+/* ================================
+   RESPONSIVENESS
+================================ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .features-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero-content {
+    flex-direction: column; /* 🔥 stacks */
+    text-align: center;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-right {
+    margin-top: var(--spacing-lg);
+  }
+
+  .features-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .hero {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .hero-title {
+    font-size: var(--font-xl);
+  }
+
+  .hero-sub {
+    font-size: var(--font-md);
+  }
 }

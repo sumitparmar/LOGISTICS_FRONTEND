@@ -28,11 +28,13 @@ const routes: Routes = [
         loadChildren: () =>
           import('../orders/orders.module').then((m) => m.OrdersModule),
       },
+
       {
         path: 'track',
         loadChildren: () =>
           import('../track/track.module').then((m) => m.TrackModule),
       },
+
       {
         path: 'wallet',
         loadChildren: () =>
@@ -40,26 +42,15 @@ const routes: Routes = [
       },
 
       {
-        path: 'pricing',
-        loadChildren: () =>
-          import('../pricing/pricing.module').then((m) => m.PricingModule),
-      },
-
-      {
-        path: 'about',
-        loadChildren: () =>
-          import('../about/about.module').then((m) => m.AboutModule),
-      },
-
-      {
-        path: 'contact',
-        loadChildren: () =>
-          import('../contact/contact.module').then((m) => m.ContactModule),
-      },
-      {
         path: 'delivery',
         loadChildren: () =>
           import('../delivery/delivery.module').then((m) => m.DeliveryModule),
+      },
+
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('../profile/profile.module').then((m) => m.ProfileModule),
       },
     ],
   },

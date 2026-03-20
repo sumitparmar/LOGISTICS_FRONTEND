@@ -69,4 +69,7 @@ export class OrdersService {
   getProviderHistory(orderId: string) {
     return this.api.get(`/orders/${orderId}/history`);
   }
+  getBankCards() {
+    return this.api.get('/borzo/bank-cards');
+  }
 }

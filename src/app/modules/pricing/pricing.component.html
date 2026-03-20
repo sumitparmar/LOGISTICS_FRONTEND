@@ -1,1 +1,164 @@
-<p>pricing works!</p>
+<div class="pricing-page">
+
+    <div class="pricing-container">
+
+        <!-- Header -->
+        <div class="pricing-header">
+            <h2>Pricing</h2>
+        </div>
+
+        <!-- Layout -->
+        <div class="pricing-layout">
+
+            <!-- LEFT COLUMN -->
+            <div class="pricing-left">
+
+                <div class="card">
+
+                    <h3>Delivery Price Calculator</h3>
+
+                    <form [formGroup]="pricingForm">
+
+                        <!-- Pickup -->
+                        <div class="form-group">
+                            <label>Pickup Address</label>
+                            <input #pickupInput type="text" placeholder="Enter pickup address"
+                                formControlName="pickup" />
+                        </div>
+
+                        <!-- Drop -->
+                        <div class="form-group">
+                            <label>Drop Address</label>
+                            <input #dropInput type="text" placeholder="Enter drop address" formControlName="drop" />
+                        </div>
+                        <div class="route-preview"
+                            *ngIf="pricingForm.get('pickup')?.value && pricingForm.get('drop')?.value">
+                            <div class="route-info">
+
+                                <div class="route-item">
+                                    <strong>Distance</strong>
+                                    <span>{{ routeDistance }} km</span>
+                                </div>
+
+                                <div class="route-item">
+                                    <strong>Estimated time</strong>
+                                    <span>{{ routeDuration }}</span>
+                                </div>
+
+                            </div>
+
+                            <div #mapContainer class="route-map"></div>
+                        </div>
+                        <!-- Vehicle -->
+                        <div class="form-group">
+                            <label>Select Vehicle</label>
+
+                            <select formControlName="vehicleTypeId">
+                                <option value="">Select Vehicle</option>
+
+                                <option *ngFor="let vehicle of vehicles" [value]="vehicle.id">
+                                    {{ vehicle.name }} (Max {{ vehicle.maxWeightKg }} kg)
+                                </option>
+                            </select>
+                        </div>
+
+                    </form>
+
+                    <!-- Quick vehicle -->
+                    <div class="vehicle-cards">
+
+                        <h4>Quick Vehicle Selection</h4>
+
+                        <div class="vehicle-grid">
+
+                            <div class="vehicle-card" *ngFor="let vehicle of vehicles" (click)="selectVehicle(vehicle)"
+                                [class.active]="selectedVehicle?.id === vehicle.id">
+
+                                <div class="vehicle-title">
+                                    {{ vehicle.name }}
+                                </div>
+
+                                <div class="vehicle-meta">
+                                    Max {{ vehicle.maxWeightKg }} kg
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <button type="button" class="calculate-btn" (click)="calculate()" [disabled]="loading">
+
+                        {{ loading ? 'Calculating...' : 'Calculate Price' }}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="pricing-right">
+
+                <div class="card">
+
+                    <h3>Estimated Price</h3>
+
+                    <div *ngIf="priceResult; else noPrice">
+
+                        <div class="price-box">
+
+                            <div class="price">
+                                ₹{{ priceResult.amount }}
+                            </div>
+
+                            <div class="price-label">
+                                Estimated delivery charge
+                            </div>
+
+                            <div class="vehicle-info" *ngIf="selectedVehicle">
+
+                                <p>
+                                    Vehicle:
+                                    <strong>{{ selectedVehicle.name }}</strong>
+                                </p>
+
+                                <p>
+                                    Capacity:
+                                    {{ selectedVehicle.maxWeightKg }} kg
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Placeholder -->
+                    <ng-template #noPrice>
+
+                        <div class="placeholder">
+
+                            <div class="placeholder-icon">₹</div>
+
+                            <h4>No Price Calculated</h4>
+
+                            <p>
+                                Enter pickup and drop locations and choose a vehicle
+                                to see the delivery estimate.
+                            </p>
+
+                        </div>
+
+                    </ng-template>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

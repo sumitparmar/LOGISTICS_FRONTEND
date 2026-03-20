@@ -2,8 +2,6 @@
 
     <div class="order-container" *ngIf="order">
 
-        <!-- ================= HEADER ================= -->
-
         <div class="order-header">
             <div class="order-title">
                 Order #{{ order.borzoOrderId }}
@@ -13,25 +11,16 @@
                 Created {{ order.createdAt | date:'medium' }}
             </div>
 
-            <div class="status-badge" [ngClass]="order.status?.toLowerCase()">
+            <div class="status-badge" [ngClass]="order.status ? order.status.toLowerCase() : ''">
                 {{ order.status }}
             </div>
         </div>
 
-
-        <!-- ================= MAIN LAYOUT ================= -->
-
         <div class="order-layout">
-
-
-            <!-- ================= LEFT COLUMN ================= -->
 
             <div class="order-left">
 
-                <!-- MAP CARD -->
-
                 <div class="order-card map-card">
-
                     <div class="card-header">
                         <h3>Live Route</h3>
                     </div>
@@ -39,14 +28,9 @@
                     <div class="map-wrapper">
                         <div #mapContainer id="orderMap"></div>
                     </div>
-
                 </div>
 
-
-                <!-- ROUTE CARD -->
-
                 <div class="order-card route-card">
-
                     <div class="card-header">
                         <h3>Route</h3>
                     </div>
@@ -54,7 +38,6 @@
                     <div class="route-container">
 
                         <div class="route-row">
-
                             <div class="route-icon pickup"></div>
 
                             <div class="route-content">
@@ -68,13 +51,11 @@
                                     {{ order.customer?.name }} • {{ order.customer?.phone }}
                                 </div>
                             </div>
-
                         </div>
 
                         <div class="route-line"></div>
 
                         <div class="route-row">
-
                             <div class="route-icon drop"></div>
 
                             <div class="route-content">
@@ -87,27 +68,17 @@
                                 <div class="route-contact" *ngIf="order.customer">
                                     {{ order.customer?.name }} • {{ order.customer?.phone }}
                                 </div>
-
                             </div>
-
                         </div>
 
                     </div>
-
                 </div>
 
             </div>
 
-
-            <!-- ================= RIGHT COLUMN ================= -->
-
             <div class="order-right">
 
-
-                <!-- ORDER SUMMARY -->
-
                 <div class="order-card summary-card">
-
                     <div class="card-header">
                         <h3>Order Summary</h3>
                     </div>
@@ -126,7 +97,10 @@
 
                         <div class="summary-item">
                             <div class="summary-label">Vehicle</div>
-                            <div class="summary-value">{{ order.vehicle?.type || order.vehicleTypeId }}</div>
+                            <div class="summary-value">
+                                {{ order.vehicle?.type ? getVehicleLabel(order.vehicle?.type) :
+                                getVehicleLabel(order.vehicleTypeId) }}
+                            </div>
                         </div>
 
                         <div class="summary-item">
@@ -145,14 +119,9 @@
                         </div>
 
                     </div>
-
                 </div>
 
-
-                <!-- COURIER -->
-
                 <div class="order-card courier-card">
-
                     <div class="card-header">
                         <h3>Courier</h3>
                     </div>
@@ -162,7 +131,7 @@
                         <div class="courier-info">
 
                             <div class="courier-avatar">
-                                {{ order.courier?.name?.charAt(0) }}
+                                {{ order.courier?.name ? order.courier.name.charAt(0) : '?' }}
                             </div>
 
                             <div class="courier-meta">
@@ -178,9 +147,7 @@
                             </div>
 
                             <a *ngIf="order.courier?.phone" class="courier-call" [href]="'tel:' + order.courier.phone">
-
                                 Call Courier
-
                             </a>
 
                         </div>
@@ -195,11 +162,7 @@
 
                 </div>
 
-
-                <!-- PRICING -->
-
                 <div class="order-card pricing-card">
-
                     <div class="card-header">
                         <h3>Pricing</h3>
                     </div>
@@ -252,178 +215,10 @@
 
                 </div>
 
-
-                <!-- DELIVERY DOCUMENTS -->
-
-                <div class="order-card documents-card" *ngIf="documents">
-
-                    <div class="card-header">
-                        <h3>Delivery Documents</h3>
-                    </div>
-
-                    <div class="documents-list">
-
-                        <a *ngIf="documents.waybillUrl" [href]="documents.waybillUrl" target="_blank" class="doc-link">
-                            Download Waybill
-                        </a>
-
-                        <a *ngIf="documents.itineraryUrl" [href]="documents.itineraryUrl" target="_blank"
-                            class="doc-link">
-                            Download Itinerary
-                        </a>
-
-                        <div *ngIf="!documents.waybillUrl && !documents.itineraryUrl" class="empty-state">
-                            Documents will appear after courier assignment
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PROOF OF DELIVERY -->
-
-                <div class="order-card pod-card" *ngIf="order.status === 'DELIVERED'">
-
-                    <div class="card-header">
-                        <h3>Proof of Delivery</h3>
-                    </div>
-
-                    <div *ngIf="podData; else noPOD">
-
-                        <div class="pod-images">
-
-                            <div *ngIf="podData.placePhotoUrl" class="pod-image">
-                                <img [src]="podData.placePhotoUrl">
-                                <div class="pod-label">Delivery Location</div>
-                            </div>
-
-                            <div *ngIf="podData.signPhotoUrl" class="pod-image">
-                                <img [src]="podData.signPhotoUrl">
-                                <div class="pod-label">Customer Signature</div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <ng-template #noPOD>
-                        <div class="empty-state">
-                            Proof of delivery not available yet
-                        </div>
-                    </ng-template>
-
-                </div>
-
-
-                <!-- CANCEL ORDER -->
-
                 <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="cancel-order-btn"
-                    (click)="openCancelModal()">
+                    (click)="openCancelModal()" [disabled]="loading">
                     Cancel Order
                 </button>
-
-
-                <!-- DELIVERY PROGRESS -->
-
-                <div class="order-card progress-card">
-
-                    <div class="card-header">
-                        <h3>Delivery Progress</h3>
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div class="progress-step" [class.active]="isStepActive('CREATED')">Created</div>
-                        <div class="progress-step" [class.active]="isStepActive('ASSIGNED')">Assigned</div>
-                        <div class="progress-step" [class.active]="isStepActive('PICKED_UP')">Picked Up</div>
-                        <div class="progress-step" [class.active]="isStepActive('IN_TRANSIT')">In Transit</div>
-                        <div class="progress-step" [class.active]="isStepActive('DELIVERED')">Delivered</div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- TIMELINE -->
-
-                <div class="order-card timeline-card">
-
-                    <div class="card-header">
-                        <h3>Delivery Timeline</h3>
-                    </div>
-
-                    <div class="timeline">
-
-                        <div class="timeline-item"
-                            *ngFor="let step of ['CREATED','ASSIGNED','PICKED_UP','IN_TRANSIT','DELIVERED']">
-
-                            <div class="timeline-dot" [class.active]="isStepActive(step)"></div>
-
-                            <div class="timeline-content">
-
-                                <div class="timeline-title">
-                                    {{ statusLabel(step) }}
-                                </div>
-
-                                <div class="timeline-time" *ngIf="getStatusTimestamp(step)">
-                                    {{ getStatusTimestamp(step) | date:'medium' }}
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- DELIVERY ESTIMATE -->
-
-                <div class="order-card estimate-card">
-
-                    <div class="card-header">
-                        <h3>Delivery Estimate</h3>
-                    </div>
-
-                    <div class="estimate-grid">
-
-                        <div class="estimate-item">
-                            <div class="estimate-label">Distance</div>
-                            <div class="estimate-value">
-                                {{ distanceText || 'Available after pickup' }}
-                            </div>
-                        </div>
-
-                        <div class="estimate-item">
-                            <div class="estimate-label">ETA</div>
-                            <div class="estimate-value">
-                                {{ etaText || 'Available after pickup' }}
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- TRACKING -->
-
-                <div class="order-card tracking-card">
-
-                    <div class="card-header">
-                        <h3>Tracking</h3>
-                    </div>
-
-                    <a class="tracking-link" [routerLink]="['/app/track']" [queryParams]="{ orderId: order._id }">
-
-                        Open Tracking Page
-
-                    </a>
-
-                </div>
-
 
             </div>
 
@@ -433,13 +228,8 @@
 
 </div>
 
-
-<!-- CANCEL MODAL -->
-
 <div class="cancel-overlay" *ngIf="showCancelModal">
-
     <div class="cancel-modal">
-
         <h3>Cancel Order</h3>
 
         <p>
@@ -448,7 +238,6 @@
         </p>
 
         <div class="cancel-actions">
-
             <button class="cancel-no-btn" (click)="closeCancelModal()">
                 No, Keep Order
             </button>
@@ -456,13 +245,10 @@
             <button class="cancel-yes-btn" (click)="confirmCancelOrder()">
                 Yes, Cancel Order
             </button>
-
         </div>
 
     </div>
-
 </div>
-
 
 <div *ngIf="loading" class="loading">
     Loading order...

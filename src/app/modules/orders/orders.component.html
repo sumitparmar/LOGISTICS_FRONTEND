@@ -2,20 +2,13 @@
 
     <div class="orders-container">
 
-        <!-- Header -->
-
         <div class="orders-header">
-
             <h2>My Orders</h2>
 
             <a routerLink="/app/delivery/create" class="create-order-btn">
                 + New Delivery
             </a>
-
         </div>
-
-
-        <!-- Stats Cards -->
 
         <div class="stats-grid">
 
@@ -41,9 +34,6 @@
 
         </div>
 
-
-        <!-- Filters -->
-
         <div class="orders-filters">
 
             <input type="text" placeholder="Search order, pickup, drop..." [(ngModel)]="searchText"
@@ -51,282 +41,239 @@
 
             <div class="status-filters">
 
-                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">
-                    All
+                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">All</button>
+                <button (click)="setStatusFilter('CREATED')"
+                    [class.active]="statusFilter === 'CREATED'">Created</button>
+                <button (click)="setStatusFilter('ASSIGNED')"
+                    [class.active]="statusFilter === 'ASSIGNED'">Assigned</button>
+                <button (click)="setStatusFilter('PICKED_UP')"
+                    [class.active]="statusFilter === 'PICKED_UP'">Picked</button>
+                <button (click)="setStatusFilter('IN_TRANSIT')" [class.active]="statusFilter === 'IN_TRANSIT'">In
+                    Transit</button>
+                <button (click)="setStatusFilter('DELIVERED')"
+                    [class.active]="statusFilter === 'DELIVERED'">Delivered</button>
+                <button (click)="setStatusFilter('CANCELLED')"
+                    [class.active]="statusFilter === 'CANCELLED'">Cancelled</button>
 
-                </button>
-
-                <button (click)="setStatusFilter('CREATED')" [class.active]="statusFilter === 'CREATED'">
-
-                    Created
-
-                </button>
-
-                <button (click)="setStatusFilter('ASSIGNED')" [class.active]="statusFilter === 'ASSIGNED'">
-
-                    Assigned
-
-                </button>
-
-                <button (click)="setStatusFilter('PICKED_UP')" [class.active]="statusFilter === 'PICKED_UP'">
-                    Picked
-
-                </button>
-
-                <button (click)="setStatusFilter('IN_TRANSIT')" [class.active]="statusFilter === 'IN_TRANSIT'">
-                    In Transit
-
-                </button>
-
-                <button (click)="setStatusFilter('DELIVERED')" [class.active]="statusFilter === 'DELIVERED'">
-
-                    Delivered
-
-                </button>
-
-                <button (click)="setStatusFilter('CANCELLED')" [class.active]="statusFilter === 'CANCELLED'">
-
-                    Cancelled
-
-                </button>
             </div>
 
         </div>
 
-
-        <!-- Loading -->
-
         <div *ngIf="loading" class="orders-loading">
-
             <div class="loading-spinner"></div>
-
         </div>
-
-
-        <!-- Orders Table -->
 
         <div class="orders-table" *ngIf="!loading">
 
-            <table *ngIf="filteredOrders.length">
-                <thead>
-                    <tr>
+            <div class="table-wrapper">
 
-                        <th>Progress</th>
-                        <th (click)="sort('borzoOrderId')" class="sortable">
-                            Order ID
-                            <span *ngIf="sortBy === 'borzoOrderId'">
-                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                            </span>
-                        </th>
-                        <th>Pickup</th>
-                        <th>Drop</th>
-                        <th (click)="sort('status')" class="sortable">
-                            Status
-                            <span *ngIf="sortBy === 'status'">
-                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                            </span>
-                        </th>
-                        <th>Vehicle</th>
-                        <th>Courier</th>
-                        <th>ETA</th>
-                        <th (click)="sort('pricing.amount')" class="sortable">
-                            Price
-                            <span *ngIf="sortBy === 'pricing.amount'">
-                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                            </span>
-                        </th>
-                        <th>Actions</th>
+                <table *ngIf="filteredOrders.length">
 
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>Progress</th>
 
-                </thead>
-
-                <tbody>
-
-                    <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="order-row"
-                        [ngClass]="'row-' + order.status?.toLowerCase()">
-                        <td class="progress-cell">
-
-                            <div class="route-tracker">
-
-                                <div *ngFor="let step of statusFlow; let i = index" class="route-step"
-                                    [class.completed]="getStatusIndex(order.status) >= i">
-
-                                    <div class="route-dot"></div>
-
-                                    <div *ngIf="i < statusFlow.length - 1" class="route-line"
-                                        [class.completed]="getStatusIndex(order.status) > i">
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                        <!-- Order ID -->
-                        <td (click)="openOrder(order._id)" class="order-id-cell">
-                            <span class="order-id">
-                                {{ order.borzoOrderId }}
-                            </span>
-                        </td>
-
-                        <!-- Pickup -->
-                        <td>
-                            {{ order.pickup?.address }}
-                        </td>
-
-                        <!-- Drop -->
-                        <td>
-                            {{ order.drop?.address }}
-                        </td>
-
-                        <!-- Status -->
-                        <td>
-                            <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
-                                {{ order.status }}
-                            </span>
-                        </td>
-
-                        <!-- Vehicle -->
-                        <td class="vehicle-cell">
-
-                            <span class="vehicle-icon">
-                                {{ getVehicleIcon(order.vehicleTypeId) }}
-                            </span>
-
-                            <span class="vehicle-label">
-                                {{ getVehicleLabel(order.vehicleTypeId) }}
-                            </span>
-
-                        </td>
-                        <!-- Courier -->
-                        <td>
-
-                            <div *ngIf="order.courier; else noCourier" class="courier-info">
-
-                                <div class="courier-avatar">
-                                    {{ order.courier?.name?.charAt(0) || '?' }}
-                                </div>
-
-                                <div class="courier-meta">
-
-                                    <div class="courier-name">
-                                        {{ order.courier?.name }}
-                                    </div>
-
-                                    <div class="courier-phone">
-                                        {{ order.courier?.phone }}
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <ng-template #noCourier>
-
-                                <span class="no-courier">
-                                    Not assigned
+                            <th (click)="sort('borzoOrderId')" class="sortable">
+                                Order ID
+                                <span *ngIf="sortBy === 'borzoOrderId'">
+                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
+                            </th>
 
-                            </ng-template>
+                            <th>Pickup</th>
+                            <th>Drop</th>
 
-                        </td>
-
-                        <!-- ETA -->
-
-                        <td>
-
-                            <ng-container
-                                *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
-
-                                {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime | date:'dd MMM
-                                HH:mm' }}
-
-                            </ng-container>
-
-                            <ng-template #fallbackEta>
-
-                                <span class="eta-estimate">
-
-                                    {{ getEstimatedDuration(order) }}
-
+                            <th (click)="sort('status')" class="sortable">
+                                Status
+                                <span *ngIf="sortBy === 'status'">
+                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
+                            </th>
 
-                            </ng-template>
+                            <th>Vehicle</th>
+                            <th>Courier</th>
+                            <th>ETA</th>
 
-                        </td>
+                            <th (click)="sort('pricing.amount')" class="sortable">
+                                Price
+                                <span *ngIf="sortBy === 'pricing.amount'">
+                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
 
-                        <!-- Price -->
-                        <td (click)="$event.stopPropagation()">
-                            {{ order.pricing?.amount | currency:'INR':'symbol':'1.0-0' }}
-                        </td>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                        <!-- Actions -->
-                        <td class="actions" (click)="$event.stopPropagation()">
+                    <tbody>
 
+                        <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="order-row"
+                            [ngClass]="'row-' + order.status?.toLowerCase()">
 
-                            <button class="action-btn track-btn" (click)="$event.stopPropagation()"
-                                [routerLink]="['/track']" [queryParams]="{ orderId: order._id }"> Track
-                            </button>
+                            <td class="progress-cell">
+                                <div class="route-tracker">
+                                    <div *ngFor="let step of statusFlow; let i = index" class="route-step"
+                                        [class.completed]="getStatusIndex(order.status) >= i">
 
-                            <button class="action-btn details-btn" (click)="$event.stopPropagation()"
-                                [routerLink]="['/app/orders', order._id]">
-                                Details
-                            </button>
+                                        <div class="route-dot"></div>
 
-                            <button class="action-btn cancel-btn"
-                                (click)="$event.stopPropagation(); cancelOrder(order._id)"
-                                *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'">
-                                Cancel
-                            </button>
+                                        <div *ngIf="i < statusFlow.length - 1" class="route-line"
+                                            [class.completed]="getStatusIndex(order.status) > i">
+                                        </div>
 
-                        </td>
+                                    </div>
+                                </div>
+                            </td>
 
-                    </tr>
+                            <td (click)="openOrder(order._id)" class="order-id-cell">
+                                <span class="order-id">
+                                    {{ order.borzoOrderId }}
+                                </span>
+                            </td>
 
-                </tbody>
+                            <td>{{ order.pickup?.address }}</td>
+                            <td>{{ order.drop?.address }}</td>
 
-            </table>
+                            <td>
+                                <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
+                                    {{ order.status }}
+                                </span>
+                            </td>
 
+                            <td class="vehicle-cell">
+                                <span class="vehicle-icon">
+                                    {{ getVehicleIcon(order.vehicleTypeId) }}
+                                </span>
+                                <span class="vehicle-label">
+                                    {{ getVehicleLabel(order.vehicleTypeId) }}
+                                </span>
+                            </td>
 
+                            <td>
+
+                                <div *ngIf="order.courier; else noCourier" class="courier-info">
+
+                                    <div class="courier-avatar">
+                                        {{ order.courier?.name?.charAt(0) || '?' }}
+                                    </div>
+
+                                    <div class="courier-meta">
+
+                                        <div class="courier-name">
+                                            {{ order.courier?.name }}
+                                        </div>
+
+                                        <div class="courier-phone">
+                                            {{ order.courier?.phone }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <ng-template #noCourier>
+                                    <span class="no-courier">Not assigned</span>
+                                </ng-template>
+
+                            </td>
+
+                            <td>
+
+                                <ng-container
+                                    *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
+                                    {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime | date:'dd
+                                    MMM HH:mm' }}
+                                </ng-container>
+
+                                <ng-template #fallbackEta>
+                                    <span class="eta-estimate">
+                                        {{ getEstimatedDuration(order) }}
+                                    </span>
+                                </ng-template>
+
+                            </td>
+
+                            <td (click)="$event.stopPropagation()">
+                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.0-0' }}
+                            </td>
+
+                            <td class="actions" (click)="$event.stopPropagation()">
+
+                                <button class="action-btn track-btn" [routerLink]="['/track']"
+                                    [queryParams]="{ orderId: order._id }">
+                                    Track
+                                </button>
+
+                                <button class="action-btn details-btn" [routerLink]="['/app/orders', order._id]">
+                                    Details
+                                </button>
+
+                                <button class="action-btn cancel-btn" (click)="openCancelModal(order._id)"
+                                    *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
+                                    Cancel
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
             <div class="orders-pagination">
 
                 <button class="page-btn" (click)="changePage(page - 1)" [disabled]="page === 1">
-
                     Previous
-
                 </button>
 
-                <button class="page-number" *ngFor="let p of [].constructor(getTotalPages() || 1); let i = index"
-                    (click)="changePage(i + 1)" [class.active]="page === i + 1">
-
-                    {{ i + 1 }}
-
+                <button class="page-number" *ngFor="let p of pages" (click)="changePage(p)" [class.active]="page === p">
+                    {{ p }}
                 </button>
 
                 <button class="page-btn" (click)="changePage(page + 1)" [disabled]="page >= getTotalPages()">
-
                     Next
-
                 </button>
 
             </div>
 
-
-            <!-- Empty State -->
-
             <div *ngIf="!filteredOrders.length" class="orders-empty">
                 <h3>No deliveries yet</h3>
-
                 <p>Create your first delivery to get started.</p>
 
                 <a routerLink="/app/delivery/create" class="create-order-btn">
                     Create Delivery
                 </a>
-
             </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="cancel-modal-overlay" *ngIf="showCancelModal">
+
+    <div class="cancel-modal">
+
+        <h3>Cancel Delivery</h3>
+
+        <p>
+            Are you sure you want to cancel this order?
+            This action cannot be undone.
+        </p>
+
+        <div class="cancel-actions">
+
+            <button class="cancel-keep-btn" (click)="closeCancelModal()">
+                Keep Order
+            </button>
+
+            <button class="cancel-confirm-btn" (click)="confirmCancel()">
+                Cancel Delivery
+            </button>
 
         </div>
 

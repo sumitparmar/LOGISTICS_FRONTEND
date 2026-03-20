@@ -10,9 +10,10 @@ import {
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-
+import { Router } from '@angular/router';
 import { OrdersService } from 'src/app/core/services/orders.service';
-
+import { RouteService } from 'src/app/core/services/route.service';
+import { debounceTime } from 'rxjs/operators';
 declare const google: any;
 
 @Component({
@@ -26,15 +27,14 @@ export class CreateDeliveryComponent
   @ViewChild('pickupInput') pickupInput!: ElementRef;
   @ViewChildren('stopInput') stopInputs!: QueryList<ElementRef>;
   @ViewChild('routeMap') routeMap!: ElementRef;
-
   private map: any;
-  private directionsService: any;
   private directionsRenderer: any;
   private stopInputSubscription: any;
   deliveryForm!: FormGroup;
-
+  bankCards: any[] = [];
   private stopAutocompleteInstances: any[] = [];
-
+  isPaymentProcessing = false;
+  paymentCompleted = false;
   isCalculatingPrice = false;
   isCreatingOrder = false;
 
@@ -43,6 +43,7 @@ export class CreateDeliveryComponent
     insurance: 0,
     total: 0,
   };
+  currentStep = 1;
 
   weightOptions = [1, 5, 10, 15, 20];
 
@@ -101,8 +102,8 @@ export class CreateDeliveryComponent
   ];
 
   paymentOptions = [
-    { label: 'Cash', value: 'CASH' },
-    { label: 'Online', value: 'ONLINE' },
+    { label: 'Cash on Delivery', value: 'CASH' },
+    { label: 'Pay via Card', value: 'BANK_CARD' },
   ];
 
   showReorderModal = false;
@@ -110,6 +111,8 @@ export class CreateDeliveryComponent
   constructor(
     private fb: FormBuilder,
     private ordersService: OrdersService,
+    private router: Router,
+    private routeService: RouteService,
   ) {}
 
   ngOnDestroy(): void {
@@ -117,11 +120,94 @@ export class CreateDeliveryComponent
       this.stopInputSubscription.unsubscribe();
     }
 
+    this.stopAutocompleteInstances.forEach((instance) => {
+      if (instance) {
+        google.maps.event.clearInstanceListeners(instance);
+      }
+    });
+
+    if (this.directionsRenderer) {
+      this.directionsRenderer.setMap(null);
+    }
+
     this.stopAutocompleteInstances = [];
   }
 
   ngOnInit(): void {
     this.initializeForm();
+
+    this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
+      if (!this.canAutoCalculate()) return;
+
+      this.resetPrice();
+
+      this.calculatePrice();
+    });
+    this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
+      this.resetPrice();
+    });
+
+    this.deliveryForm.get('package.description')?.valueChanges.subscribe(() => {
+      this.resetPrice();
+    });
+  }
+  canAutoCalculate(): boolean {
+    const form = this.deliveryForm.value;
+
+    if (!form.pickupLat || !form.pickupLng) return false;
+
+    if (!form.vehicleTypeId) return false;
+
+    if (!form.package?.description) return false;
+
+    if (!form.stops?.length) return false;
+
+    const lastStop = form.stops[form.stops.length - 1];
+
+    if (!lastStop?.lat || !lastStop?.lng) return false;
+
+    return true;
+  }
+  loadBankCards(): void {
+    this.ordersService.getBankCards().subscribe({
+      next: (res: any) => {
+        console.log('BANK CARDS RESPONSE:', res);
+
+        this.bankCards = res.data;
+      },
+      error: (err) => {
+        console.error('Failed to load bank cards', err);
+      },
+    });
+  }
+  handleCheckout(): void {
+    const form = this.deliveryForm.value;
+
+    if (!this.priceSummary.total) {
+      alert('Please calculate price first');
+      return;
+    }
+
+    const paymentMethod = form.paymentMethod;
+
+    if (paymentMethod === 'CASH') {
+      this.createOrder();
+      return;
+    }
+
+    // Temporary block until gateway API exists
+    alert('Online payment will be available soon');
+  }
+
+  processOnlinePayment(): void {
+    // this.isPaymentProcessing = true;
+    // // Temporary mock payment
+    // // Replace later with Razorpay / your gateway
+    // setTimeout(() => {
+    //   this.isPaymentProcessing = false;
+    //   this.paymentCompleted = true;
+    //   this.createOrder();
+    // }, 1500);
   }
 
   ngAfterViewInit(): void {
@@ -143,15 +229,12 @@ export class CreateDeliveryComponent
       vehicleTypeId: vehicleId,
     });
 
-    const hadPrice = this.priceSummary.total > 0;
-
     this.resetPrice();
 
-    if (hadPrice) {
+    if (this.canAutoCalculate()) {
       this.calculatePrice();
     }
   }
-
   initializeForm(): void {
     this.deliveryForm = this.fb.group({
       pickupAddress: ['', Validators.required],
@@ -175,6 +258,8 @@ export class CreateDeliveryComponent
 
       deliveryType: ['NOW', Validators.required],
       paymentMethod: ['CASH', Validators.required],
+      bankCardId: [null], // ADD THIS
+
       vehicleTypeId: [1, Validators.required],
 
       parcelValue: [0],
@@ -220,37 +305,40 @@ export class CreateDeliveryComponent
   }
 
   async calculatePrice(): Promise<void> {
-    if (this.deliveryForm.invalid) {
-      this.deliveryForm.markAllAsTouched();
-      alert('Please fill all required fields before calculating price');
+    if (this.isCalculatingPrice) {
+      return;
+    }
+    this.currentStep = 2;
+
+    if (!this.canAutoCalculate()) {
       return;
     }
 
     const form = this.deliveryForm.value;
 
-    if (!form.pickupLat || !form.pickupLng) {
-      alert('Please select pickup address from suggestions');
-      return;
-    }
+    // if (!form.pickupLat || !form.pickupLng) {
+    //   alert('Please select pickup address from suggestions');
+    //   return;
+    // }
 
-    for (const stop of form.stops) {
-      if (!stop.lat || !stop.lng) {
-        alert('Please select delivery address from suggestions');
-        return;
-      }
-    }
+    // for (const stop of form.stops) {
+    //   if (!stop.lat || !stop.lng) {
+    //     alert('Please select delivery address from suggestions');
+    //     return;
+    //   }
+    // }
 
     this.isCalculatingPrice = true;
 
     try {
-      const distance = await this.calculateRouteDistance();
+      // const distance = await this.calculateRouteDistance();
 
       const payload = {
         matter: form.package.description,
 
         vehicleTypeId: form.vehicleTypeId,
 
-        distance: distance,
+        // distance: distance,
 
         pickup: {
           address: form.pickupAddress,
@@ -282,20 +370,23 @@ export class CreateDeliveryComponent
       this.isCalculatingPrice = false;
     }
   }
-
   createOrder(): void {
-    if (this.deliveryForm.invalid) {
-      this.deliveryForm.markAllAsTouched();
-      return;
-    }
+    const form = this.deliveryForm.value;
 
     if (!this.priceSummary.total) {
       alert('Please calculate price first');
       return;
     }
 
+    if (this.deliveryForm.invalid) {
+      this.deliveryForm.markAllAsTouched();
+      this.scrollToFirstInvalidField();
+      return;
+    }
+
     this.isCreatingOrder = true;
-    const form = this.deliveryForm.value;
+
+    const lastStop = form.stops[form.stops.length - 1];
 
     const payload = {
       matter: form.package.description,
@@ -316,9 +407,9 @@ export class CreateDeliveryComponent
       },
 
       drop: {
-        address: form.stops[form.stops.length - 1].address,
-        lat: form.stops[form.stops.length - 1].lat,
-        lng: form.stops[form.stops.length - 1].lng,
+        address: lastStop.address,
+        lat: lastStop.lat,
+        lng: lastStop.lng,
       },
 
       stops: [
@@ -330,52 +421,59 @@ export class CreateDeliveryComponent
           phone: form.pickupPhone,
           name: form.pickupName,
         },
-
-        ...form.stops.map((stop: any) => ({
+        {
           type: 'DROP',
-          address: stop.address,
-          lat: stop.lat,
-          lng: stop.lng,
-          phone: stop.phone,
-          name: stop.name,
-        })),
+          address: lastStop.address,
+          lat: lastStop.lat,
+          lng: lastStop.lng,
+          phone: lastStop.phone,
+          name: lastStop.name,
+        },
       ],
 
       package: {
         weight: form.package.weight,
         category: form.package.category,
         description: form.package.description,
+        declaredValue: form.parcelValue || 0,
       },
 
       payment: {
         method: form.paymentMethod,
+        feePayer: 'DROP',
       },
-
-      declaredValue: form.parcelValue || 0,
     };
 
     this.ordersService.createOrder(payload).subscribe({
       next: (res: any) => {
-        console.log('Order created', res);
-
-        alert('Order created successfully');
-
         this.isCreatingOrder = false;
+
+        const orderId = res?.data?._id;
+
+        this.router.navigate(['/app/orders', orderId]);
       },
 
       error: (err) => {
-        console.error('Order creation failed', err);
         this.isCreatingOrder = false;
+
+        this.resetPrice();
+
+        const message =
+          err?.error?.message ||
+          err?.error?.errors?.[0] ||
+          'Order creation failed. Please try again.';
+
+        alert(message);
       },
     });
   }
 
   selectPayment(type: string): void {
-    this.deliveryForm.patchValue({
-      paymentMethod: type,
-    });
+    this.deliveryForm.get('paymentMethod')?.setValue(type);
 
-    this.resetPrice();
+    if (type !== 'BANK_CARD') {
+      this.deliveryForm.get('bankCardId')?.setValue(null);
+    }
   }
 
   resetPrice(): void {
@@ -420,12 +518,16 @@ export class CreateDeliveryComponent
 
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
-
+      if (this.map) {
+        this.map.setCenter({ lat, lng });
+        this.map.setZoom(14);
+      }
       this.deliveryForm.patchValue({
         pickupAddress: place.formatted_address,
         pickupLat: lat,
         pickupLng: lng,
       });
+      this.resetPrice();
       this.renderRoute();
     });
   }
@@ -456,6 +558,7 @@ export class CreateDeliveryComponent
           lat,
           lng,
         });
+        this.resetPrice();
         this.renderRoute();
       });
     });
@@ -465,62 +568,62 @@ export class CreateDeliveryComponent
       ROUTE DISTANCE CALCULATION
   -------------------------------- */
 
-  async calculateRouteDistance(): Promise<number> {
-    if (!this.directionsService) {
-      throw new Error('Directions service not initialized');
-    }
-    const directionsService = this.directionsService;
-    const form = this.deliveryForm.value;
+  // async calculateRouteDistance(): Promise<number> {
+  //   if (!this.directionsService) {
+  //     throw new Error('Directions service not initialized');
+  //   }
+  //   const directionsService = this.directionsService;
+  //   const form = this.deliveryForm.value;
 
-    if (!form.pickupLat || !form.pickupLng) {
-      throw new Error('Pickup coordinates missing');
-    }
+  //   if (!form.pickupLat || !form.pickupLng) {
+  //     throw new Error('Pickup coordinates missing');
+  //   }
 
-    for (const stop of form.stops) {
-      if (!stop.lat || !stop.lng) {
-        throw new Error('Stop coordinates missing');
-      }
-    }
-    const origin = {
-      lat: form.pickupLat,
-      lng: form.pickupLng,
-    };
+  //   for (const stop of form.stops) {
+  //     if (!stop.lat || !stop.lng) {
+  //       throw new Error('Stop coordinates missing');
+  //     }
+  //   }
+  //   const origin = {
+  //     lat: form.pickupLat,
+  //     lng: form.pickupLng,
+  //   };
 
-    const destination = {
-      lat: form.stops[form.stops.length - 1].lat,
-      lng: form.stops[form.stops.length - 1].lng,
-    };
+  //   const destination = {
+  //     lat: form.stops[form.stops.length - 1].lat,
+  //     lng: form.stops[form.stops.length - 1].lng,
+  //   };
 
-    const waypoints = form.stops.slice(0, -1).map((stop: any) => ({
-      location: { lat: stop.lat, lng: stop.lng },
-      stopover: true,
-    }));
+  //   const waypoints = form.stops.slice(0, -1).map((stop: any) => ({
+  //     location: { lat: stop.lat, lng: stop.lng },
+  //     stopover: true,
+  //   }));
 
-    return new Promise((resolve, reject) => {
-      directionsService.route(
-        {
-          origin,
-          destination,
-          waypoints,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result: any, status: any) => {
-          if (status !== 'OK') {
-            reject(status);
-            return;
-          }
+  //   return new Promise((resolve, reject) => {
+  //     directionsService.route(
+  //       {
+  //         origin,
+  //         destination,
+  //         waypoints,
+  //         travelMode: google.maps.TravelMode.DRIVING,
+  //       },
+  //       (result: any, status: any) => {
+  //         if (status !== 'OK') {
+  //           reject(status);
+  //           return;
+  //         }
 
-          let totalDistance = 0;
+  //         let totalDistance = 0;
 
-          result.routes[0].legs.forEach((leg: any) => {
-            totalDistance += leg.distance.value;
-          });
+  //         result.routes[0].legs.forEach((leg: any) => {
+  //           totalDistance += leg.distance.value;
+  //         });
 
-          resolve(totalDistance / 1000);
-        },
-      );
-    });
-  }
+  //         resolve(totalDistance / 1000);
+  //       },
+  //     );
+  //   });
+  // }
 
   initMap(): void {
     if (this.map) return;
@@ -528,8 +631,6 @@ export class CreateDeliveryComponent
       zoom: 12,
       center: { lat: 20.5937, lng: 78.9629 },
     });
-
-    this.directionsService = new google.maps.DirectionsService();
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: false,
@@ -543,8 +644,6 @@ export class CreateDeliveryComponent
   }
 
   renderRoute(): void {
-    if (!this.map || !this.directionsService) return;
-
     const form = this.deliveryForm.value;
 
     if (!form.pickupLat || !form.pickupLng) return;
@@ -565,30 +664,36 @@ export class CreateDeliveryComponent
     };
 
     const waypoints = form.stops.slice(0, -1).map((stop: any) => ({
-      location: {
-        lat: stop.lat,
-        lng: stop.lng,
-      },
+      location: { lat: stop.lat, lng: stop.lng },
       stopover: true,
     }));
-    if (this.directionsRenderer) {
-      this.directionsRenderer.set('directions', null);
-    }
-    this.directionsService.route(
-      {
-        origin,
-        destination,
-        waypoints,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result: any, status: any) => {
-        if (status === 'OK') {
-          this.directionsRenderer.setDirections(result);
+    this.routeService
+      .calculateRouteWithWaypoints(origin, destination, waypoints)
+      .then((result: any) => {
+        this.directionsRenderer.setDirections(result);
 
-          const bounds = result.routes[0].bounds;
-          this.map.fitBounds(bounds);
-        }
-      },
-    );
+        const bounds = result.routes[0].bounds;
+        this.map.fitBounds(bounds);
+      })
+      .catch((err: any) => {
+        console.error('Route error', err);
+      });
+  }
+
+  scrollToFirstInvalidField(): void {
+    setTimeout(() => {
+      const invalid = document.querySelector(
+        'input.ng-invalid, textarea.ng-invalid, select.ng-invalid',
+      ) as HTMLElement;
+
+      if (!invalid) return;
+
+      invalid.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      invalid.focus();
+    }, 200);
   }
 }

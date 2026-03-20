@@ -20,7 +20,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   page = 1;
   limit = 10;
   total = 0;
-
+  showCancelModal = false;
+  orderToCancel: string | null = null;
   stats = {
     total: 0,
     active: 0,
@@ -58,6 +59,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   loadOrders(): void {
+    if (this.loading) return;
     this.loading = true;
 
     const query: any = {
@@ -82,7 +84,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
         this.orders = data;
         this.applyStatusFilter();
-
         this.total = res?.meta?.total || 0;
         this.page = res?.meta?.page || this.page;
 
@@ -131,6 +132,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   //   ).length;
   // }
   searchTimeout: any;
+
   applyStatusFilter(): void {
     if (!this.statusFilter) {
       this.filteredOrders = this.orders;
@@ -141,6 +143,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       (order) => order.status === this.statusFilter,
     );
   }
+
   onSearch(): void {
     clearTimeout(this.searchTimeout);
 
@@ -176,8 +179,15 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   setStatusFilter(status: string | null): void {
-    this.statusFilter = status;
-    this.applyStatusFilter();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { status: status || null },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
   cancelOrder(orderId: string): void {
     if (!confirm('Cancel this order?')) return;
@@ -186,6 +196,31 @@ export class OrdersComponent implements OnInit, OnDestroy {
       next: () => this.loadOrders(),
 
       error: (err) => console.error('Cancel order failed', err),
+    });
+  }
+
+  openCancelModal(orderId: string): void {
+    this.orderToCancel = orderId;
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+    this.orderToCancel = null;
+  }
+
+  confirmCancel(): void {
+    if (!this.orderToCancel) return;
+
+    this.ordersService.cancelOrder(this.orderToCancel).subscribe({
+      next: () => {
+        this.closeCancelModal();
+        this.loadOrders();
+      },
+      error: (err) => {
+        console.error('Cancel order failed', err);
+        this.closeCancelModal();
+      },
     });
   }
 

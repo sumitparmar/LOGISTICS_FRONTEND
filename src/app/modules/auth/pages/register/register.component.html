@@ -1,6 +1,5 @@
 <div class="login-page">
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo">PULSE logistics</div>
         <nav>
@@ -12,68 +11,66 @@
         </nav>
     </header>
 
-    <!-- HERO -->
     <section class="hero">
 
-        <!-- LEFT SIDE -->
-        <div class="hero-left">
+        <div class="layout-container">
 
-            <!-- TITLE -->
-            <h1 class="page-title">Register</h1>
+            <div class="hero-left layout-left">
 
-            <!-- REGISTER CARD -->
-            <div class="login-card">
+                <h1 class="page-title">Register</h1>
 
-                <form [formGroup]="registerForm" (ngSubmit)="submit()">
+                <div class="login-card">
 
-                    <div class="input-group">
-                        <input type="text" placeholder="Full Name" formControlName="name" />
-                    </div>
+                    <form [formGroup]="registerForm" (ngSubmit)="submit()">
 
-                    <div class="input-group">
-                        <input type="email" placeholder="Email" formControlName="email" />
-                    </div>
+                        <div class="input-group">
+                            <input type="text" placeholder="Full Name" formControlName="name" />
+                        </div>
 
-                    <div class="input-group">
-                        <input type="text" placeholder="Phone" formControlName="phone" />
-                    </div>
+                        <div class="input-group">
+                            <input type="email" placeholder="Email" formControlName="email" />
+                        </div>
 
-                    <div class="input-group">
-                        <input type="password" placeholder="Password (At least 6 characters)"
-                            formControlName="password" />
-                    </div>
+                        <div class="input-group">
+                            <input type="text" placeholder="Phone" formControlName="phone" />
+                        </div>
 
-                    <div class="input-group">
-                        <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
-                    </div>
+                        <div class="input-group">
+                            <input type="password" placeholder="Password (At least 6 characters)"
+                                formControlName="password" />
+                        </div>
 
-                    <div *ngIf="errorMessage" class="error-message">
-                        {{ errorMessage }}
-                    </div>
+                        <div class="input-group">
+                            <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
+                        </div>
 
-                    <button type="submit" [disabled]="loading">
-                        {{ loading ? 'Registering...' : 'Register' }}
-                    </button>
+                        <div *ngIf="errorMessage" class="error-message">
+                            {{ errorMessage }}
+                        </div>
 
-                    <p class="switch">
-                        Already have an account?
-                        <a routerLink="/auth/login">Login</a>
-                    </p>
+                        <button type="submit" [disabled]="loading">
+                            {{ loading ? 'Registering...' : 'Register' }}
+                        </button>
 
-                </form>
+                        <p class="switch">
+                            Already have an account?
+                            <a routerLink="/auth/login">Login</a>
+                        </p>
 
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div class="hero-image layout-right">
+                <img src="assets/images/rider.png" />
             </div>
 
         </div>
 
-        <!-- RIGHT IMAGE -->
-        <div class="hero-image">
-            <img src="assets/images/rider.png" />
-        </div>
-
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
         <div>© 2026 PULSE logistics. All rights reserved.</div>
     </footer>

@@ -1,0 +1,44 @@
+<div class="onboarding-overlay">
+
+    <div class="onboarding-card">
+
+        <button class="close-btn" (click)="close()">×</button>
+
+        <div class="icon">
+            🚚
+        </div>
+
+        <h2>Welcome to PULSE</h2>
+
+        <p>
+            What will you mostly send using PULSE?
+        </p>
+
+        <div class="options">
+
+            <button class="option" (click)="choose('PERSONAL')">
+
+                <div class="title">Personal Deliveries</div>
+
+                <div class="desc">
+                    Send items to friends, family or yourself.
+                </div>
+
+            </button>
+
+
+            <button class="option" (click)="choose('BUSINESS')">
+
+                <div class="title">Business Orders</div>
+
+                <div class="desc">
+                    Send deliveries to customers or partners.
+                </div>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

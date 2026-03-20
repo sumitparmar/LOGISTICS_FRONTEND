@@ -1,4 +1,81 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  /* Layout */
+  --container-max-width: 1200px;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+  /* Spacing scale */
+  --spacing-xs: 12px;
+  --spacing-sm: 16px;
+  --spacing-md: 20px;
+  --spacing-lg: 24px;
+
+  /* Typography */
+  --font-sm: 13px;
+  --font-md: 14px;
+  --font-lg: 20px;
+  --font-xl: 24px;
+  --font-xxl: 32px;
+
+  /* Colors */
+  --text-muted: #666;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+.layout-container {
+  display: flex;
+  gap: var(--spacing-lg);
+  width: 100%;
+  align-items: stretch;
+}
+
+.layout-left,
+.layout-right {
+  flex: 1;
+  min-width: 0; /* 🔥 prevents overflow breaking */
+}
+
+/* Optional card wrapper */
+.section-card {
+  width: 100%;
+  padding: var(--spacing-lg);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================= */
+/* RESPONSIVENESS */
+/* ========================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .layout-container {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column; /* 🔥 stack */
+  }
+
+  .layout-left,
+  .layout-right {
+    width: 100%;
+  }
+}

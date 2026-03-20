@@ -17,17 +17,17 @@
   margin-bottom: 20px;
 }
 
-/* SEARCH CARD */
+/* ================= SEARCH ================= */
 
 .track-card {
   background: #ffffff;
   padding: 20px;
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
   max-width: 900px;
   margin: 0 auto 30px auto;
 }
+
 .search-row {
   display: flex;
   gap: 12px;
@@ -41,6 +41,8 @@
   border: 1px solid #d1d5db;
   font-size: 14px;
 }
+
+/* ================= BUTTONS ================= */
 
 .primary {
   padding: 11px 18px;
@@ -57,32 +59,20 @@
   background: #1565c0;
 }
 
-.live-btn {
-  padding: 8px 14px;
-  background: #1976d2;
-  color: #fff;
-  border: none;
+.secondary {
+  padding: 11px 18px;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-.live-btn:hover {
-  background: #1565c0;
-}
-
-.tracking-map {
-  position: relative;
-}
-
-.map-container {
-  width: 100%;
-  height: 420px;
-  border-radius: 10px;
-  margin-top: 12px;
-  background: #f2f4f7;
-  overflow: hidden;
+.secondary:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .reset-btn {
@@ -95,15 +85,18 @@
   background: #e5e7eb;
 }
 
-.actions-row {
-  margin-top: 10px;
+.live-btn {
+  padding: 8px 14px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-.cancel {
-  background: transparent;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
+.live-btn:hover {
+  background: #1565c0;
 }
 
 .error {
@@ -111,11 +104,11 @@
   margin-top: 10px;
 }
 
-/* MAIN GRID */
+/* ================= GRID ================= */
 
 .tracking-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* ✅ TRUE 50-50 */
   gap: 24px;
   align-items: start;
 }
@@ -125,9 +118,10 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0; /* prevents overflow */
 }
 
-/* CARDS */
+/* ================= CARDS ================= */
 
 .map-card,
 .route-card,
@@ -141,7 +135,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* ORDER HEADER */
+/* ================= HEADER ================= */
 
 .details-header {
   display: flex;
@@ -161,28 +155,23 @@
 .status-badge.created {
   background: #9e9e9e;
 }
-
 .status-badge.assigned {
   background: #1976d2;
 }
-
 .status-badge.picked_up {
   background: #fb8c00;
 }
-
 .status-badge.in_transit {
   background: #6366f1;
 }
-
 .status-badge.delivered {
   background: #16a34a;
 }
-
 .status-badge.cancelled {
   background: #dc2626;
 }
 
-/* ROUTE */
+/* ================= ROUTE ================= */
 
 .address-block {
   margin-bottom: 14px;
@@ -198,7 +187,7 @@
   margin-top: 2px;
 }
 
-/* META */
+/* ================= META ================= */
 
 .meta-grid {
   display: grid;
@@ -216,7 +205,7 @@
   margin-top: 3px;
 }
 
-/* TIMELINE */
+/* ================= TIMELINE ================= */
 
 .timeline {
   display: grid;
@@ -232,54 +221,49 @@
   background: #f3f4f6;
   font-size: 12px;
   border: 1px solid #e5e7eb;
-  transition: all 0.2s ease;
 }
 
 .step-title {
   font-weight: 600;
-  font-size: 12px;
 }
 
 .step-time {
   font-size: 11px;
   color: #6b7280;
-  margin-top: 3px;
 }
-
-/* COMPLETED STEP */
 
 .step.done {
   background: #1976d2;
-  color: white;
-  border-color: #1976d2;
+  color: #fff;
 }
 
 .step.done .step-time {
   color: #e0f2fe;
 }
 
-/* PENDING STEP */
-
 .step.pending {
   background: #f8fafc;
-  color: #475569;
 }
 
-/* MAP */
-
-.map-container {
-  width: 100%;
-  height: 420px;
-  border-radius: 10px;
-  margin-top: 12px;
-  background: #f2f4f7;
-  overflow: hidden;
-}
+/* ================= MAP ================= */
 
 .map-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.tracking-map {
+  position: relative;
+}
+
+.map-container {
+  width: 100%;
+  height: 380px; /* balanced height */
+  border-radius: 10px;
+  margin-top: 12px;
+  background: #f2f4f7;
+  overflow: hidden;
 }
 
 .waiting-msg {
@@ -288,7 +272,7 @@
   margin-top: 10px;
 }
 
-/* COURIER */
+/* ================= COURIER ================= */
 
 .courier-grid {
   display: grid;
@@ -317,11 +301,7 @@
   font-size: 13px;
 }
 
-.call-btn:hover {
-  background: #16a34a;
-}
-
-/* PRICING */
+/* ================= PRICING ================= */
 
 .pricing-row {
   display: flex;
@@ -343,7 +323,7 @@
   color: #16a34a;
 }
 
-/* CANCELLED STATE */
+/* ================= CANCELLED ================= */
 
 .cancelled-block {
   margin-top: 14px;
@@ -365,22 +345,11 @@
   color: #7f1d1d;
 }
 
-/* ACTION */
-
-.actions {
-  margin-top: 10px;
-  text-align: right;
-}
-
-/* RESPONSIVE */
+/* ================= RESPONSIVE ================= */
 
 @media (max-width: 992px) {
   .tracking-layout {
     grid-template-columns: 1fr;
-  }
-
-  .actions {
-    text-align: center;
   }
 }
 
@@ -389,26 +358,27 @@
     flex-direction: column;
   }
 
-  .primary {
+  .primary,
+  .secondary {
     width: 100%;
   }
 
   .timeline {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-.secondary {
-  padding: 11px 18px;
-  background: transparent;
-  color: #6b7280;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
+
+  .meta-grid,
+  .courier-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.secondary:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+@media (max-width: 480px) {
+  .timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .map-container {
+    height: 280px;
+  }
 }

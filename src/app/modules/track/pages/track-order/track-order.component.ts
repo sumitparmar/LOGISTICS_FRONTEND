@@ -194,7 +194,29 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       },
     );
   }
+  getBearing(
+    startLat: number,
+    startLng: number,
+    endLat: number,
+    endLng: number,
+  ): number {
+    const startLatRad = (startLat * Math.PI) / 180;
+    const startLngRad = (startLng * Math.PI) / 180;
+    const endLatRad = (endLat * Math.PI) / 180;
+    const endLngRad = (endLng * Math.PI) / 180;
 
+    const dLng = endLngRad - startLngRad;
+
+    const y = Math.sin(dLng) * Math.cos(endLatRad);
+    const x =
+      Math.cos(startLatRad) * Math.sin(endLatRad) -
+      Math.sin(startLatRad) * Math.cos(endLatRad) * Math.cos(dLng);
+
+    let bearing = (Math.atan2(y, x) * 180) / Math.PI;
+    bearing = (bearing + 360) % 360;
+
+    return bearing;
+  }
   initMap(lat: number, lng: number) {
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 14,
@@ -339,6 +361,8 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     const deltaLat = (endLat - startLat) / steps;
     const deltaLng = (endLng - startLng) / steps;
 
+    const bearing = this.getBearing(startLat, startLng, endLat, endLng);
+
     this.animationInterval = setInterval(() => {
       step++;
 
@@ -346,6 +370,13 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       const lng = startLng + deltaLng * step;
 
       const position = new google.maps.LatLng(lat, lng);
+
+      // Update marker icon (rotation attempt for visual direction)
+      this.courierMarker.setIcon({
+        url: '/assets/icons/courier-bike.svg',
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(20, 20),
+      });
 
       this.courierMarker.setPosition(position);
 
@@ -564,7 +595,6 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
       timeStyle: 'short',
     }).format(date);
   }
-
   resetTracking() {
     this.orderId = '';
     this.order = null;
@@ -602,6 +632,11 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     if (this.dropMarker) {
       this.dropMarker.setMap(null);
       this.dropMarker = null;
+    }
+
+    if (this.directionsRenderer) {
+      this.directionsRenderer.setMap(null);
+      this.directionsRenderer = null;
     }
 
     if (this.map) {

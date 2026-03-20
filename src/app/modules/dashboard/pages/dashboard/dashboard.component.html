@@ -9,10 +9,12 @@
                 + New Delivery
             </button>
         </div>
-        <div *ngIf="!isLoading; else loadingTemplate" class="dashboard-panel">
+
+        <div *ngIf="!isLoading; else loadingTemplate">
+
             <div class="stats-row">
 
-                <div class="stat-card blue" (click)="goToAllOrders()" style="cursor:pointer">
+                <div class="stat-card blue" (click)="goToAllOrders()">
                     <div class="stat-top">
                         <div class="stat-value">{{ dashboardStats.totalOrders }}</div>
                         <div class="stat-icon">📦</div>
@@ -21,7 +23,7 @@
                     <div class="stat-desc">Safe and fast handling for all your packages.</div>
                 </div>
 
-                <div class="stat-card orange" (click)="goToActiveOrders()" style="cursor:pointer">
+                <div class="stat-card orange" (click)="goToActiveOrders()">
                     <div class="stat-top">
                         <div class="stat-value">{{ dashboardStats.activeOrders }}</div>
                         <div class="stat-icon">🚚</div>
@@ -30,7 +32,7 @@
                     <div class="stat-desc">Reliable service for your shipments.</div>
                 </div>
 
-                <div class="stat-card purple" (click)="goToWallet()" style="cursor:pointer">
+                <div class="stat-card purple" (click)="goToWallet()">
                     <div class="stat-top">
                         <div class="stat-value">₹{{ dashboardStats.walletBalance }}</div>
                         <div class="stat-icon">💰</div>
@@ -41,37 +43,14 @@
 
             </div>
 
-            <!-- Bottom Section -->
-            <div class="bottom-row">
+            <div class="bottom-row layout-container">
 
-                <!-- LEFT SIDE -->
-                <div class="recent-orders-container">
+                <div class="recent-orders-container layout-left">
 
                     <div class="recent-orders">
 
                         <h2 class="recent-title">Recent Orders</h2>
 
-                        <!-- <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Drop</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr *ngFor="let order of recentOrders | slice:0:visibleOrdersCount">
-                                <td class="order-id">{{ order.id }}</td>
-                                <td>
-                                    <span class="icon">📍</span> {{ order.drop }}
-                                </td>
-                                <td>
-                                    <span class="icon">🕒</span> {{ order.time }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table> -->
                         <table class="recent-table">
                             <thead>
                                 <tr>
@@ -82,8 +61,9 @@
                             </thead>
 
                             <tbody>
-                                <tr *ngFor="let order of recentOrders | slice:0:visibleOrdersCount" class="order-row"
-                                    (click)="goToOrder(order.id)" style="cursor:pointer">
+                                <tr *ngFor="let order of recentOrders; trackBy: trackByOrder" class="order-row"
+                                    (click)="goToOrder(order.id)">
+
                                     <td class="order-id">{{ order.id }}</td>
 
                                     <td class="order-drop">
@@ -104,24 +84,34 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
 
-                    <div class="view-all-wrapper">
-                        <button class="view-all" (click)="toggleRecentOrders()">
-                            {{ showAllOrders ? 'Show Less' : 'View All' }}
-                        </button>
+                        <div class="pagination" *ngIf="totalPages > 1">
+
+                            <button class="page-btn" (click)="prevPage()" [disabled]="page === 1">
+                                ← Prev
+                            </button>
+
+                            <span class="page-info">
+                                Page {{ page }} of {{ totalPages }}
+                            </span>
+
+                            <button class="page-btn" (click)="nextPage()" [disabled]="page === totalPages">
+                                Next →
+                            </button>
+
+                        </div>
                     </div>
 
                 </div>
 
-                <!-- RIGHT SIDE -->
-                <div class="illustration">
+                <div class="illustration layout-right">
                     <img src="assets/images/dashboard-boy.jpg">
                 </div>
 
             </div>
 
         </div>
+
         <ng-template #loadingTemplate>
             <div class="dashboard-panel">
                 <div class="loading-container">
@@ -131,3 +121,5 @@
         </ng-template>
 
     </div>
+
+</div>

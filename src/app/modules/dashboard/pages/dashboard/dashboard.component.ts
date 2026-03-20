@@ -41,11 +41,11 @@ export class DashboardComponent implements OnInit {
     activeOrders: 0,
     walletBalance: 0,
   };
-
+  allRecentOrders: RecentOrder[] = [];
   recentOrders: RecentOrder[] = [];
-
-  showAllOrders = false;
-  visibleOrdersCount = 3;
+  page = 1;
+  limit = 5;
+  totalPages = 1;
   isLoading = false;
   hasError = false;
 
@@ -71,13 +71,18 @@ export class DashboardComponent implements OnInit {
           walletBalance: data.walletBalance,
         };
 
-        this.recentOrders = data.recentOrders.map((order: any) => ({
+        this.allRecentOrders = data.recentOrders.map((order) => ({
           id: order.id,
           drop: order.drop,
           time: this.formatDate(order.createdAt),
         }));
 
-        this.visibleOrdersCount = 3;
+        this.totalPages = Math.max(
+          1,
+          Math.ceil(this.allRecentOrders.length / this.limit),
+        );
+        this.updatePaginatedOrders();
+
         this.isLoading = false;
         this.hasError = false;
       },
@@ -88,12 +93,27 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
-
-  toggleRecentOrders(): void {
-    this.showAllOrders = !this.showAllOrders;
-    this.visibleOrdersCount = this.showAllOrders ? this.recentOrders.length : 3;
+  private updatePaginatedOrders(): void {
+    this.recentOrders = this.allRecentOrders.slice(
+      (this.page - 1) * this.limit,
+      this.page * this.limit,
+    );
+  }
+  // toggleRecentOrders(): void {
+  //   this.showAllOrders = !this.showAllOrders;
+  //   this.visibleOrdersCount = this.showAllOrders ? this.recentOrders.length : 3;
+  // }
+  nextPage(): void {
+    if (this.page >= this.totalPages) return;
+    this.page++;
+    this.updatePaginatedOrders();
   }
 
+  prevPage(): void {
+    if (this.page <= 1) return;
+    this.page--;
+    this.updatePaginatedOrders();
+  }
   private formatDate(date: string): string {
     return new Date(date).toLocaleString();
   }

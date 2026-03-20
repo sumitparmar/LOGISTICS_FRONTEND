@@ -1,6 +1,6 @@
 .main-header {
   width: 100%;
-  background: transparent; // ← allow sky to show
+  background: transparent;
   position: relative;
   z-index: 10;
 
@@ -12,7 +12,6 @@
     align-items: center;
     justify-content: space-between;
 
-    /* glass effect layer */
     background-image: url("/assets/images/auth-bg.png");
     backdrop-filter: blur(6px);
     border-radius: 0 0 14px 14px;
@@ -48,6 +47,14 @@
     }
   }
 
+  /* RIGHT SIDE */
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
   .logout-btn {
     background: linear-gradient(to right, #ff9900, #ff7a00);
     border: none;
@@ -56,5 +63,78 @@
     color: white;
     font-weight: 600;
     cursor: pointer;
+  }
+
+  /* PROFILE MENU */
+
+  .profile-menu {
+    position: relative;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff9900, #ff7a00);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* DROPDOWN */
+
+  .dropdown {
+    position: absolute;
+    right: 0;
+    top: 46px;
+    width: 190px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 8px 0;
+
+    /* hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: all 0.18s ease;
+  }
+
+  /* SHOW DROPDOWN ON HOVER */
+
+  .profile-menu:hover .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-item {
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .dropdown-item:hover {
+    background: #f5f7fb;
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 6px 0;
+  }
+
+  .user-name {
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .logout {
+    color: #e11d48;
   }
 }

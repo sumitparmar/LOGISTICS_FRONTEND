@@ -1,0 +1,77 @@
+<div class="settings-page">
+
+    <div class="settings-container">
+
+        <div class="settings-header">
+            <h2 class="page-title">Account Settings</h2>
+            <p class="page-subtitle">
+                Manage your profile information and account security
+            </p>
+        </div>
+
+        <div class="settings-grid">
+
+            <!-- PROFILE -->
+            <div class="settings-card">
+
+                <div class="card-header">
+                    <h3>Profile Information</h3>
+                </div>
+
+                <form [formGroup]="profileForm">
+
+                    <div class="field">
+                        <label>Name</label>
+                        <input formControlName="name">
+                    </div>
+
+                    <div class="field">
+                        <label>Email</label>
+                        <input formControlName="email">
+                    </div>
+
+                    <div class="field">
+                        <label>Phone</label>
+                        <input formControlName="phone">
+                    </div>
+
+                    <button class="btn-primary" (click)="updateProfile()" [disabled]="profileForm.invalid || loading">
+                        Update Profile
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="settings-card">
+
+                <div class="card-header">
+                    <h3>Security</h3>
+                </div>
+
+                <form [formGroup]="passwordForm">
+
+                    <div class="field">
+                        <label>Current Password</label>
+                        <input type="password" formControlName="currentPassword">
+                    </div>
+
+                    <div class="field">
+                        <label>New Password</label>
+                        <input type="password" formControlName="newPassword">
+                    </div>
+
+                    <button class="btn-primary" (click)="changePassword()" [disabled]="passwordForm.invalid">
+                        Change Password
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,9 +1,9 @@
 <section class="hero">
 
-    <div class="hero-content">
+    <div class="hero-content layout-container">
 
         <!-- LEFT SIDE -->
-        <div class="hero-left">
+        <div class="hero-left layout-left">
 
             <h1 class="hero-title">
                 FAST & RELIABLE <br />
@@ -39,7 +39,7 @@
         </div>
 
         <!-- RIGHT SIDE -->
-        <div class="hero-right">
+        <div class="hero-right layout-right">
 
             <!-- Booking Card -->
             <div class="booking-card rider-bg" [formGroup]="quoteForm" id="booking-section">
@@ -47,11 +47,13 @@
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Pickup Location</mat-label>
-                    <input matInput formControlName="pickup" #pickupInput /> </mat-form-field>
+                    <input matInput formControlName="pickup" #pickupInput />
+                </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Drop Location</mat-label>
-                    <input matInput formControlName="drop" #dropInput /> </mat-form-field>
+                    <input matInput formControlName="drop" #dropInput />
+                </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Vehicle Type</mat-label>
@@ -65,8 +67,6 @@
                 <button mat-raised-button class="quote-btn" (click)="getQuote()" [disabled]="loading">
                     {{ loading ? 'Calculating...' : 'Get a Quote' }}
                 </button>
-
-
 
                 <!-- ERROR -->
                 <div class="error-text" *ngIf="errorMessage">

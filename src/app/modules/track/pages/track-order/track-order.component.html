@@ -80,29 +80,7 @@
                 </div>
 
 
-                <!-- DELIVERY PROGRESS -->
-                <div class="timeline-card" *ngIf="order.statusHistory?.length">
 
-                    <h3>Delivery Progress</h3>
-
-                    <div class="timeline">
-
-                        <div class="step" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)"
-                            [class.pending]="!isStepDone(step)">
-
-                            <div class="step-title">
-                                {{ step.replace('_',' ') }}
-                            </div>
-
-                            <div class="step-time">
-                                {{ getStepTimestamp(step) }}
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
 
 
                 <!-- CANCELLED STATE -->
@@ -261,6 +239,31 @@
                         <span>
                             {{ currencySymbol }}{{ formatAmount(pricing.total) }}
                         </span>
+                    </div>
+
+                </div>
+
+
+                <!-- DELIVERY PROGRESS -->
+                <div class="timeline-card" *ngIf="order.statusHistory?.length">
+
+                    <h3>Delivery Progress</h3>
+
+                    <div class="timeline">
+
+                        <div class="step" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)"
+                            [class.pending]="!isStepDone(step)">
+
+                            <div class="step-title">
+                                {{ step.replace('_',' ') }}
+                            </div>
+
+                            <div class="step-time">
+                                {{ getStepTimestamp(step) }}
+                            </div>
+
+                        </div>
+
                     </div>
 
                 </div>

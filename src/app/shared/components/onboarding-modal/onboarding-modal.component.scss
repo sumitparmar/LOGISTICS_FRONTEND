@@ -1,0 +1,75 @@
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.onboarding-card {
+  width: 420px;
+  background: white;
+  border-radius: 16px;
+  padding: 36px;
+  text-align: center;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 42px;
+  margin-bottom: 14px;
+}
+
+.onboarding-card h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.onboarding-card p {
+  color: #6b7280;
+  margin-bottom: 26px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.option {
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.option:hover {
+  border-color: #ff7a00;
+  background: #fff7ed;
+}
+
+.option .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.option .desc {
+  font-size: 14px;
+  color: #6b7280;
+}
