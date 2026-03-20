@@ -16,7 +16,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   documents: any = null;
   podData: any = null;
   courierPosition: any = null;
-  pricingBreakdown: any = null;
+  // pricingBreakdown: any = null;
   showCancelModal = false;
   animationFrame: any = null;
   courierMarker: any = null;
@@ -61,7 +61,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.order = res?.data || res;
         this.loading = false;
-        this.loadPricingBreakdown();
+        // this.loadPricingBreakdown();
         this.loadCourier();
         this.loadDocuments();
         this.loadProviderHistory();
@@ -350,19 +350,19 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  loadPricingBreakdown(): void {
-    if (!this.order?._id) return;
+  // loadPricingBreakdown(): void {
+  //   if (!this.order?._id) return;
 
-    this.ordersService.getPricingBreakdown(this.order._id).subscribe({
-      next: (res: any) => {
-        this.pricingBreakdown = res.data;
-      },
+  //   this.ordersService.getPricingBreakdown(this.order._id).subscribe({
+  //     next: (res: any) => {
+  //       this.pricingBreakdown = res.data;
+  //     },
 
-      error: (err) => {
-        console.error('Pricing breakdown failed', err);
-      },
-    });
-  }
+  //     error: (err) => {
+  //       console.error('Pricing breakdown failed', err);
+  //     },
+  //   });
+  // }
   loadCourier(): void {
     if (!this.order?._id) return;
 

@@ -248,6 +248,7 @@
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
+  cursor: pointer;
 }
 
 /* DELIVERY OPTIONS */
@@ -492,4 +493,93 @@
 .vehicle-card.active {
   border-color: #ff7a00;
   background: #fff7f0;
+}
+.category.active {
+  border-color: #ff7a00;
+  background: #fff7f0;
+  color: #ff7a00;
+}
+
+.insurance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 👈 key */
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* Control input size */
+.insurance-input {
+  width: 220px; /* 👈 fixed width like Borzo */
+  margin-bottom: 0; /* remove default spacing */
+}
+
+/* Right side text */
+.insurance-charge {
+  font-size: 13px;
+  color: #667085;
+  white-space: nowrap; /* 👈 prevents breaking */
+}
+
+/* Description text */
+.insurance-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+}
+.insurance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 👈 key */
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* Control input size */
+.insurance-input {
+  width: 220px; /* 👈 fixed width like Borzo */
+  margin-bottom: 0; /* remove default spacing */
+}
+
+/* Right side text */
+.insurance-charge {
+  font-size: 13px;
+  color: #667085;
+  white-space: nowrap; /* 👈 prevents breaking */
+}
+
+/* Description text */
+.insurance-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+}
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  span {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+  }
+}
+.form-input.ng-invalid.ng-touched {
+  border: 1px solid #e53935;
+  background-color: #fff5f5;
+}
+
+.form-error {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
 }

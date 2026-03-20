@@ -5,7 +5,7 @@
         <div class="orders-header">
             <h2>My Orders</h2>
 
-            <a routerLink="/app/delivery/create" class="create-order-btn">
+            <a (click)="createDeliveryClick()" class="create-order-btn">
                 + New Delivery
             </a>
         </div>
@@ -194,13 +194,12 @@
                             </td>
 
                             <td (click)="$event.stopPropagation()">
-                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.0-0' }}
-                            </td>
+                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.2-2' }} </td>
 
                             <td class="actions" (click)="$event.stopPropagation()">
 
-                                <button class="action-btn track-btn" [routerLink]="['/track']"
-                                    [queryParams]="{ orderId: order._id }">
+                                <button class="action-btn track-btn"
+                                    (click)="$event.stopPropagation(); trackOrderEvent(order)">
                                     Track
                                 </button>
 

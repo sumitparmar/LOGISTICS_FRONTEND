@@ -16,11 +16,12 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
   orderId = '';
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   currencySymbol = getCurrencySymbol();
+  private socketListener: any;
   autoFollowCourier = true;
   routeBounds: any;
   timelineMap: Record<string, Date> = {};
-  pricing: any = null;
-  pricingLoading = false;
+  // pricing: any = null;
+  // pricingLoading = false;
   map: any;
   courierMarker: any;
   order: any = null;
@@ -103,7 +104,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
         this.order = res?.data;
 
         this.buildTimelineMap();
-        this.loadPricingBreakdown();
+        // this.loadPricingBreakdown();
         this.startTrackingPolling();
         this.loadCourierInfo();
 
@@ -130,10 +131,39 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
         //   }
         // });
 
+        // ✅ connect socket
+        if (this.order?.user) {
+          this.socketService.connect(this.order.user);
+        }
+
+        this.socketListener = (data: any) => {
+          if (data.orderId === this.order._id) {
+            this.order.status = data.status;
+
+            const exists = this.order.statusHistory.find(
+              (s: any) => s.status === data.status,
+            );
+
+            if (!exists) {
+              this.order.statusHistory.push({
+                status: data.status,
+                timestamp: new Date(),
+              });
+
+              this.buildTimelineMap();
+            }
+
+            this.startTrackingPolling();
+          }
+        };
+
+        this.socketService.onOrderStatusUpdate(this.socketListener);
+
         if (!this.order) {
           this.error = 'Order not found';
         }
       },
+
       error: (err) => {
         this.loading = false;
         this.error =
@@ -510,6 +540,11 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
   }
 
   startTrackingPolling() {
+    if (this.order?.status === 'DELIVERED') {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+      return;
+    }
     if (
       this.order?.status !== 'PICKED_UP' &&
       this.order?.status !== 'IN_TRANSIT'
@@ -538,27 +573,27 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
           const lng = Number(courierPoint.longitude);
 
           this.updateCourierLocation(lat, lng);
-          this.loadPricingBreakdown();
+          // this.loadPricingBreakdown();
         },
       });
     }, APP_CONFIG.TRACKING_POLL_INTERVAL);
   }
 
-  loadPricingBreakdown() {
-    if (!this.order?._id) return;
+  // loadPricingBreakdown() {
+  //   if (!this.order?._id) return;
 
-    this.pricingLoading = true;
+  //   this.pricingLoading = true;
 
-    this.api.get(`/orders/${this.order._id}/pricing-breakdown`).subscribe({
-      next: (res: any) => {
-        this.pricing = res?.data || null;
-        this.pricingLoading = false;
-      },
-      error: () => {
-        this.pricingLoading = false;
-      },
-    });
-  }
+  //   this.api.get(`/orders/${this.order._id}/pricing-breakdown`).subscribe({
+  //     next: (res: any) => {
+  //       this.pricing = res?.data || null;
+  //       this.pricingLoading = false;
+  //     },
+  //     error: () => {
+  //       this.pricingLoading = false;
+  //     },
+  //   });
+  // }
 
   loadCourierInfo() {
     if (!this.order?._id) return;
@@ -601,7 +636,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     this.error = '';
 
     this.courier = null;
-    this.pricing = null;
+    // this.pricing = null;
 
     this.etaText = '';
     this.distanceText = '';
@@ -652,5 +687,12 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
     }
+
+    // ✅ ADD THIS
+    if (this.socketListener) {
+      this.socketListener = null;
+    }
+
+    this.socketService.disconnect();
   }
 }

@@ -8,7 +8,7 @@ import {
   QueryList,
   ElementRef,
 } from '@angular/core';
-
+import { AnalyticsService } from 'src/app/core/services/analytics.service';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OrdersService } from 'src/app/core/services/orders.service';
@@ -37,7 +37,7 @@ export class CreateDeliveryComponent
   paymentCompleted = false;
   isCalculatingPrice = false;
   isCreatingOrder = false;
-
+  insuranceCharge: number = 0;
   priceSummary = {
     deliveryFee: 0,
     insurance: 0,
@@ -113,6 +113,7 @@ export class CreateDeliveryComponent
     private ordersService: OrdersService,
     private router: Router,
     private routeService: RouteService,
+    private analytics: AnalyticsService,
   ) {}
 
   ngOnDestroy(): void {
@@ -262,7 +263,7 @@ export class CreateDeliveryComponent
 
       vehicleTypeId: [1, Validators.required],
 
-      parcelValue: [0],
+      parcelValue: [null],
     });
   }
 
@@ -275,7 +276,7 @@ export class CreateDeliveryComponent
       address: ['', Validators.required],
       lat: [null],
       lng: [null],
-      name: [''],
+      name: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       notes: [''],
     });
@@ -304,6 +305,26 @@ export class CreateDeliveryComponent
     }
   }
 
+  onParcelValueChange(): void {
+    const value = this.deliveryForm.get('parcelValue')?.value || 0;
+
+    if (!value || value <= 0) {
+      this.insuranceCharge = 0;
+
+      // 🔥 ADD HERE
+      this.priceSummary.insurance = 0;
+      this.priceSummary.total = this.priceSummary.deliveryFee;
+
+      return;
+    }
+
+    this.insuranceCharge = Math.round(2 + value * 0.01);
+
+    // 🔥 ADD HERE
+    this.priceSummary.insurance = this.insuranceCharge;
+    this.priceSummary.total =
+      this.priceSummary.deliveryFee + this.insuranceCharge;
+  }
   async calculatePrice(): Promise<void> {
     if (this.isCalculatingPrice) {
       return;
@@ -352,10 +373,9 @@ export class CreateDeliveryComponent
       this.ordersService.calculatePrice(payload).subscribe({
         next: (res: any) => {
           const amount = res?.data?.amount || 0;
-
           this.priceSummary.deliveryFee = amount;
-          this.priceSummary.insurance = 0;
-          this.priceSummary.total = amount;
+          this.priceSummary.insurance = this.insuranceCharge;
+          this.priceSummary.total = amount + this.insuranceCharge;
 
           this.isCalculatingPrice = false;
         },
@@ -450,6 +470,16 @@ export class CreateDeliveryComponent
 
         const orderId = res?.data?._id;
 
+        this.analytics.trackEvent('order_created', {
+          orderId: orderId,
+          amount: this.priceSummary.total,
+          deliveryFee: this.priceSummary.deliveryFee,
+          insurance: this.priceSummary.insurance,
+          paymentMethod: this.deliveryForm.value.paymentMethod,
+          vehicleTypeId: this.deliveryForm.value.vehicleTypeId,
+          deliveryType: this.deliveryForm.value.deliveryType,
+        });
+
         this.router.navigate(['/app/orders', orderId]);
       },
 
@@ -476,6 +506,19 @@ export class CreateDeliveryComponent
     }
   }
 
+  selectCategory(category: string): void {
+    const currentPackage = this.deliveryForm.get('package')?.value;
+
+    this.deliveryForm.patchValue({
+      package: {
+        ...currentPackage,
+        category: category,
+        description: category, // ✅ ALWAYS update
+      },
+    });
+
+    this.resetPrice();
+  }
   resetPrice(): void {
     this.priceSummary = {
       deliveryFee: 0,

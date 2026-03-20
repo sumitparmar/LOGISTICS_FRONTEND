@@ -202,47 +202,32 @@
 
 
                 <!-- PRICING -->
-                <div class="pricing-card" *ngIf="pricing">
+                <div class="pricing-card" *ngIf="order?.pricing">
 
                     <h3>Pricing</h3>
 
                     <div class="pricing-row">
                         <span>Delivery Fee</span>
                         <span>
-                            {{ currencySymbol }}{{ formatAmount(pricing.deliveryFeeAmount) }}
+                            {{ currencySymbol }}{{ order.pricing?.baseAmount | number:'1.2-2' }}
                         </span>
                     </div>
 
-                    <div class="pricing-row" *ngIf="isPositive(pricing.codFeeAmount)">
-                        <span>COD Fee</span>
+                    <div class="pricing-row" *ngIf="order.pricing?.insurance > 0">
+                        <span>Insurance</span>
                         <span>
-                            {{ currencySymbol }}{{ formatAmount(pricing.codFeeAmount) }}
-                        </span>
-                    </div>
-
-                    <div class="pricing-row" *ngIf="isPositive(pricing.waitingFeeAmount)">
-                        <span>Waiting Fee</span>
-                        <span>
-                            {{ currencySymbol }}{{ formatAmount(pricing.waitingFeeAmount) }}
-                        </span>
-                    </div>
-
-                    <div class="pricing-row discount" *ngIf="isPositive(pricing.promoDiscount)">
-                        <span>Promo Discount</span>
-                        <span>
-                            -{{ currencySymbol }}{{ formatAmount(pricing.promoDiscount) }}
+                            {{ currencySymbol }}{{ order.pricing?.insurance | number:'1.2-2' }}
                         </span>
                     </div>
 
                     <div class="pricing-total">
                         <span>Total</span>
                         <span>
-                            {{ currencySymbol }}{{ formatAmount(pricing.total) }}
+                            {{ currencySymbol }}{{ order.pricing?.amount | number:'1.2-2' }}
                         </span>
                     </div>
 
                 </div>
-
 
                 <!-- DELIVERY PROGRESS -->
                 <div class="timeline-card" *ngIf="order.statusHistory?.length">

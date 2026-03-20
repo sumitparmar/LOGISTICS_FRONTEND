@@ -70,17 +70,27 @@ deliveryForm.get('pickupAddress')?.invalid">
                                     </div>
                                     <div class="two-col">
 
-                                        <input class="form-input" placeholder="Sender name *"
-                                            formControlName="pickupName" />
+                                        <div class="form-error" *ngIf="deliveryForm.get('pickupName')?.touched &&
+                                                deliveryForm.get('pickupName')?.invalid">
+                                            Sender name is required
+                                        </div>
 
                                         <input class="form-input" placeholder="+91 phone *"
                                             formControlName="pickupPhone" />
 
                                     </div>
 
-                                    <div class="form-error"
-                                        *ngIf="deliveryForm.get('pickupPhone')?.touched && deliveryForm.get('pickupPhone')?.invalid">
-                                        Phone number must be 10 digits
+                                    <div class="form-error" *ngIf="deliveryForm.get('pickupPhone')?.touched &&
+                                                deliveryForm.get('pickupPhone')?.invalid">
+
+                                        <span *ngIf="deliveryForm.get('pickupPhone')?.errors?.['required']">
+                                            Phone is required
+                                        </span>
+
+                                        <span *ngIf="deliveryForm.get('pickupPhone')?.errors?.['pattern']">
+                                            Phone must be 10 digits
+                                        </span>
+
                                     </div>
 
                                     <input class="form-input" placeholder="Landmarks, building, floor etc"
@@ -130,15 +140,28 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                                         <div class="two-col">
 
-                                            <input class="form-input" placeholder="Recipient name"
+                                            <input class="form-input" placeholder="Recipient name *"
                                                 formControlName="name" />
+
+                                            <div class="form-error"
+                                                *ngIf="stop.get('name')?.touched && stop.get('name')?.invalid">
+                                                Recipient name is required
+                                            </div>
 
                                             <input class="form-input" placeholder="+91 phone" formControlName="phone" />
 
                                         </div>
                                         <div class="form-error"
                                             *ngIf="stop.get('phone')?.touched && stop.get('phone')?.invalid">
-                                            Phone number must be 10 digits
+
+                                            <span *ngIf="stop.get('phone')?.errors?.['required']">
+                                                Phone is required
+                                            </span>
+
+                                            <span *ngIf="stop.get('phone')?.errors?.['pattern']">
+                                                Phone must be 10 digits
+                                            </span>
+
                                         </div>
 
                                         <input class="form-input" placeholder="Landmarks, building, floor etc"
@@ -192,7 +215,7 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                             <span class="category" *ngFor="let category of packageCategories"
                                 [class.active]="deliveryForm.get('package.category')?.value === category"
-                                (click)="deliveryForm.get('package.category')?.setValue(category)">
+                                (click)="selectCategory(category)">
                                 {{ category }}
                             </span>
 
@@ -302,12 +325,26 @@ deliveryForm.get('package.description')?.invalid">
 
                         <h4>Secure your parcel</h4>
 
+                        <!-- ROW: INPUT + CHARGE -->
+                        <div class="insurance-row">
+
+                            <input type="number" class="form-input insurance-input" placeholder="Parcel value"
+                                formControlName="parcelValue" max="50000" (input)="onParcelValueChange()" />
+
+                            <span class="insurance-charge" *ngIf="insuranceCharge > 0">
+                                ₹ {{ insuranceCharge }} : Additional charges for securing parcel
+                            </span>
+
+                        </div>
+
+                        <!-- DESCRIPTION -->
                         <p class="insurance-text">
-                            Declare parcel value for compensation if parcel is lost or damaged.
+                            Secure your parcel by entering its real cost (up to ₹50000).
+                            We'll compensate this sum in verified cases of loss or damage.
+                            The fee is ₹2 + 1% of the declared value.
+                            ⭐ High-value parcels are handled by couriers with extra experience.
                         </p>
 
-                        <input type="number" class="form-input" placeholder="Parcel value"
-                            formControlName="parcelValue" />
                     </div>
 
                     <!-- PAYMENT -->

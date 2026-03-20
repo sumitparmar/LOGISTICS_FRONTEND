@@ -166,32 +166,30 @@
                     <div class="card-header">
                         <h3>Pricing</h3>
                     </div>
-
-                    <div class="pricing-breakdown" *ngIf="pricingBreakdown; else basicPrice">
+                    <div class="pricing-breakdown">
 
                         <div class="price-row">
                             <span>Delivery Fee</span>
-                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.deliveryFeeAmount }}</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricing?.baseAmount | number:'1.2-2' }}
+                            </span>
                         </div>
 
-                        <div class="price-row" *ngIf="pricingBreakdown.waitingFeeAmount > 0">
-                            <span>Waiting Fee</span>
-                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.waitingFeeAmount }}</span>
-                        </div>
-
-                        <div class="price-row" *ngIf="pricingBreakdown.codFeeAmount > 0">
-                            <span>COD Fee</span>
-                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.codFeeAmount }}</span>
-                        </div>
-
-                        <div class="price-row discount" *ngIf="pricingBreakdown.promoDiscount > 0">
-                            <span>Discount</span>
-                            <span>-{{ order.pricing?.currency }} {{ pricingBreakdown.promoDiscount }}</span>
+                        <div class="price-row" *ngIf="order.pricing?.insurance > 0">
+                            <span>Insurance</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricing?.insurance | number:'1.2-2' }}
+                            </span>
                         </div>
 
                         <div class="price-total">
                             <span>Total</span>
-                            <span>{{ order.pricing?.currency }} {{ pricingBreakdown.total }}</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricing?.amount | number:'1.2-2' }}
+                            </span>
                         </div>
 
                     </div>

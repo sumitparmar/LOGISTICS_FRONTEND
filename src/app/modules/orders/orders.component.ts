@@ -5,6 +5,7 @@ import {
   OrdersResponse,
 } from '../../core/services/orders.service';
 import { Subscription } from 'rxjs';
+import { AnalyticsService } from 'src/app/core/services/analytics.service';
 
 @Component({
   selector: 'app-orders',
@@ -42,6 +43,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     private ordersService: OrdersService,
     private route: ActivatedRoute,
     private router: Router,
+    private analytics: AnalyticsService,
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +60,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }
   }
 
+  trackOrderEvent(order: any) {
+    if (!order?._id) return;
+
+    this.analytics.trackEvent('track_order_clicked', {
+      orderId: order._id,
+    });
+
+    this.router.navigate(['/track'], {
+      queryParams: { orderId: order._id },
+    });
+  }
   loadOrders(): void {
     if (this.loading) return;
     this.loading = true;
@@ -208,9 +221,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.showCancelModal = false;
     this.orderToCancel = null;
   }
-
   confirmCancel(): void {
     if (!this.orderToCancel) return;
+
+    // 🔥 analytics
+    this.analytics.trackEvent('cancel_order_clicked', {
+      orderId: this.orderToCancel,
+    });
 
     this.ordersService.cancelOrder(this.orderToCancel).subscribe({
       next: () => {
@@ -298,9 +315,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
     return durationMinutes + ' mins';
   }
   openOrder(id: string): void {
+    this.analytics.trackEvent('view_order_details', {
+      orderId: id,
+    });
+
     this.router.navigate(['/app/orders', id]);
   }
+  createDeliveryClick() {
+    this.analytics.trackEvent('create_order_clicked');
 
+    this.router.navigate(['/app/delivery/create']);
+  }
   trackByOrder(index: number, order: any) {
     return order._id;
   }
