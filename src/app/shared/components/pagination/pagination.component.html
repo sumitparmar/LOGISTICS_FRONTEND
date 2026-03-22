@@ -1,0 +1,26 @@
+<div class="pagination">
+
+    <!-- LEFT SIDE -->
+    <div class="pagination-left">
+        <button (click)="prev()" [disabled]="page === 1">‹</button>
+
+        <div class="pages">
+            <button *ngFor="let p of pages" [class.active]="p === page" (click)="goTo(p)">
+                {{ p }}
+            </button>
+        </div>
+
+        <button (click)="next()" [disabled]="page === totalPages">›</button>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="pagination-right">
+        <span>Rows per page:</span>
+        <select (change)="changeLimit($event)" [value]="limit">
+            <option *ngFor="let size of limitOptions" [value]="size">
+                {{ size }}
+            </option>
+        </select>
+    </div>
+
+</div>

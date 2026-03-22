@@ -2,6 +2,7 @@
 
     <div class="dashboard-panel">
 
+        <!-- HEADER -->
         <div class="panel-header">
             <h1 class="dashboard-title">Dashboard</h1>
 
@@ -10,8 +11,10 @@
             </button>
         </div>
 
-        <div *ngIf="!isLoading; else loadingTemplate">
+        <!-- CONTENT -->
+        <ng-container *ngIf="!isLoading; else loadingTemplate">
 
+            <!-- STATS -->
             <div class="stats-row">
 
                 <div class="stat-card blue" (click)="goToAllOrders()">
@@ -43,9 +46,11 @@
 
             </div>
 
-            <div class="bottom-row layout-container">
+            <!-- BOTTOM SECTION -->
+            <div class="bottom-row">
 
-                <div class="recent-orders-container layout-left">
+                <!-- LEFT: ORDERS -->
+                <div class="layout-left">
 
                     <div class="recent-orders">
 
@@ -54,21 +59,20 @@
                         <table class="recent-table">
                             <thead>
                                 <tr>
-                                    <th class="col-id">Order ID</th>
-                                    <th class="col-drop">Drop Location</th>
-                                    <th class="col-time">Created At</th>
+                                    <th>Order ID</th>
+                                    <th>Drop Location</th>
+                                    <th>Created At</th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 <tr *ngFor="let order of recentOrders; trackBy: trackByOrder" class="order-row"
                                     (click)="goToOrder(order.id)">
-
                                     <td class="order-id">{{ order.id }}</td>
 
                                     <td class="order-drop">
                                         <span class="icon">📍</span>
-                                        <span class="drop-text">{{ order.drop }}</span>
+                                        {{ order.drop }}
                                     </td>
 
                                     <td class="order-time">
@@ -85,38 +89,29 @@
                             </tbody>
                         </table>
 
-                        <div class="pagination" *ngIf="totalPages > 1">
+                        <!-- PAGINATION (SHARED COMPONENT) -->
+                        <app-pagination *ngIf="allRecentOrders.length > 0" [total]="allRecentOrders.length"
+                            [page]="page" [limit]="limit" (pageChange)="onPageChange($event)"
+                            (limitChange)="onLimitChange($event)">
+                        </app-pagination>
 
-                            <button class="page-btn" (click)="prevPage()" [disabled]="page === 1">
-                                ← Prev
-                            </button>
-
-                            <span class="page-info">
-                                Page {{ page }} of {{ totalPages }}
-                            </span>
-
-                            <button class="page-btn" (click)="nextPage()" [disabled]="page === totalPages">
-                                Next →
-                            </button>
-
-                        </div>
                     </div>
 
                 </div>
 
-                <div class="illustration layout-right">
-                    <img src="assets/images/dashboard-boy.jpg">
+                <!-- RIGHT: ILLUSTRATION -->
+                <div class="layout-right illustration">
+                    <img src="assets/images/dashboard-boy.jpg" alt="Dashboard Illustration" />
                 </div>
 
             </div>
 
-        </div>
+        </ng-container>
 
+        <!-- LOADING -->
         <ng-template #loadingTemplate>
-            <div class="dashboard-panel">
-                <div class="loading-container">
-                    <p>Loading dashboard data...</p>
-                </div>
+            <div class="loading-container">
+                <p>Loading dashboard data...</p>
             </div>
         </ng-template>
 

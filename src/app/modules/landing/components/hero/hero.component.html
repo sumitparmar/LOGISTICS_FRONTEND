@@ -6,38 +6,62 @@
         <div class="hero-left layout-left">
 
             <h1 class="hero-title">
-                FAST & RELIABLE <br />
-                DELIVERY SERVICE
+                INDIA’S FAST & AFFORDABLE <br />
+                <span class="highlight">LOGISTICS & TRUCK BOOKING</span> SERVICE
             </h1>
 
-            <p class="hero-sub">
-                Your trusted logistics partner for secure, on-time and professional deliveries.
-            </p>
+            <div class="hero-points">
 
+                <div class="point">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>Mini trucks & pickup vehicles for all delivery needs</span>
+                </div>
+
+                <div class="point">
+                    <mat-icon>inventory_2</mat-icon>
+                    <span>Safe and reliable goods transport across India</span>
+                </div>
+
+                <div class="point">
+                    <mat-icon>payments</mat-icon>
+                    <span>Fast, affordable and cost-effective pricing</span>
+                </div>
+
+            </div>
+
+            <!-- UPDATED FEATURES (REPLACES CHIPS) -->
             <div class="hero-chips">
-                <span class="chip" (click)="scrollToBooking()">
-                    ⚡ Quick Delivery
-                </span>
-                <span class="chip" (click)="openSecureInfo()">
-                    🔒 Secure Handling
-                </span>
-                <span class="chip" (click)="goToTracking()">
-                    📍 Live Tracking
-                </span>
+
+                <div class="chip" (click)="scrollToBooking()">
+                    <mat-icon>flash_on</mat-icon>
+                    <span>Quick Delivery</span>
+                </div>
+
+                <div class="chip" (click)="openSecureInfo()">
+                    <mat-icon>security</mat-icon>
+                    <span>Secure Handling</span>
+                </div>
+
+                <div class="chip" (click)="goToTracking()">
+                    <mat-icon>location_on</mat-icon>
+                    <span>Live Tracking</span>
+                </div>
+
             </div>
 
             <div class="hero-buttons">
-                <button mat-raised-button color="primary" [disabled]="!price" (click)="bookDelivery()">
+
+                <button class="primary-btn" (click)="bookDelivery()">
                     Book Delivery
                 </button>
 
-                <button mat-stroked-button color="primary" routerLink="/auth/login">
+                <button class="secondary-btn" routerLink="/auth/login">
                     Track Order
                 </button>
+
             </div>
 
         </div>
-
         <!-- RIGHT SIDE -->
         <div class="hero-right layout-right">
 
@@ -56,16 +80,15 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full">
-                    <mat-label>Vehicle Type</mat-label>
-                    <mat-select formControlName="vehicleType">
-                        <mat-option value="1">Bike</mat-option>
-                        <mat-option value="2">Mini Truck</mat-option>
-                        <mat-option value="3">Cargo Van</mat-option>
+                    <mat-label>Select Vehicle</mat-label> <mat-select formControlName="vehicleType">
+                        <mat-option value="1">Bike (Small Delivery)</mat-option>
+                        <mat-option value="2">Mini Truck (Goods Transport)</mat-option>
+                        <mat-option value="3">Cargo Van (Bulk Delivery)</mat-option>
                     </mat-select>
                 </mat-form-field>
 
                 <button mat-raised-button class="quote-btn" (click)="getQuote()" [disabled]="loading">
-                    {{ loading ? 'Calculating...' : 'Get a Quote' }}
+                    {{ loading ? 'Calculating...' : 'Check Price' }}
                 </button>
 
                 <!-- ERROR -->
@@ -86,21 +109,27 @@
     <div class="features-container">
 
         <div class="feature-card">
-            <mat-icon>local_shipping</mat-icon>
-            <h3>Fast Delivery</h3>
-            <p>Same day and express logistics service.</p>
+            <div class="icon-circle">
+                <mat-icon>local_shipping</mat-icon>
+            </div>
+            <h3>Fast Truck Booking</h3>
+            <p>Instant booking for mini trucks and delivery vehicles.</p>
         </div>
 
         <div class="feature-card">
-            <mat-icon>verified</mat-icon>
-            <h3>Secure Handling</h3>
-            <p>Your packages are always protected.</p>
+            <div class="icon-circle">
+                <mat-icon>verified</mat-icon>
+            </div>
+            <h3>Safe Goods Transport</h3>
+            <p>Reliable and secure transport for all types of goods.</p>
         </div>
 
         <div class="feature-card">
-            <mat-icon>support_agent</mat-icon>
-            <h3>24/7 Support</h3>
-            <p>We are here whenever you need help.</p>
+            <div class="icon-circle">
+                <mat-icon>public</mat-icon>
+            </div>
+            <h3>Pan India Service</h3>
+            <p>Available across major cities in India.</p>
         </div>
 
     </div>

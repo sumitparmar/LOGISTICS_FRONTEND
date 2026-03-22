@@ -9,9 +9,10 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent implements OnInit {
   menuOpen = false;
-
+  currentUrl: string = '';
   userName: string = '';
   userInitial: string = '';
+  isLoggedIn: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -19,16 +20,35 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadUser();
-  }
+    this.authService.isAuthenticated$.subscribe((status) => {
+      this.isLoggedIn = status;
 
+      if (status) {
+        this.loadUser();
+      } else {
+        this.userName = '';
+        this.userInitial = '';
+      }
+    });
+
+    this.currentUrl = this.router.url;
+
+    this.router.events.subscribe(() => {
+      this.currentUrl = this.router.url;
+    });
+  }
   loadUser() {
-    const user = this.authService.getUser(); // should return logged user
+    const user = this.authService.getUser();
 
     if (user && user.name) {
       this.userName = user.name;
       this.userInitial = user.name.charAt(0).toUpperCase();
     }
+  }
+
+  clearUser() {
+    this.userName = '';
+    this.userInitial = '';
   }
 
   openMenu() {
@@ -46,5 +66,11 @@ export class HeaderComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  goToLogin() {
+    if (this.router.url !== '/auth/login') {
+      this.router.navigate(['/auth/login']);
+    }
   }
 }

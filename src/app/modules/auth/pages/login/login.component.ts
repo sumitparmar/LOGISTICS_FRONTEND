@@ -70,7 +70,19 @@ export class LoginComponent implements OnInit {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/app/dashboard']);
+          sessionStorage.setItem('show_onboarding', 'true');
+
+          const pending = localStorage.getItem('PENDING_DELIVERY');
+
+          if (pending) {
+            localStorage.removeItem('PENDING_DELIVERY');
+
+            this.router.navigate(['/app/create-order'], {
+              state: JSON.parse(pending),
+            });
+          } else {
+            this.router.navigate(['/app/dashboard']);
+          }
         },
         error: (err) => {
           this.errorMessage = err?.error?.message || 'Login failed';
@@ -120,7 +132,31 @@ export class LoginComponent implements OnInit {
 
           this.authService.setToken(res.data.token);
 
-          this.router.navigate(['/']);
+          if (res?.data?.user) {
+            this.authService.setUser(res.data.user);
+            this.authService.setDeliveryMode(
+              res.data.user?.deliveryMode || null,
+            );
+          } else {
+            // fallback: fetch profile
+            this.authService.getProfile().subscribe((user: any) => {
+              this.authService.setUser(user.data);
+              this.authService.setDeliveryMode(user.data?.deliveryMode || null);
+            });
+          }
+
+          sessionStorage.setItem('show_onboarding', 'true');
+          const pending = localStorage.getItem('PENDING_DELIVERY');
+
+          if (pending) {
+            localStorage.removeItem('PENDING_DELIVERY');
+
+            this.router.navigate(['/app/create-order'], {
+              state: JSON.parse(pending),
+            });
+          } else {
+            this.router.navigate(['/app/dashboard']);
+          }
         },
         error: (err) => {
           this.errorMessage = err?.error?.message || 'Invalid OTP';

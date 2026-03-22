@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit {
     private router: Router,
   ) {}
 
+  orders: any[] = [];
   dashboardStats: DashboardStats = {
     totalOrders: 0,
     activeOrders: 0,
@@ -103,17 +104,17 @@ export class DashboardComponent implements OnInit {
   //   this.showAllOrders = !this.showAllOrders;
   //   this.visibleOrdersCount = this.showAllOrders ? this.recentOrders.length : 3;
   // }
-  nextPage(): void {
-    if (this.page >= this.totalPages) return;
-    this.page++;
-    this.updatePaginatedOrders();
-  }
+  // nextPage(): void {
+  //   if (this.page >= this.totalPages) return;
+  //   this.page++;
+  //   this.updatePaginatedOrders();
+  // }
 
-  prevPage(): void {
-    if (this.page <= 1) return;
-    this.page--;
-    this.updatePaginatedOrders();
-  }
+  // prevPage(): void {
+  //   if (this.page <= 1) return;
+  //   this.page--;
+  //   this.updatePaginatedOrders();
+  // }
   private formatDate(date: string): string {
     return new Date(date).toLocaleString();
   }
@@ -140,5 +141,22 @@ export class DashboardComponent implements OnInit {
 
   goToBookDelivery(): void {
     this.router.navigate(['/app/delivery/create']);
+  }
+
+  onPageChange(newPage: number): void {
+    this.page = newPage;
+    this.updatePaginatedOrders();
+  }
+
+  onLimitChange(newLimit: number): void {
+    this.limit = newLimit;
+    this.page = 1;
+
+    this.totalPages = Math.max(
+      1,
+      Math.ceil(this.allRecentOrders.length / this.limit),
+    );
+
+    this.updatePaginatedOrders();
   }
 }

@@ -16,7 +16,10 @@ interface LoginResponse {
 export class AuthService {
   private tokenKey = 'LOGISTICS_TOKEN';
   private userKey = 'LOGISTICS_USER';
-
+  private deliveryModeSubject = new BehaviorSubject<string | null>(
+    this.getDeliveryMode(),
+  );
+  deliveryMode$ = this.deliveryModeSubject.asObservable();
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken(),
   );
@@ -33,7 +36,8 @@ export class AuthService {
       tap((res) => {
         if (res?.data?.token) {
           this.setToken(res.data.token);
-          this.setUser(res.data.user); // ← store user
+          this.setUser(res.data.user);
+          this.deliveryModeSubject.next(res.data.user?.deliveryMode || null);
           this.isAuthenticatedSubject.next(true);
         }
       }),
@@ -83,11 +87,37 @@ export class AuthService {
   // ------------------------
 
   setUser(user: any) {
+    if (!user) return;
+
     localStorage.setItem(this.userKey, JSON.stringify(user));
   }
 
   getUser() {
     const user = localStorage.getItem(this.userKey);
-    return user ? JSON.parse(user) : null;
+
+    if (!user || user === 'undefined' || user === 'null') {
+      return null;
+    }
+
+    try {
+      return JSON.parse(user);
+    } catch (e) {
+      console.error('Invalid user in localStorage, clearing...');
+      localStorage.removeItem(this.userKey);
+      return null;
+    }
+  }
+  updateProfile(payload: any) {
+    return this.api.put('/auth/profile', payload);
+  }
+  getDeliveryMode(): string | null {
+    const user = this.getUser();
+    return user?.deliveryMode || null;
+  }
+  setDeliveryMode(mode: string) {
+    this.deliveryModeSubject.next(mode);
+  }
+  getProfile() {
+    return this.api.get('/auth/me');
   }
 }

@@ -1,5 +1,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NgxMatDatetimePickerModule } from '@angular-material-components/datetime-picker';
+import { NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
 import {
   HttpClientModule,
   HttpClient,
@@ -25,6 +29,10 @@ export function HttpLoaderFactory(http: HttpClient) {}
     HttpClientModule,
     BrowserAnimationsModule,
     SharedModule,
+    MatFormFieldModule,
+    MatInputModule,
+    NgxMatDatetimePickerModule,
+    NgxMatNativeDateModule,
   ],
 
   providers: [

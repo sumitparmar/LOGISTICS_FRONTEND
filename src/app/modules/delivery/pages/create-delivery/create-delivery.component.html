@@ -1,13 +1,35 @@
 <form [formGroup]="deliveryForm">
 
     <div class="delivery-page">
+
+        <div class="custom-toast" *ngIf="showToast">
+            <div class="toast-content">
+                <span>ℹ️ {{ toastMessage }}</span>
+            </div>
+        </div>
         <div class="delivery-container">
 
             <!-- HEADER -->
 
             <div class="delivery-header">
 
-                <h1 class="page-title">Create Delivery</h1>
+                <h1 class="page-title" *ngIf="mode === 'BUSINESS'">
+                    Create Business Delivery
+                </h1>
+
+                <h1 class="page-title" *ngIf="mode === 'PERSONAL'">
+                    Send a Package
+                </h1>
+
+                <h1 class="page-title" *ngIf="!mode">
+                    Create Delivery
+                </h1>
+
+
+
+                <button type="button" class="reuse-btn" *ngIf="hasLastDelivery" (click)="loadLastDelivery()">
+                    Reuse Last Delivery
+                </button>
                 <div class="delivery-steps">
 
                     <div class="step" [class.active]="currentStep === 1">
@@ -62,6 +84,17 @@
                                         <span class="route-title">Pickup Address</span>
                                     </div>
 
+                                    <div class="form-group">
+                                        <select class="form-input" (change)="selectSavedAddress($event)">
+                                            <option value="">Select from saved addresses (optional)</option>
+                                            <option *ngFor="let addr of savedAddresses" [value]="addr._id">
+                                                {{ addr.label }} - {{ addr.address }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+
+
                                     <input #pickupInput class="form-input" placeholder="Street name & locality *"
                                         formControlName="pickupAddress" />
                                     <div class="form-error" *ngIf="deliveryForm.get('pickupAddress')?.touched &&
@@ -70,14 +103,17 @@ deliveryForm.get('pickupAddress')?.invalid">
                                     </div>
                                     <div class="two-col">
 
-                                        <div class="form-error" *ngIf="deliveryForm.get('pickupName')?.touched &&
-                                                deliveryForm.get('pickupName')?.invalid">
-                                            Sender name is required
-                                        </div>
+                                        <input class="form-input" placeholder="Sender name *"
+                                            formControlName="pickupName" />
 
                                         <input class="form-input" placeholder="+91 phone *"
                                             formControlName="pickupPhone" />
 
+                                    </div>
+
+                                    <div class="form-error" *ngIf="deliveryForm.get('pickupName')?.touched &&
+                                               deliveryForm.get('pickupName')?.invalid">
+                                        Sender name is required
                                     </div>
 
                                     <div class="form-error" *ngIf="deliveryForm.get('pickupPhone')?.touched &&
@@ -95,7 +131,11 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                                     <input class="form-input" placeholder="Landmarks, building, floor etc"
                                         formControlName="pickupNotes" />
-
+                                    <div class="form-group">
+                                        <button type="button" class="btn-secondary" (click)="saveCurrentAddress()">
+                                            Save this address
+                                        </button>
+                                    </div>
                                 </div>
 
                             </div>
@@ -195,8 +235,9 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                     <div class="card-section" formGroupName="package">
 
-                        <h2>Package</h2>
-
+                        <h2 *ngIf="mode === 'BUSINESS'">Shipment Details</h2>
+                        <h2 *ngIf="mode === 'PERSONAL'">Package</h2>
+                        <h2 *ngIf="!mode">Package</h2>
                         <!-- WEIGHT -->
 
                         <div class="weight-selector">
@@ -219,6 +260,13 @@ deliveryForm.get('pickupAddress')?.invalid">
                                 {{ category }}
                             </span>
 
+                        </div>
+                        <div class="mode-recommendation" *ngIf="mode === 'BUSINESS'">
+                            Recommended: Documents, Parcel
+                        </div>
+
+                        <div class="mode-recommendation" *ngIf="mode === 'PERSONAL'">
+                            Recommended: Food, Clothes
                         </div>
 
                         <input class="form-input" placeholder="What's inside the parcel? *"
@@ -277,6 +325,13 @@ deliveryForm.get('package.description')?.invalid">
                     <div class="card-section">
 
                         <h3>Delivery Speed</h3>
+                        <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
+                            ⚡ Tip: Use “Deliver Now” for faster customer fulfillment
+                        </div>
+
+                        <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
+                            💡 Tip: Choose “End of Day” to save delivery cost
+                        </div>
 
                         <div class="delivery-card" *ngFor="let speed of deliverySpeedOptions"
                             [class.active]="deliveryForm.get('deliveryType')?.value === speed.code"
@@ -287,12 +342,44 @@ deliveryForm.get('package.description')?.invalid">
                             </span>
 
                             <div class="delivery-info">
+
+                                <!-- TITLE -->
                                 <h4>{{ speed.title }}</h4>
-                                <p>{{ speed.description }}</p>
+
+                                <!-- DESCRIPTION -->
+                                <p class="delivery-desc">
+                                    {{ speed.description }}
+                                </p>
+
+                                <!-- PRICE -->
+                                <div class="delivery-price" *ngIf="speed.price">
+                                    from ₹ {{ speed.price }}
+                                </div>
+
                             </div>
 
                         </div>
 
+                    </div>
+
+                    <div class="form-group" *ngIf="deliveryForm.get('deliveryType')?.value === 'SCHEDULED'">
+                        <label class="form-label">Select Pickup Time</label>
+
+                        <mat-form-field appearance="outline" class="full-width">
+
+                            <mat-label>Select Pickup Time</mat-label>
+
+                            <input matInput [ngxMatDatetimePicker]="picker" formControlName="scheduledAt"
+                                placeholder="Choose date & time" readonly (click)="picker.open()" />
+
+                            <!-- ✅ THIS IS MISSING -->
+                            <ngx-mat-datepicker-toggle matSuffix [for]="picker"></ngx-mat-datepicker-toggle>
+
+                            <!-- ✅ PICKER -->
+                            <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                                [stepMinute]="5" [touchUi]="true">
+                            </ngx-mat-datetime-picker>
+                        </mat-form-field>
                     </div>
 
                     <!-- VEHICLE -->
@@ -352,6 +439,13 @@ deliveryForm.get('package.description')?.invalid">
                     <div class="card-section">
 
                         <h4>Payment Method</h4>
+                        <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
+                            💼 Businesses usually use cash or card for faster processing
+                        </div>
+
+                        <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
+                            💰 Cash on delivery is easiest for personal deliveries
+                        </div>
 
                         <div class="payment-section">
 
@@ -369,8 +463,8 @@ deliveryForm.get('package.description')?.invalid">
 
                             <!-- ONLINE PAYMENT -->
                             <div class="payment-card"
-                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'ONLINE'"
-                                (click)="selectPayment('CARD')">
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'BANK_CARD'"
+                                (click)="selectPayment('BANK_CARD')">
                                 <span class="material-icons payment-icon">credit_card</span>
 
                                 <div class="payment-info">
@@ -414,17 +508,21 @@ deliveryForm.get('package.description')?.invalid">
 
         </div>
 
-        <div class="reorder-item" *ngFor="let stop of stops.controls; let i=index">
+        <div cdkDropList (cdkDropListDropped)="dropStops($event)" class="reorder-list">
 
-            <span class="reorder-number">
-                {{ i + 1 }}
-            </span>
+            <div class="reorder-item" *ngFor="let stop of stops.controls; let i = index" cdkDrag>
 
-            <span class="reorder-text">
-                Address {{ i + 1 }}
-            </span>
+                <span class="reorder-number">
+                    {{ i + 1 }}
+                </span>
 
-            <span class="drag-icon">☰</span>
+                <span class="reorder-text">
+                    {{ stop.value.address || ('Address ' + (i + 1)) }}
+                </span>
+
+                <span class="drag-icon">☰</span>
+
+            </div>
 
         </div>
 

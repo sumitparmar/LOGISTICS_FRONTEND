@@ -4,7 +4,8 @@
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  padding: 60px 24px;
+
+  padding: 40px 20px 80px; /* 🔥 FIX */
 }
 
 .track-container {
@@ -108,11 +109,10 @@
 
 .tracking-layout {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* ✅ TRUE 50-50 */
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px; /* 🔥 tighter spacing */
+  align-items: stretch; /* 🔥 IMPORTANT */
 }
-
 .left-column,
 .right-column {
   display: flex;
@@ -130,11 +130,12 @@
 .courier-card,
 .pricing-card {
   background: #ffffff;
-  padding: 22px;
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
+  padding: 20px;
+  border-radius: 16px; /* 🔥 smoother */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
+  height: 100%; /* 🔥 ALIGN HEIGHTS */
+}
 /* ================= HEADER ================= */
 
 .details-header {
@@ -210,7 +211,7 @@
 .timeline {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin-top: 14px;
 }
 
@@ -326,22 +327,28 @@
 /* ================= CANCELLED ================= */
 
 .cancelled-block {
-  margin-top: 14px;
-  padding: 14px;
-  border-radius: 10px;
-  background: #fee2e2;
-  border: 1px solid #ef4444;
+  margin-top: 20px;
+
+  padding: 18px;
+  border-radius: 14px;
+
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+
   text-align: center;
+
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.08); /* 🔥 subtle */
 }
 
 .cancelled-label {
   font-weight: 600;
-  color: #b91c1c;
+  color: #dc2626;
+  font-size: 15px;
 }
 
 .cancelled-time {
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 13px;
+  margin-top: 6px;
   color: #7f1d1d;
 }
 
@@ -379,6 +386,6 @@
   }
 
   .map-container {
-    height: 280px;
+    height: 320px;
   }
 }

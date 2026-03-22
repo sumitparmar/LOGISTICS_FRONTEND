@@ -33,7 +33,7 @@ export class OrdersService {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   }): Observable<OrdersResponse> {
-    return this.api.get<OrdersResponse>('/orders/list', { params: query });
+    return this.api.get<OrdersResponse>('/orders/list', query);
   }
 
   getOrderById(id: string) {
@@ -71,5 +71,9 @@ export class OrdersService {
   }
   getBankCards() {
     return this.api.get('/borzo/bank-cards');
+  }
+
+  getDeliveryTypes() {
+    return this.api.get('/meta/delivery-types');
   }
 }

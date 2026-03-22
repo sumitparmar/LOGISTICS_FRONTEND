@@ -4,12 +4,7 @@
 
         <!-- Logo Section -->
         <div class="logo">
-            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 12H6L9 5L13 19L16 12H22" stroke="#ff7a00" stroke-width="2.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-
-            <span class="logo-text">PULSE Logistics</span>
+            <img src="assets/images/movekart-logo.png" alt="MoveKart" />
         </div>
 
         <!-- Navigation -->
@@ -21,40 +16,51 @@
             <a routerLink="/contact" routerLinkActive="active">Contact Us</a>
         </nav>
 
-        <!-- Right Section (Profile + Logout) -->
+        <!-- Right Section -->
         <div class="nav-right">
 
-            <!-- Profile Menu -->
-            <div class="profile-menu">
+            <!-- ✅ LOGGED IN -->
+            <ng-container *ngIf="isLoggedIn; else guestUser">
 
-                <div class="avatar" (click)="goToProfile()">
-                    {{ userInitial }}
+                <!-- Profile -->
+                <div class="profile-menu">
+
+                    <div class="avatar" (click)="goToProfile()">
+                        {{ userInitial }}
+                    </div>
+
+                    <div class="dropdown">
+
+                        <div class="dropdown-item user-name">
+                            {{ userName }}
+                        </div>
+
+                        <div class="dropdown-divider"></div>
+
+                        <div class="dropdown-item" (click)="goToProfile()">
+                            My Profile
+                        </div>
+
+                        <div class="dropdown-item logout" (click)="logout()">
+                            Logout
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div class="dropdown">
+                <!-- Logout Button -->
+                <button class="logout-btn" (click)="logout()">
+                    Logout
+                </button>
 
-                    <div class="dropdown-item user-name">
-                        {{ userName }}
-                    </div>
+            </ng-container>
 
-                    <div class="dropdown-divider"></div>
-
-                    <div class="dropdown-item" (click)="goToProfile()">
-                        My Profile
-                    </div>
-
-                    <div class="dropdown-item logout" (click)="logout()">
-                        Logout
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Logout Button -->
-            <button class="logout-btn" (click)="logout()">
-                Logout
-            </button>
+            <ng-template #guestUser>
+                <button class="login-btn" (click)="goToLogin()" [disabled]="currentUrl === '/auth/login'">
+                    Login
+                </button>
+            </ng-template>
 
         </div>
 

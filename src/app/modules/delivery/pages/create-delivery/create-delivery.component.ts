@@ -14,6 +14,9 @@ import { Router } from '@angular/router';
 import { OrdersService } from 'src/app/core/services/orders.service';
 import { RouteService } from 'src/app/core/services/route.service';
 import { debounceTime } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { AddressService } from 'src/app/core/services/address.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 declare const google: any;
 
 @Component({
@@ -28,6 +31,16 @@ export class CreateDeliveryComponent
   @ViewChildren('stopInput') stopInputs!: QueryList<ElementRef>;
   @ViewChild('routeMap') routeMap!: ElementRef;
   private map: any;
+  deliveryTypesConfig: any = {};
+  deliverySpeedOptions: any[] = [];
+  savedAddresses: any[] = [];
+  selectedScheduleTime: string | null = null;
+  private toastTimer: any;
+  hasLastDelivery = false;
+  mode: string | null = null;
+  private modeSub: any;
+  showToast = false;
+  toastMessage = '';
   private directionsRenderer: any;
   private stopInputSubscription: any;
   deliveryForm!: FormGroup;
@@ -56,26 +69,26 @@ export class CreateDeliveryComponent
     'Parcel',
   ];
 
-  deliverySpeedOptions = [
-    {
-      code: 'NOW',
-      title: 'Deliver Now',
-      description: 'Courier arrives immediately',
-      icon: 'flash_on',
-    },
-    {
-      code: 'EOD',
-      title: 'By End of Day',
-      description: 'Lower price delivery',
-      icon: 'schedule',
-    },
-    {
-      code: 'SCHEDULED',
-      title: 'Schedule',
-      description: 'Choose pickup time',
-      icon: 'event',
-    },
-  ];
+  // deliverySpeedOptions = [
+  //   {
+  //     code: 'NOW',
+  //     title: 'Deliver Now',
+  //     description: 'Courier arrives immediately',
+  //     icon: 'flash_on',
+  //   },
+  //   {
+  //     code: 'END_OF_DAY',
+  //     title: 'By End of Day',
+  //     description: 'Lower price delivery',
+  //     icon: 'schedule',
+  //   },
+  //   {
+  //     code: 'SCHEDULED',
+  //     title: 'Schedule',
+  //     description: 'Choose pickup time',
+  //     icon: 'event',
+  //   },
+  // ];
 
   vehicleOptions = [
     {
@@ -114,6 +127,8 @@ export class CreateDeliveryComponent
     private router: Router,
     private routeService: RouteService,
     private analytics: AnalyticsService,
+    private authService: AuthService,
+    private addressService: AddressService,
   ) {}
 
   ngOnDestroy(): void {
@@ -130,20 +145,57 @@ export class CreateDeliveryComponent
     if (this.directionsRenderer) {
       this.directionsRenderer.setMap(null);
     }
-
+    if (this.modeSub) {
+      this.modeSub.unsubscribe();
+    }
     this.stopAutocompleteInstances = [];
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
   }
+
+  // ngOnInit(): void {
+  //   this.initializeForm();
+
+  //   this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
+  //     if (!this.canAutoCalculate()) return;
+
+  //     this.resetPrice();
+
+  //     this.calculatePrice();
+  //   });
+  //   this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
+  //     this.resetPrice();
+  //   });
+
+  //   this.deliveryForm.get('package.description')?.valueChanges.subscribe(() => {
+  //     this.resetPrice();
+  //   });
+  // }
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadSavedAddresses();
+    this.loadDeliveryTypes();
+    this.hasLastDelivery = !!localStorage.getItem('LAST_DELIVERY');
+    // this.loadLastDelivery();
+    this.modeSub = this.authService.deliveryMode$.subscribe((mode) => {
+      this.mode = mode;
+      this.applyModeDefaults(mode);
+
+      if (mode === 'BUSINESS') {
+        this.loadBankCards();
+      }
+    });
 
     this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
       if (!this.canAutoCalculate()) return;
 
       this.resetPrice();
-
       this.calculatePrice();
     });
+
     this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
       this.resetPrice();
     });
@@ -151,7 +203,225 @@ export class CreateDeliveryComponent
     this.deliveryForm.get('package.description')?.valueChanges.subscribe(() => {
       this.resetPrice();
     });
+
+    const pending = history.state;
+
+    if (pending?.pickup) {
+      this.applyPendingDelivery(pending);
+    }
   }
+
+  // applyModeDefaults(mode: string | null): void {
+  //   if (!mode) return;
+
+  //   if (this.deliveryForm.get('vehicleTypeId')?.value !== 1) return;
+
+  //   if (mode === 'BUSINESS') {
+  //     this.deliveryForm.patchValue({
+  //       deliveryType: 'NOW',
+  //       paymentMethod: 'CASH',
+  //     });
+  //   }
+
+  //   if (mode === 'PERSONAL') {
+  //     this.deliveryForm.patchValue({
+  //       deliveryType: 'EOD',
+  //       paymentMethod: 'CASH',
+  //     });
+  //   }
+  // }
+  applyPendingDelivery(data: any): void {
+    // 🔹 Set pickup (ONLY ADDRESS — lat/lng must come from autocomplete)
+    this.deliveryForm.patchValue({
+      pickupAddress: data.pickup,
+      pickupLat: null,
+      pickupLng: null,
+
+      vehicleTypeId: data.vehicleType || 1,
+    });
+
+    // 🔹 Set first stop (drop)
+    const firstStop = this.stops.at(0);
+
+    firstStop.patchValue({
+      address: data.drop,
+      lat: null,
+      lng: null,
+    });
+
+    this.resetPrice();
+
+    this.showToastMessage(
+      'Please select pickup & drop from suggestions to continue',
+    );
+    setTimeout(() => {
+      this.pickupInput?.nativeElement?.focus();
+    }, 300);
+  }
+
+  showToastMessage(message: string): void {
+    this.toastMessage = message;
+    this.showToast = true;
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+
+    this.toastTimer = setTimeout(() => {
+      this.showToast = false;
+    }, 2500);
+  }
+
+  loadDeliveryTypes(): void {
+    this.ordersService.getDeliveryTypes().subscribe({
+      next: (res: any) => {
+        this.deliveryTypesConfig = res.data;
+        this.buildDeliveryOptions();
+      },
+      error: (err) => {
+        console.error('Failed to load delivery types', err);
+
+        // ✅ FALLBACK (PRODUCTION SAFE)
+        this.deliveryTypesConfig = {
+          NOW: {
+            label: 'Deliver Now',
+            baseDescription: 'Fastest delivery',
+            icon: 'flash_on',
+            priority: 1,
+          },
+          END_OF_DAY: {
+            label: 'By End of Day',
+            baseDescription: 'Lower cost delivery',
+            icon: 'schedule',
+            priority: 2,
+          },
+          SCHEDULED: {
+            label: 'Schedule',
+            baseDescription: 'Choose pickup time',
+            icon: 'event',
+            priority: 3,
+          },
+        };
+
+        this.buildDeliveryOptions();
+      },
+    });
+  }
+
+  buildDeliveryOptions(): void {
+    this.deliverySpeedOptions = Object.keys(this.deliveryTypesConfig)
+      .map((code) => {
+        const item = this.deliveryTypesConfig[code];
+
+        return {
+          code,
+          title: item.label,
+          description: item.baseDescription,
+          icon: item.icon,
+          priority: item.priority,
+        };
+      })
+      .sort((a, b) => a.priority - b.priority);
+  }
+
+  applyModeDefaults(mode: string | null): void {
+    if (!mode) return;
+
+    const user = this.authService.getUser();
+
+    // 🔹 Pickup behavior based on mode
+    if (mode === 'BUSINESS') {
+      this.deliveryForm.patchValue({
+        pickupName: user?.name || '',
+        pickupPhone: user?.phone || '',
+      });
+    }
+
+    if (mode === 'PERSONAL') {
+      this.deliveryForm.patchValue({
+        pickupName: '',
+        pickupPhone: '',
+      });
+    }
+
+    const currentDeliveryType = this.deliveryForm.get('deliveryType')?.value;
+
+    if (!currentDeliveryType || currentDeliveryType === 'NOW') {
+      if (mode === 'BUSINESS') {
+        this.deliveryForm.patchValue({
+          deliveryType: 'NOW',
+          paymentMethod: 'CASH',
+        });
+      }
+
+      if (mode === 'PERSONAL') {
+        this.deliveryForm.patchValue({
+          deliveryType: 'END_OF_DAY',
+          paymentMethod: 'CASH',
+        });
+      }
+    }
+  }
+
+  loadSavedAddresses(): void {
+    this.addressService.getAddresses().subscribe({
+      next: (res: any) => {
+        this.savedAddresses = res?.data || [];
+      },
+      error: (err) => {
+        console.error('Failed to load addresses', err);
+      },
+    });
+  }
+
+  selectSavedAddress(event: any): void {
+    const id = event.target.value;
+    const selected = this.savedAddresses.find((a) => a._id === id);
+
+    if (!selected) return;
+
+    this.deliveryForm.patchValue({
+      pickupAddress: selected.address,
+      pickupLat: selected.lat,
+      pickupLng: selected.lng,
+      pickupName: selected.name,
+      pickupPhone: selected.phone,
+      pickupNotes: selected.notes || '',
+    });
+
+    this.resetPrice();
+    this.renderRoute();
+  }
+
+  saveCurrentAddress(): void {
+    const form = this.deliveryForm.value;
+
+    if (!form.pickupLat || !form.pickupLng) {
+      this.showToastMessage('Select address from suggestions first');
+      return;
+    }
+
+    const payload = {
+      label: this.mode === 'BUSINESS' ? 'OFFICE' : 'HOME',
+      name: form.pickupName,
+      phone: form.pickupPhone,
+      address: form.pickupAddress,
+      lat: form.pickupLat,
+      lng: form.pickupLng,
+      notes: form.pickupNotes,
+    };
+
+    this.addressService.createAddress(payload).subscribe({
+      next: () => {
+        this.showToastMessage('Address saved');
+        this.loadSavedAddresses();
+      },
+      error: () => {
+        this.showToastMessage('Failed to save address');
+      },
+    });
+  }
+
   canAutoCalculate(): boolean {
     const form = this.deliveryForm.value;
 
@@ -174,7 +444,7 @@ export class CreateDeliveryComponent
       next: (res: any) => {
         console.log('BANK CARDS RESPONSE:', res);
 
-        this.bankCards = res.data;
+        this.bankCards = res?.data || [];
       },
       error: (err) => {
         console.error('Failed to load bank cards', err);
@@ -185,7 +455,8 @@ export class CreateDeliveryComponent
     const form = this.deliveryForm.value;
 
     if (!this.priceSummary.total) {
-      alert('Please calculate price first');
+      this.showToastMessage('Please calculate price first');
+
       return;
     }
 
@@ -236,6 +507,7 @@ export class CreateDeliveryComponent
       this.calculatePrice();
     }
   }
+
   initializeForm(): void {
     this.deliveryForm = this.fb.group({
       pickupAddress: ['', Validators.required],
@@ -247,6 +519,7 @@ export class CreateDeliveryComponent
         '',
         [Validators.required, Validators.pattern(/^[0-9]{10}$/)],
       ],
+
       pickupNotes: [''],
 
       stops: this.fb.array([this.createStop()]),
@@ -258,15 +531,15 @@ export class CreateDeliveryComponent
       }),
 
       deliveryType: ['NOW', Validators.required],
+      scheduledAt: [null],
       paymentMethod: ['CASH', Validators.required],
-      bankCardId: [null], // ADD THIS
+      bankCardId: [null],
 
       vehicleTypeId: [1, Validators.required],
 
       parcelValue: [null],
     });
   }
-
   get stops(): FormArray {
     return this.deliveryForm.get('stops') as FormArray;
   }
@@ -311,7 +584,6 @@ export class CreateDeliveryComponent
     if (!value || value <= 0) {
       this.insuranceCharge = 0;
 
-      // 🔥 ADD HERE
       this.priceSummary.insurance = 0;
       this.priceSummary.total = this.priceSummary.deliveryFee;
 
@@ -320,22 +592,36 @@ export class CreateDeliveryComponent
 
     this.insuranceCharge = Math.round(2 + value * 0.01);
 
-    // 🔥 ADD HERE
     this.priceSummary.insurance = this.insuranceCharge;
     this.priceSummary.total =
       this.priceSummary.deliveryFee + this.insuranceCharge;
   }
+
   async calculatePrice(): Promise<void> {
+    const form = this.deliveryForm.value;
+
+    if (form.deliveryType === 'SCHEDULED' && !this.isScheduleValid()) {
+      this.showToastMessage('Please select a valid future time');
+      return;
+    }
+
     if (this.isCalculatingPrice) {
       return;
     }
-    this.currentStep = 2;
 
-    if (!this.canAutoCalculate()) {
+    if (!form.pickupLat || !form.pickupLng) {
+      this.showToastMessage('Please select pickup from suggestions');
       return;
     }
 
-    const form = this.deliveryForm.value;
+    const lastStop = form.stops[form.stops.length - 1];
+
+    if (!lastStop.lat || !lastStop.lng) {
+      this.showToastMessage('Please select delivery from suggestions');
+      return;
+    }
+
+    this.currentStep = 2;
 
     // if (!form.pickupLat || !form.pickupLng) {
     //   alert('Please select pickup address from suggestions');
@@ -352,27 +638,32 @@ export class CreateDeliveryComponent
     this.isCalculatingPrice = true;
 
     try {
-      // const distance = await this.calculateRouteDistance();
-
       const payload = {
         matter: form.package.description,
 
         vehicleTypeId: form.vehicleTypeId,
-
-        // distance: distance,
-
+        deliveryType: form.deliveryType,
+        scheduledAt:
+          form.deliveryType === 'SCHEDULED'
+            ? new Date(form.scheduledAt).toISOString()
+            : undefined,
         pickup: {
           address: form.pickupAddress,
+          lat: form.pickupLat,
+          lng: form.pickupLng,
         },
 
         drop: {
           address: form.stops[form.stops.length - 1].address,
+          lat: form.stops[form.stops.length - 1].lat,
+          lng: form.stops[form.stops.length - 1].lng,
         },
       };
 
       this.ordersService.calculatePrice(payload).subscribe({
         next: (res: any) => {
           const amount = res?.data?.amount || 0;
+          this.enrichDeliveryOptions(amount);
           this.priceSummary.deliveryFee = amount;
           this.priceSummary.insurance = this.insuranceCharge;
           this.priceSummary.total = amount + this.insuranceCharge;
@@ -392,9 +683,13 @@ export class CreateDeliveryComponent
   }
   createOrder(): void {
     const form = this.deliveryForm.value;
-
+    if (form.deliveryType === 'SCHEDULED' && !this.isScheduleValid()) {
+      this.showToastMessage('Please select a valid future time');
+      return;
+    }
     if (!this.priceSummary.total) {
-      alert('Please calculate price first');
+      this.showToastMessage('Please calculate price first');
+
       return;
     }
 
@@ -412,7 +707,10 @@ export class CreateDeliveryComponent
       matter: form.package.description,
 
       vehicleTypeId: form.vehicleTypeId,
-
+      scheduledAt:
+        form.deliveryType === 'SCHEDULED'
+          ? new Date(form.scheduledAt).toISOString()
+          : undefined,
       deliveryType: form.deliveryType,
 
       customer: {
@@ -470,6 +768,23 @@ export class CreateDeliveryComponent
 
         const orderId = res?.data?._id;
 
+        const lastDelivery = {
+          pickup: {
+            address: form.pickupAddress,
+            name: form.pickupName,
+            phone: form.pickupPhone,
+          },
+          drop: {
+            address: lastStop.address,
+            name: lastStop.name,
+            phone: lastStop.phone,
+          },
+          package: form.package,
+        };
+
+        localStorage.setItem('LAST_DELIVERY', JSON.stringify(lastDelivery));
+        this.hasLastDelivery = true;
+
         this.analytics.trackEvent('order_created', {
           orderId: orderId,
           amount: this.priceSummary.total,
@@ -493,9 +808,95 @@ export class CreateDeliveryComponent
           err?.error?.errors?.[0] ||
           'Order creation failed. Please try again.';
 
-        alert(message);
+        this.showToastMessage(message);
       },
     });
+  }
+
+  enrichDeliveryOptions(nowPrice: number): void {
+    this.deliverySpeedOptions = this.deliverySpeedOptions.map((opt) => {
+      if (opt.code === 'NOW') {
+        return {
+          ...opt,
+          description: 'Fastest delivery available',
+          price: nowPrice,
+        };
+      }
+
+      if (opt.code === 'END_OF_DAY') {
+        const discounted = nowPrice;
+        return {
+          ...opt,
+          description: `Save ₹${nowPrice - discounted}`,
+          price: discounted,
+        };
+      }
+
+      if (opt.code === 'SCHEDULED') {
+        return {
+          ...opt,
+          description: 'Choose pickup time',
+        };
+      }
+
+      return opt;
+    });
+  }
+
+  dropStops(event: CdkDragDrop<any[]>): void {
+    const stopsArray = this.stops;
+
+    moveItemInArray(
+      stopsArray.controls,
+      event.previousIndex,
+      event.currentIndex,
+    );
+
+    stopsArray.updateValueAndValidity();
+
+    this.renderRoute();
+
+    if (this.canAutoCalculate()) {
+      this.calculatePrice();
+    }
+  }
+
+  loadLastDelivery(): void {
+    const data = localStorage.getItem('LAST_DELIVERY');
+    if (!data) return;
+
+    const last = JSON.parse(data);
+
+    // ✅ Fill visible fields
+    this.deliveryForm.patchValue({
+      pickupAddress: last.pickup.address,
+      pickupName: last.pickup.name,
+      pickupPhone: last.pickup.phone,
+      package: last.package,
+
+      // ❗ RESET coordinates (VERY IMPORTANT)
+      pickupLat: null,
+      pickupLng: null,
+    });
+
+    const stop = this.stops.at(0);
+
+    stop.patchValue({
+      address: last.drop.address,
+      name: last.drop.name,
+      phone: last.drop.phone,
+
+      // ❗ RESET coordinates
+      lat: null,
+      lng: null,
+    });
+
+    this.showToastMessage(
+      'Please select pickup & delivery locations from suggestions',
+    );
+
+    // ✅ Focus user to take action
+    this.pickupInput.nativeElement.focus();
   }
 
   selectPayment(type: string): void {
@@ -529,12 +930,34 @@ export class CreateDeliveryComponent
   selectWeight(weight: number): void {
     this.deliveryForm.get('package.weight')?.setValue(weight);
   }
+
   selectDeliveryType(type: string): void {
     this.deliveryForm.patchValue({
       deliveryType: type,
     });
 
+    if (type !== 'SCHEDULED') {
+      this.deliveryForm.patchValue({
+        scheduledAt: null,
+      });
+    }
+
     this.resetPrice();
+
+    if (this.canAutoCalculate()) {
+      this.calculatePrice();
+    }
+  }
+
+  isScheduleValid(): boolean {
+    const value = this.deliveryForm.get('scheduledAt')?.value;
+
+    if (!value) return false;
+
+    const selectedTime = new Date(value).getTime();
+    const now = Date.now();
+
+    return selectedTime > now;
   }
 
   openReorderModal(): void {

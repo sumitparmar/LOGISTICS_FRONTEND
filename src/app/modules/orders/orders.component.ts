@@ -71,6 +71,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       queryParams: { orderId: order._id },
     });
   }
+
   loadOrders(): void {
     if (this.loading) return;
     this.loading = true;
@@ -89,16 +90,27 @@ export class OrdersComponent implements OnInit, OnDestroy {
     if (this.statusFilter) {
       query.status = this.statusFilter;
     }
-    console.log('Orders query:', query);
+
+    // 🔥 ADD HERE
+    console.log('PAGE:', this.page, 'LIMIT:', this.limit);
+    console.log('QUERY:', query);
 
     this.ordersService.getOrders(query).subscribe({
       next: (res: OrdersResponse) => {
         const data = res?.data || [];
 
+        // 🔥 ADD HERE
+        console.log(
+          'RESPONSE IDS:',
+          data.map((o) => o.borzoOrderId),
+        );
+
         this.orders = data;
-        this.applyStatusFilter();
+
+        // ❌ TEMP REMOVE FILTER (IMPORTANT)
+        this.filteredOrders = this.orders;
+
         this.total = res?.meta?.total || 0;
-        this.page = res?.meta?.page || this.page;
 
         this.totalPages = Math.ceil(this.total / this.limit);
 
@@ -114,7 +126,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
       error: (err) => {
         console.error('Orders load failed', err);
-
         this.loading = false;
       },
     });
@@ -165,30 +176,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
       this.loadOrders();
     }, 400);
-  }
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-
-    this.page = page;
-
-    this.loadOrders();
-  }
-
-  nextPage(): void {
-    if (this.page >= this.totalPages) return;
-
-    this.page++;
-
-    this.loadOrders();
-  }
-
-  prevPage(): void {
-    if (this.page <= 1) return;
-
-    this.page--;
-
-    this.loadOrders();
   }
 
   setStatusFilter(status: string | null): void {
@@ -329,17 +316,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
   trackByOrder(index: number, order: any) {
     return order._id;
   }
-  changePage(newPage: number): void {
-    if (newPage < 1) return;
 
-    if (newPage > this.getTotalPages()) return;
-
-    this.page = newPage;
-
+  onPageChange(page: number) {
+    if (page === this.page) return; // 🔥 prevent loop
+    this.page = page;
     this.loadOrders();
   }
 
-  getTotalPages(): number {
-    return Math.ceil(this.total / this.limit);
+  onLimitChange(limit: number) {
+    if (limit === this.limit) return;
+    this.limit = limit;
+    this.page = 1;
+    this.loadOrders();
   }
 }

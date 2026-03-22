@@ -1,35 +1,27 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
-
+import { LandingGuard } from './core/guards/landing.guard';
 const routes: Routes = [
-  // ===============================
-  // AUTH ROUTES (NO HEADER)
-  // ===============================
   {
     path: 'auth',
     loadChildren: () =>
       import('./modules/auth/auth.module').then((m) => m.AuthModule),
   },
 
-  // ===============================
-  // AUTHENTICATED APP (DASHBOARD LAYOUT WITH HEADER)
-  // ===============================
   {
     path: 'app',
     loadChildren: () =>
       import('./modules/layout/layout.module').then((m) => m.LayoutModule),
   },
 
-  // ===============================
-  // PUBLIC ROUTES (HEADER VISIBLE)
-  // ===============================
   {
     path: '',
     component: PublicLayoutComponent,
     children: [
       {
         path: '',
+        canActivate: [LandingGuard],
         loadChildren: () =>
           import('./modules/landing/landing.module').then(
             (m) => m.LandingModule,

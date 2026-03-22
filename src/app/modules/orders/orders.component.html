@@ -2,6 +2,7 @@
 
     <div class="orders-container">
 
+        <!-- HEADER -->
         <div class="orders-header">
             <h2>My Orders</h2>
 
@@ -10,6 +11,7 @@
             </a>
         </div>
 
+        <!-- STATS -->
         <div class="stats-grid">
 
             <div class="stat-card">
@@ -34,6 +36,7 @@
 
         </div>
 
+        <!-- FILTERS -->
         <div class="orders-filters">
 
             <input type="text" placeholder="Search order, pickup, drop..." [(ngModel)]="searchText"
@@ -59,10 +62,12 @@
 
         </div>
 
+        <!-- LOADING -->
         <div *ngIf="loading" class="orders-loading">
             <div class="loading-spinner"></div>
         </div>
 
+        <!-- TABLE -->
         <div class="orders-table" *ngIf="!loading">
 
             <div class="table-wrapper">
@@ -110,6 +115,7 @@
                         <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="order-row"
                             [ngClass]="'row-' + order.status?.toLowerCase()">
 
+                            <!-- PROGRESS -->
                             <td class="progress-cell">
                                 <div class="route-tracker">
                                     <div *ngFor="let step of statusFlow; let i = index" class="route-step"
@@ -125,21 +131,25 @@
                                 </div>
                             </td>
 
+                            <!-- ORDER ID -->
                             <td (click)="openOrder(order._id)" class="order-id-cell">
                                 <span class="order-id">
                                     {{ order.borzoOrderId }}
                                 </span>
                             </td>
 
+                            <!-- PICKUP / DROP -->
                             <td>{{ order.pickup?.address }}</td>
                             <td>{{ order.drop?.address }}</td>
 
+                            <!-- STATUS -->
                             <td>
                                 <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
                                     {{ order.status }}
                                 </span>
                             </td>
 
+                            <!-- VEHICLE -->
                             <td class="vehicle-cell">
                                 <span class="vehicle-icon">
                                     {{ getVehicleIcon(order.vehicleTypeId) }}
@@ -149,36 +159,26 @@
                                 </span>
                             </td>
 
+                            <!-- COURIER -->
                             <td>
-
                                 <div *ngIf="order.courier; else noCourier" class="courier-info">
-
                                     <div class="courier-avatar">
                                         {{ order.courier?.name?.charAt(0) || '?' }}
                                     </div>
 
                                     <div class="courier-meta">
-
-                                        <div class="courier-name">
-                                            {{ order.courier?.name }}
-                                        </div>
-
-                                        <div class="courier-phone">
-                                            {{ order.courier?.phone }}
-                                        </div>
-
+                                        <div class="courier-name">{{ order.courier?.name }}</div>
+                                        <div class="courier-phone">{{ order.courier?.phone }}</div>
                                     </div>
-
                                 </div>
 
                                 <ng-template #noCourier>
                                     <span class="no-courier">Not assigned</span>
                                 </ng-template>
-
                             </td>
 
+                            <!-- ETA -->
                             <td>
-
                                 <ng-container
                                     *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
                                     {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime | date:'dd
@@ -190,16 +190,17 @@
                                         {{ getEstimatedDuration(order) }}
                                     </span>
                                 </ng-template>
-
                             </td>
 
+                            <!-- PRICE -->
                             <td (click)="$event.stopPropagation()">
-                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.2-2' }} </td>
+                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.2-2' }}
+                            </td>
 
+                            <!-- ACTIONS -->
                             <td class="actions" (click)="$event.stopPropagation()">
 
-                                <button class="action-btn track-btn"
-                                    (click)="$event.stopPropagation(); trackOrderEvent(order)">
+                                <button class="action-btn track-btn" (click)="trackOrderEvent(order)">
                                     Track
                                 </button>
 
@@ -222,22 +223,12 @@
 
             </div>
 
-            <div class="orders-pagination">
+            <!-- PAGINATION -->
+            <app-pagination *ngIf="total > 0" [total]="total" [page]="page" [limit]="limit"
+                (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)">
+            </app-pagination>
 
-                <button class="page-btn" (click)="changePage(page - 1)" [disabled]="page === 1">
-                    Previous
-                </button>
-
-                <button class="page-number" *ngFor="let p of pages" (click)="changePage(p)" [class.active]="page === p">
-                    {{ p }}
-                </button>
-
-                <button class="page-btn" (click)="changePage(page + 1)" [disabled]="page >= getTotalPages()">
-                    Next
-                </button>
-
-            </div>
-
+            <!-- EMPTY -->
             <div *ngIf="!filteredOrders.length" class="orders-empty">
                 <h3>No deliveries yet</h3>
                 <p>Create your first delivery to get started.</p>
@@ -253,8 +244,8 @@
 
 </div>
 
+<!-- MODAL -->
 <div class="cancel-modal-overlay" *ngIf="showCancelModal">
-
     <div class="cancel-modal">
 
         <h3>Cancel Delivery</h3>
@@ -277,5 +268,4 @@
         </div>
 
     </div>
-
 </div>

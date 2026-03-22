@@ -146,9 +146,23 @@ export class HeroComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
   bookDelivery() {
+    if (!this.price) return;
+
+    const data = {
+      pickup: this.quoteForm.value.pickup,
+      drop: this.quoteForm.value.drop,
+      vehicleType: this.quoteForm.value.vehicleType,
+      price: this.price,
+    };
+
+    // ✅ Save temporarily
+    localStorage.setItem('PENDING_DELIVERY', JSON.stringify(data));
+
     this.router.navigate(['/auth/login']);
   }
+
   scrollToBooking() {
     const section = document.getElementById('booking-section');
     if (section) {

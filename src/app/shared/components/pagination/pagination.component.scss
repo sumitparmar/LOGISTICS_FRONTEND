@@ -1,0 +1,147 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* ===============================
+   PAGINATION CONTAINER
+=============================== */
+:host .pagination {
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 16px;
+  padding: 12px 16px;
+
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+
+  gap: 12px;
+}
+
+/* ===============================
+   LEFT SIDE (ARROWS + PAGES)
+=============================== */
+:host .pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* PAGE NUMBERS */
+:host .pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:host .pages button {
+  min-width: 36px;
+  height: 36px;
+
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* HOVER */
+:host .pages button:hover {
+  background: #f9fafb;
+}
+
+/* ACTIVE */
+:host .pages button.active {
+  background: #1e5aa8;
+  color: #ffffff;
+  border-color: #1e5aa8;
+}
+
+/* ===============================
+   ARROW BUTTONS
+=============================== */
+:host .pagination-left > button {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 6px;
+  border: none;
+
+  background: #f3f4f6;
+  color: #111827;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:host .pagination-left > button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+:host .pagination-left > button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   RIGHT SIDE (LIMIT SELECT)
+=============================== */
+:host .pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+:host .pagination-right span {
+  white-space: nowrap;
+}
+
+:host .pagination-right select {
+  padding: 5px 10px;
+
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+
+  background: #ffffff;
+  cursor: pointer;
+
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+:host .pagination-right select:hover {
+  border-color: #1e5aa8;
+}
+
+/* ===============================
+   MOBILE RESPONSIVE
+=============================== */
+@media (max-width: 600px) {
+  :host .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  :host .pagination-left {
+    flex-wrap: wrap;
+  }
+
+  :host .pages {
+    flex-wrap: wrap;
+  }
+}

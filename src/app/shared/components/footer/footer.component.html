@@ -1,26 +1,100 @@
-<footer class="main-footer">
+<footer class="footer">
+
     <div class="footer-container">
-        <div class="footer-left">
-            <span class="logo-icon">DB</span>
-            <span class="logo-text">DELIVERY Co.</span>
+
+        <!-- COLUMN 1: BRAND + CITIES -->
+        <div class="footer-col brand">
+            <div class="logo">MoveKart</div>
+
+            <ul class="city-list">
+                <li *ngFor="let city of footer.cities">
+                    <a href="#" [attr.aria-label]="'Service in ' + city">
+                        {{ city }}
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <div class="footer-links">
-            <a>Home</a>
-            <a>Pricing</a>
-            <a>Track Order</a>
-            <a>About Us</a>
-            <a>Contact</a>
+        <!-- COLUMN 2: COMPANY -->
+        <div class="footer-col">
+            <h4>Company</h4>
+            <ul>
+                <li *ngFor="let item of footer.company">
+                    <a href="#">
+                        {{ item }}
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <div class="footer-social">
-            <span>f</span>
-            <span>t</span>
-            <span>in</span>
+        <!-- COLUMN 3: BUSINESS -->
+        <div class="footer-col">
+            <h4>For Businesses</h4>
+            <ul>
+                <li *ngFor="let item of footer.business">
+                    <a href="#">
+                        {{ item }}
+                    </a>
+                </li>
+            </ul>
         </div>
+
+        <!-- COLUMN 4: APPS -->
+        <div class="footer-col apps">
+            <a href="#" class="app-card" aria-label="Download on App Store">
+                 App Store
+            </a>
+
+            <a href="#" class="app-card" aria-label="Get it on Google Play">
+                ▶ Google Play
+            </a>
+
+            <a href="#" class="app-card" aria-label="Download on Huawei AppGallery">
+                Huawei AppGallery
+            </a>
+        </div>
+
     </div>
 
-    <div class="copyright">
-        © 2024 DELIVERY Co. All rights reserved.
+    <!-- BOTTOM SECTION -->
+    <div class="footer-bottom">
+
+        <!-- SOCIAL ICONS -->
+        <div class="socials">
+
+            <a href="#" class="icon" aria-label="Facebook">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z" />
+                </svg>
+            </a>
+
+            <a href="#" class="icon" aria-label="Instagram">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 2C4.8 2 3 3.8 3 6v12c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 
+          4-4V6c0-2.2-1.8-4-4-4H7zm5 5a5 5 0 110 10 5 5 0 010-10zm6-1a1 
+          1 0 110 2 1 1 0 010-2z" />
+                </svg>
+            </a>
+
+            <a href="#" class="icon" aria-label="YouTube">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 8s-.2-1.5-.8-2.2c-.8-.9-1.7-.9-2.1-1C15.5 
+          4.5 12 4.5 12 4.5h0s-3.5 0-6.1.3c-.4.1-1.3.1-2.1 
+          1C3.2 6.5 3 8 3 8S2.8 9.8 2.8 11.6v.8c0 1.8.2 
+          3.6.2 3.6s.2 1.5.8 2.2c.8.9 1.9.9 2.4 1 
+          1.8.2 5.8.3 5.8.3s3.5 0 6.1-.3c.4-.1 1.3-.1 
+          2.1-1 .6-.7.8-2.2.8-2.2s.2-1.8.2-3.6v-.8c0-1.8-.2-3.6-.2-3.6zM10 
+          14.5v-5l5 2.5-5 2.5z" />
+                </svg>
+            </a>
+
+        </div>
+
+        <!-- COPYRIGHT -->
+        <div class="copyright">
+            © {{ currentYear }} MoveKart. All rights reserved.
+        </div>
+
     </div>
+
 </footer>
