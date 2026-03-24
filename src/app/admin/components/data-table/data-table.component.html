@@ -1,0 +1,42 @@
+<table class="data-table">
+
+    <thead>
+        <tr>
+            <th *ngFor="let col of columns">
+                {{ col.label }}
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <!-- EMPTY STATE -->
+        <tr *ngIf="!data || data.length === 0">
+            <td [attr.colspan]="columns.length" class="empty">
+                No data available
+            </td>
+        </tr>
+
+        <!-- DATA ROWS -->
+        <tr *ngFor="let row of data; trackBy: trackByFn">
+
+            <td *ngFor="let col of columns">
+
+                <!-- CUSTOM TEMPLATE -->
+                <ng-container *ngIf="col.template; else defaultCell">
+                    <ng-container *ngTemplateOutlet="col.template; context: { $implicit: row }">
+                    </ng-container>
+                </ng-container>
+
+                <!-- DEFAULT CELL -->
+                <ng-template #defaultCell>
+                    {{ row[col.key] }}
+                </ng-template>
+
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>

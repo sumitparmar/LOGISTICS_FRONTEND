@@ -1,0 +1,16 @@
+<div class="overlay" *ngIf="visible">
+
+    <div class="dialog">
+
+        <h3 class="title">{{ title }}</h3>
+
+        <p class="message">{{ message }}</p>
+
+        <div class="actions">
+            <button class="btn cancel" (click)="onCancel()">Cancel</button>
+            <button class="btn confirm" (click)="onConfirm()">Confirm</button>
+        </div>
+
+    </div>
+
+</div>

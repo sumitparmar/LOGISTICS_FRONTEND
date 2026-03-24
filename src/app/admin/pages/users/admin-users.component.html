@@ -1,0 +1,74 @@
+<div class="users">
+
+    <!-- Title -->
+    <h2 class="users-title">Users</h2>
+
+    <!-- Content Wrapper -->
+    <div class="users-content">
+
+        <!-- Card -->
+        <div class="users-card">
+
+            <!-- Controls -->
+            <div class="users-controls">
+
+                <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
+                    (searchChange)="onSearchChange($event)">
+                </app-table-controls>
+
+                <button class="primary-btn" (click)="goToCreate()">
+                    + Add User
+                </button>
+
+            </div>
+
+            <!-- Data Table -->
+            <app-data-table [columns]="columns" [data]="users">
+            </app-data-table>
+
+            <!-- NAME TEMPLATE -->
+            <ng-template #nameTemplate let-user>
+                <div class="user-info">
+                    <div class="avatar">
+                        {{ user.name.charAt(0) }}
+                    </div>
+                    <span>{{ user.name }}</span>
+                </div>
+            </ng-template>
+
+            <!-- STATUS TEMPLATE -->
+            <ng-template #statusTemplate let-user>
+                <span class="status" [ngClass]="user.isActive ? 'active' : 'inactive'">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+            </ng-template>
+
+            <!-- ACTIONS TEMPLATE -->
+            <ng-template #actionsTemplate let-user>
+                <div class="actions">
+
+                    <lucide-icon name="edit" (click)="onEdit(user); $event.stopPropagation()">
+                    </lucide-icon>
+
+                    <lucide-icon name="trash" (click)="onDelete(user); $event.stopPropagation()">
+                    </lucide-icon>
+
+                </div>
+            </ng-template>
+
+            <!-- Empty State -->
+            <div *ngIf="users.length === 0" class="empty-state">
+                No users found
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Confirm Dialog -->
+<app-confirm-dialog [visible]="showConfirm" title="Delete User"
+    [message]="'Are you sure you want to delete ' + selectedUser?.name + '?'" (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()">
+</app-confirm-dialog>

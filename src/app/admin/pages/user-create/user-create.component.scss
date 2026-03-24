@@ -1,0 +1,50 @@
+/* ===============================
+   Root Layout (aligned with admin content)
+=============================== */
+
+.edit-user {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===============================
+   Title (consistent with dashboard/users)
+=============================== */
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* ===============================
+   Content Wrapper (controls width + alignment)
+=============================== */
+
+.edit-user-content {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ===============================
+   Form Card (same system as dashboard cards)
+=============================== */
+
+.form-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px;
+
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+
+  width: 100%;
+  max-width: 520px;
+
+  transition: all 0.2s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}

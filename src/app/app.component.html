@@ -1,4 +1,4 @@
-<div class="app-wrapper">
+<!-- <div class="app-wrapper">
     <app-header></app-header>
 
     <main class="content">
@@ -6,4 +6,19 @@
     </main>
 
     <app-footer></app-footer>
+</div> -->
+
+
+<div class="app-wrapper">
+
+    <!-- ✅ Show ONLY if NOT admin -->
+    <app-header *ngIf="!isAdminRoute"></app-header>
+
+    <main class="content">
+        <router-outlet></router-outlet>
+    </main>
+
+    <!-- ✅ Show ONLY if NOT admin -->
+    <app-footer *ngIf="!isAdminRoute"></app-footer>
+
 </div>

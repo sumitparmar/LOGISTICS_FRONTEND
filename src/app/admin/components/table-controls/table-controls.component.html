@@ -1,0 +1,25 @@
+<div class="table-controls">
+
+    <!-- Search -->
+    <div class="search-box">
+        <input type="text" [value]="search" (input)="onSearch($event)" placeholder="Search..." />
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+
+        <button (click)="prevPage()" [disabled]="page === 1">
+            ‹
+        </button>
+
+        <span class="page-info">
+            {{ page }} / {{ totalPages }}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="page === totalPages">
+            ›
+        </button>
+
+    </div>
+
+</div>

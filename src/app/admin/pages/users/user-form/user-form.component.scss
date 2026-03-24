@@ -1,0 +1,132 @@
+/* ===============================
+   Form Wrapper
+=============================== */
+
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ===============================
+   Form Group
+=============================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+/* Label */
+.form-group label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* ===============================
+   Input
+=============================== */
+
+.form-group input[type="text"],
+.form-group input[type="email"] {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 0 12px;
+  font-size: 14px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+/* Focus State */
+.form-group input:focus {
+  border-color: #6366f1;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.08);
+}
+
+/* Error */
+.form-group small {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ===============================
+   Checkbox (FIXED PROPERLY)
+=============================== */
+
+.checkbox {
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #374151;
+}
+
+.checkbox input {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* ===============================
+   Actions
+=============================== */
+
+.form-actions {
+  margin-top: 22px;
+}
+
+/* ===============================
+   Button (Design System)
+=============================== */
+
+.primary-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: none;
+
+  background: #6366f1;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary-btn:hover {
+  background: #4f46e5;
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.form-group select {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0 10px;
+  font-size: 14px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.form-group select:focus {
+  border-color: #6366f1;
+  background: #fff;
+  outline: none;
+}

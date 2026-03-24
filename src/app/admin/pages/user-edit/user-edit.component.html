@@ -1,0 +1,15 @@
+<div class="edit-user">
+
+    <h2 class="page-title">Edit User</h2>
+
+    <div class="form-card" *ngIf="userData">
+        <app-user-form [initialData]="userData" [submitting]="submitting" (submitForm)="handleSubmit($event)">
+        </app-user-form>
+
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        Loading user...
+    </div>
+
+</div>

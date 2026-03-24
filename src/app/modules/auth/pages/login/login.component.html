@@ -43,9 +43,9 @@
                             <input type="password" placeholder="Password" formControlName="password" />
                         </div>
 
-                        <a class="forgot">Forgot password?</a>
-
-                        <button type="submit" [disabled]="loading">
+                        <a class="forgot" *ngIf="loginMode === 'BUSINESS'" routerLink="/auth/forgot-password">
+                            Forgot password?
+                        </a> <button type="submit" [disabled]="loading">
                             {{ loading ? 'Logging in...' : 'Login' }}
                         </button>
 

@@ -1,0 +1,77 @@
+<div class="orders-container">
+
+    <!-- Header -->
+    <div class="orders-header">
+        <h2 class="page-title">Orders</h2>
+    </div>
+
+    <!-- Card -->
+    <div class="orders-card">
+
+        <!-- Controls -->
+        <div class="table-controls">
+            <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
+                (searchChange)="onSearchChange($event)">
+            </app-table-controls>
+
+            <div class="status-filters">
+
+                <button class="filter" [class.active]="selectedStatus === 'ALL'" (click)="filterByStatus('ALL')">
+                    All ({{ statusCounts.ALL }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'CREATED'"
+                    (click)="filterByStatus('CREATED')">
+                    Pending ({{ statusCounts.CREATED }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'IN_PROGRESS'"
+                    (click)="filterByStatus('IN_PROGRESS')">
+                    In Progress ({{ statusCounts.IN_PROGRESS }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'DELIVERED'"
+                    (click)="filterByStatus('DELIVERED')">
+                    Delivered ({{ statusCounts.DELIVERED }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'CANCELLED'"
+                    (click)="filterByStatus('CANCELLED')">
+                    Cancelled ({{ statusCounts.CANCELLED }})
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Table -->
+        <app-data-table [columns]="columns" [data]="orders">
+        </app-data-table>
+
+        <!-- STATUS TEMPLATE -->
+        <ng-template #statusTemplate let-order>
+            <span class="status" [ngClass]="getStatusClass(order.status)"> {{ order.status }}
+            </span>
+        </ng-template>
+
+        <!-- ACTIONS TEMPLATE -->
+        <ng-template #actionsTemplate let-order>
+            <div class="actions">
+
+                <!-- STOP ROW CLICK PROPAGATION -->
+                <lucide-icon name="edit" (click)="onEdit(order); $event.stopPropagation()">
+                </lucide-icon>
+
+                <lucide-icon name="trash" (click)="onDelete(order); $event.stopPropagation()">
+                </lucide-icon>
+
+            </div>
+        </ng-template>
+
+    </div>
+
+    <app-confirm-dialog [visible]="showConfirm" title="Delete Order"
+        [message]="'Are you sure you want to delete ' + selectedOrder?.id + '?'" (confirm)="onConfirmDelete()"
+        (cancel)="onCancelDelete()">
+    </app-confirm-dialog>
+
+</div>

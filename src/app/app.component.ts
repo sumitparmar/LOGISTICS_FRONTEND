@@ -1,11 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { AnalyticsService } from 'src/app/core/services/analytics.service'; // declare global {
-//   interface Window {
-//     gtag: (...args: any[]) => void;
-//   }
-// }
+import { AnalyticsService } from 'src/app/core/services/analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +10,9 @@ import { AnalyticsService } from 'src/app/core/services/analytics.service'; // d
 })
 export class AppComponent {
   title = 'Logistics_FrontEnd';
+
+  // ✅ Admin route flag
+  isAdminRoute = false;
 
   constructor(
     private router: Router,
@@ -31,6 +30,8 @@ export class AppComponent {
       )
       .subscribe((event) => {
         const url = event.urlAfterRedirects;
+
+        this.isAdminRoute = url.startsWith('/admin');
 
         this.analytics.trackPageView(url);
 

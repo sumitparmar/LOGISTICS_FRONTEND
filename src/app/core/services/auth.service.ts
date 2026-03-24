@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
 import { ApiService } from './api.service';
-
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 interface LoginResponse {
   success: boolean;
   data: {
@@ -21,11 +22,15 @@ export class AuthService {
   );
   deliveryMode$ = this.deliveryModeSubject.asObservable();
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    this.hasToken(),
+    this.hasToken() && !!this.getUser(),
   );
-  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private api: ApiService) {}
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private apiBaseUrl = environment.apiBaseUrl;
+  constructor(
+    private api: ApiService,
+    private http: HttpClient,
+  ) {}
 
   // ------------------------
   // AUTH APIs
@@ -53,7 +58,27 @@ export class AuthService {
   }
 
   verifyOtp(payload: { phone: string; otp: string }) {
-    return this.api.post('/auth/verify-otp', payload);
+    return this.api.post<LoginResponse>('/auth/verify-otp', payload).pipe(
+      tap((res) => {
+        if (res?.data?.token) {
+          this.setToken(res.data.token);
+          this.setUser(res.data.user);
+
+          // ✅ ADD THIS
+          this.deliveryModeSubject.next(res.data.user?.deliveryMode || null);
+
+          this.isAuthenticatedSubject.next(true);
+        }
+      }),
+    );
+  }
+
+  getUserRole(): string | null {
+    return this.getUser()?.role || null;
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'admin';
   }
 
   // ------------------------
@@ -70,7 +95,9 @@ export class AuthService {
 
   removeToken() {
     localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey); // remove user on logout
+    localStorage.removeItem(this.userKey);
+
+    this.deliveryModeSubject.next(null);
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -119,5 +146,13 @@ export class AuthService {
   }
   getProfile() {
     return this.api.get('/auth/me');
+  }
+
+  forgotPassword(data: { email: string }) {
+    return this.http.post(`${this.apiBaseUrl}/auth/forgot-password`, data);
+  }
+
+  resetPassword(data: { token: string; password: string }) {
+    return this.http.post(`${this.apiBaseUrl}/auth/reset-password`, data);
   }
 }

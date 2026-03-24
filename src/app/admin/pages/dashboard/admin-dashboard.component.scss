@@ -1,0 +1,119 @@
+.dashboard-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* GRID (replace flex) */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* CARD */
+.dashboard-card {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* COLOR VARIANTS (VERY IMPORTANT) */
+.dashboard-card.users {
+  background: #eef2ff;
+}
+
+.dashboard-card.orders {
+  background: #fff7ed;
+}
+
+.dashboard-card.revenue {
+  background: #ecfdf5;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* TITLE */
+.card-title {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* VALUE */
+.card-value {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 10px;
+  color: #111827;
+}
+
+/* CHANGE */
+.card-change {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.card-change.positive {
+  color: #16a34a;
+}
+
+.card-change.negative {
+  color: #dc2626;
+}
+
+/* ICON (clean + consistent) */
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon lucide-icon {
+  width: 18px;
+  height: 18px;
+  color: #4f46e5;
+}
+
+/* RESPONSIVE (important for production) */
+@media (max-width: 1024px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+}
+.chart-card {
+  margin-top: 24px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}

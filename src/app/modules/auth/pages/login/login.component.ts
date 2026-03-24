@@ -69,7 +69,26 @@ export class LoginComponent implements OnInit {
       .login(this.businessForm.value)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => {
+        next: (res: any) => {
+          // ✅ STORE TOKEN
+          if (res?.data?.token) {
+            this.authService.setToken(res.data.token);
+          }
+
+          // ✅ STORE USER (CRITICAL FOR ROLE)
+          if (res?.data?.user) {
+            this.authService.setUser(res.data.user);
+            this.authService.setDeliveryMode(
+              res.data.user?.deliveryMode || null,
+            );
+          } else {
+            // fallback (if backend didn't send user)
+            this.authService.getProfile().subscribe((user: any) => {
+              this.authService.setUser(user.data);
+              this.authService.setDeliveryMode(user.data?.deliveryMode || null);
+            });
+          }
+
           sessionStorage.setItem('show_onboarding', 'true');
 
           const pending = localStorage.getItem('PENDING_DELIVERY');
@@ -84,6 +103,7 @@ export class LoginComponent implements OnInit {
             this.router.navigate(['/app/dashboard']);
           }
         },
+
         error: (err) => {
           this.errorMessage = err?.error?.message || 'Login failed';
         },

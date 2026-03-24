@@ -1,0 +1,72 @@
+.edit-user {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.form-group input {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0 10px;
+}
+
+.form-group small {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-actions {
+  margin-top: 20px;
+}
+
+button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading {
+  color: #6b7280;
+}

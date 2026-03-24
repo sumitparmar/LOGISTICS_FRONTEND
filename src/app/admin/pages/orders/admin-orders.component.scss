@@ -1,0 +1,158 @@
+.orders-container {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+}
+
+.orders-header {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+  }
+}
+
+.orders-card {
+  max-width: 1100px;
+  margin: 0 auto;
+
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+
+  border: 1px solid #f1f5f9;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+
+  transition: all 0.2s ease;
+}
+
+.orders-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.status-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter:hover {
+  background: #f9fafb;
+}
+
+.filter.active {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: transparent;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  font-weight: 600;
+  padding: 14px;
+  text-align: left;
+}
+
+.orders-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.orders-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.orders-table td {
+  padding: 14px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.orders-table td:first-child {
+  font-weight: 600;
+}
+
+.orders-table td:nth-child(2) {
+  color: #374151;
+}
+
+.orders-table td:nth-child(3) {
+  color: #111827;
+}
+
+.status {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.delivered {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status.in-progress {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.status.pending {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions lucide-icon {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actions lucide-icon:hover {
+  color: #111827;
+  transform: scale(1.1);
+}

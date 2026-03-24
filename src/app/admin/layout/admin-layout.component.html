@@ -1,0 +1,63 @@
+<div class="admin-shell">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+
+        <div class="admin-logo">
+            <span class="logo-text">MoveKart</span>
+            <span class="logo-sub"> Admin</span>
+        </div>
+
+        <nav class="admin-menu">
+
+            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <lucide-icon name="home"></lucide-icon>
+                <span>Dashboard</span>
+            </a>
+
+            <a routerLink="/admin/users" routerLinkActive="active">
+                <lucide-icon name="users"></lucide-icon>
+                <span>Users</span>
+            </a>
+
+            <a routerLink="/admin/orders" routerLinkActive="active">
+                <lucide-icon name="shopping-cart"></lucide-icon>
+                <span>Orders</span>
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- Main -->
+    <div class="admin-main">
+
+        <!-- Navbar -->
+        <header class="admin-navbar">
+
+            <!-- Search -->
+            <div class="search-box">
+                <lucide-icon name="search"></lucide-icon>
+                <input type="text" placeholder="Search..." />
+            </div>
+
+            <!-- Right Section -->
+            <div class="admin-actions">
+
+                <div class="admin-user">
+                    <div class="avatar">A</div>
+                    <span class="user-name">Admin</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Content -->
+        <section class="admin-content">
+            <router-outlet></router-outlet>
+        </section>
+
+    </div>
+
+</div>

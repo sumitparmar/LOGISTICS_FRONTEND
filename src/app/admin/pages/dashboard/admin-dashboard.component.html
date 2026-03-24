@@ -1,0 +1,67 @@
+<div class="dashboard">
+
+    <h2 class="dashboard-title">Dashboard</h2>
+
+    <div class="dashboard-cards">
+
+        <!-- USERS -->
+        <div class="dashboard-card users">
+            <div class="card-header">
+                <span class="card-title">Total Users</span>
+                <div class="card-icon">
+                    <lucide-icon name="users"></lucide-icon>
+                </div>
+            </div>
+
+            <div class="card-value">{{ stats?.totalUsers }}</div>
+
+            <div class="card-change positive">
+                +{{ stats?.usersChange }}% from yesterday
+            </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="dashboard-card orders">
+            <div class="card-header">
+                <span class="card-title">Total Orders</span>
+                <div class="card-icon">
+                    <lucide-icon name="shopping-cart"></lucide-icon>
+                </div>
+            </div>
+
+            <div class="card-value">{{ stats?.totalOrders }}</div>
+
+            <div class="card-change positive">
+                +{{ stats?.ordersChange }}% from last week
+            </div>
+        </div>
+
+        <!-- REVENUE -->
+        <div class="dashboard-card revenue">
+            <div class="card-header">
+                <span class="card-title">Revenue</span>
+                <div class="card-icon">
+                    <lucide-icon name="dollar-sign"></lucide-icon>
+                </div>
+            </div>
+
+            <div class="card-value">₹{{ stats?.revenue }}</div>
+
+            <div class="card-change negative">
+                {{ stats?.revenueChange }}% from yesterday
+            </div>
+        </div>
+        <div class="chart-card">
+
+            <div class="chart-header">
+                <h3>Sales Overview</h3>
+            </div>
+
+            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'">
+            </canvas>
+
+        </div>
+
+    </div>
+
+</div>
