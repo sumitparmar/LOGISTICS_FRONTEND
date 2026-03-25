@@ -1,67 +1,56 @@
-<div class="dashboard">
+<div class="dashboard" *ngIf="!isLoading && stats; else loadingTpl">
 
-    <h2 class="dashboard-title">Dashboard</h2>
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Dashboard</h2>
 
+        <div class="range-filter">
+            <button [class.active]="selectedRange === 'today'" (click)="changeRange('today')">
+                Today
+            </button>
+
+            <button [class.active]="selectedRange === 'week'" (click)="changeRange('week')">
+                Week
+            </button>
+
+            <button [class.active]="selectedRange === 'month'" (click)="changeRange('month')">
+                Month
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI CARDS -->
     <div class="dashboard-cards">
 
-        <!-- USERS -->
-        <div class="dashboard-card users">
-            <div class="card-header">
-                <span class="card-title">Total Users</span>
-                <div class="card-icon">
-                    <lucide-icon name="users"></lucide-icon>
-                </div>
-            </div>
+        <app-kpi-card title="Total Users" [value]="stats.totalUsers" [growth]="stats.usersChange"
+            [subtitle]="getComparisonText()" icon="users" variant="users"></app-kpi-card>
 
-            <div class="card-value">{{ stats?.totalUsers }}</div>
+        <app-kpi-card title="Total Orders" [value]="stats.totalOrders" [growth]="stats.ordersChange"
+            [subtitle]="getComparisonText()" icon="shopping-cart" variant="orders"></app-kpi-card>
 
-            <div class="card-change positive">
-                +{{ stats?.usersChange }}% from yesterday
-            </div>
-        </div>
-
-        <!-- ORDERS -->
-        <div class="dashboard-card orders">
-            <div class="card-header">
-                <span class="card-title">Total Orders</span>
-                <div class="card-icon">
-                    <lucide-icon name="shopping-cart"></lucide-icon>
-                </div>
-            </div>
-
-            <div class="card-value">{{ stats?.totalOrders }}</div>
-
-            <div class="card-change positive">
-                +{{ stats?.ordersChange }}% from last week
-            </div>
-        </div>
-
-        <!-- REVENUE -->
-        <div class="dashboard-card revenue">
-            <div class="card-header">
-                <span class="card-title">Revenue</span>
-                <div class="card-icon">
-                    <lucide-icon name="dollar-sign"></lucide-icon>
-                </div>
-            </div>
-
-            <div class="card-value">₹{{ stats?.revenue }}</div>
-
-            <div class="card-change negative">
-                {{ stats?.revenueChange }}% from yesterday
-            </div>
-        </div>
-        <div class="chart-card">
-
-            <div class="chart-header">
-                <h3>Sales Overview</h3>
-            </div>
-
-            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'">
-            </canvas>
-
-        </div>
+        <app-kpi-card title="Revenue" [value]="stats.revenue" [growth]="stats.revenueChange"
+            [subtitle]="getComparisonText()" icon="dollar-sign" variant="revenue"></app-kpi-card>
 
     </div>
 
+    <!-- CHART -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3>Sales Overview</h3>
+        </div>
+
+        <canvas *ngIf="lineChartData" baseChart [data]="lineChartData" [options]="lineChartOptions"
+            [type]="'line'"></canvas>
+
+        <div *ngIf="!lineChartData" class="no-data">
+            No sales data available
+        </div>
+    </div>
+
 </div>
+
+<!-- LOADING TEMPLATE -->
+<ng-template #loadingTpl>
+    <div class="dashboard-loading">
+        Loading dashboard...
+    </div>
+</ng-template>

@@ -11,6 +11,7 @@ import { AdminOrdersComponent } from './pages/orders/admin-orders.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastComponent } from './components/toast/toast.component';
+import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
 
 import {
   LucideAngularModule,
@@ -39,6 +40,7 @@ import { AdminUserCreateComponent } from './pages/user-create/user-create.compon
     ToastComponent,
     UserFormComponent,
     AdminUserCreateComponent,
+    KpiCardComponent,
   ],
   imports: [
     CommonModule,

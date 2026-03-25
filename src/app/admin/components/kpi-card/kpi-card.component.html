@@ -1,0 +1,37 @@
+<div class="dashboard-card" [ngClass]="variant">
+    <div class="card-header">
+        <span class="card-title">{{ title }}</span>
+
+        <div class="card-icon">
+            <lucide-icon [name]="icon"></lucide-icon>
+        </div>
+    </div>
+
+    <div class="card-value">
+        <ng-container *ngIf="variant === 'revenue'; else normalValue">
+            {{ displayValue | currency:'INR':'symbol':'1.0-0' }}
+        </ng-container>
+        <ng-template #normalValue>
+            {{ displayValue }}
+        </ng-template>
+    </div>
+
+    <div class="card-change" [ngClass]="{
+      positive: growth > 0,
+      negative: growth < 0
+    }">
+        <ng-container *ngIf="growth !== 0; else noChange">
+            {{ growth > 0 ? '+' : '' }}{{ growth }}% {{ subtitle }}
+        </ng-container>
+
+        <ng-template #noChange>
+            — {{ subtitle }}
+        </ng-template>
+    </div>
+
+    <div class="sparkline">
+        <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline [attr.points]="getSparklinePoints()" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+    </div>
+</div>
