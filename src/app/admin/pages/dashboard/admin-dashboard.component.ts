@@ -80,11 +80,12 @@ export class AdminDashboardComponent implements OnInit {
       const hour = num;
       return `${hour % 12 || 12} ${hour < 12 ? 'AM' : 'PM'}`;
     }
-
     if (this.selectedRange === 'week') {
-      const date = new Date();
-      date.setDate(num);
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
+      return new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        num,
+      ).toLocaleDateString('en-US', { weekday: 'short' });
     }
 
     return label;

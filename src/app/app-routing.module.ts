@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
 import { LandingGuard } from './core/guards/landing.guard';
+import { OrderDetailsComponent } from './features/admin/order-details/order-details.component';
+
 const routes: Routes = [
   {
     path: 'auth',
@@ -45,6 +47,10 @@ const routes: Routes = [
           import('./modules/pricing/pricing.module').then(
             (m) => m.PricingModule,
           ),
+      },
+      {
+        path: 'admin/orders/:id',
+        component: OrderDetailsComponent,
       },
       {
         path: 'about',

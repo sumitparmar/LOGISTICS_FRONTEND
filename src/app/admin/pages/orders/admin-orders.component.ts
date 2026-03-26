@@ -5,9 +5,14 @@ import {
   AfterViewInit,
   OnInit,
 } from '@angular/core';
+import { Subject } from 'rxjs';
 
-import { AdminOrdersService } from '../../services/admin-orders.service';
-
+import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {
+  AdminOrdersService,
+  OrdersResponse,
+} from '../../services/admin-orders.service';
 @Component({
   selector: 'app-admin-orders',
   templateUrl: './admin-orders.component.html',
@@ -20,17 +25,18 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   @ViewChild('actionsTemplate', { static: true })
   actionsTemplate!: TemplateRef<any>;
-
+  private searchSubject = new Subject<string>();
   searchTerm: string = '';
   selectedStatus: string = 'ALL';
   page: number = 1;
-  limit: number = 5;
+  limit: number = 7;
   private _backendTotal: number = 0;
 
   columns: any[] = [];
   orders: any[] = [];
   allOrders: any[] = [];
-  filteredOrders: any[] = [];
+  loading: boolean = false;
+  // filteredOrders: any[] = [];
   statusCounts: any = {
     ALL: 0,
     CREATED: 0,
@@ -42,9 +48,13 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
   showConfirm = false;
   selectedOrder: any = null;
 
-  constructor(private ordersService: AdminOrdersService) {}
+  constructor(
+    private ordersService: AdminOrdersService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
+    this.setupSearchDebounce();
     this.loadOrders();
   }
 
@@ -52,91 +62,50 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
     this.initializeColumns();
   }
 
+  private setupSearchDebounce(): void {
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe((search: string) => {
+        this.searchTerm = search;
+        this.page = 1;
+        this.loadOrders();
+      });
+  }
+
+  onRowClick(order: any): void {
+    if (!order?._id) return;
+
+    this.router.navigate(['/admin/orders', order._id]);
+  }
   loadOrders(): void {
-    this.ordersService.getOrders().subscribe({
-      next: (res: any) => {
-        this.allOrders = res?.data || [];
+    this.loading = true;
+    this.ordersService
+      .getOrders(this.page, this.limit, this.searchTerm, this.selectedStatus)
+      .subscribe({
+        next: (res: OrdersResponse) => {
+          this.allOrders = res.data || [];
 
-        this.calculateCounts();
-        this.applyFilters();
-      },
-      error: (err: any) => {
-        console.error('Orders API failed:', err);
-        this.allOrders = [];
-        this.applyFilters();
-      },
-    });
-  }
+          this.orders = this.allOrders.map((o: any) => ({
+            ...o,
+            id: o.borzoOrderId || '-',
+            user: o.customer?.name || '-',
+            amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
+          }));
 
-  applyFilters(): void {
-    let data = [...this.allOrders];
+          this._backendTotal = res.pagination?.total || 0;
 
-    if (this.selectedStatus !== 'ALL') {
-      if (this.selectedStatus === 'IN_PROGRESS') {
-        data = data.filter(
-          (o) => o.status === 'ASSIGNED' || o.status === 'IN_TRANSIT',
-        );
-      } else {
-        data = data.filter((o) => o.status === this.selectedStatus);
-      }
-    }
+          if (res.statusCounts) {
+            this.statusCounts = { ...res.statusCounts };
+          }
+          this.loading = false;
+        },
 
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-
-      data = data.filter(
-        (o) =>
-          String(o.borzoOrderId).includes(term) ||
-          o.customer?.name?.toLowerCase().includes(term),
-      );
-    }
-
-    this.filteredOrders = data;
-
-    const start = (this.page - 1) * this.limit;
-    const end = start + this.limit;
-
-    const paginated = data.slice(start, end);
-
-    this.orders = paginated.map((o: any) => ({
-      id: o.borzoOrderId || '-',
-      user: o.customer?.name || '-',
-      amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
-      status: o.status || '-',
-    }));
-  }
-
-  calculateCounts(): void {
-    const counts = {
-      ALL: this.allOrders.length,
-      CREATED: 0,
-      DELIVERED: 0,
-      CANCELLED: 0,
-      IN_PROGRESS: 0,
-    };
-
-    for (const order of this.allOrders) {
-      switch (order.status) {
-        case 'CREATED':
-          counts.CREATED++;
-          break;
-
-        case 'DELIVERED':
-          counts.DELIVERED++;
-          break;
-
-        case 'CANCELLED':
-          counts.CANCELLED++;
-          break;
-
-        case 'ASSIGNED':
-        case 'IN_TRANSIT':
-          counts.IN_PROGRESS++;
-          break;
-      }
-    }
-
-    this.statusCounts = counts;
+        error: (err: any) => {
+          console.error('Orders API failed:', err);
+          this.orders = [];
+          this.loading = false;
+        },
+      });
   }
 
   initializeColumns(): void {
@@ -183,21 +152,18 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   onPageChange(page: number): void {
     this.page = page;
-    this.applyFilters();
+    this.loadOrders(); // not applyFilters
   }
 
   onSearchChange(search: string): void {
-    this.searchTerm = search;
-    this.page = 1;
-    this.applyFilters();
+    this.searchSubject.next(search.trim());
   }
 
   filterByStatus(status: string): void {
     this.selectedStatus = status;
     this.page = 1;
-    this.applyFilters();
+    this.loadOrders();
   }
-
   getStatusClass(status: string): string {
     switch (status) {
       case 'DELIVERED':
@@ -219,6 +185,6 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredOrders.length / this.limit) || 1;
+    return Math.ceil(this._backendTotal / this.limit) || 1;
   }
 }

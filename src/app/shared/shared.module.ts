@@ -5,12 +5,14 @@ import { PaginationComponent } from './components/pagination/pagination.componen
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { RouterModule } from '@angular/router';
+import { OrderMapComponent } from './components/order-map/order-map.component';
 @NgModule({
   declarations: [
     HeaderComponent,
     FooterComponent,
     OnboardingModalComponent,
     PaginationComponent,
+    OrderMapComponent,
   ],
   imports: [CommonModule, RouterModule],
   exports: [
@@ -18,6 +20,7 @@ import { RouterModule } from '@angular/router';
     FooterComponent,
     OnboardingModalComponent,
     PaginationComponent,
+    OrderMapComponent,
   ],
 })
 export class SharedModule {}

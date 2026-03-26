@@ -18,10 +18,8 @@
         </tr>
 
         <!-- DATA ROWS -->
-        <tr *ngFor="let row of data; trackBy: trackByFn">
-
-            <td *ngFor="let col of columns">
-
+        <tr *ngFor="let row of data; trackBy: trackByFn" class="clickable-row">
+            <td *ngFor="let col of columns" (click)="onRowClick(row)">
                 <!-- CUSTOM TEMPLATE -->
                 <ng-container *ngIf="col.template; else defaultCell">
                     <ng-container *ngTemplateOutlet="col.template; context: { $implicit: row }">

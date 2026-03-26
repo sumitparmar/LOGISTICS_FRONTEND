@@ -48,9 +48,26 @@
 
 </div>
 
-<!-- LOADING TEMPLATE -->
 <ng-template #loadingTpl>
-    <div class="dashboard-loading">
-        Loading dashboard...
+    <div class="dashboard-skeleton">
+
+        <!-- HEADER -->
+        <div class="skeleton-header">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-filters">
+                <div class="skeleton-btn"></div>
+                <div class="skeleton-btn"></div>
+                <div class="skeleton-btn"></div>
+            </div>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="skeleton-cards">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3]"></div>
+        </div>
+
+        <!-- CHART -->
+        <div class="skeleton-chart"></div>
+
     </div>
 </ng-template>

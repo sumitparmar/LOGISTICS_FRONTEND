@@ -16,26 +16,26 @@
 
             <div class="status-filters">
 
-                <button class="filter" [class.active]="selectedStatus === 'ALL'" (click)="filterByStatus('ALL')">
-                    All ({{ statusCounts.ALL }})
+                <button class="filter" [class.active]="selectedStatus === 'ALL'" [disabled]="loading"
+                    (click)="filterByStatus('ALL')"> All ({{ statusCounts.ALL }})
                 </button>
 
-                <button class="filter" [class.active]="selectedStatus === 'CREATED'"
+                <button class="filter" [class.active]="selectedStatus === 'CREATED'" [disabled]="loading"
                     (click)="filterByStatus('CREATED')">
                     Pending ({{ statusCounts.CREATED }})
                 </button>
 
-                <button class="filter" [class.active]="selectedStatus === 'IN_PROGRESS'"
+                <button class="filter" [class.active]="selectedStatus === 'IN_PROGRESS'" [disabled]="loading"
                     (click)="filterByStatus('IN_PROGRESS')">
                     In Progress ({{ statusCounts.IN_PROGRESS }})
                 </button>
 
-                <button class="filter" [class.active]="selectedStatus === 'DELIVERED'"
+                <button class="filter" [class.active]="selectedStatus === 'DELIVERED'" [disabled]="loading"
                     (click)="filterByStatus('DELIVERED')">
                     Delivered ({{ statusCounts.DELIVERED }})
                 </button>
 
-                <button class="filter" [class.active]="selectedStatus === 'CANCELLED'"
+                <button class="filter" [class.active]="selectedStatus === 'CANCELLED'" [disabled]="loading"
                     (click)="filterByStatus('CANCELLED')">
                     Cancelled ({{ statusCounts.CANCELLED }})
                 </button>
@@ -43,9 +43,19 @@
             </div>
         </div>
 
-        <!-- Table -->
-        <app-data-table [columns]="columns" [data]="orders">
+        <!-- LOADING -->
+        <div *ngIf="loading" class="table-loading">
+            Loading orders...
+        </div>
+        <!-- TABLE -->
+        <app-data-table *ngIf="!loading && orders.length > 0" [columns]="columns" [data]="orders"
+            (rowClick)="onRowClick($event)">
         </app-data-table>
+
+        <!-- EMPTY STATE -->
+        <div *ngIf="!loading && orders.length === 0" class="no-data">
+            No orders found
+        </div>
 
         <!-- STATUS TEMPLATE -->
         <ng-template #statusTemplate let-order>

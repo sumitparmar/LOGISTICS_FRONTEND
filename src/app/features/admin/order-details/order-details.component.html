@@ -1,0 +1,144 @@
+<div class="order-details-container">
+
+    <!-- LOADING -->
+    <ng-container *ngIf="loading; else content">
+
+        <div class="order-details-skeleton">
+
+            <!-- HEADER SKELETON -->
+            <div class="skeleton-header">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-badge"></div>
+            </div>
+
+            <!-- GRID -->
+            <div class="skeleton-grid">
+                <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+                    <div class="skeleton-section-title"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line short"></div>
+                </div>
+            </div>
+
+        </div>
+
+    </ng-container>
+
+    <!-- CONTENT -->
+    <ng-template #content>
+
+        <div *ngIf="order; else emptyState" class="order-details-card">
+
+            <!-- BACK -->
+            <div class="back-btn" (click)="goBack()">
+                ← Back to Orders
+            </div>
+
+            <!-- HEADER -->
+            <div class="header">
+                <div>
+                    <h2 class="title">
+                        Order #{{ order.borzoOrderId || '-' }}
+                    </h2>
+                    <p class="subtitle">
+                        {{ order.provider || '-' }}
+                    </p>
+                </div>
+
+                <span class="status" [ngClass]="order.status?.toUpperCase()">
+                    {{ order.status || '-' }}
+                </span>
+            </div>
+
+            <!-- GRID -->
+            <div class="details-grid">
+
+                <!-- CUSTOMER -->
+                <div class="section">
+                    <h3>Customer</h3>
+                    <p>
+                        <strong>Name:</strong>
+                        {{ order.customer?.name || '-' }}
+                    </p>
+                    <p>
+                        <strong>Phone:</strong>
+                        {{ order.customer?.phone || '-' }}
+                    </p>
+                </div>
+
+                <!-- PRICING -->
+                <div class="section">
+                    <h3>Pricing</h3>
+                    <p>
+                        <strong>Amount:</strong>
+                        {{ order.pricing?.amount | number: '1.0-2' }}
+                        {{ order.pricing?.currency || '' }}
+                    </p>
+                </div>
+
+                <!-- DETAILS -->
+                <div class="section">
+                    <h3>Details</h3>
+                    <p>
+                        <strong>Status:</strong>
+                        {{ order.status || '-' }}
+                    </p>
+                    <p>
+                        <strong>Created:</strong>
+                        {{ order.createdAt | date: 'dd MMM yyyy, hh:mm a' }}
+                    </p>
+                </div>
+
+                <!-- PICKUP -->
+                <div class="section">
+                    <h3>Pickup</h3>
+
+                    <p class="address">
+                        {{ order.pickup?.address || '-' }}
+                    </p>
+
+                    <p class="coords" *ngIf="order.pickup?.lat && order.pickup?.lng">
+                        {{ order.pickup.lat }}, {{ order.pickup.lng }}
+                    </p>
+                </div>
+
+                <!-- DROP -->
+                <div class="section">
+                    <h3>Drop</h3>
+
+                    <p class="address">
+                        {{ order.drop?.address || '-' }}
+                    </p>
+
+                    <p class="coords" *ngIf="order.drop?.lat && order.drop?.lng">
+                        {{ order.drop.lat }}, {{ order.drop.lng }}
+                    </p>
+                </div>
+
+
+
+            </div>
+
+            <div class="section full-width"
+                *ngIf="order?.pickup?.lat && order?.pickup?.lng && order?.drop?.lat && order?.drop?.lng">
+
+                <h3>Route Map</h3>
+
+                <app-order-map [pickup]="{ lat: order.pickup.lat, lng: order.pickup.lng }"
+                    [drop]="{ lat: order.drop.lat, lng: order.drop.lng }">
+                </app-order-map>
+
+            </div>
+
+        </div>
+
+    </ng-template>
+
+    <!-- EMPTY -->
+    <ng-template #emptyState>
+        <div class="no-data">
+            Order not found
+        </div>
+    </ng-template>
+
+</div>
