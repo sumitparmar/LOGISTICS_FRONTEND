@@ -7,7 +7,36 @@
 
     <!-- Card -->
     <div class="orders-card">
+        <div class="bulk-actions" *ngIf="selectedOrders.size > 0">
 
+            <span>
+                {{ selectedOrders.size }} selected
+                <small *ngIf="selectedOrders.size > orders.length">
+                    (across pages)
+                </small>
+            </span>
+
+            <button class="clear-btn" (click)="clearSelection()"
+                [disabled]="isBulkCancelling || isBulkUpdating || isExportingFromModal">
+                Clear
+            </button>
+
+
+            <!-- STATUS DROPDOWN -->
+            <select #bulkSelect (change)="onBulkStatusChange(bulkSelect.value, bulkSelect)" [disabled]="isBulkUpdating">
+                <option value="">Update Status</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="PICKED_UP">Picked Up</option>
+                <option value="IN_TRANSIT">In Transit</option>
+                <option value="DELIVERED">Delivered</option>
+            </select>
+
+            <!-- CANCEL -->
+            <button (click)="bulkCancel()" [disabled]="isBulkCancelling">
+                {{ isBulkCancelling ? 'Cancelling...' : 'Cancel Selected' }}
+            </button>
+
+        </div>
         <!-- Controls -->
         <div class="table-controls">
             <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
@@ -41,25 +70,51 @@
                 </button>
 
             </div>
+
+            <div class="controls-right">
+                <button class="export-btn" (click)="confirmExport()"
+                    [disabled]="loading || isExporting || isExportingFromModal">
+                    {{ (isExporting || isExportingFromModal) ? 'Exporting...' : 'Export CSV' }} </button>
+            </div>
+
         </div>
 
         <!-- LOADING -->
-        <div *ngIf="loading" class="table-loading">
-            Loading orders...
+        <div *ngIf="loading" class="skeleton-table">
+            <div class="skeleton-row header">
+                <div *ngFor="let col of columns" class="skeleton-cell"></div>
+            </div>
+
+            <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7]">
+                <div *ngFor="let col of columns" class="skeleton-cell"></div>
+            </div>
         </div>
+
+
         <!-- TABLE -->
-        <app-data-table *ngIf="!loading && orders.length > 0" [columns]="columns" [data]="orders"
-            (rowClick)="onRowClick($event)">
+        <app-data-table [columns]="columns" [data]="orders" [sortBy]="sortBy" [sortOrder]="sortOrder"
+            (sort)="onSort($event)" (rowClick)="onRowClick($event)">
         </app-data-table>
 
         <!-- EMPTY STATE -->
         <div *ngIf="!loading && orders.length === 0" class="no-data">
             No orders found
         </div>
+        <ng-template #selectTemplate let-order let-isHeader="isHeader">
+            <!-- HEADER CHECKBOX -->
+            <input *ngIf="isHeader" type="checkbox" [checked]="isAllSelectableChecked()"
+                (click)="toggleSelectAll(); $event.stopPropagation()" />
+
+            <!-- ROW CHECKBOX -->
+            <input *ngIf="!isHeader" type="checkbox" [checked]="selectedOrders.has(order._id)"
+                [disabled]="order.status === 'DELIVERED' || order.status === 'CANCELLED'"
+                (click)="toggleSelection(order); $event.stopPropagation()" />
+        </ng-template>
+
 
         <!-- STATUS TEMPLATE -->
         <ng-template #statusTemplate let-order>
-            <span class="status" [ngClass]="getStatusClass(order.status)"> {{ order.status }}
+            <span class="status" [ngClass]="getStatusClass(order.status)">{{ formatStatus(order.status) }}
             </span>
         </ng-template>
 
@@ -71,7 +126,9 @@
                 <lucide-icon name="edit" (click)="onEdit(order); $event.stopPropagation()">
                 </lucide-icon>
 
-                <lucide-icon name="trash" (click)="onDelete(order); $event.stopPropagation()">
+                <lucide-icon name="trash"
+                    [class.disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
+                    (click)="(order.status !== 'CANCELLED' && order.status !== 'DELIVERED') && onDelete(order); $event.stopPropagation()">
                 </lucide-icon>
 
             </div>
@@ -79,9 +136,8 @@
 
     </div>
 
-    <app-confirm-dialog [visible]="showConfirm" title="Delete Order"
-        [message]="'Are you sure you want to delete ' + selectedOrder?.id + '?'" (confirm)="onConfirmDelete()"
-        (cancel)="onCancelDelete()">
+    <app-confirm-dialog [visible]="showConfirm" title="Confirm Action" [message]="getConfirmMessage()"
+        [loading]="isExportingFromModal" (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
     </app-confirm-dialog>
 
 </div>

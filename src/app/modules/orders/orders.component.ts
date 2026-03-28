@@ -189,15 +189,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
-  cancelOrder(orderId: string): void {
-    if (!confirm('Cancel this order?')) return;
 
-    this.ordersService.cancelOrder(orderId).subscribe({
-      next: () => this.loadOrders(),
+  // cancelOrder(orderId: string): void {
+  //   if (!confirm('Cancel this order?')) return;
 
-      error: (err) => console.error('Cancel order failed', err),
-    });
-  }
+  //   this.ordersService.cancelOrder(orderId).subscribe({
+  //     next: () => this.loadOrders(),
+
+  //     error: (err) => console.error('Cancel order failed', err),
+  //   });
+  // }
 
   openCancelModal(orderId: string): void {
     this.orderToCancel = orderId;
@@ -211,7 +212,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
   confirmCancel(): void {
     if (!this.orderToCancel) return;
 
-    // 🔥 analytics
     this.analytics.trackEvent('cancel_order_clicked', {
       orderId: this.orderToCancel,
     });

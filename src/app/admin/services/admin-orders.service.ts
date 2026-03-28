@@ -34,6 +34,13 @@ export interface OrdersResponse {
   };
 }
 
+export interface BulkResponse {
+  success: boolean;
+  totalRequested: number;
+  modifiedCount: number;
+  failedIds: string[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -47,13 +54,45 @@ export class AdminOrdersService {
     limit: number = 5,
     search: string = '',
     status: string = 'ALL',
+    sortBy?: string,
+    sortOrder?: string,
   ) {
-    return this.http.get<OrdersResponse>(
-      `${this.apiUrl}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`,
-    );
+    let url = `${this.apiUrl}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`;
+
+    // ✅ ADD SORTING (SAFE)
+    if (sortBy) {
+      url += `&sortBy=${sortBy}`;
+    }
+
+    if (sortOrder) {
+      url += `&sortOrder=${sortOrder}`;
+    }
+
+    return this.http.get<OrdersResponse>(url);
   }
 
   getOrderById(id: string) {
-    return this.http.get(`/api/admin/orders/${id}`);
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
+  updateOrderStatus(orderId: string, status: string) {
+    return this.http.put(`${this.apiUrl}/${orderId}/status`, { status });
+  }
+
+  cancelOrder(orderId: string) {
+    return this.http.put(`${this.apiUrl}/${orderId}/cancel`, {});
+  }
+
+  bulkCancel(orderIds: string[]) {
+    return this.http.put<BulkResponse>(`${this.apiUrl}/bulk/cancel`, {
+      orderIds,
+    });
+  }
+
+  bulkUpdateStatus(orderIds: string[], status: string) {
+    return this.http.put<BulkResponse>(`${this.apiUrl}/bulk/status`, {
+      orderIds,
+      status,
+    });
   }
 }

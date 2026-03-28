@@ -1,0 +1,21 @@
+<div class="toast-container">
+    <div class="toast" *ngFor="let toast of toasts$ | async; trackBy: trackById" [ngClass]="toast.type">
+        <!-- ICON -->
+        <lucide-icon [name]="
+        toast.type === 'success'
+          ? 'check-circle'
+          : toast.type === 'error'
+          ? 'x-circle'
+          : 'alert-triangle'
+      ">
+        </lucide-icon>
+
+        <!-- MESSAGE -->
+        <div class="content">
+            {{ toast.message }}
+        </div>
+
+        <!-- CLOSE -->
+        <button (click)="remove(toast.id)">×</button>
+    </div>
+</div>

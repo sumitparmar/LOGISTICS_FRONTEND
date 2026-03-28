@@ -36,7 +36,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   dropCoords: any;
   private viewInitialized = false;
   private orderLoaded = false;
-
   constructor(
     private route: ActivatedRoute,
     private ordersService: OrdersService,

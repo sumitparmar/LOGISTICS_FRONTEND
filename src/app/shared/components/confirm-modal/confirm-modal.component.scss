@@ -1,0 +1,24 @@
+.cancel {
+  background: #f1f5f9;
+}
+
+.confirm {
+  background: #dc2626;
+  color: #fff;
+}
+
+.confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

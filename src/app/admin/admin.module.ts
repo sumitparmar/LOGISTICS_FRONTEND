@@ -12,7 +12,9 @@ import { DataTableComponent } from './components/data-table/data-table.component
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastComponent } from './components/toast/toast.component';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
+import { FormsModule } from '@angular/forms';
 
+import { OrderDetailsComponent } from '../features/admin/order-details/order-details.component';
 import {
   LucideAngularModule,
   Home,
@@ -27,6 +29,8 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { AdminUserEditComponent } from './pages/user-edit/user-edit.component';
 import { UserFormComponent } from './pages/users/user-form/user-form.component';
 import { AdminUserCreateComponent } from './pages/user-create/user-create.component';
+import { SharedModule } from '../shared/shared.module';
+
 @NgModule({
   declarations: [
     AdminLayoutComponent,
@@ -41,6 +45,7 @@ import { AdminUserCreateComponent } from './pages/user-create/user-create.compon
     UserFormComponent,
     AdminUserCreateComponent,
     KpiCardComponent,
+    OrderDetailsComponent,
   ],
   imports: [
     CommonModule,
@@ -48,6 +53,8 @@ import { AdminUserCreateComponent } from './pages/user-create/user-create.compon
     RouterModule,
     AdminRoutingModule,
     NgChartsModule,
+    FormsModule,
+    SharedModule,
 
     LucideAngularModule.pick({
       Home,

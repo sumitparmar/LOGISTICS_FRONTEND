@@ -1,20 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   AdminDashboardService,
   AdminStats,
 } from '../../services/admin-dashboard.service';
 import { ChartConfiguration } from 'chart.js';
+
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   stats: AdminStats | null = null;
   isLoading: boolean = true;
   lineChartData: ChartConfiguration<'line'>['data'] | null = null;
   selectedRange: 'today' | 'week' | 'month' = 'month';
-
+  private requestId = 0;
   constructor(private dashboardService: AdminDashboardService) {}
 
   ngOnInit(): void {
@@ -22,18 +25,28 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.dashboardService.getStats(this.selectedRange).subscribe({
-      next: (data) => {
-        this.stats = data;
-        this.updateChartData(data.sales);
-        this.isLoading = false;
-      },
+    const currentRequest = ++this.requestId;
 
-      error: (err) => {
-        console.error('Dashboard load failed', err);
-        this.isLoading = false;
-      },
-    });
+    this.dashboardService
+      .getStats(this.selectedRange)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          // 🚨 Ignore old API responses
+          if (currentRequest !== this.requestId) return;
+
+          this.stats = data;
+          this.updateChartData(data.sales);
+          this.isLoading = false;
+        },
+
+        error: (err) => {
+          if (currentRequest !== this.requestId) return;
+
+          console.error('Dashboard load failed', err);
+          this.isLoading = false;
+        },
+      });
   }
 
   changeRange(range: 'today' | 'week' | 'month') {
@@ -117,4 +130,9 @@ export class AdminDashboardComponent implements OnInit {
       },
     },
   };
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

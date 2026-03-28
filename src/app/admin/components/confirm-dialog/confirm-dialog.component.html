@@ -1,16 +1,28 @@
 <div class="overlay" *ngIf="visible">
-
     <div class="dialog">
 
+        <!-- TITLE -->
         <h3 class="title">{{ title }}</h3>
 
+        <!-- MESSAGE -->
         <p class="message">{{ message }}</p>
 
+        <!-- LOADER (NEW) -->
+        <div class="loader-section" *ngIf="loading">
+            <div class="spinner"></div>
+            <p class="loader-text">Processing...</p>
+        </div>
+
+        <!-- ACTIONS -->
         <div class="actions">
-            <button class="btn cancel" (click)="onCancel()">Cancel</button>
-            <button class="btn confirm" (click)="onConfirm()">Confirm</button>
+            <button class="btn cancel" (click)="onCancel()" [disabled]="loading">
+                Cancel
+            </button>
+
+            <button class="btn confirm" (click)="onConfirm()" [disabled]="loading">
+                {{ loading ? 'Processing...' : 'Confirm' }}
+            </button>
         </div>
 
     </div>
-
 </div>

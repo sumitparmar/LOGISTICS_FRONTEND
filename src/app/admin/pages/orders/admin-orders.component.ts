@@ -6,9 +6,10 @@ import {
   OnInit,
 } from '@angular/core';
 import { Subject } from 'rxjs';
-
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
+
 import {
   AdminOrdersService,
   OrdersResponse,
@@ -25,17 +26,25 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   @ViewChild('actionsTemplate', { static: true })
   actionsTemplate!: TemplateRef<any>;
+
+  @ViewChild('selectTemplate', { static: true })
+  selectTemplate!: TemplateRef<any>;
+
+  isBulkCancelling: boolean = false;
+  isBulkUpdating: boolean = false;
   private searchSubject = new Subject<string>();
   searchTerm: string = '';
   selectedStatus: string = 'ALL';
   page: number = 1;
   limit: number = 7;
   private _backendTotal: number = 0;
-
+  selectedOrders: Set<string> = new Set();
   columns: any[] = [];
   orders: any[] = [];
   allOrders: any[] = [];
   loading: boolean = false;
+  isExportingFromModal: boolean = false;
+  isExporting: boolean = false;
   // filteredOrders: any[] = [];
   statusCounts: any = {
     ALL: 0,
@@ -47,10 +56,15 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   showConfirm = false;
   selectedOrder: any = null;
+  sortBy: string = '';
+  sortOrder: 'asc' | 'desc' = 'asc';
+  confirmMode: 'single' | 'bulkCancel' | 'bulkStatus' | 'export' = 'single';
+  bulkStatusValue: string = '';
 
   constructor(
     private ordersService: AdminOrdersService,
     private router: Router,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -72,15 +86,56 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
       });
   }
 
+  confirmExport(): void {
+    this.confirmMode = 'export';
+    this.showConfirm = true;
+  }
+
+  getConfirmMessage(): string {
+    if (this.confirmMode === 'export') {
+      return this.getExportPreviewMessage();
+    }
+    if (this.confirmMode === 'single') {
+      return `Are you sure you want to cancel order ${this.selectedOrder?.id}?`;
+    }
+
+    if (this.confirmMode === 'bulkCancel') {
+      return `Are you sure you want to cancel ${this.selectedOrders.size} selected orders?`;
+    }
+
+    if (this.confirmMode === 'bulkStatus') {
+      return `Are you sure you want to update ${this.selectedOrders.size} orders to ${this.bulkStatusValue}?`;
+    }
+
+    return 'Are you sure?';
+  }
+
   onRowClick(order: any): void {
     if (!order?._id) return;
 
     this.router.navigate(['/admin/orders', order._id]);
   }
+
   loadOrders(): void {
     this.loading = true;
+    const status = this.mapStatusForBackend(this.selectedStatus);
+
+    let statusParam = this.selectedStatus;
+
+    if (statusParam === 'ALL') {
+      statusParam = '';
+    }
+
     this.ordersService
-      .getOrders(this.page, this.limit, this.searchTerm, this.selectedStatus)
+      .getOrders(
+        this.page,
+        this.limit,
+        this.searchTerm,
+        statusParam,
+        this.sortBy,
+        this.sortOrder,
+      )
+
       .subscribe({
         next: (res: OrdersResponse) => {
           this.allOrders = res.data || [];
@@ -92,6 +147,12 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
             amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
           }));
 
+          // const currentIds = new Set(this.orders.map((o) => o._id));
+
+          // this.selectedOrders = new Set(
+          //   [...this.selectedOrders].filter((id) => currentIds.has(id)),
+          // );
+
           this._backendTotal = res.pagination?.total || 0;
 
           if (res.statusCounts) {
@@ -102,22 +163,56 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
         error: (err: any) => {
           console.error('Orders API failed:', err);
+          this.showToast('Failed to load orders', 'error');
           this.orders = [];
           this.loading = false;
         },
       });
   }
 
+  clearSelection(): void {
+    this.selectedOrders.clear();
+  }
+
+  formatStatus(status: string): string {
+    if (status === 'PICKED_UP') return 'Picked Up';
+    if (status === 'IN_TRANSIT') return 'In Transit';
+    return status;
+  }
+
   initializeColumns(): void {
     this.columns = [
-      { key: 'id', label: 'Order ID' },
-      { key: 'user', label: 'Customer' },
-      { key: 'amount', label: 'Amount' },
+      {
+        key: 'select',
+        label: '',
+        template: this.selectTemplate,
+      },
+
+      {
+        key: 'id',
+        label: 'Order ID',
+        sortable: true,
+      },
+
+      {
+        key: 'user',
+        label: 'Customer',
+        sortable: true,
+      },
+
+      {
+        key: 'amount',
+        label: 'Amount',
+        sortable: true,
+      },
+
       {
         key: 'status',
         label: 'Status',
         template: this.statusTemplate,
+        sortable: true,
       },
+
       {
         key: 'actions',
         label: '',
@@ -126,33 +221,137 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
     ];
   }
 
+  onSort(columnKey: string): void {
+    if (!columnKey) return;
+
+    if (this.sortBy === columnKey) {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = columnKey;
+      this.sortOrder = 'asc';
+    }
+
+    this.page = 1;
+    this.loadOrders();
+  }
+
   // ===== Actions =====
   onEdit(order: any): void {
-    console.log('Edit order:', order);
+    if (!order?._id) return;
+
+    this.router.navigate(['/admin/orders', order._id]);
   }
 
   onDelete(order: any): void {
     this.selectedOrder = order;
+    this.confirmMode = 'single';
     this.showConfirm = true;
   }
 
-  onConfirmDelete(): void {
-    console.log('Deleted:', this.selectedOrder);
+  // onConfirmDelete(): void {
+  //   if (!this.selectedOrder?._id) return;
 
+  //   this.ordersService.cancelOrder(this.selectedOrder._id).subscribe({
+  //     next: () => {
+  //       this.showConfirm = false;
+  //       this.selectedOrder = null;
+  //       this.loadOrders();
+  //     },
+  //     error: (err: any) => {
+  //       console.error('Cancel failed:', err);
+  //       this.showConfirm = false;
+  //     },
+  //   });
+  // }
+
+  onConfirmDelete(): void {
+    // SINGLE
+    if (this.confirmMode === 'single' && this.selectedOrder?._id) {
+      this.ordersService.cancelOrder(this.selectedOrder._id).subscribe({
+        next: () => {
+          this.showToast('Order cancelled successfully', 'success');
+          this.resetConfirmState();
+          this.loadOrders();
+        },
+        error: () => {
+          this.showToast('Cancel failed', 'error');
+          this.resetConfirmState();
+        },
+      });
+    }
+
+    // BULK CANCEL
+    else if (this.confirmMode === 'bulkCancel') {
+      this.isBulkCancelling = true;
+      this.ordersService.bulkCancel([...this.selectedOrders]).subscribe({
+        next: () => {
+          this.showToast('Orders cancelled successfully', 'success');
+          this.selectedOrders.clear();
+          this.resetConfirmState();
+          this.loadOrders();
+          this.isBulkCancelling = false;
+        },
+        error: () => {
+          this.showToast('Bulk cancel failed', 'error');
+          this.isBulkCancelling = false;
+          this.resetConfirmState();
+        },
+      });
+    }
+
+    // BULK STATUS
+    else if (this.confirmMode === 'bulkStatus') {
+      this.isBulkUpdating = true;
+      this.ordersService
+        .bulkUpdateStatus([...this.selectedOrders], this.bulkStatusValue)
+        .subscribe({
+          next: (res: any) => {
+            if (res.modifiedCount === 0) {
+              this.showToast('No orders updated', 'warning');
+            } else if (res.failedIds?.length) {
+              this.showToast(
+                `${res.modifiedCount} updated, ${res.failedIds.length} failed`,
+                'warning',
+              );
+            } else {
+              this.showToast('Bulk status updated successfully', 'success');
+            }
+
+            this.selectedOrders.clear();
+            this.resetConfirmState();
+            this.loadOrders();
+            this.isBulkUpdating = false;
+          },
+          error: () => {
+            this.showToast('Bulk update failed', 'error');
+            this.isBulkUpdating = false;
+            this.resetConfirmState();
+          },
+        });
+    } else if (this.confirmMode === 'export') {
+      if (this.isExporting) return;
+
+      this.isExporting = true;
+      this.isExportingFromModal = true;
+
+      this.exportAllCSV();
+    }
+  }
+
+  resetConfirmState() {
     this.showConfirm = false;
     this.selectedOrder = null;
-
-    this.loadOrders();
+    this.confirmMode = 'single';
+    this.bulkStatusValue = '';
   }
 
   onCancelDelete(): void {
-    this.showConfirm = false;
-    this.selectedOrder = null;
+    this.resetConfirmState();
   }
 
   onPageChange(page: number): void {
     this.page = page;
-    this.loadOrders(); // not applyFilters
+    this.loadOrders();
   }
 
   onSearchChange(search: string): void {
@@ -162,6 +361,7 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
   filterByStatus(status: string): void {
     this.selectedStatus = status;
     this.page = 1;
+    // this.selectedOrders.clear();
     this.loadOrders();
   }
   getStatusClass(status: string): string {
@@ -186,5 +386,281 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   get totalPages(): number {
     return Math.ceil(this._backendTotal / this.limit) || 1;
+  }
+
+  mapStatusForBackend(status: string): any {
+    if (status === 'ALL') return null;
+
+    if (status === 'IN_PROGRESS') {
+      return ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'];
+    }
+
+    return status;
+  }
+
+  toggleSelection(order: any): void {
+    if (!order?._id) return;
+
+    if (this.selectedOrders.has(order._id)) {
+      this.selectedOrders.delete(order._id);
+    } else {
+      this.selectedOrders.add(order._id);
+    }
+  }
+
+  toggleSelectAll(): void {
+    const selectable = this.orders.filter(
+      (o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED',
+    );
+
+    const allSelected = selectable.every((o) => this.selectedOrders.has(o._id));
+
+    if (allSelected) {
+      selectable.forEach((o) => this.selectedOrders.delete(o._id));
+    } else {
+      selectable.forEach((o) => this.selectedOrders.add(o._id));
+    }
+  }
+
+  isAllSelectableChecked(): boolean {
+    const selectable = this.orders.filter(
+      (o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED',
+    );
+
+    return (
+      selectable.length > 0 &&
+      selectable.every((o) => this.selectedOrders.has(o._id))
+    );
+  }
+
+  // bulkCancel(): void {
+  //   if (!this.selectedOrders.size || this.isBulkLoading) return;
+
+  //   this.isBulkLoading = true;
+
+  //   this.ordersService.bulkCancel([...this.selectedOrders]).subscribe({
+  //     next: (res: any) => {
+  //       this.showToast('Orders cancelled successfully', 'success');
+  //       this.selectedOrders.clear();
+  //       this.loadOrders();
+  //       this.isBulkLoading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error(err);
+  //       this.showToast('Bulk cancel failed', 'error');
+  //       this.isBulkLoading = false;
+  //     },
+  //   });
+  // }
+
+  bulkCancel(): void {
+    if (!this.selectedOrders.size || this.isBulkCancelling) {
+      this.showToast('Select at least one order', 'warning');
+      return;
+    }
+
+    this.confirmMode = 'bulkCancel';
+    this.showConfirm = true;
+  }
+
+  // onBulkStatusChange(status: string, selectEl?: HTMLSelectElement): void {
+  //   if (status === '') return;
+  //   if (!status || !this.selectedOrders.size || this.isBulkLoading) return;
+
+  //   this.isBulkLoading = true;
+
+  //   this.ordersService
+  //     .bulkUpdateStatus([...this.selectedOrders], status)
+  //     .subscribe({
+  //       next: (res: any) => {
+  //         if (res.modifiedCount === 0) {
+  //           this.showToast('No orders updated', 'warning');
+  //         } else if (res.failedIds?.length) {
+  //           this.showToast(
+  //             `${res.modifiedCount} updated, ${res.failedIds.length} failed`,
+  //             'warning',
+  //           );
+  //         } else {
+  //           this.showToast('Bulk status updated successfully', 'success');
+  //         }
+
+  //         this.selectedOrders.clear();
+  //         this.loadOrders();
+  //         if (selectEl) selectEl.value = '';
+  //         this.isBulkLoading = false;
+  //       },
+  //       error: (err) => {
+  //         console.error(err);
+  //         this.showToast('Bulk update failed', 'error');
+  //         this.isBulkLoading = false;
+  //       },
+  //     });
+  // }
+
+  onBulkStatusChange(status: string, selectEl?: HTMLSelectElement): void {
+    if (status === '') return;
+    if (!status || !this.selectedOrders.size || this.isBulkUpdating) return;
+
+    this.confirmMode = 'bulkStatus';
+    this.bulkStatusValue = status;
+    this.showConfirm = true;
+
+    if (selectEl) selectEl.value = '';
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'warning') {
+    this.toastService.show(message, type);
+  }
+
+  exportCSV(): void {
+    const data = this.getExportData();
+
+    if (!data.length) {
+      this.toastService.show('No data to export', 'warning');
+      return;
+    }
+
+    try {
+      const csv = this.convertToCSV(data);
+
+      const blob = new Blob([csv], {
+        type: 'text/csv;charset=utf-8;',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${new Date().toISOString()}.csv`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+
+      this.toastService.show('CSV exported successfully', 'success');
+    } catch (err) {
+      console.error(err);
+      this.toastService.show('Export failed', 'error');
+    }
+  }
+
+  private getExportData(): any[] {
+    const source =
+      this.selectedOrders.size > 0
+        ? this.allOrders.filter((o) => this.selectedOrders.has(o._id))
+        : this.allOrders;
+
+    return source.map((order) => ({
+      Order_ID: order.borzoOrderId || '',
+      Customer_Name: order.customer?.name || '',
+      Phone: order.customer?.phone || '',
+      Amount: order.pricing?.amount || 0,
+      Status: order.status || '',
+      Provider: order.provider || '',
+      Created_At: new Date(order.createdAt).toISOString(),
+    }));
+  }
+
+  private convertToCSV(data: any[]): string {
+    const headers = Object.keys(data[0]);
+
+    const escape = (value: any) => {
+      if (value === null || value === undefined) return '';
+      return `"${String(value).replace(/"/g, '""')}"`;
+    };
+
+    const rows = data.map((row) =>
+      headers.map((field) => escape(row[field])).join(','),
+    );
+
+    return [headers.join(','), ...rows].join('\n');
+  }
+
+  exportAllCSV(): void {
+    const statusParam =
+      this.selectedStatus === 'ALL' ? '' : this.selectedStatus;
+
+    this.ordersService
+      .getOrders(
+        1,
+        10000, // safe high limit
+        this.searchTerm,
+        statusParam,
+        this.sortBy,
+        this.sortOrder,
+      )
+      .subscribe({
+        next: (res: OrdersResponse) => {
+          const allData = res.data || [];
+
+          if (!allData.length) {
+            this.toastService.show('No data to export', 'warning');
+            this.isExporting = false;
+            return;
+          }
+
+          const formatted = allData.map((order: any) => ({
+            Order_ID: order.borzoOrderId || '',
+            Customer_Name: order.customer?.name || '',
+            Phone: order.customer?.phone || '',
+            Amount: order.pricing?.amount || 0,
+            Status: order.status || '',
+            Provider: order.provider || '',
+            Created_At: new Date(order.createdAt).toISOString(),
+          }));
+
+          const csv = this.convertToCSV(formatted);
+
+          const blob = new Blob([csv], {
+            type: 'text/csv;charset=utf-8;',
+          });
+
+          const url = window.URL.createObjectURL(blob);
+
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `orders_full_${new Date().toISOString()}.csv`;
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          window.URL.revokeObjectURL(url);
+
+          this.toastService.show('Full export completed', 'success');
+          setTimeout(() => {
+            this.isExporting = false;
+            this.isExportingFromModal = false;
+            this.showConfirm = false;
+          }, 600);
+        },
+
+        error: (err) => {
+          console.error(err);
+          this.toastService.show('Export failed', 'error');
+          setTimeout(() => {
+            this.isExporting = false;
+            this.isExportingFromModal = false;
+            this.showConfirm = false;
+          }, 600);
+        },
+      });
+  }
+
+  getExportPreviewMessage(): string {
+    const isSelected = this.selectedOrders.size > 0;
+    const total = this._backendTotal || 0;
+
+    if (isSelected) {
+      return `Export ${this.selectedOrders.size} selected orders?`;
+    }
+
+    if (total > 1000) {
+      return `Export ${total} orders? This may take a few seconds.`;
+    }
+
+    return `Export ${total} orders?`;
   }
 }

@@ -17,12 +17,11 @@ import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { SharedModule } from './shared/shared.module';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
-import { OrderDetailsComponent } from './features/admin/order-details/order-details.component';
-
+// import { OrderDetailsComponent } from './features/admin/order-details/order-details.component';
 export function HttpLoaderFactory(http: HttpClient) {}
 
 @NgModule({
-  declarations: [AppComponent, PublicLayoutComponent, OrderDetailsComponent],
+  declarations: [AppComponent, PublicLayoutComponent],
 
   imports: [
     BrowserModule,

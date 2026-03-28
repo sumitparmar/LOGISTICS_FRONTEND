@@ -2,8 +2,19 @@
 
     <thead>
         <tr>
-            <th *ngFor="let col of columns">
-                {{ col.label }}
+            <th *ngFor="let col of columns" (click)="onSort(col); $event.stopPropagation()"
+                [class.sortable]="col.sortable">
+                <span>{{ col.label }}</span>
+
+                <!-- SORT ICON -->
+                <span *ngIf="col.sortable" class="sort-icon">
+                    <ng-container *ngIf="sortBy === col.key">
+                        {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                    </ng-container>
+                    <ng-container *ngIf="sortBy !== col.key">
+                        ↕
+                    </ng-container>
+                </span>
             </th>
         </tr>
     </thead>

@@ -208,7 +208,9 @@
                                     Details
                                 </button>
 
-                                <button class="action-btn cancel-btn" (click)="openCancelModal(order._id)"
+                                <button class="action-btn cancel-btn"
+                                    [disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
+                                    (click)="openCancelModal(order._id)"
                                     *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
                                     Cancel
                                 </button>

@@ -124,15 +124,95 @@
 
                 <h3>Route Map</h3>
 
+                <div class="route-info">
+                    <div class="route-item distance">
+                        <span class="label">Distance</span>
+                        <span class="value">{{ routeDistance }}</span>
+                    </div>
+
+                    <div class="route-item time">
+                        <span class="label">Estimated Time</span>
+                        <span class="value">{{ routeDuration }}</span>
+                    </div>
+                </div>
+
                 <app-order-map [pickup]="{ lat: order.pickup.lat, lng: order.pickup.lng }"
-                    [drop]="{ lat: order.drop.lat, lng: order.drop.lng }">
+                    [drop]="{ lat: order.drop.lat, lng: order.drop.lng }" (routeInfo)="onRouteInfo($event)">
                 </app-order-map>
+
+            </div>
+
+            <div class="section full-width timeline-section" *ngIf="order">
+
+                <h3>Order Timeline</h3>
+
+                <div class="timeline">
+
+                    <div *ngFor="let step of timelineSteps" class="timeline-item"
+                        [class.active]="isStepActive(step.key)">
+
+                        <div class="dot"></div>
+
+                        <div class="content">
+                            <div class="title">{{ step.label }}</div>
+
+                            <div class="time" *ngIf="step.time">
+                                {{ step.time | date:'dd MMM yyyy, hh:mm a' }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="section full-width action-section" *ngIf="order">
+
+                <h3>Actions</h3>
+
+                <div class="actions"
+                    [style.opacity]="order.status === 'CANCELLED' || order.status === 'DELIVERED' ? '0.5' : '1'"
+                    [style.pointer-events]="order.status === 'CANCELLED' || order.status === 'DELIVERED' ? 'none' : 'auto'">
+                    <!-- STATUS UPDATE -->
+                    <select class="action-select" [(ngModel)]="selectedStatus"
+                        [disabled]="order.status === 'DELIVERED' || order.status === 'CANCELLED'">
+                        <option value="" disabled hidden> Select Next Status
+                        </option>
+
+                        <option value="ASSIGNED" *ngIf="canMoveTo('ASSIGNED')">Assigned</option>
+                        <option value="PICKED_UP" *ngIf="canMoveTo('PICKED_UP')">Picked</option>
+                        <option value="DELIVERED" *ngIf="canMoveTo('DELIVERED')">Delivered</option>
+
+                    </select>
+
+                    <div *ngIf="order.status === 'DELIVERED'" style="color: #999; font-size: 13px; margin-top: 6px;">
+                        Order already delivered. No further updates allowed.
+                    </div>
+
+                    <button class="btn primary"
+                        [disabled]="!selectedStatus || isUpdating || order.status === 'CANCELLED' || order.status === 'DELIVERED'"
+                        (click)="updateStatus()">
+
+                        {{ isUpdating ? 'Updating...' : 'Update' }}
+                    </button>
+
+
+                    <!-- CANCEL -->
+                    <button class="btn danger"
+                        [disabled]="isUpdating || order.status === 'CANCELLED' || order.status === 'DELIVERED'"
+                        (click)="cancelOrder()"> Cancel Order
+                    </button>
+
+                </div>
 
             </div>
 
         </div>
 
     </ng-template>
+
+
 
     <!-- EMPTY -->
     <ng-template #emptyState>
@@ -141,4 +221,18 @@
         </div>
     </ng-template>
 
+</div>
+
+<div class="modal-backdrop" *ngIf="showCancelModal">
+    <div class="modal">
+
+        <h3>Cancel Order</h3>
+        <p>Are you sure you want to cancel this order?</p>
+
+        <div class="modal-actions">
+            <button class="btn secondary" (click)="closeCancelModal()">No</button>
+            <button class="btn danger" (click)="confirmCancelOrder()">Yes, Cancel</button>
+        </div>
+
+    </div>
 </div>

@@ -1,0 +1,23 @@
+<div class="modal-backdrop" *ngIf="visible">
+    <div class="modal">
+
+        <div class="modal-header">
+            <h3>{{ title }}</h3>
+        </div>
+
+        <div class="modal-body">
+            <p>{{ message }}</p>
+        </div>
+
+        <div class="modal-actions">
+            <button class="cancel" (click)="onCancel()" [disabled]="loading">
+                {{ cancelText }}
+            </button>
+
+            <button class="confirm" (click)="onConfirm()" [disabled]="loading">
+                {{ loading ? 'Processing...' : confirmText }}
+            </button>
+        </div>
+
+    </div>
+</div>
