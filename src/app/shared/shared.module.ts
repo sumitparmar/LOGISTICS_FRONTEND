@@ -7,7 +7,12 @@ import { FooterComponent } from './components/footer/footer.component';
 import { RouterModule } from '@angular/router';
 import { OrderMapComponent } from './components/order-map/order-map.component';
 import { ToastComponent } from './components/toast/toast.component';
-import { LucideAngularModule } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from 'lucide-angular';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 
 @NgModule({

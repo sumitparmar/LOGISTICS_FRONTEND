@@ -10,6 +10,13 @@ export interface AdminStats {
   ordersChange: number;
   revenueChange: number;
   sales: { month: string; value: number }[];
+
+  statusCounts: {
+    CREATED: number;
+    IN_PROGRESS: number;
+    DELIVERED: number;
+    CANCELLED: number;
+  };
 }
 
 @Injectable({

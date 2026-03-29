@@ -1,19 +1,15 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  TemplateRef,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { AdminUsersService } from '../../services/admin-users.service';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+
 @Component({
   selector: 'app-admin-users',
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss'],
 })
-export class AdminUsersComponent implements OnInit, AfterViewInit {
+export class AdminUsersComponent implements OnInit {
   private searchSubject = new Subject<string>();
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<any>;
@@ -33,9 +29,9 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
   showConfirm = false;
   selectedUser: any = null;
 
-  ngAfterViewInit(): void {
-    this.initializeColumns();
-  }
+  // ngAfterViewInit(): void {
+  //   this.initializeColumns();
+  // }
 
   initializeColumns(): void {
     this.columns = [
@@ -65,9 +61,11 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
   constructor(
     private adminUsersService: AdminUsersService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    this.initializeColumns();
     this.loadUsers();
     this.setupSearchStream();
   }
@@ -94,6 +92,7 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
             id: u._id || u.id,
           }));
           this.totalPages = res.pagination?.totalPages || 1;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Search API failed:', err);
@@ -111,6 +110,7 @@ export class AdminUsersComponent implements OnInit, AfterViewInit {
             id: u._id || u.id, // keep for routing
           }));
           this.totalPages = res.pagination?.totalPages || 1;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to load users', err);

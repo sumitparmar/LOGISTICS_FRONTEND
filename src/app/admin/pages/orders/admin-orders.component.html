@@ -38,10 +38,33 @@
 
         </div>
         <!-- Controls -->
-        <div class="table-controls">
+
+        <!-- <div class="table-controls">
             <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
                 (searchChange)="onSearchChange($event)">
             </app-table-controls>
+
+
+
+
+            <div class="advanced-filters">
+
+                <input type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+
+                <input type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+
+                <select [(ngModel)]="selectedProvider" (change)="onFilterChange()">
+
+
+                    <option value="">All Providers</option>
+                    <option value="borzo">Borzo</option>
+                    <option value="porter">Porter</option>
+                </select>
+
+            </div>
+
+
+
 
             <div class="status-filters">
 
@@ -72,9 +95,83 @@
             </div>
 
             <div class="controls-right">
+
                 <button class="export-btn" (click)="confirmExport()"
-                    [disabled]="loading || isExporting || isExportingFromModal">
+                    [disabled]="loading || isExporting || isExportingFromModal || !orders.length">
+
+
                     {{ (isExporting || isExportingFromModal) ? 'Exporting...' : 'Export CSV' }} </button>
+            </div>
+
+        </div> -->
+
+
+        <div class="table-controls">
+
+            <!-- TOP ROW -->
+            <div class="controls-wrapper">
+
+                <!-- LEFT SIDE -->
+                <div class="controls-left">
+
+                    <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
+                        (searchChange)="onSearchChange($event)">
+                    </app-table-controls>
+
+                    <div class="advanced-filters">
+
+                        <input type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+
+                        <input type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+
+                        <select [(ngModel)]="selectedProvider" (change)="onFilterChange()">
+                            <option value="">All Providers</option>
+                            <option value="borzo">Borzo</option>
+                            <option value="porter">Porter</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT SIDE -->
+                <div class="controls-right">
+                    <button class="export-btn" (click)="confirmExport()"
+                        [disabled]="loading || isExporting || isExportingFromModal || !orders.length">
+                        {{ (isExporting || isExportingFromModal) ? 'Exporting...' : 'Export CSV' }}
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- SECOND ROW -->
+            <div class="status-filters">
+
+                <button class="filter" [class.active]="selectedStatus === 'ALL'" [disabled]="loading"
+                    (click)="filterByStatus('ALL')">
+                    All ({{ statusCounts.ALL }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'CREATED'" [disabled]="loading"
+                    (click)="filterByStatus('CREATED')">
+                    Pending ({{ statusCounts.CREATED }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'IN_PROGRESS'" [disabled]="loading"
+                    (click)="filterByStatus('IN_PROGRESS')">
+                    In Progress ({{ statusCounts.IN_PROGRESS }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'DELIVERED'" [disabled]="loading"
+                    (click)="filterByStatus('DELIVERED')">
+                    Delivered ({{ statusCounts.DELIVERED }})
+                </button>
+
+                <button class="filter" [class.active]="selectedStatus === 'CANCELLED'" [disabled]="loading"
+                    (click)="filterByStatus('CANCELLED')">
+                    Cancelled ({{ statusCounts.CANCELLED }})
+                </button>
+
             </div>
 
         </div>
@@ -91,9 +188,10 @@
         </div>
 
 
+
         <!-- TABLE -->
-        <app-data-table [columns]="columns" [data]="orders" [sortBy]="sortBy" [sortOrder]="sortOrder"
-            (sort)="onSort($event)" (rowClick)="onRowClick($event)">
+        <app-data-table class="orders-table" [columns]="columns" [data]="orders" [sortBy]="sortBy"
+            [sortOrder]="sortOrder" (sort)="onSort($event)" (rowClick)="onRowClick($event)">
         </app-data-table>
 
         <!-- EMPTY STATE -->

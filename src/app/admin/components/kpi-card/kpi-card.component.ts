@@ -22,6 +22,7 @@ export class KpiCardComponent implements OnChanges {
   }
 
   private animateValue(target: number) {
+    if (target === this.displayValue) return;
     const duration = 800;
     const start = this.displayValue || 0;
     const startTime = performance.now();

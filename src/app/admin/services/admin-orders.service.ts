@@ -56,10 +56,22 @@ export class AdminOrdersService {
     status: string = 'ALL',
     sortBy?: string,
     sortOrder?: string,
+    fromDate?: string,
+    toDate?: string,
+    provider?: string,
   ) {
     let url = `${this.apiUrl}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`;
+    if (fromDate) {
+      url += `&fromDate=${fromDate}`;
+    }
 
-    // ✅ ADD SORTING (SAFE)
+    if (toDate) {
+      url += `&toDate=${toDate}`;
+    }
+
+    if (provider) {
+      url += `&provider=${provider}`;
+    }
     if (sortBy) {
       url += `&sortBy=${sortBy}`;
     }

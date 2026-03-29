@@ -17,7 +17,17 @@ import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { SharedModule } from './shared/shared.module';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
-// import { OrderDetailsComponent } from './features/admin/order-details/order-details.component';
+import { NgChartsModule } from 'ng2-charts';
+
+import {
+  LucideAngularModule,
+  CheckCircle,
+  Edit,
+  Trash,
+  Users,
+  ShoppingCart,
+  DollarSign,
+} from 'lucide-angular';
 export function HttpLoaderFactory(http: HttpClient) {}
 
 @NgModule({
@@ -33,6 +43,16 @@ export function HttpLoaderFactory(http: HttpClient) {}
     MatInputModule,
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
+    NgChartsModule,
+
+    LucideAngularModule.pick({
+      CheckCircle,
+      Edit,
+      Trash,
+      Users,
+      ShoppingCart,
+      DollarSign,
+    }),
   ],
 
   providers: [

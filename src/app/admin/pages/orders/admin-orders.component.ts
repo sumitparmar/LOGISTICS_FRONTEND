@@ -1,14 +1,11 @@
-import {
-  Component,
-  ViewChild,
-  TemplateRef,
-  AfterViewInit,
-  OnInit,
-} from '@angular/core';
+import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
+import { AdminSocketService } from '../../services/admin-socket.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import {
   AdminOrdersService,
@@ -19,7 +16,7 @@ import {
   templateUrl: './admin-orders.component.html',
   styleUrls: ['./admin-orders.component.scss'],
 })
-export class AdminOrdersComponent implements OnInit, AfterViewInit {
+export class AdminOrdersComponent implements OnInit {
   // ===== Templates =====
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<any>;
@@ -43,8 +40,14 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
   orders: any[] = [];
   allOrders: any[] = [];
   loading: boolean = false;
+
   isExportingFromModal: boolean = false;
   isExporting: boolean = false;
+
+  fromDate: string = '';
+  toDate: string = '';
+  selectedProvider: string = '';
+
   // filteredOrders: any[] = [];
   statusCounts: any = {
     ALL: 0,
@@ -65,15 +68,25 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
     private ordersService: AdminOrdersService,
     private router: Router,
     private toastService: ToastService,
+    private adminSocket: AdminSocketService,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.setupSearchDebounce();
-    this.loadOrders();
-  }
-
-  ngAfterViewInit(): void {
     this.initializeColumns();
+    this.setupSearchDebounce();
+    const status = this.route.snapshot.queryParamMap.get('status');
+
+    if (status) {
+      this.selectedStatus = status;
+      this.page = 1;
+    }
+
+    this.loadOrders();
+
+    this.adminSocket.connect();
+    this.listenRealtime();
   }
 
   private setupSearchDebounce(): void {
@@ -118,6 +131,7 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
 
   loadOrders(): void {
     this.loading = true;
+    this.cdr.detectChanges();
     const status = this.mapStatusForBackend(this.selectedStatus);
 
     let statusParam = this.selectedStatus;
@@ -134,6 +148,9 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
         statusParam,
         this.sortBy,
         this.sortOrder,
+        this.fromDate,
+        this.toDate,
+        this.selectedProvider,
       )
 
       .subscribe({
@@ -147,16 +164,19 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
             amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
           }));
 
-          // const currentIds = new Set(this.orders.map((o) => o._id));
-
-          // this.selectedOrders = new Set(
-          //   [...this.selectedOrders].filter((id) => currentIds.has(id)),
-          // );
-
           this._backendTotal = res.pagination?.total || 0;
 
           if (res.statusCounts) {
-            this.statusCounts = { ...res.statusCounts };
+            const counts = res.statusCounts;
+
+            this.statusCounts = {
+              ...counts,
+              ALL:
+                (counts.CREATED || 0) +
+                (counts.IN_PROGRESS || 0) +
+                (counts.DELIVERED || 0) +
+                (counts.CANCELLED || 0),
+            };
           }
           this.loading = false;
         },
@@ -585,11 +605,14 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
     this.ordersService
       .getOrders(
         1,
-        10000, // safe high limit
+        10000,
         this.searchTerm,
         statusParam,
         this.sortBy,
         this.sortOrder,
+        this.fromDate,
+        this.toDate,
+        this.selectedProvider,
       )
       .subscribe({
         next: (res: OrdersResponse) => {
@@ -662,5 +685,40 @@ export class AdminOrdersComponent implements OnInit, AfterViewInit {
     }
 
     return `Export ${total} orders?`;
+  }
+
+  onFilterChange(): void {
+    if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
+      this.toastService.show('Invalid date range', 'warning');
+      return;
+    }
+
+    this.page = 1;
+    this.loadOrders();
+  }
+
+  listenRealtime(): void {
+    this.adminSocket.onOrderUpdate((update: any) => {
+      console.log('ADMIN UPDATE:', update); // TEMP DEBUG
+      this.handleRealtimeUpdate(update);
+    });
+  }
+
+  handleRealtimeUpdate(update: any): void {
+    const index = this.orders.findIndex((o) => o._id === update.orderId);
+
+    if (index === -1) return;
+
+    this.orders[index] = {
+      ...this.orders[index],
+      ...update.data,
+      id: update.data.borzoOrderId || '-',
+      user: update.data.customer?.name || '-',
+      amount: `${update.data.pricing?.amount || 0} ${update.data.pricing?.currency || ''}`,
+    };
+
+    this.orders = [...this.orders];
+
+    this.cdr.detectChanges();
   }
 }

@@ -1,17 +1,132 @@
+// .dashboard-card {
+//   padding: 20px;
+//   border-radius: 16px;
+//   border: 1px solid #eef2f7;
+//   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+//   transition: all 0.2s ease;
+//   cursor: pointer;
+// }
+
+// .dashboard-card:hover {
+//   transform: translateY(-3px);
+//   box-shadow: 0 16px 35px rgba(0, 0, 0, 0.1);
+// }
+
+// .dashboard-card.users {
+//   background: #eef2ff;
+// }
+
+// .dashboard-card.orders {
+//   background: #fff7ed;
+// }
+
+// .dashboard-card.revenue {
+//   background: #ecfdf5;
+// }
+
+// .card-header {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+// }
+
+// .card-title {
+//   font-size: 12px;
+//   font-weight: 500;
+//   color: #6b7280;
+// }
+
+// .card-value {
+//   font-size: 28px;
+//   font-weight: 700;
+//   margin-top: 12px;
+//   color: #0f172a;
+// }
+
+// .card-change {
+//   font-size: 12px;
+//   margin-top: 8px;
+//   font-weight: 600;
+//   opacity: 0.9;
+// }
+
+// .card-change.positive {
+//   color: #16a34a;
+// }
+
+// .card-change.negative {
+//   color: #dc2626;
+// }
+
+// .card-icon {
+//   width: 36px;
+//   height: 36px;
+//   border-radius: 10px;
+//   background: rgba(255, 255, 255, 0.9);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// }
+
+// .card-icon lucide-icon {
+//   width: 18px;
+//   height: 18px;
+//   color: #4f46e5;
+//   transition: transform 0.2s ease;
+// }
+
+// .dashboard-card:hover .card-icon {
+//   transform: scale(1.05);
+// }
+
+// /* SPARKLINE */
+// .sparkline {
+//   margin-top: 12px;
+//   height: 36px;
+//   opacity: 0.7;
+// }
+
+// .sparkline svg {
+//   width: 100%;
+//   height: 100%;
+//   padding: 0 4px;
+// }
+
+// .dashboard-card.users .sparkline {
+//   color: #6366f1;
+// }
+
+// .dashboard-card.orders .sparkline {
+//   color: #f59e0b;
+// }
+
+// .dashboard-card.revenue .sparkline {
+//   color: #10b981;
+// }
+
 .dashboard-card {
+  position: relative;
   padding: 20px;
   border-radius: 16px;
   border: 1px solid #eef2f7;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+  overflow: hidden;
 }
 
+/* HOVER */
 .dashboard-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 }
 
+/* VARIANTS */
 .dashboard-card.users {
   background: #eef2ff;
 }
@@ -24,30 +139,41 @@
   background: #ecfdf5;
 }
 
+/* HEADER */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
+/* TITLE */
 .card-title {
   font-size: 12px;
   font-weight: 500;
   color: #6b7280;
+  line-height: 1.2;
 }
 
+/* VALUE */
 .card-value {
   font-size: 28px;
   font-weight: 700;
-  margin-top: 12px;
+  margin-top: 10px;
   color: #0f172a;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
 }
 
+/* CHANGE TEXT */
 .card-change {
   font-size: 12px;
-  margin-top: 8px;
+  margin-top: 6px;
   font-weight: 600;
   opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .card-change.positive {
@@ -58,25 +184,30 @@
   color: #dc2626;
 }
 
+/* ICON */
 .card-icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.9);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
+  transition: all 0.25s ease;
 }
 
 .card-icon lucide-icon {
   width: 18px;
   height: 18px;
   color: #4f46e5;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
 
 .dashboard-card:hover .card-icon {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* SPARKLINE */
@@ -84,6 +215,8 @@
   margin-top: 12px;
   height: 36px;
   opacity: 0.7;
+  display: flex;
+  align-items: flex-end;
 }
 
 .sparkline svg {
@@ -92,6 +225,7 @@
   padding: 0 4px;
 }
 
+/* SPARKLINE COLORS */
 .dashboard-card.users .sparkline {
   color: #6366f1;
 }
@@ -102,4 +236,66 @@
 
 .dashboard-card.revenue .sparkline {
   color: #10b981;
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .dashboard-card {
+    padding: 18px;
+    min-height: 130px;
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .dashboard-card {
+    padding: 16px;
+    min-height: 120px;
+  }
+
+  .card-value {
+    font-size: 22px;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .card-icon lucide-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .dashboard-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .card-title {
+    font-size: 11px;
+  }
+
+  .card-value {
+    font-size: 20px;
+  }
+
+  .card-change {
+    font-size: 11px;
+  }
+
+  .sparkline {
+    height: 30px;
+  }
 }
