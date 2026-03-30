@@ -9,8 +9,7 @@ export interface AdminStats {
   usersChange: number;
   ordersChange: number;
   revenueChange: number;
-  sales: { month: string; value: number }[];
-
+  sales: { label: string; value: number }[];
   statusCounts: {
     CREATED: number;
     IN_PROGRESS: number;

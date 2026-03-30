@@ -10,19 +10,64 @@
 
         <nav class="admin-menu">
 
+            <!-- Dashboard -->
             <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <lucide-icon name="home"></lucide-icon>
                 <span>Dashboard</span>
             </a>
 
+            <!-- Orders -->
+            <a routerLink="/admin/orders" routerLinkActive="active">
+                <lucide-icon name="shopping-cart"></lucide-icon>
+                <span>Orders</span>
+            </a>
+
+            <!-- Users -->
             <a routerLink="/admin/users" routerLinkActive="active">
                 <lucide-icon name="users"></lucide-icon>
                 <span>Users</span>
             </a>
 
-            <a routerLink="/admin/orders" routerLinkActive="active">
-                <lucide-icon name="shopping-cart"></lucide-icon>
-                <span>Orders</span>
+            <!-- Drivers -->
+            <a routerLink="/admin/drivers" routerLinkActive="active">
+                <lucide-icon name="truck"></lucide-icon>
+                <span>Drivers</span>
+            </a>
+
+            <!-- Payments -->
+            <a routerLink="/admin/payments" routerLinkActive="active">
+                <lucide-icon name="credit-card"></lucide-icon>
+                <span>Payments</span>
+            </a>
+
+            <!-- Pricing -->
+            <a routerLink="/admin/pricing" routerLinkActive="active">
+                <lucide-icon name="tag"></lucide-icon>
+                <span>Pricing</span>
+            </a>
+
+            <!-- Notifications -->
+            <a routerLink="/admin/notifications" routerLinkActive="active">
+                <lucide-icon name="bell"></lucide-icon>
+                <span>Notifications</span>
+            </a>
+
+            <!-- Support -->
+            <a routerLink="/admin/support" routerLinkActive="active">
+                <lucide-icon name="life-buoy"></lucide-icon>
+                <span>Support</span>
+            </a>
+
+            <!-- Roles -->
+            <a routerLink="/admin/roles" routerLinkActive="active">
+                <lucide-icon name="shield"></lucide-icon>
+                <span>Roles</span>
+            </a>
+
+            <!-- Settings -->
+            <a routerLink="/admin/settings" routerLinkActive="active">
+                <lucide-icon name="settings"></lucide-icon>
+                <span>Settings</span>
             </a>
 
         </nav>

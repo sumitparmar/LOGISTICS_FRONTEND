@@ -6,7 +6,7 @@ import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { AdminSocketService } from '../../services/admin-socket.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
+import { takeUntil } from 'rxjs/operators';
 import {
   AdminOrdersService,
   OrdersResponse,
@@ -47,7 +47,7 @@ export class AdminOrdersComponent implements OnInit {
   fromDate: string = '';
   toDate: string = '';
   selectedProvider: string = '';
-
+  private destroy$ = new Subject<void>();
   // filteredOrders: any[] = [];
   statusCounts: any = {
     ALL: 0,
@@ -76,14 +76,16 @@ export class AdminOrdersComponent implements OnInit {
   ngOnInit(): void {
     this.initializeColumns();
     this.setupSearchDebounce();
-    const status = this.route.snapshot.queryParamMap.get('status');
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params: any) => {
+        const status = params['status'];
 
-    if (status) {
-      this.selectedStatus = status;
-      this.page = 1;
-    }
+        this.selectedStatus = status || 'ALL';
+        this.page = 1;
 
-    this.loadOrders();
+        this.loadOrders();
+      });
 
     this.adminSocket.connect();
     this.listenRealtime();
@@ -720,5 +722,10 @@ export class AdminOrdersComponent implements OnInit {
     this.orders = [...this.orders];
 
     this.cdr.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,0 +1,89 @@
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <h2>Drivers</h2>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <input type="text" placeholder="Search drivers..." #searchInput (input)="onSearchChange(searchInput.value)" />
+    </div>
+
+    <!-- CARD -->
+    <div class="card">
+
+        <!-- TABLE -->
+        <table class="table" *ngIf="!loading; else loadingTpl">
+
+            <!-- HEADER -->
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Order ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <!-- BODY -->
+            <tbody>
+
+                <!-- DATA ROWS -->
+                <tr *ngFor="let driver of drivers" (click)="driver.orderId && goToOrder(driver.orderId)"
+                    class="clickable-row">
+                    <td data-label="Name">
+                        {{ driver.name || '—' }}
+                    </td>
+
+                    <td data-label="Phone">
+                        {{ driver.phone || '—' }}
+                    </td>
+
+                    <td data-label="Order ID">
+                        {{ driver.orderId || '—' }}
+                    </td>
+
+                    <td data-label="Status">
+                        <span class="status" [ngClass]="getStatusClass(driver.status)">
+                            {{ (driver.status || 'UNKNOWN') | uppercase }} </span>
+                    </td>
+                </tr>
+
+                <!-- EMPTY STATE -->
+                <tr *ngIf="!drivers.length && !loading">
+                    <td colspan="4" class="empty">
+                        No active couriers found
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination" *ngIf="totalPages > 1">
+
+            <button (click)="onPageChange(page - 1)" [disabled]="page === 1">
+                Prev
+            </button>
+
+            <span>
+                Page {{ page }} of {{ totalPages }}
+            </span>
+
+            <button (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
+                Next
+            </button>
+
+        </div>
+
+        <!-- LOADING -->
+        <ng-template #loadingTpl>
+            <div class="loading">
+                Loading drivers...
+            </div>
+        </ng-template>
+
+    </div>
+
+</div>

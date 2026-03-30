@@ -54,8 +54,8 @@
             <div class="chart-header">
                 <h3>Order Status</h3>
             </div>
-            <canvas *ngIf="statusChartData" baseChart #statusChart [data]="statusChartData"
-                [options]="statusChartOptions" [type]="'doughnut'">
+            <canvas *ngIf="statusChartData" baseChart [data]="statusChartData" [options]="statusChartOptions"
+                [type]="'doughnut'" (chartClick)="onStatusChartClick($event)">
             </canvas>
 
             <div *ngIf="!statusChartData" class="no-data">

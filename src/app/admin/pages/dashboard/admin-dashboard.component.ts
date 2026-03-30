@@ -4,19 +4,14 @@ import {
   AdminStats,
 } from '../../services/admin-dashboard.service';
 import { ChartConfiguration } from 'chart.js';
-import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
-import { ViewChild } from '@angular/core';
-import { BaseChartDirective } from 'ng2-charts';
 
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
-  @ViewChild('statusChart', { static: false })
-  chart!: BaseChartDirective;
   private destroy$ = new Subject<void>();
   stats: AdminStats | null = null;
   isLoading: boolean = true;
@@ -27,38 +22,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   statusChartData: any = null;
   statusChartOptions: any = {
     responsive: true,
-
-    onClick: (event: any, elements: any[]) => {
-      if (!elements || elements.length === 0) return;
-
-      const index = elements[0].index;
-
-      const label = this.statusChartData?.labels?.[index];
-
-      let selectedStatus = '';
-
-      switch (label) {
-        case 'Created':
-          selectedStatus = 'CREATED';
-          break;
-        case 'In Progress':
-          selectedStatus = 'IN_PROGRESS';
-          break;
-        case 'Delivered':
-          selectedStatus = 'DELIVERED';
-          break;
-        case 'Cancelled':
-          selectedStatus = 'CANCELLED';
-          break;
-        default:
-          return;
-      }
-
-      console.log('Clicked:', selectedStatus);
-
-      this.navigateToOrders(selectedStatus);
-    },
-
     plugins: {
       legend: {
         position: 'bottom',
@@ -66,10 +29,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     },
   };
 
-  constructor(
-    private dashboardService: AdminDashboardService,
-    private router: Router,
-  ) {}
+  constructor(private dashboardService: AdminDashboardService) {}
 
   ngOnInit(): void {
     this.loadStats();
@@ -110,7 +70,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   updateStatusChart(statusCounts: any): void {
-    if (!statusCounts) return;
+    if (!statusCounts) {
+      this.statusChartData = null;
+      return;
+    }
 
     this.statusChartData = {
       labels: ['Created', 'In Progress', 'Delivered', 'Cancelled'],
@@ -123,10 +86,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             statusCounts.CANCELLED || 0,
           ],
           backgroundColor: [
-            '#6366f1', // keep aligned with your theme
-            '#f59e0b',
-            '#10b981',
-            '#ef4444',
+            '#6366f1', // created
+            '#f59e0b', // progress
+            '#10b981', // delivered
+            '#ef4444', // cancelled
           ],
           borderWidth: 0,
         },
@@ -134,93 +97,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  // onStatusChartClick(active: any[]): void {
-  //   if (!active || active.length === 0) return;
-
-  //   const index = active[0].index;
-
-  //   // Get label directly from chart data
-  //   const label = this.statusChartData?.labels?.[index];
-
-  //   let selectedStatus = '';
-
-  //   switch (label) {
-  //     case 'Created':
-  //       selectedStatus = 'CREATED';
-  //       break;
-  //     case 'In Progress':
-  //       selectedStatus = 'IN_PROGRESS';
-  //       break;
-  //     case 'Delivered':
-  //       selectedStatus = 'DELIVERED';
-  //       break;
-  //     case 'Cancelled':
-  //       selectedStatus = 'CANCELLED';
-  //       break;
-  //     default:
-  //       return;
-  //   }
-  //   console.log('Clicked status:', selectedStatus);
-
-  //   this.navigateToOrders(selectedStatus);
-  // }
-
-  // onChartClick(event: any): void {
-  //   if (!this.chart || !this.chart.chart) return;
-  //   const chart = this.chart.chart;
-
-  //   const elements = chart.getElementsAtEventForMode(
-  //     event,
-  //     'nearest',
-  //     { intersect: true },
-  //     true,
-  //   );
-  //   console.log('chart ref:', this.chart);
-  //   console.log('elements:', elements);
-  //   if (!elements.length) return;
-
-  //   const index = elements[0].index;
-
-  //   const label = this.statusChartData?.labels?.[index];
-
-  //   let selectedStatus = '';
-
-  //   switch (label) {
-  //     case 'Created':
-  //       selectedStatus = 'CREATED';
-  //       break;
-  //     case 'In Progress':
-  //       selectedStatus = 'IN_PROGRESS';
-  //       break;
-  //     case 'Delivered':
-  //       selectedStatus = 'DELIVERED';
-  //       break;
-  //     case 'Cancelled':
-  //       selectedStatus = 'CANCELLED';
-  //       break;
-  //     default:
-  //       return;
-  //   }
-
-  //   console.log('Clicked:', selectedStatus);
-
-  //   this.navigateToOrders(selectedStatus);
-  // }
-
-  navigateToOrders(status: string): void {
-    this.router.navigate(['/admin/orders'], {
-      queryParams: { status },
-    });
-  }
-
-  updateChartData(sales: { month: string; value: number }[]): void {
+  updateChartData(sales: { label: string; value: number }[]): void {
     if (!sales || sales.length === 0) {
-      this.lineChartData = null;
+      this.lineChartData = {
+        labels: [],
+        datasets: [
+          {
+            data: [],
+            label: 'Sales',
+          },
+        ],
+      };
       return;
     }
 
     this.lineChartData = {
-      labels: sales.map((s) => this.formatLabel(s.month)),
+      labels: sales.map((s, i) => this.formatLabel(s.label, i)),
       datasets: [
         {
           data: sales.map((s) => s.value),
@@ -237,6 +129,20 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         },
       ],
     };
+  }
+
+  onStatusChartClick(event: any): void {
+    if (!event?.active?.length) return;
+
+    const index = event.active[0].index;
+
+    const statusMap = ['CREATED', 'IN_PROGRESS', 'DELIVERED', 'CANCELLED'];
+    const selectedStatus = statusMap[index];
+
+    console.log('Clicked:', selectedStatus);
+
+    // navigation (safe)
+    window.location.href = `/admin/orders?status=${selectedStatus}`;
   }
 
   // formatLabel(label: string): string {
@@ -257,24 +163,27 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   //   return label;
   // }
 
-  formatLabel(label: string): string {
+  formatLabel(label: string, index?: number): string {
     if (!label) return '';
 
+    const num = Number(label);
+
+    // TODAY → hour → convert to AM/PM
     if (this.selectedRange === 'today') {
-      const num = Number(label);
       if (isNaN(num)) return label;
       return `${num % 12 || 12} ${num < 12 ? 'AM' : 'PM'}`;
     }
 
+    // WEEK → backend gives DATE → convert to weekday
     if (this.selectedRange === 'week') {
-      const num = Number(label);
-      if (isNaN(num)) return label;
+      const today = new Date();
+      const d = new Date(today.getFullYear(), today.getMonth(), num);
+      return d.toLocaleDateString('en-US', { weekday: 'short' });
+    }
 
-      return new Date(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        num,
-      ).toLocaleDateString('en-US', { weekday: 'short' });
+    // MONTH → show date number clean
+    if (this.selectedRange === 'month') {
+      return num.toString();
     }
 
     return label;
