@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AdminSocketService } from '../../services/admin-socket.service';
+import { OrdersStore } from '../../services/admin-orders.store';
 import {
   AdminDashboardService,
   AdminStats,
@@ -29,12 +31,21 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     },
   };
 
-  constructor(private dashboardService: AdminDashboardService) {}
+  constructor(
+    private dashboardService: AdminDashboardService,
+    private socketService: AdminSocketService,
+    private ordersStore: OrdersStore,
+  ) {}
 
   ngOnInit(): void {
     this.loadStats();
+    this.socketService.orderUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('📊 Dashboard refresh via socket');
+        this.loadStats();
+      });
   }
-
   loadStats(): void {
     const currentRequest = ++this.requestId;
 

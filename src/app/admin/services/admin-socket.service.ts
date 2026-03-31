@@ -1,29 +1,31 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminSocketService {
-  private socket!: Socket;
+  private socket: Socket;
 
-  connect(): void {
-    if (this.socket) return;
+  private orderUpdateSubject = new Subject<any>();
+  orderUpdate$ = this.orderUpdateSubject.asObservable();
 
-    this.socket = io('http://localhost:5000', { transports: ['websocket'] });
+  constructor() {
+    this.socket = io('http://localhost:5000', {
+      transports: ['websocket'],
+      reconnection: true,
+    });
 
-    this.socket.emit('join-admin');
-  }
+    this.socket.on('connect', () => {
+      console.log('✅ Socket connected:', this.socket.id);
+      this.socket.emit('join-admin');
+    });
 
-  onOrderUpdate(callback: (data: any) => void): void {
-    if (!this.socket) return;
-
-    this.socket.on('admin-order-update', callback);
-  }
-
-  disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-    }
+    // 🔥 SINGLE GLOBAL LISTENER
+    this.socket.on('admin-order-update', (data: any) => {
+      console.log('🔥 GLOBAL SOCKET EVENT:', data);
+      this.orderUpdateSubject.next(data);
+    });
   }
 }

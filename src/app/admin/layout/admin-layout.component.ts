@@ -1,20 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { io } from 'socket.io-client';
+import { AdminSocketService } from '../services/admin-socket.service';
+import { OrdersStore } from '../services/admin-orders.store';
+
 @Component({
   selector: 'app-admin-layout',
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss'],
 })
 export class AdminLayoutComponent implements OnInit {
-  private socket: any;
+  constructor(
+    private socketService: AdminSocketService,
+    private ordersStore: OrdersStore,
+  ) {}
 
-  ngOnInit() {
-    this.socket = io('http://localhost:5000');
-    this.socket.emit('join-admin');
-    this.socket.on('order-updated', () => {
-      console.log('Order updated → refresh drivers');
+  ngOnInit(): void {
+    this.socketService.orderUpdate$.subscribe((payload: any) => {
+      console.log('🔥 LAYOUT RECEIVED:', payload);
 
-      window.location.reload();
+      const order = payload?.data || payload;
+
+      if (!order?._id) return;
+
+      this.ordersStore.updateOrder(order);
     });
   }
 }

@@ -3,10 +3,10 @@ import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
-import { AdminSocketService } from '../../services/admin-socket.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
+import { OrdersStore } from '../../services/admin-orders.store';
 import {
   AdminOrdersService,
   OrdersResponse,
@@ -68,9 +68,9 @@ export class AdminOrdersComponent implements OnInit {
     private ordersService: AdminOrdersService,
     private router: Router,
     private toastService: ToastService,
-    private adminSocket: AdminSocketService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
+    private ordersStore: OrdersStore,
   ) {}
 
   ngOnInit(): void {
@@ -87,8 +87,20 @@ export class AdminOrdersComponent implements OnInit {
         this.loadOrders();
       });
 
-    this.adminSocket.connect();
-    this.listenRealtime();
+    this.ordersStore.orders$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((orders) => {
+        console.log('STORE UPDATE:', orders);
+
+        this.orders = orders.map((o: any) => ({
+          ...o,
+          id: o.borzoOrderId || '-',
+          user: o.customer?.name || '-',
+          amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
+        }));
+
+        this.cdr.detectChanges();
+      });
   }
 
   private setupSearchDebounce(): void {
@@ -157,14 +169,8 @@ export class AdminOrdersComponent implements OnInit {
 
       .subscribe({
         next: (res: OrdersResponse) => {
-          this.allOrders = res.data || [];
-
-          this.orders = this.allOrders.map((o: any) => ({
-            ...o,
-            id: o.borzoOrderId || '-',
-            user: o.customer?.name || '-',
-            amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
-          }));
+          this.ordersStore.setOrders(res.data || []);
+          this._backendTotal = res.pagination?.total || 0;
 
           this._backendTotal = res.pagination?.total || 0;
 
@@ -697,31 +703,6 @@ export class AdminOrdersComponent implements OnInit {
 
     this.page = 1;
     this.loadOrders();
-  }
-
-  listenRealtime(): void {
-    this.adminSocket.onOrderUpdate((update: any) => {
-      console.log('ADMIN UPDATE:', update); // TEMP DEBUG
-      this.handleRealtimeUpdate(update);
-    });
-  }
-
-  handleRealtimeUpdate(update: any): void {
-    const index = this.orders.findIndex((o) => o._id === update.orderId);
-
-    if (index === -1) return;
-
-    this.orders[index] = {
-      ...this.orders[index],
-      ...update.data,
-      id: update.data.borzoOrderId || '-',
-      user: update.data.customer?.name || '-',
-      amount: `${update.data.pricing?.amount || 0} ${update.data.pricing?.currency || ''}`,
-    };
-
-    this.orders = [...this.orders];
-
-    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {

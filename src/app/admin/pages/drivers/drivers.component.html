@@ -7,83 +7,105 @@
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-        <input type="text" placeholder="Search drivers..." #searchInput (input)="onSearchChange(searchInput.value)" />
+        <input type="text" placeholder="Search by name or phone..." #searchInput
+            (input)="onSearchChange(searchInput.value)" />
     </div>
 
-    <!-- CARD -->
-    <div class="card">
+    <!-- DRIVERS GRID -->
+    <div class="drivers-grid" *ngIf="!loading; else loadingTpl">
 
-        <!-- TABLE -->
-        <table class="table" *ngIf="!loading; else loadingTpl">
+        <!-- DRIVER CARD -->
+        <div class="driver-card" *ngFor="let driver of drivers"
+            (click)="driver.lastOrderId && goToOrder(driver.lastOrderId)">
 
             <!-- HEADER -->
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Order ID</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+            <div class="driver-header">
 
-            <!-- BODY -->
-            <tbody>
+                <!-- AVATAR -->
+                <div class="avatar">
+                    <img *ngIf="driver.photo; else noImg" [src]="driver.photo" />
 
-                <!-- DATA ROWS -->
-                <tr *ngFor="let driver of drivers" (click)="driver.orderId && goToOrder(driver.orderId)"
-                    class="clickable-row">
-                    <td data-label="Name">
-                        {{ driver.name || '—' }}
-                    </td>
+                    <ng-template #noImg>
+                        <div class="avatar-placeholder">
+                            {{ driver.name?.charAt(0) || 'D' }}
+                        </div>
+                    </ng-template>
+                </div>
 
-                    <td data-label="Phone">
+                <!-- DRIVER INFO -->
+                <div class="driver-info">
+                    <div class="name">
+                        {{ driver.name || 'Unknown Driver' }}
+                    </div>
+                    <div class="phone">
                         {{ driver.phone || '—' }}
-                    </td>
+                    </div>
+                </div>
 
-                    <td data-label="Order ID">
-                        {{ driver.orderId || '—' }}
-                    </td>
+                <!-- STATUS BADGE -->
+                <div class="status-badge" [ngClass]="driver.activeOrders > 0 ? 'active' : 'idle'">
+                    {{ driver.activeOrders > 0 ? 'ACTIVE' : 'IDLE' }}
+                </div>
 
-                    <td data-label="Status">
-                        <span class="status" [ngClass]="getStatusClass(driver.status)">
-                            {{ (driver.status || 'UNKNOWN') | uppercase }} </span>
-                    </td>
-                </tr>
+            </div>
 
-                <!-- EMPTY STATE -->
-                <tr *ngIf="!drivers.length && !loading">
-                    <td colspan="4" class="empty">
-                        No active couriers found
-                    </td>
-                </tr>
+            <!-- METRICS -->
+            <div class="driver-metrics">
 
-            </tbody>
-        </table>
+                <div class="metric">
+                    <div class="label">Active</div>
+                    <div class="value">
+                        {{ driver.activeOrders || 0 }}
+                    </div>
+                </div>
 
-        <!-- PAGINATION -->
-        <div class="pagination" *ngIf="totalPages > 1">
+                <div class="metric">
+                    <div class="label">Completed</div>
+                    <div class="value">
+                        {{ driver.completedOrders || 0 }}
+                    </div>
+                </div>
 
-            <button (click)="onPageChange(page - 1)" [disabled]="page === 1">
-                Prev
-            </button>
+            </div>
 
-            <span>
-                Page {{ page }} of {{ totalPages }}
-            </span>
-
-            <button (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
-                Next
-            </button>
+            <!-- FOOTER -->
+            <div class="driver-footer">
+                <span class="order-id">
+                    Last Order: {{ driver.lastOrderId || '—' }}
+                </span>
+            </div>
 
         </div>
 
-        <!-- LOADING -->
-        <ng-template #loadingTpl>
-            <div class="loading">
-                Loading drivers...
-            </div>
-        </ng-template>
+        <!-- EMPTY STATE -->
+        <div class="empty" *ngIf="!drivers.length">
+            No drivers found
+        </div>
 
     </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination" *ngIf="totalPages > 1">
+
+        <button (click)="onPageChange(page - 1)" [disabled]="page === 1">
+            Prev
+        </button>
+
+        <span>
+            Page {{ page }} of {{ totalPages }}
+        </span>
+
+        <button (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
+            Next
+        </button>
+
+    </div>
+
+    <!-- LOADING TEMPLATE -->
+    <ng-template #loadingTpl>
+        <div class="loading">
+            Loading drivers...
+        </div>
+    </ng-template>
 
 </div>

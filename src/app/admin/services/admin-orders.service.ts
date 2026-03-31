@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 export interface AdminOrder {
+  _id: string;
   borzoOrderId: string;
   customer: {
     name: string;
