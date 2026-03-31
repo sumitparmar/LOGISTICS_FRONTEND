@@ -19,8 +19,13 @@
         <!-- Right Section -->
         <div class="nav-right">
 
-            <!-- ✅ LOGGED IN -->
+            <!--  LOGGED IN -->
             <ng-container *ngIf="isLoggedIn; else guestUser">
+
+
+                <button *ngIf="isAdmin" class="admin-btn" (click)="openAdminPanel()">
+                    Admin Panel
+                </button>
 
                 <!-- Profile -->
                 <div class="profile-menu">
@@ -48,6 +53,14 @@
                     </div>
 
                 </div>
+
+
+
+
+
+
+
+
 
                 <!-- Logout Button -->
                 <button class="logout-btn" (click)="logout()">

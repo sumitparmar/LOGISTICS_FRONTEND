@@ -13,7 +13,7 @@ export class HeaderComponent implements OnInit {
   userName: string = '';
   userInitial: string = '';
   isLoggedIn: boolean = false;
-
+  isAdmin: boolean = false;
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -39,10 +39,17 @@ export class HeaderComponent implements OnInit {
   }
   loadUser() {
     const user = this.authService.getUser();
+    console.log('USER OBJECT:', user);
+    // if (user && user.name) {
+    //   this.userName = user.name;
+    //   this.userInitial = user.name.charAt(0).toUpperCase();
+    // }
 
-    if (user && user.name) {
-      this.userName = user.name;
-      this.userInitial = user.name.charAt(0).toUpperCase();
+    if (user) {
+      this.userName = user.name || '';
+      this.userInitial = user.name?.charAt(0)?.toUpperCase() || '';
+
+      this.isAdmin = user.role?.toLowerCase() === 'admin';
     }
   }
 
@@ -72,5 +79,9 @@ export class HeaderComponent implements OnInit {
     if (this.router.url !== '/auth/login') {
       this.router.navigate(['/auth/login']);
     }
+  }
+
+  openAdminPanel() {
+    window.open('/admin', '_blank');
   }
 }
