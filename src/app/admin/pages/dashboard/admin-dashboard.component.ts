@@ -156,19 +156,26 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     window.location.href = `/admin/orders?status=${selectedStatus}`;
   }
 
-  // formatLabel(label: string): string {
+  // formatLabel(label: string, index?: number): string {
+  //   if (!label) return '';
+
   //   const num = Number(label);
 
+  //   // TODAY → hour → convert to AM/PM
   //   if (this.selectedRange === 'today') {
-  //     const hour = num;
-  //     return `${hour % 12 || 12} ${hour < 12 ? 'AM' : 'PM'}`;
+  //     if (isNaN(num)) return label;
+  //     return `${num % 12 || 12} ${num < 12 ? 'AM' : 'PM'}`;
   //   }
+
+  //   // WEEK → backend gives DATE → convert to weekday
   //   if (this.selectedRange === 'week') {
-  //     return new Date(
-  //       new Date().getFullYear(),
-  //       new Date().getMonth(),
-  //       num,
-  //     ).toLocaleDateString('en-US', { weekday: 'short' });
+  //     const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  //     return weekLabels[index! % 7];
+  //   }
+
+  //   // MONTH → show date number clean
+  //   if (this.selectedRange === 'month') {
+  //     return num.toString();
   //   }
 
   //   return label;
@@ -185,14 +192,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return `${num % 12 || 12} ${num < 12 ? 'AM' : 'PM'}`;
     }
 
-    // WEEK → backend gives DATE → convert to weekday
+    // WEEK → FIXED LABELS (NO DATE CALCULATION)
     if (this.selectedRange === 'week') {
-      const today = new Date();
-      const d = new Date(today.getFullYear(), today.getMonth(), num);
-      return d.toLocaleDateString('en-US', { weekday: 'short' });
+      const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return weekLabels[index! % 7];
     }
 
-    // MONTH → show date number clean
+    // MONTH → show date number
     if (this.selectedRange === 'month') {
       return num.toString();
     }
