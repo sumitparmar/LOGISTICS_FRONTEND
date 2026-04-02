@@ -1,8 +1,12 @@
+/* ===============================
+   HEADER BASE
+=============================== */
 .main-header {
   width: 100%;
   background: #ffffff;
-  border-bottom: 1px solid #eee;
-  position: relative;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
   z-index: 1000;
 
   /* =========================
@@ -11,8 +15,9 @@
   .container {
     max-width: 1250px;
     margin: 0 auto;
-    padding: 0 24px;
-    height: 85px;
+    padding: 0 20px;
+    height: 72px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,14 +26,8 @@
   /* =========================
      LOGO
   ========================= */
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-
   .logo img {
-    height: 85px;
-    width: auto;
+    height: 60px;
     object-fit: contain;
   }
 
@@ -38,19 +37,31 @@
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 26px;
 
     a {
+      position: relative;
       text-decoration: none;
-      color: #333;
+      color: #334155;
       font-weight: 500;
       font-size: 14px;
-      transition: color 0.2s ease;
-      white-space: nowrap;
+      transition: all 0.2s ease;
     }
 
     a:hover {
       color: #ff7a00;
+    }
+
+    /* Active underline (Figma style) */
+    a.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 2px;
+      background: #ff7a00;
+      border-radius: 2px;
     }
   }
 
@@ -60,30 +71,62 @@
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  /* =========================
+     BUTTONS
+  ========================= */
+  .login-btn,
+  .logout-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .login-btn {
+    border: 1.5px solid #ff7a00;
+    background: transparent;
+    color: #ff7a00;
+  }
+
+  .login-btn:hover {
+    background: linear-gradient(135deg, #ff9900, #ff7a00);
+    color: #fff;
+    border-color: transparent;
   }
 
   .logout-btn {
-    background: linear-gradient(to right, #ff9900, #ff7a00);
-    border: none;
-    padding: 6px 16px;
-    border-radius: 6px;
+    background: linear-gradient(135deg, #ff9900, #ff7a00);
     color: white;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease;
+    border: none;
   }
 
   .logout-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 14px rgba(255, 122, 0, 0.3);
+  }
+
+  .admin-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #6366f1;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .admin-btn:hover {
+    background: #4f46e5;
   }
 
   /* =========================
-     PROFILE MENU
+     PROFILE
   ========================= */
   .profile-menu {
     position: relative;
@@ -94,7 +137,7 @@
     height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, #ff9900, #ff7a00);
-    color: white;
+    color: #fff;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -103,24 +146,21 @@
     font-size: 13px;
   }
 
-  /* =========================
-     DROPDOWN
-  ========================= */
   .dropdown {
     position: absolute;
     right: 0;
     top: 48px;
-    width: 190px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #eee;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    width: 200px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     padding: 8px 0;
 
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-6px);
-    transition: all 0.18s ease;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
   }
 
   .profile-menu:hover .dropdown {
@@ -136,39 +176,36 @@
   }
 
   .dropdown-item:hover {
-    background: #f5f7fb;
+    background: #f8fafc;
   }
 
   .dropdown-divider {
     height: 1px;
-    background: #eee;
+    background: #e5e7eb;
     margin: 6px 0;
   }
 
-  .user-name {
-    font-weight: 600;
-    cursor: default;
+  .logout {
+    color: #ef4444;
   }
 
-  .logout {
-    color: #e11d48;
+  /* =========================
+     MOBILE MENU BUTTON
+  ========================= */
+  .menu-toggle {
+    display: none;
+    font-size: 22px;
+    cursor: pointer;
   }
 
   /* =========================
      RESPONSIVE
   ========================= */
 
-  /* Laptop */
-  @media (max-width: 1200px) {
-    .container {
-      max-width: 1000px;
-    }
-  }
-
   /* Tablet */
   @media (max-width: 992px) {
     .nav-links {
-      gap: 16px;
+      gap: 18px;
 
       a {
         font-size: 13px;
@@ -179,52 +216,47 @@
   /* Mobile */
   @media (max-width: 768px) {
     .container {
-      padding: 0 16px;
+      height: 64px;
+    }
+
+    .menu-toggle {
+      display: block;
     }
 
     .nav-links {
-      display: none; /* simple collapse */
+      position: absolute;
+      top: 64px;
+      left: 0;
+      width: 100%;
+      background: #ffffff;
+
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px 20px;
+      gap: 14px;
+
+      border-bottom: 1px solid #e5e7eb;
+
+      display: none;
     }
 
+    .nav-links.open {
+      display: flex;
+    }
+
+    .nav-right {
+      gap: 6px;
+    }
+
+    .login-btn,
     .logout-btn {
-      padding: 5px 12px;
+      padding: 6px 10px;
       font-size: 12px;
     }
-  }
-}
 
-.login-btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: 1.5px solid #ff7a00;
-  background: transparent;
-  color: #ff7a00;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.login-btn:hover {
-  background: linear-gradient(to right, #ff9900, #ff7a00);
-  color: white;
-  border-color: transparent;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
-}
-.admin-btn {
-  margin-left: 10px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  background: #5b6cff;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.2s ease;
-
-  &:hover {
-    background: #4a58e0;
+    .admin-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
   }
 }

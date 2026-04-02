@@ -785,15 +785,20 @@ export class CreateDeliveryComponent
         localStorage.setItem('LAST_DELIVERY', JSON.stringify(lastDelivery));
         this.hasLastDelivery = true;
 
-        this.analytics.trackEvent('order_created', {
-          orderId: orderId,
-          amount: this.priceSummary.total,
-          deliveryFee: this.priceSummary.deliveryFee,
-          insurance: this.priceSummary.insurance,
-          paymentMethod: this.deliveryForm.value.paymentMethod,
-          vehicleTypeId: this.deliveryForm.value.vehicleTypeId,
-          deliveryType: this.deliveryForm.value.deliveryType,
-        });
+        try {
+          this.analytics.trackEvent('order_created', {
+            transaction_id: orderId,
+            value: this.priceSummary.total,
+            currency: 'INR',
+
+            delivery_fee: this.priceSummary.deliveryFee,
+            insurance: this.priceSummary.insurance,
+
+            payment_method: this.deliveryForm.value.paymentMethod,
+            vehicle_type: this.deliveryForm.value.vehicleTypeId,
+            delivery_type: this.deliveryForm.value.deliveryType,
+          });
+        } catch (e) {}
 
         this.router.navigate(['/app/orders', orderId]);
       },

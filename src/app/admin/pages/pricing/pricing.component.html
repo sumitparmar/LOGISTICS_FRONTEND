@@ -1,1 +1,250 @@
-<p>pricing works!</p>
+<div class="page pricing-page">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div>
+            <h2>Pricing Engine</h2>
+            <p class="sub-text">Configure platform pricing, margins and fees</p>
+        </div>
+    </div>
+
+    <form [formGroup]="form" class="pricing-container">
+
+        <!-- LOADER -->
+        <div *ngIf="isLoading" class="loader-box">
+            Loading pricing configuration...
+        </div>
+
+        <ng-container *ngIf="!isLoading">
+
+            <!-- OVERVIEW CARD -->
+            <div class="card pricing-overview">
+                <div class="card-body">
+                    <h3>Overview</h3>
+                    <p>
+                        Pricing is applied on top of provider base price.
+                        Margin and fees directly affect customer pricing.
+                    </p>
+                </div>
+            </div>
+
+            <!-- GRID -->
+            <div class="pricing-grid">
+
+                <!-- MARGIN CARD -->
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Margin</h4>
+
+                        <div class="form-group">
+                            <label>Margin (%)</label>
+                            <input type="number" formControlName="marginPercent" class="form-control"
+                                placeholder="Enter margin %" />
+                        </div>
+
+                        <small class="hint">
+                            Percentage added on base price
+                        </small>
+                    </div>
+                </div>
+
+                <!-- FEES CARD -->
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Fees</h4>
+
+                        <div class="form-group">
+                            <label>Platform Fee</label>
+                            <input type="number" formControlName="platformFee" class="form-control"
+                                placeholder="Enter platform fee" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Handling Fee</label>
+                            <input type="number" formControlName="handlingFee" class="form-control"
+                                placeholder="Enter handling fee" />
+                        </div>
+
+                        <small class="hint">
+                            Fixed charges added per order
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- VEHICLE PRICING -->
+            <div class="card">
+                <div class="card-body">
+                    <h4>Vehicle Pricing</h4>
+
+                    <div class="vehicle-grid">
+                        <div class="form-group">
+                            <label>Bike Multiplier</label>
+                            <input type="number" formControlName="bikeMultiplier">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Car Multiplier</label>
+                            <input type="number" formControlName="carMultiplier">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Van Multiplier</label>
+                            <input type="number" formControlName="vanMultiplier">
+                        </div>
+                    </div>
+
+                    <small class="hint">Adjust pricing per vehicle type</small>
+                </div>
+            </div>
+
+
+            <!-- SURGE PRICING -->
+            <div class="card">
+                <div class="card-body">
+                    <h4>Surge Pricing</h4>
+
+                    <div class="form-group">
+                        <label class="toggle">
+                            <input type="checkbox" formControlName="surgeEnabled">
+                            Enable Surge Pricing
+                        </label>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Multiplier</label>
+                            <input type="number" formControlName="surgeMultiplier">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Time Range</label>
+                            <div class="time-range">
+                                <input type="time" formControlName="surgeStart">
+                                <input type="time" formControlName="surgeEnd">
+                            </div>
+                        </div>
+                    </div>
+
+                    <small class="hint">Applied during peak hours</small>
+                </div>
+            </div>
+
+
+            <!-- EXTRAS -->
+            <div class="card">
+                <div class="card-body">
+                    <h4>Extras</h4>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Insurance (%)</label>
+                            <input type="number" formControlName="insurancePercent">
+                        </div>
+
+                        <div class="form-group">
+                            <label>COD Fee</label>
+                            <input type="number" formControlName="codFee">
+                        </div>
+                    </div>
+
+                    <small class="hint">Additional optional charges</small>
+                </div>
+            </div>
+
+        </ng-container>
+
+    </form>
+
+
+    <div class="card pricing-card simulator">
+        <div class="card-body">
+            <h4>Pricing Simulator</h4>
+
+            <div class="grid-2">
+
+                <div class="form-group">
+                    <label>Base Price</label>
+                    <input type="number" [value]="simulatedBase" (input)="onBaseChange($event)" />
+                </div>
+
+                <div class="result-box">
+                    <label>Final Price</label>
+                    <div class="result">
+                        ₹ {{ simulatedResult }}
+                    </div>
+                </div>
+
+            </div>
+
+            <small class="hint">
+                Preview how pricing rules affect customer charges
+            </small>
+        </div>
+    </div>
+
+
+    <div class="card">
+        <div class="card-body">
+            <h4>Pricing Breakdown</h4>
+
+            <canvas baseChart [data]="chartData" [type]="'line'">
+            </canvas>
+        </div>
+    </div>
+
+    <!-- STICKY SAVE BAR -->
+    <div class="save-bar">
+        <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+            {{ isSaving ? 'Saving Changes...' : 'Save Changes' }}
+        </button>
+    </div>
+
+
+    <div class="analytics-section" *ngIf="adminAnalytics">
+
+        <div class="pricing-grid">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Total Orders</h4>
+                    <div class="result">
+                        {{ adminAnalytics.totalOrders }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Total Revenue</h4>
+                    <div class="result">
+                        ₹ {{ adminAnalytics.totalRevenue }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Avg Order Value</h4>
+                    <div class="result">
+                        ₹ {{ adminAnalytics.avgOrderValue | number:'1.0-0' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Avg Margin</h4>
+                    <div class="result">
+                        ₹ {{ adminAnalytics.avgMargin | number:'1.0-0' }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

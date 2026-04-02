@@ -6,10 +6,12 @@
         <div class="logo">
             <img src="assets/images/movekart-logo.png" alt="MoveKart" />
         </div>
-
+        <div class="menu-toggle" (click)="toggleMenu()">
+            ☰
+        </div>
         <!-- Navigation -->
-        <nav class="nav-links">
-            <a routerLink="/app/dashboard" routerLinkActive="active">Home</a>
+        <nav class="nav-links" [class.open]="isMenuOpen"> <a routerLink="/app/dashboard"
+                routerLinkActive="active">Home</a>
             <a routerLink="/pricing" routerLinkActive="active">Pricing</a>
             <a routerLink="/track" routerLinkActive="active">Track Order</a>
             <a routerLink="/about" routerLinkActive="active">About Us</a>

@@ -34,10 +34,6 @@ export class AppComponent {
         this.isAdminRoute = url.startsWith('/admin');
 
         this.analytics.trackPageView(url);
-
-        this.analytics.trackEvent('visited_app', {
-          page: url,
-        });
       });
   }
 }

@@ -89,23 +89,108 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // initializeMap() {
+  //   if (!this.mapContainer?.nativeElement) return;
+  //   const points = this.order?.rawProviderResponse?.order?.points;
+
+  //   if (!points || points.length === 0) return;
+
+  //   const pickupPoint = points.find((p: any) => !p.delivery);
+  //   const dropPoint = points.find((p: any) => p.delivery);
+
+  //   if (!pickupPoint || !dropPoint) return;
+
+  //   const pickupLat = Number(pickupPoint.latitude);
+  //   const pickupLng = Number(pickupPoint.longitude);
+
+  //   const dropLat = Number(dropPoint.latitude);
+  //   const dropLng = Number(dropPoint.longitude);
+
+  //   this.map = new google.maps.Map(this.mapContainer.nativeElement, {
+  //     zoom: 12,
+  //     center: { lat: pickupLat, lng: pickupLng },
+  //   });
+
+  //   this.directionsService = new google.maps.DirectionsService();
+
+  //   this.directionsRenderer = new google.maps.DirectionsRenderer({
+  //     suppressMarkers: true,
+  //     polylineOptions: {
+  //       strokeColor: '#ff7a00',
+  //       strokeWeight: 4,
+  //     },
+  //   });
+
+  //   this.directionsRenderer.setMap(this.map);
+
+  //   this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
+
+  //   if (
+  //     this.order?.courier?.location?.lat &&
+  //     this.order?.courier?.location?.lng
+  //   ) {
+  //     const lat = this.order.courier.location.lat;
+  //     const lng = this.order.courier.location.lng;
+
+  //     this.courierMarker = new google.maps.Marker({
+  //       position: { lat, lng },
+  //       map: this.map,
+  //       icon: {
+  //         url: '/assets/icons/bike.png',
+  //         scaledSize: new google.maps.Size(36, 36),
+  //       },
+  //     });
+  //   }
+  //   this.startCourierTracking();
+  // }
+
   initializeMap() {
     if (!this.mapContainer?.nativeElement) return;
+
     const points = this.order?.rawProviderResponse?.order?.points;
 
-    if (!points || points.length === 0) return;
+    let pickupLat: number | undefined;
+    let pickupLng: number | undefined;
+    let dropLat: number | undefined;
+    let dropLng: number | undefined;
 
-    const pickupPoint = points.find((p: any) => !p.delivery);
-    const dropPoint = points.find((p: any) => p.delivery);
+    // ✅ PRIMARY SOURCE (provider response)
+    if (points && points.length >= 2) {
+      const pickupPoint = points.find((p: any) => !p.delivery);
+      const dropPoint = points.find((p: any) => p.delivery);
 
-    if (!pickupPoint || !dropPoint) return;
+      if (pickupPoint && dropPoint) {
+        pickupLat = Number(pickupPoint.latitude);
+        pickupLng = Number(pickupPoint.longitude);
+        dropLat = Number(dropPoint.latitude);
+        dropLng = Number(dropPoint.longitude);
+      }
+    }
 
-    const pickupLat = Number(pickupPoint.latitude);
-    const pickupLng = Number(pickupPoint.longitude);
+    // ✅ FALLBACK (DB pickup/drop)
+    if (!pickupLat || !dropLat) {
+      pickupLat = this.order?.pickup?.lat;
+      pickupLng = this.order?.pickup?.lng;
+      dropLat = this.order?.drop?.lat;
+      dropLng = this.order?.drop?.lng;
 
-    const dropLat = Number(dropPoint.latitude);
-    const dropLng = Number(dropPoint.longitude);
+      console.warn('⚡ Using fallback pickup/drop coords');
+    }
 
+    // ❌ If still missing → stop
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) {
+      console.error('❌ No valid coordinates for map');
+      return;
+    }
+
+    console.log('✅ FINAL COORDS:', {
+      pickupLat,
+      pickupLng,
+      dropLat,
+      dropLng,
+    });
+
+    // 🗺️ Initialize map
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 12,
       center: { lat: pickupLat, lng: pickupLng },
@@ -123,8 +208,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     this.directionsRenderer.setMap(this.map);
 
+    // 📍 Markers + route
     this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
 
+    // 🚴 Courier marker (if exists)
     if (
       this.order?.courier?.location?.lat &&
       this.order?.courier?.location?.lng
@@ -141,8 +228,11 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         },
       });
     }
+
+    // 🔁 Start tracking
     this.startCourierTracking();
   }
+
   isStepActive(step: string): boolean {
     if (!this.order?.statusHistory) return false;
 

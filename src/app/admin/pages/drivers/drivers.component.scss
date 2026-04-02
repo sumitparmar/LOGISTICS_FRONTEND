@@ -1,7 +1,3 @@
-/* ========================= */
-/* DESIGN SYSTEM (FIGMA TOKENS) */
-/* ========================= */
-
 :host {
   --bg-page: #f4f6fa;
   --bg-card: #ffffff;
@@ -26,10 +22,6 @@
   --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
-/* ========================= */
-/* PAGE */
-/* ========================= */
-
 .page {
   padding: 24px;
   background: var(--bg-page);
@@ -37,24 +29,15 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-
-  width: 100%; /* 🔥 FIX */
-  max-width: 100%; /* 🔥 FIX */
+  width: 100%;
+  max-width: 100%;
 }
-
-/* ========================= */
-/* HEADER */
-/* ========================= */
 
 .page-header h2 {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
 }
-
-/* ========================= */
-/* TOOLBAR */
-/* ========================= */
 
 .toolbar {
   display: flex;
@@ -67,7 +50,7 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
     font-size: 14px;
-    transition: 0.2s ease;
+    background: #fff;
 
     &::placeholder {
       color: var(--text-muted);
@@ -81,64 +64,38 @@
   }
 }
 
-/* ========================= */
-/* REMOVE OLD CONTAINER */
-/* ========================= */
-
-.card.drivers-container {
-  display: none; /* 🔥 HARD KILL */
-}
-
-/* ========================= */
-/* GRID */
-/* ========================= */
-
 .drivers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 🔥 FIX */
-  gap: 24px;
-
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
   width: 100%;
 }
-
-/* ========================= */
-/* DRIVER CARD */
-/* ========================= */
 
 .driver-card {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   padding: 16px;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 14px;
 
   cursor: pointer;
   transition: all 0.25s ease;
 
-  width: 100%; /* 🔥 FIX */
-  max-width: none; /* 🔥 FIX */
-
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-md);
   }
 }
-
-/* ========================= */
-/* HEADER */
-/* ========================= */
 
 .driver-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
-/* AVATAR */
 
 .avatar img {
   width: 44px;
@@ -159,8 +116,6 @@
   color: #4b5563;
 }
 
-/* INFO */
-
 .driver-info {
   flex: 1;
 
@@ -175,8 +130,6 @@
     color: var(--text-secondary);
   }
 }
-
-/* STATUS */
 
 .status-badge {
   font-size: 11px;
@@ -194,10 +147,6 @@
     color: #6b7280;
   }
 }
-
-/* ========================= */
-/* METRICS */
-/* ========================= */
 
 .driver-metrics {
   display: flex;
@@ -224,22 +173,10 @@
   }
 }
 
-/* ========================= */
-/* FOOTER */
-/* ========================= */
-
 .driver-footer {
   font-size: 12px;
   color: var(--text-secondary);
-
-  .order-id {
-    font-weight: 500;
-  }
 }
-
-/* ========================= */
-/* EMPTY */
-/* ========================= */
 
 .empty {
   grid-column: 1 / -1;
@@ -248,31 +185,22 @@
   color: var(--text-muted);
 }
 
-/* ========================= */
-/* LOADING */
-/* ========================= */
-
 .loading {
   padding: 60px;
   text-align: center;
   color: var(--text-secondary);
 }
 
-/* ========================= */
-/* PAGINATION */
-/* ========================= */
-
 .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
 
   button {
     padding: 6px 12px;
     border-radius: 6px;
     border: 1px solid var(--border);
-    background: white;
+    background: #fff;
     font-size: 12px;
     cursor: pointer;
 
@@ -291,15 +219,160 @@
   }
 }
 
-/* ========================= */
-/* RESPONSIVE */
-/* ========================= */
+.driver-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.drawer-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 480px;
+  max-width: 100%;
+  background: #ffffff;
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease;
+}
+
+.drawer-header {
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eef2f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #374151;
+}
+
+.driver-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.driver-phone {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.driver-summary {
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.map-loading {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.map-section {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  margin-bottom: 16px;
+}
+
+.map-header {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.map-container {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.map-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.orders-section {
+  margin-bottom: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+
+  h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+}
+
+.order-item {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #f9fafb;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+}
+
+.order-id {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.order-status {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 
 @media (max-width: 1024px) {
-  .drivers-grid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-
   .toolbar input {
     width: 260px;
   }
@@ -320,6 +393,10 @@
 
   .drivers-grid {
     grid-template-columns: 1fr;
+  }
+
+  .drawer-panel {
+    width: 100%;
   }
 }
 

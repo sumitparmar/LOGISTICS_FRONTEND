@@ -15,8 +15,7 @@
     <div class="drivers-grid" *ngIf="!loading; else loadingTpl">
 
         <!-- DRIVER CARD -->
-        <div class="driver-card" *ngFor="let driver of drivers"
-            (click)="driver.lastOrderId && goToOrder(driver.lastOrderId)">
+        <div class="driver-card" *ngFor="let driver of drivers" (click)="openDriver(driver)">
 
             <!-- HEADER -->
             <div class="driver-header">
@@ -107,5 +106,101 @@
             Loading drivers...
         </div>
     </ng-template>
+
+    <!-- DRIVER DRAWER -->
+    <div class="driver-drawer" *ngIf="selectedDriver">
+
+        <div class="drawer-backdrop" (click)="closeDrawer()"></div>
+
+        <div class="drawer-panel">
+
+            <!-- HEADER -->
+            <div class="drawer-header">
+
+                <div class="header-left">
+                    <div class="avatar-sm">
+                        {{ selectedDriver.name?.charAt(0) || 'D' }}
+                    </div>
+
+                    <div>
+                        <div class="driver-name">{{ selectedDriver.name }}</div>
+                        <div class="driver-phone">{{ selectedDriver.phone }}</div>
+                    </div>
+                </div>
+
+                <button (click)="closeDrawer()">✕</button>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="drawer-body">
+
+                <!-- BASIC INFO -->
+                <div class="driver-summary">
+                    <div><strong>Phone:</strong> {{ selectedDriver.phone }}</div>
+                    <div class="status-badge" [ngClass]="selectedDriver.activeOrders > 0 ? 'active' : 'idle'">
+                        {{ selectedDriver.activeOrders > 0 ? 'ACTIVE' : 'IDLE' }}
+                    </div>
+                </div>
+                <div *ngIf="trackingLoading" class="map-loading">
+                    Loading location...
+                </div>
+
+                <div class="map-empty" *ngIf="!getActiveOrders(selectedDriver).length">
+                    No live tracking available
+                </div>
+
+                <!-- DRIVER MAP -->
+                <div class="map-section" *ngIf="getActiveOrders(selectedDriver).length > 0">
+                    <div class="map-header">Live Location</div>
+
+                    <div #mapContainer class="map-container" *ngIf="!trackingLoading">
+                    </div>
+
+
+                </div>
+                <div class="map-empty" *ngIf="!trackingLoading 
+                        && getActiveOrders(selectedDriver).length 
+                        && !map">
+                    Unable to load location
+                </div>
+
+                <!-- ACTIVE ORDERS -->
+                <div class="orders-section">
+                    <h4>Active Orders</h4>
+
+                    <div *ngIf="getActiveOrders(selectedDriver).length; else noActive">
+                        <div class="order-item" *ngFor="let o of getActiveOrders(selectedDriver)"
+                            (click)="goToOrder(o._id); $event.stopPropagation()">
+                            <div class="order-id">{{ o._id }}</div>
+                            <div class="order-status">{{ o.status }}</div>
+                        </div>
+                    </div>
+
+                    <ng-template #noActive>
+                        <div class="empty">No active orders</div>
+                    </ng-template>
+                </div>
+
+                <!-- COMPLETED ORDERS -->
+                <div class="orders-section">
+                    <h4>Completed Orders</h4>
+
+                    <div *ngIf="getCompletedOrders(selectedDriver).length; else noCompleted">
+                        <div class="order-item" *ngFor="let o of getCompletedOrders(selectedDriver)">
+                            <div class="order-id">{{ o._id }}</div>
+                            <div class="order-status">DELIVERED</div>
+                        </div>
+                    </div>
+
+                    <ng-template #noCompleted>
+                        <div class="empty">No completed orders</div>
+                    </ng-template>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 
 </div>

@@ -37,6 +37,13 @@ export class HeaderComponent implements OnInit {
       this.currentUrl = this.router.url;
     });
   }
+
+  isMenuOpen = false;
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
   loadUser() {
     const user = this.authService.getUser();
     console.log('USER OBJECT:', user);
