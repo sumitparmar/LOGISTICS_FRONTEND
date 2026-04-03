@@ -7,6 +7,11 @@
             <p class="sub-text">Configure platform pricing, margins and fees</p>
         </div>
     </div>
+    <div class="range-filter">
+        <button [class.active]="selectedRange === 'today'" (click)="changeRange('today')">Today</button>
+        <button [class.active]="selectedRange === 'week'" (click)="changeRange('week')">Week</button>
+        <button [class.active]="selectedRange === 'month'" (click)="changeRange('month')">Month</button>
+    </div>
 
     <form [formGroup]="form" class="pricing-container">
 
@@ -190,18 +195,10 @@
         <div class="card-body">
             <h4>Pricing Breakdown</h4>
 
-            <canvas baseChart [data]="chartData" [type]="'line'">
+            <canvas *ngIf="chartData" baseChart [data]="chartData" [options]="chartOptions" [type]="'line'">
             </canvas>
         </div>
     </div>
-
-    <!-- STICKY SAVE BAR -->
-    <div class="save-bar">
-        <button class="btn-primary" (click)="save()" [disabled]="isSaving">
-            {{ isSaving ? 'Saving Changes...' : 'Save Changes' }}
-        </button>
-    </div>
-
 
     <div class="analytics-section" *ngIf="adminAnalytics">
 
@@ -220,7 +217,7 @@
                 <div class="card-body">
                     <h4>Total Revenue</h4>
                     <div class="result">
-                        ₹ {{ adminAnalytics.totalRevenue }}
+                        ₹ {{ adminAnalytics.totalRevenue | number:'1.0-0' }}
                     </div>
                 </div>
             </div>
@@ -246,5 +243,52 @@
         </div>
 
     </div>
+
+
+    <div class="charts-grid" *ngIf="adminAnalytics">
+
+        <div class="card">
+            <div class="card-body">
+                <h4>Revenue Trend</h4>
+
+                <canvas *ngIf="revenueChartData" baseChart [data]="revenueChartData" [options]="chartOptions"
+                    [type]="'line'">
+                </canvas>
+
+                <div *ngIf="!revenueChartData" class="empty-state">
+                    No revenue data available
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h4>Revenue by Vehicle</h4>
+
+                <canvas *ngIf="vehicleChartData" baseChart [data]="vehicleChartData" [options]="chartOptions"
+                    [type]="'bar'">
+                </canvas>
+
+                <div *ngIf="!vehicleChartData" class="empty-state">
+                    No vehicle data available
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- STICKY SAVE BAR -->
+    <div class="save-bar">
+        <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+            {{ isSaving ? 'Saving Changes...' : 'Save Changes' }}
+        </button>
+    </div>
+
+
+
+
+
+
+
 
 </div>

@@ -17,7 +17,9 @@ export class AdminPricingService {
     return this.http.post(this.baseUrl, data);
   }
 
-  getAdminAnalytics() {
-    return this.http.get('/api/admin/pricing/analytics');
+  getAdminAnalytics(range: string = 'month') {
+    return this.http.get(
+      `/api/analytics/admin/pricing/analytics?range=${range}`,
+    );
   }
 }

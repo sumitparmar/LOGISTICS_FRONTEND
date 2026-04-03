@@ -3,12 +3,17 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { AdminPricingService } from '../../services/admin-pricing.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ChartOptions } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
+import { ViewChild } from '@angular/core';
+
 @Component({
   selector: 'app-pricing',
   templateUrl: './pricing.component.html',
   styleUrls: ['./pricing.component.scss'],
 })
 export class PricingComponent implements OnInit {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   destroy$ = new Subject<void>();
   form!: FormGroup;
   isLoading = false;
@@ -16,7 +21,11 @@ export class PricingComponent implements OnInit {
   simulatedBase = 100;
   simulatedResult = 100;
   adminAnalytics: any;
-  chartData: any;
+  chartData: any = null;
+  selectedRange = 'month';
+
+  revenueChartData: any;
+  vehicleChartData: any;
   constructor(
     private fb: FormBuilder,
     private pricingService: AdminPricingService,
@@ -55,14 +64,89 @@ export class PricingComponent implements OnInit {
   }
 
   loadAdminAnalytics() {
-    this.pricingService.getAdminAnalytics().subscribe({
+    this.pricingService.getAdminAnalytics(this.selectedRange).subscribe({
       next: (res: any) => {
-        this.adminAnalytics = res;
+        const data = res?.data || {};
+
+        this.adminAnalytics = data;
+        this.prepareCharts(data);
       },
       error: () => {
         this.adminAnalytics = null;
       },
     });
+  }
+
+  changeRange(range: string) {
+    this.selectedRange = range;
+    this.loadAdminAnalytics();
+  }
+
+  prepareCharts(data: any) {
+    const vehicles = data?.vehicleBreakdown || [];
+    const trend = data?.revenueTrend || [];
+
+    if (!trend.length) {
+      this.revenueChartData = null;
+    }
+
+    if (!vehicles.length) {
+      this.vehicleChartData = null;
+    }
+
+    this.vehicleChartData = {
+      labels: vehicles.map((v: any) => v.type),
+      datasets: [
+        {
+          label: 'Revenue by Vehicle (₹)',
+          data: vehicles.map((v: any) => v.revenue),
+        },
+      ],
+    };
+
+    const hasSinglePoint = trend.length === 1;
+
+    this.revenueChartData = {
+      labels: hasSinglePoint
+        ? [trend[0].label, '']
+        : trend.map((r: any) => r.label),
+
+      datasets: [
+        {
+          data: hasSinglePoint
+            ? [trend[0].revenue, trend[0].revenue]
+            : trend.map((r: any) => r.revenue),
+
+          label: 'Revenue (₹)',
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+        },
+      ],
+    };
+    setTimeout(() => {
+      this.chart?.update();
+    }, 0);
+  }
+
+  // mapVehicle(type: string) {
+  //   const map: any = {
+  //     '1': 'Bike',
+  //     '2': 'Car',
+  //     '3': 'Van',
+  //     '8': 'Auto', // adjust if needed
+  //   };
+
+  //   return map[type] || type;
+  // }
+
+  formatCurrency(value: number): string {
+    if (value >= 10000000) return '₹' + (value / 10000000).toFixed(1) + 'Cr';
+    if (value >= 100000) return '₹' + (value / 100000).toFixed(1) + 'L';
+    if (value >= 1000) return '₹' + (value / 1000).toFixed(1) + 'K';
+    return '₹' + value;
   }
 
   calculatePreview() {
@@ -105,11 +189,13 @@ export class PricingComponent implements OnInit {
 
     this.simulatedResult = Math.round(price);
 
-    // Chart (CORRECT FLOW)
+    this.chartData = null;
+
     this.chartData = {
       labels: ['Base', 'Margin', 'Fees', 'Vehicle', 'Surge', 'Extras', 'Final'],
       datasets: [
         {
+          label: 'Price Breakdown',
           data: [
             base,
             marginAmount,
@@ -119,6 +205,10 @@ export class PricingComponent implements OnInit {
             extrasImpact,
             this.simulatedResult,
           ],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          tension: 0.4,
+          fill: true,
         },
       ],
     };
@@ -128,6 +218,59 @@ export class PricingComponent implements OnInit {
     this.simulatedBase = Number(event.target.value || 0);
     this.calculatePreview();
   }
+
+  chartOptions: ChartOptions<'line' | 'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          font: {
+            size: 12,
+            weight: '500',
+          },
+        },
+      },
+
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const value = context.raw || 0;
+            return ' ' + this.formatCurrency(value);
+          },
+        },
+      },
+    },
+
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 0,
+          autoSkip: true,
+        },
+        grid: {
+          display: false,
+        },
+      },
+
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => this.formatCurrency(Number(value)),
+        },
+        grid: {
+          color: 'rgba(0,0,0,0.05)',
+        },
+      },
+    },
+  };
 
   loadPricing() {
     this.isLoading = true;
