@@ -3,6 +3,8 @@ import { AdminUsersService } from '../../services/admin-users.service';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import { AdminUsersStore } from '../../services/admin-users.store';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-users',
@@ -10,6 +12,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./admin-users.component.scss'],
 })
 export class AdminUsersComponent implements OnInit {
+  private sub!: Subscription;
   private searchSubject = new Subject<string>();
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<any>;
@@ -62,12 +65,18 @@ export class AdminUsersComponent implements OnInit {
     private adminUsersService: AdminUsersService,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private usersStore: AdminUsersStore,
   ) {}
 
   ngOnInit(): void {
     this.initializeColumns();
     this.loadUsers();
     this.setupSearchStream();
+
+    this.sub = this.usersStore.users$.subscribe((users) => {
+      this.users = users;
+      this.cdr.detectChanges();
+    });
   }
 
   setupSearchStream(): void {
@@ -78,44 +87,17 @@ export class AdminUsersComponent implements OnInit {
         switchMap((search) => {
           this.search = search;
           this.page = 1;
-          return this.adminUsersService.getUsers(
-            this.page,
-            this.limit,
-            this.search,
-          );
+
+          this.usersStore.loadUsers(this.page, this.limit, this.search);
+
+          return [];
         }),
       )
-      .subscribe({
-        next: (res) => {
-          this.users = res.data.map((u: any) => ({
-            ...u,
-            id: u._id || u.id,
-          }));
-          this.totalPages = res.pagination?.totalPages || 1;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Search API failed:', err);
-        },
-      });
+      .subscribe();
   }
 
   loadUsers() {
-    this.adminUsersService
-      .getUsers(this.page, this.limit, this.search)
-      .subscribe({
-        next: (res) => {
-          this.users = res.data.map((u: any) => ({
-            ...u,
-            id: u._id || u.id, // keep for routing
-          }));
-          this.totalPages = res.pagination?.totalPages || 1;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Failed to load users', err);
-        },
-      });
+    this.usersStore.loadUsers(this.page, this.limit, this.search);
   }
 
   onPageChange(page: number) {
@@ -142,13 +124,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onConfirmDelete(): void {
-    console.log('STEP 1: Confirm clicked');
-
-    console.log('Selected User:', this.selectedUser);
-
     const id = this.selectedUser?.id || this.selectedUser?._id;
-
-    console.log('Resolved ID:', id);
 
     if (!id) {
       console.error('ID missing → STOP');
@@ -157,9 +133,9 @@ export class AdminUsersComponent implements OnInit {
 
     this.adminUsersService.deleteUser(id).subscribe({
       next: () => {
-        console.log('STEP 2: API success');
-
-        this.users = this.users.filter((u) => u.id !== id);
+        // this.users = this.users.filter((u) => u.id !== id);
+        this.usersStore.removeUser(id);
+        this.loadUsers();
 
         this.showConfirm = false;
         this.selectedUser = null;
@@ -177,5 +153,9 @@ export class AdminUsersComponent implements OnInit {
 
   goToCreate(): void {
     this.router.navigate(['/admin/users/create']);
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

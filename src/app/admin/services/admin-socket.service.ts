@@ -14,6 +14,9 @@ export class AdminSocketService {
   private orderUpdateSubject = new Subject<any>();
   orderUpdate$ = this.orderUpdateSubject.asObservable();
 
+  private userUpdateSubject = new Subject<void>();
+  userUpdate$ = this.userUpdateSubject.asObservable();
+
   constructor(
     private notificationStore: AdminNotificationStore,
     private toastService: ToastService,
@@ -32,6 +35,11 @@ export class AdminSocketService {
     this.socket.on('admin-order-update', (data: any) => {
       console.log(' GLOBAL SOCKET EVENT:', data);
       this.orderUpdateSubject.next(data);
+    });
+
+    this.socket.on('admin-user-update', () => {
+      console.log(' USER EVENT RECEIVED');
+      this.userUpdateSubject.next();
     });
 
     this.socket.on('admin_notification', (data: any) => {

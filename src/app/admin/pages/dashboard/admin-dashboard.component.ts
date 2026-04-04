@@ -39,13 +39,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadStats();
+
     this.socketService.orderUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log('📊 Dashboard refresh via socket');
+        console.log('Dashboard refresh via socket');
+        this.loadStats();
+      });
+
+    this.socketService.userUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log(' Dashboard refresh via user update');
         this.loadStats();
       });
   }
+
   loadStats(): void {
     const currentRequest = ++this.requestId;
 
