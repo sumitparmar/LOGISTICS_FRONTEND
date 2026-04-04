@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
+import { HttpParams } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 export interface AdminOrder {
   _id: string;
   borzoOrderId: string;
@@ -46,42 +47,43 @@ export interface BulkResponse {
   providedIn: 'root',
 })
 export class AdminOrdersService {
-  private apiUrl = 'http://localhost:5000/api/admin/orders';
-
+  private apiUrl = `${environment.apiBaseUrl}/admin/orders`;
   constructor(private http: HttpClient) {}
 
   getOrders(
     page: number = 1,
     limit: number = 5,
     search: string = '',
-    status: string = 'ALL',
+    status: string | string[] = '',
     sortBy?: string,
     sortOrder?: string,
     fromDate?: string,
     toDate?: string,
     provider?: string,
   ) {
-    let url = `${this.apiUrl}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`;
-    if (fromDate) {
-      url += `&fromDate=${fromDate}`;
+    let params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit)
+      .set('search', search);
+
+    //  FIX: append multiple status properly
+    if (status) {
+      if (Array.isArray(status)) {
+        status.forEach((s) => {
+          params = params.append('status', s);
+        });
+      } else if (status !== 'ALL') {
+        params = params.set('status', status);
+      }
     }
 
-    if (toDate) {
-      url += `&toDate=${toDate}`;
-    }
+    if (fromDate) params = params.set('fromDate', fromDate);
+    if (toDate) params = params.set('toDate', toDate);
+    if (provider) params = params.set('provider', provider);
+    if (sortBy) params = params.set('sortBy', sortBy);
+    if (sortOrder) params = params.set('sortOrder', sortOrder);
 
-    if (provider) {
-      url += `&provider=${provider}`;
-    }
-    if (sortBy) {
-      url += `&sortBy=${sortBy}`;
-    }
-
-    if (sortOrder) {
-      url += `&sortOrder=${sortOrder}`;
-    }
-
-    return this.http.get<OrdersResponse>(url);
+    return this.http.get<OrdersResponse>(this.apiUrl, { params });
   }
 
   getOrderById(id: string) {
@@ -106,6 +108,13 @@ export class AdminOrdersService {
     return this.http.put<BulkResponse>(`${this.apiUrl}/bulk/status`, {
       orderIds,
       status,
+    });
+  }
+
+  exportCSV(params: any) {
+    return this.http.get(`${environment.apiBaseUrl}/admin/export`, {
+      params,
+      responseType: 'blob',
     });
   }
 }

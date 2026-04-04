@@ -7,6 +7,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { OrdersStore } from '../../services/admin-orders.store';
+import { NgZone } from '@angular/core';
+
 import {
   AdminOrdersService,
   OrdersResponse,
@@ -71,6 +73,7 @@ export class AdminOrdersComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private ordersStore: OrdersStore,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -147,10 +150,9 @@ export class AdminOrdersComponent implements OnInit {
     this.loading = true;
     this.cdr.detectChanges();
     const status = this.mapStatusForBackend(this.selectedStatus);
+    let statusParam: any = this.mapStatusForBackend(this.selectedStatus);
 
-    let statusParam = this.selectedStatus;
-
-    if (statusParam === 'ALL') {
+    if (statusParam === null) {
       statusParam = '';
     }
 
@@ -276,22 +278,6 @@ export class AdminOrdersComponent implements OnInit {
     this.showConfirm = true;
   }
 
-  // onConfirmDelete(): void {
-  //   if (!this.selectedOrder?._id) return;
-
-  //   this.ordersService.cancelOrder(this.selectedOrder._id).subscribe({
-  //     next: () => {
-  //       this.showConfirm = false;
-  //       this.selectedOrder = null;
-  //       this.loadOrders();
-  //     },
-  //     error: (err: any) => {
-  //       console.error('Cancel failed:', err);
-  //       this.showConfirm = false;
-  //     },
-  //   });
-  // }
-
   onConfirmDelete(): void {
     // SINGLE
     if (this.confirmMode === 'single' && this.selectedOrder?._id) {
@@ -358,9 +344,6 @@ export class AdminOrdersComponent implements OnInit {
         });
     } else if (this.confirmMode === 'export') {
       if (this.isExporting) return;
-
-      this.isExporting = true;
-      this.isExportingFromModal = true;
 
       this.exportAllCSV();
     }
@@ -540,144 +523,50 @@ export class AdminOrdersComponent implements OnInit {
     this.toastService.show(message, type);
   }
 
-  exportCSV(): void {
-    const data = this.getExportData();
-
-    if (!data.length) {
-      this.toastService.show('No data to export', 'warning');
-      return;
-    }
-
-    try {
-      const csv = this.convertToCSV(data);
-
-      const blob = new Blob([csv], {
-        type: 'text/csv;charset=utf-8;',
-      });
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `orders_${new Date().toISOString()}.csv`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-
-      this.toastService.show('CSV exported successfully', 'success');
-    } catch (err) {
-      console.error(err);
-      this.toastService.show('Export failed', 'error');
-    }
-  }
-
-  private getExportData(): any[] {
-    const source =
-      this.selectedOrders.size > 0
-        ? this.allOrders.filter((o) => this.selectedOrders.has(o._id))
-        : this.allOrders;
-
-    return source.map((order) => ({
-      Order_ID: order.borzoOrderId || '',
-      Customer_Name: order.customer?.name || '',
-      Phone: order.customer?.phone || '',
-      Amount: order.pricing?.amount || 0,
-      Status: order.status || '',
-      Provider: order.provider || '',
-      Created_At: new Date(order.createdAt).toISOString(),
-    }));
-  }
-
-  private convertToCSV(data: any[]): string {
-    const headers = Object.keys(data[0]);
-
-    const escape = (value: any) => {
-      if (value === null || value === undefined) return '';
-      return `"${String(value).replace(/"/g, '""')}"`;
-    };
-
-    const rows = data.map((row) =>
-      headers.map((field) => escape(row[field])).join(','),
-    );
-
-    return [headers.join(','), ...rows].join('\n');
-  }
-
   exportAllCSV(): void {
+    console.log('EXPORT START');
+    this.isExporting = true;
+
     const statusParam =
       this.selectedStatus === 'ALL' ? '' : this.selectedStatus;
 
-    this.ordersService
-      .getOrders(
-        1,
-        10000,
-        this.searchTerm,
-        statusParam,
-        this.sortBy,
-        this.sortOrder,
-        this.fromDate,
-        this.toDate,
-        this.selectedProvider,
-      )
-      .subscribe({
-        next: (res: OrdersResponse) => {
-          const allData = res.data || [];
+    const params: any = {
+      type: 'orders',
+      search: this.searchTerm || '',
+      status: statusParam || '',
+      fromDate: this.fromDate || '',
+      toDate: this.toDate || '',
+      provider: this.selectedProvider || '',
+    };
 
-          if (!allData.length) {
-            this.toastService.show('No data to export', 'warning');
-            this.isExporting = false;
-            return;
-          }
+    this.ordersService.exportCSV(params).subscribe({
+      next: (blob: Blob) => {
+        console.log('EXPORT SUCCESS'); // 👈 CHECK THIS
 
-          const formatted = allData.map((order: any) => ({
-            Order_ID: order.borzoOrderId || '',
-            Customer_Name: order.customer?.name || '',
-            Phone: order.customer?.phone || '',
-            Amount: order.pricing?.amount || 0,
-            Status: order.status || '',
-            Provider: order.provider || '',
-            Created_At: new Date(order.createdAt).toISOString(),
-          }));
+        const url = window.URL.createObjectURL(blob);
 
-          const csv = this.convertToCSV(formatted);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'orders-export.csv';
+        a.click();
 
-          const blob = new Blob([csv], {
-            type: 'text/csv;charset=utf-8;',
-          });
+        window.URL.revokeObjectURL(url);
+        this.ngZone.run(() => {
+          this.isExporting = false;
+          this.showConfirm = false;
+        });
 
-          const url = window.URL.createObjectURL(blob);
+        console.log('STATE RESET'); // 👈 CHECK THIS
+      },
+      error: (err) => {
+        console.log('EXPORT ERROR', err);
 
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `orders_full_${new Date().toISOString()}.csv`;
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          window.URL.revokeObjectURL(url);
-
-          this.toastService.show('Full export completed', 'success');
-          setTimeout(() => {
-            this.isExporting = false;
-            this.isExportingFromModal = false;
-            this.showConfirm = false;
-          }, 600);
-        },
-
-        error: (err) => {
-          console.error(err);
-          this.toastService.show('Export failed', 'error');
-          setTimeout(() => {
-            this.isExporting = false;
-            this.isExportingFromModal = false;
-            this.showConfirm = false;
-          }, 600);
-        },
-      });
+        this.ngZone.run(() => {
+          this.isExporting = false;
+          this.showConfirm = false;
+        });
+      },
+    });
   }
 
   getExportPreviewMessage(): string {

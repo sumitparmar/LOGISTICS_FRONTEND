@@ -6,7 +6,8 @@ import { takeUntil } from 'rxjs/operators';
 import { ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { ViewChild } from '@angular/core';
-
+import { AdminOrdersService } from '../../services/admin-orders.service';
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
 @Component({
   selector: 'app-pricing',
   templateUrl: './pricing.component.html',
@@ -23,12 +24,18 @@ export class PricingComponent implements OnInit {
   adminAnalytics: any;
   chartData: any = null;
   selectedRange = 'month';
-
+  isExporting: boolean = false;
   revenueChartData: any;
   vehicleChartData: any;
+
+  showConfirm: boolean = false;
+  confirmMode: 'export' | null = null;
+
   constructor(
     private fb: FormBuilder,
     private pricingService: AdminPricingService,
+    private ordersService: AdminOrdersService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -271,6 +278,52 @@ export class PricingComponent implements OnInit {
       },
     },
   };
+
+  exportPricingCSV(): void {
+    if (this.isExporting) return;
+
+    this.isExporting = true;
+
+    const params: any = {
+      type: 'pricing',
+      range: 'month', // or dynamic
+    };
+
+    this.ordersService.exportCSV(params).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'pricing-export.csv';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+
+        this.isExporting = false;
+        this.showConfirm = false;
+        this.toastService.show('Pricing exported successfully', 'success');
+      },
+      error: () => {
+        this.isExporting = false;
+        this.showConfirm = false;
+        this.toastService.show('Export failed', 'error');
+      },
+    });
+  }
+
+  confirmExport(): void {
+    console.log('CLICK WORKING'); // 👈 add this
+
+    this.confirmMode = 'export';
+    this.showConfirm = true;
+  }
+
+  onConfirmAction(): void {
+    if (this.confirmMode === 'export') {
+      this.exportPricingCSV();
+    }
+  }
 
   loadPricing() {
     this.isLoading = true;

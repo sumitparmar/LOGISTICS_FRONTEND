@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Subject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ export class AdminSocketService {
   orderUpdate$ = this.orderUpdateSubject.asObservable();
 
   constructor() {
-    this.socket = io('http://localhost:5000', {
+    this.socket = io(environment.apiBaseUrl.replace('/api', ''), {
       transports: ['websocket'],
       reconnection: true,
     });

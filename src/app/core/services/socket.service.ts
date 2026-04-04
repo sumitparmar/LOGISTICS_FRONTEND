@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-
+import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -11,9 +11,7 @@ export class SocketService {
     // prevent duplicate connections
     if (this.socket) return;
 
-    this.socket = io('http://localhost:3000', {
-      transports: ['websocket'],
-    });
+    this.socket = io(environment.socketUrl, { transports: ['websocket'] });
 
     this.socket.emit('join-user-room', userId);
   }

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminUsersService {
-  private apiUrl = 'http://localhost:5000/api/admin/users';
-
+  private apiUrl = `${environment.apiBaseUrl}/admin/users`;
   constructor(private http: HttpClient) {}
 
   getUsers(page: number = 1, limit: number = 10, search: string = '') {

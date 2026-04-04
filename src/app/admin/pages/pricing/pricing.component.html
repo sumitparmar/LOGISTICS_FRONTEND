@@ -13,6 +13,13 @@
         <button [class.active]="selectedRange === 'month'" (click)="changeRange('month')">Month</button>
     </div>
 
+
+    <div class="export-wrapper">
+        <button class="export-btn" (click)="confirmExport()" [disabled]="isExporting">
+            {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+        </button>
+    </div>
+
     <form [formGroup]="form" class="pricing-container">
 
         <!-- LOADER -->
@@ -191,6 +198,7 @@
     </div>
 
 
+
     <div class="card">
         <div class="card-body">
             <h4>Pricing Breakdown</h4>
@@ -206,10 +214,14 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h4>Total Orders</h4>
+                    <h4>DELIVERED ORDERS</h4>
+
                     <div class="result">
                         {{ adminAnalytics.totalOrders }}
                     </div>
+                    <small class="metric-hint">
+                        Only completed (delivered) orders are counted
+                    </small>
                 </div>
             </div>
 
@@ -286,7 +298,27 @@
 
 
 
+    <div *ngIf="showConfirm" class="confirm-overlay">
+        <div class="confirm-box">
 
+            <h3 class="confirm-title">Export Pricing</h3>
+
+            <p class="confirm-text">
+                Are you sure you want to export pricing data?
+            </p>
+
+            <div class="confirm-actions">
+                <button class="btn-primary" (click)="onConfirmAction()" [disabled]="isExporting">
+                    {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+                </button>
+
+                <button class="btn-outline" (click)="showConfirm = false">
+                    Cancel
+                </button>
+            </div>
+
+        </div>
+    </div>
 
 
 
