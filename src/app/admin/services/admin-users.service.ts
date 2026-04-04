@@ -31,4 +31,8 @@ export class AdminUsersService {
   createUser(payload: any) {
     return this.http.post<any>(this.apiUrl, payload);
   }
+
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
 }

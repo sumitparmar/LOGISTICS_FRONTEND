@@ -142,10 +142,32 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onConfirmDelete(): void {
-    this.users = this.users.filter((u) => u !== this.selectedUser);
+    console.log('STEP 1: Confirm clicked');
 
-    this.showConfirm = false;
-    this.selectedUser = null;
+    console.log('Selected User:', this.selectedUser);
+
+    const id = this.selectedUser?.id || this.selectedUser?._id;
+
+    console.log('Resolved ID:', id);
+
+    if (!id) {
+      console.error('ID missing → STOP');
+      return;
+    }
+
+    this.adminUsersService.deleteUser(id).subscribe({
+      next: () => {
+        console.log('STEP 2: API success');
+
+        this.users = this.users.filter((u) => u.id !== id);
+
+        this.showConfirm = false;
+        this.selectedUser = null;
+      },
+      error: (err) => {
+        console.error('STEP 2: API failed', err);
+      },
+    });
   }
 
   onCancelDelete(): void {

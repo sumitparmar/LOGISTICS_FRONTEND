@@ -1,3 +1,17 @@
-<div *ngIf="visible && toast" class="toast" [ngClass]="toast.type">
-    {{ toast.message }}
+<div class="toast-container">
+
+    <div *ngFor="let t of toasts" class="toast" [ngClass]="t.priority?.toLowerCase() || t.type">
+        <div class="content">
+
+            <div class="title" *ngIf="t.title">
+                {{ t.title }}
+            </div>
+
+            <div class="message">
+                {{ t.message }}
+            </div>
+
+        </div>
+    </div>
+
 </div>

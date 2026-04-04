@@ -1,1 +1,46 @@
-<p>notifications works!</p>
+<div class="notifications-container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Notifications</h2>
+
+        <button class="header-btn" (click)="createTest()">
+            + Test
+        </button>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="(unreadNotifications$ | async)?.length === 0" class="empty-state"> No notifications found
+    </div>
+
+    <!-- LIST -->
+    <div *ngFor="let n of (unreadNotifications$ | async)" class="card" [class.unread]="!n.isRead">
+        <!-- LEFT CONTENT -->
+        <div class="card-left">
+
+            <div class="title">
+                {{ n.title }}
+            </div>
+
+            <div class="message">
+                {{ n.message }}
+            </div>
+
+            <div class="time">
+                {{ n.createdAt | date:'medium' }}
+            </div>
+
+        </div>
+
+        <!-- RIGHT ACTION -->
+        <div class="card-right">
+
+            <button *ngIf="!n.isRead" class="mark-btn" (click)="markAsRead(n._id)">
+                Mark as read
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

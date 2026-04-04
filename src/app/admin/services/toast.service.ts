@@ -4,6 +4,10 @@ import { Subject } from 'rxjs';
 export interface Toast {
   type: 'success' | 'error' | 'info';
   message: string;
+
+  // 🔷 OPTIONAL (non-breaking)
+  title?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,5 +25,14 @@ export class ToastService {
 
   error(message: string) {
     this.show({ type: 'error', message });
+  }
+
+  showNotification(notification: any) {
+    this.show({
+      type: 'info',
+      message: notification.message,
+      title: notification.title,
+      priority: notification.priority,
+    });
   }
 }
