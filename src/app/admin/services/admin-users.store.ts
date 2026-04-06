@@ -9,18 +9,43 @@ import { AdminSocketService } from './admin-socket.service';
 export class AdminUsersStore {
   private usersSubject = new BehaviorSubject<any[]>([]);
   users$ = this.usersSubject.asObservable();
+  private lastPage = 1;
+  private lastLimit = 5;
+  private lastSearch = '';
+  private lastStatus = '';
+
+  private paginationSubject = new BehaviorSubject<any>({
+    total: 0,
+    page: 1,
+    limit: 5,
+    totalPages: 1,
+  });
+
+  pagination$ = this.paginationSubject.asObservable();
 
   constructor(
     private usersService: AdminUsersService,
     private socketService: AdminSocketService,
   ) {
     this.socketService.userUpdate$.subscribe(() => {
-      console.log('🔥 STORE AUTO REFRESH');
-      this.loadUsers(1, 5, ''); // safe default
+      console.log(' STORE AUTO REFRESH');
+      this.loadUsers(
+        this.lastPage,
+        this.lastLimit,
+        this.lastSearch,
+        this.lastStatus,
+      );
     });
   }
-  loadUsers(page: number, limit: number, search: string) {
-    this.usersService.getUsers(page, limit, search).subscribe({
+
+  loadUsers(page: number, limit: number, search: string, status?: string) {
+    // store state FIRST
+    this.lastPage = page;
+    this.lastLimit = limit;
+    this.lastSearch = search;
+    this.lastStatus = status || '';
+
+    this.usersService.getUsers(page, limit, search, status).subscribe({
       next: (res) => {
         const users = res.data.map((u: any) => ({
           ...u,
@@ -28,6 +53,9 @@ export class AdminUsersStore {
         }));
 
         this.usersSubject.next(users);
+
+        //  backend pagination
+        this.paginationSubject.next(res.pagination);
       },
       error: (err) => {
         console.error('Store load users failed', err);

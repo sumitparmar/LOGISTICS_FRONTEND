@@ -1,10 +1,7 @@
-/* ===============================
-   Root Layout (aligned with dashboard)
-=============================== */
-
 .users {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 /* ===============================
@@ -23,11 +20,11 @@
 =============================== */
 
 .users-content {
-  display: block;
+  width: 100%;
 }
 
 /* ===============================
-   Card (same as dashboard cards)
+   Card (Dashboard Consistent)
 =============================== */
 
 .users-card {
@@ -36,23 +33,55 @@
   border: 1px solid #f1f5f9;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 
-  padding: 18px;
-  transition: all 0.2s ease;
+  padding: 20px;
+  transition: all 0.25s ease;
 }
 
 .users-card:hover {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
 }
 
 /* ===============================
-   Controls (IMPORTANT FIX)
+   Controls Row
 =============================== */
 
 .users-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  gap: 12px;
+
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   Filter Dropdown (NEW)
+=============================== */
+
+select {
+  height: 36px;
+  padding: 0 10px;
+
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+
+  font-size: 13px;
+  color: #374151;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+select:hover {
+  border-color: #d1d5db;
+}
+
+select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
 
 /* ===============================
@@ -81,11 +110,13 @@
 }
 
 /* ===============================
-   DataTable Alignment
+   Data Table Wrapper
 =============================== */
 
 app-data-table {
   display: block;
+  width: 100%;
+  overflow-x: auto; // ✅ prevents breaking on small screens
 }
 
 /* ===============================
@@ -99,11 +130,11 @@ app-data-table {
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
 
-  background: rgba(79, 70, 229, 0.15);
+  background: rgba(79, 70, 229, 0.12);
   color: #4f46e5;
 
   display: flex;
@@ -115,7 +146,7 @@ app-data-table {
 }
 
 /* ===============================
-   Status
+   Status Badge
 =============================== */
 
 .status {
@@ -127,12 +158,12 @@ app-data-table {
 }
 
 .status.active {
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, 0.12);
   color: #16a34a;
 }
 
 .status.inactive {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.12);
   color: #dc2626;
 }
 
@@ -143,7 +174,7 @@ app-data-table {
 .actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .actions lucide-icon {
@@ -158,13 +189,71 @@ app-data-table {
   color: #111827;
 }
 
+/* Specific icons */
+.action-icon {
+  transition: 0.2s ease;
+}
+
+.action-icon:hover {
+  transform: scale(1.12);
+}
+
 /* ===============================
    Empty State
 =============================== */
 
 .empty-state {
   text-align: center;
-  padding: 28px;
+  padding: 30px;
   color: #9ca3af;
   font-size: 14px;
+}
+
+/* ===============================
+   RESPONSIVE DESIGN
+=============================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .users-title {
+    font-size: 20px;
+  }
+
+  .users-card {
+    padding: 16px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .users-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-btn {
+    width: 100%;
+  }
+
+  select {
+    width: 100%;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .users-title {
+    font-size: 18px;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .status {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
 }

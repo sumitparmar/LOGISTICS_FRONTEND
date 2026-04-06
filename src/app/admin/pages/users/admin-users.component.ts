@@ -23,6 +23,7 @@ export class AdminUsersComponent implements OnInit {
   @ViewChild('nameTemplate', { static: true })
   nameTemplate!: TemplateRef<any>;
 
+  filterStatus: string = '';
   users: any[] = [];
   page = 1;
   limit = 5;
@@ -73,10 +74,25 @@ export class AdminUsersComponent implements OnInit {
     this.loadUsers();
     this.setupSearchStream();
 
-    this.sub = this.usersStore.users$.subscribe((users) => {
-      this.users = users;
-      this.cdr.detectChanges();
-    });
+    this.sub = new Subscription();
+
+    // USERS
+    this.sub.add(
+      this.usersStore.users$.subscribe((users) => {
+        this.users = users;
+        this.cdr.detectChanges();
+      }),
+    );
+
+    //  PAGINATION
+    this.sub.add(
+      this.usersStore.pagination$.subscribe((p) => {
+        if (!p) return;
+
+        this.totalPages = p.totalPages;
+        this.page = p.page;
+      }),
+    );
   }
 
   setupSearchStream(): void {
@@ -88,8 +104,12 @@ export class AdminUsersComponent implements OnInit {
           this.search = search;
           this.page = 1;
 
-          this.usersStore.loadUsers(this.page, this.limit, this.search);
-
+          this.usersStore.loadUsers(
+            this.page,
+            this.limit,
+            this.search,
+            this.filterStatus,
+          );
           return [];
         }),
       )
@@ -97,7 +117,12 @@ export class AdminUsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.usersStore.loadUsers(this.page, this.limit, this.search);
+    this.usersStore.loadUsers(
+      this.page,
+      this.limit,
+      this.search,
+      this.filterStatus,
+    );
   }
 
   onPageChange(page: number) {
@@ -118,32 +143,46 @@ export class AdminUsersComponent implements OnInit {
     this.router.navigate(['/admin/users/edit', user.id]);
   }
 
-  onDelete(user: any): void {
+  onToggleStatus(user: any): void {
     this.selectedUser = user;
     this.showConfirm = true;
   }
 
+  onFilterChange(value: string) {
+    this.filterStatus = value;
+    this.page = 1;
+    this.loadUsers();
+  }
+
   onConfirmDelete(): void {
-    const id = this.selectedUser?.id || this.selectedUser?._id;
+    const user = this.selectedUser;
 
-    if (!id) {
-      console.error('ID missing → STOP');
-      return;
-    }
+    if (!user) return;
 
-    this.adminUsersService.deleteUser(id).subscribe({
-      next: () => {
-        // this.users = this.users.filter((u) => u.id !== id);
-        this.usersStore.removeUser(id);
-        this.loadUsers();
+    const id = user.id || user._id;
+    const newStatus = !user.isActive;
 
-        this.showConfirm = false;
-        this.selectedUser = null;
-      },
-      error: (err) => {
-        console.error('STEP 2: API failed', err);
-      },
-    });
+    this.adminUsersService
+      .updateUser(id, {
+        isActive: newStatus,
+      })
+      .subscribe({
+        next: () => {
+          console.log(' Status updated');
+
+          // instant UI (optional but good UX)
+          // this.usersStore.removeUser(id);
+
+          // re-fetch from backend (source of truth)
+          this.loadUsers();
+
+          this.showConfirm = false;
+          this.selectedUser = null;
+        },
+        error: (err) => {
+          console.error('Status update failed', err);
+        },
+      });
   }
 
   onCancelDelete(): void {

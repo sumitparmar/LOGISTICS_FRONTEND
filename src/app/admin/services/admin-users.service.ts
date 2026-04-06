@@ -10,11 +10,20 @@ export class AdminUsersService {
   private apiUrl = `${environment.apiBaseUrl}/admin/users`;
   constructor(private http: HttpClient) {}
 
-  getUsers(page: number = 1, limit: number = 10, search: string = '') {
+  getUsers(
+    page: number = 1,
+    limit: number = 10,
+    search: string = '',
+    status: string = '',
+  ) {
     let url = `${this.apiUrl}?page=${page}&limit=${limit}`;
 
     if (search) {
       url += `&search=${search}`;
+    }
+
+    if (status) {
+      url += `&status=${status}`;
     }
 
     return this.http.get<any>(url);

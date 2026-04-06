@@ -16,11 +16,22 @@
                     (searchChange)="onSearchChange($event)">
                 </app-table-controls>
 
+
+                <select #statusSelect (change)="onFilterChange(statusSelect.value)">
+                    <option value="">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+
+
                 <button class="primary-btn" (click)="goToCreate()">
                     + Add User
                 </button>
 
             </div>
+
+
+
 
             <!-- Data Table -->
             <app-data-table [columns]="columns" [data]="users">
@@ -50,7 +61,9 @@
                     <lucide-icon name="edit" (click)="onEdit(user); $event.stopPropagation()">
                     </lucide-icon>
 
-                    <lucide-icon name="trash" (click)="onDelete(user); $event.stopPropagation()">
+                    <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'"
+                        [title]="user.isActive ? 'Deactivate user' : 'Activate user'" class="action-icon"
+                        (click)="onToggleStatus(user); $event.stopPropagation()">
                     </lucide-icon>
 
                 </div>
@@ -68,7 +81,11 @@
 </div>
 
 <!-- Confirm Dialog -->
-<app-confirm-dialog [visible]="showConfirm" title="Delete User"
-    [message]="'Are you sure you want to delete ' + selectedUser?.name + '?'" (confirm)="onConfirmDelete()"
-    (cancel)="onCancelDelete()">
+
+<app-confirm-dialog [visible]="showConfirm" [title]="selectedUser?.isActive ? 'Deactivate User' : 'Activate User'"
+    [message]="
+    (selectedUser?.isActive
+      ? 'Are you sure you want to deactivate '
+      : 'Are you sure you want to activate ') + selectedUser?.name + '?'
+  " (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
 </app-confirm-dialog>
