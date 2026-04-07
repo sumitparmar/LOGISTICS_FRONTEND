@@ -4,6 +4,7 @@ import { OrdersService } from '../../../../core/services/orders.service';
 declare const google: any;
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket.service';
+
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
@@ -17,6 +18,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   podData: any = null;
   courierPosition: any = null;
   // pricingBreakdown: any = null;
+
+  isEditMode = false;
+
+  editForm: any = {
+    matter: '',
+    weight: null,
+  };
   showCancelModal = false;
   animationFrame: any = null;
   courierMarker: any = null;
@@ -51,6 +59,50 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.orderId = this.route.snapshot.paramMap.get('id') || '';
     this.loadOrder();
+  }
+
+  canEdit(): boolean {
+    return ['CREATED', 'ASSIGNED'].includes(this.order?.status);
+  }
+
+  updateOrder(): void {
+    const payload: any = {};
+
+    if (this.editForm.matter !== this.order.package?.description) {
+      payload.matter = this.editForm.matter;
+    }
+
+    if (this.editForm.weight !== this.order.package?.weight) {
+      payload.package = { weight: this.editForm.weight };
+    }
+
+    if (!Object.keys(payload).length) {
+      this.showToastMessage('No changes detected');
+      return;
+    }
+
+    this.ordersService.editOrder(this.order._id, payload).subscribe({
+      next: () => {
+        this.showToastMessage('Order updated successfully');
+        this.isEditMode = false;
+        this.loadOrder();
+      },
+      error: () => {
+        this.showToastMessage('Failed to update order');
+      },
+    });
+  }
+
+  enableEdit(): void {
+    this.isEditMode = true;
+
+    this.editForm = {
+      matter: this.order.package?.description || '',
+      weight:
+        this.order?.rawProviderResponse?.order?.total_weight_kg ||
+        this.order.package?.weight ||
+        null,
+    };
   }
 
   loadOrder(): void {
@@ -88,61 +140,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
-  // initializeMap() {
-  //   if (!this.mapContainer?.nativeElement) return;
-  //   const points = this.order?.rawProviderResponse?.order?.points;
-
-  //   if (!points || points.length === 0) return;
-
-  //   const pickupPoint = points.find((p: any) => !p.delivery);
-  //   const dropPoint = points.find((p: any) => p.delivery);
-
-  //   if (!pickupPoint || !dropPoint) return;
-
-  //   const pickupLat = Number(pickupPoint.latitude);
-  //   const pickupLng = Number(pickupPoint.longitude);
-
-  //   const dropLat = Number(dropPoint.latitude);
-  //   const dropLng = Number(dropPoint.longitude);
-
-  //   this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-  //     zoom: 12,
-  //     center: { lat: pickupLat, lng: pickupLng },
-  //   });
-
-  //   this.directionsService = new google.maps.DirectionsService();
-
-  //   this.directionsRenderer = new google.maps.DirectionsRenderer({
-  //     suppressMarkers: true,
-  //     polylineOptions: {
-  //       strokeColor: '#ff7a00',
-  //       strokeWeight: 4,
-  //     },
-  //   });
-
-  //   this.directionsRenderer.setMap(this.map);
-
-  //   this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
-
-  //   if (
-  //     this.order?.courier?.location?.lat &&
-  //     this.order?.courier?.location?.lng
-  //   ) {
-  //     const lat = this.order.courier.location.lat;
-  //     const lng = this.order.courier.location.lng;
-
-  //     this.courierMarker = new google.maps.Marker({
-  //       position: { lat, lng },
-  //       map: this.map,
-  //       icon: {
-  //         url: '/assets/icons/bike.png',
-  //         scaledSize: new google.maps.Size(36, 36),
-  //       },
-  //     });
-  //   }
-  //   this.startCourierTracking();
-  // }
 
   initializeMap() {
     if (!this.mapContainer?.nativeElement) return;
@@ -439,22 +436,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   showToastMessage(message: string): void {
-    console.log(message); // temporary (safe, no break)
+    console.log(message);
   }
 
-  // loadPricingBreakdown(): void {
-  //   if (!this.order?._id) return;
-
-  //   this.ordersService.getPricingBreakdown(this.order._id).subscribe({
-  //     next: (res: any) => {
-  //       this.pricingBreakdown = res.data;
-  //     },
-
-  //     error: (err) => {
-  //       console.error('Pricing breakdown failed', err);
-  //     },
-  //   });
-  // }
   loadCourier(): void {
     if (!this.order?._id) return;
 
@@ -468,6 +452,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
   loadPOD(): void {
     if (!this.order?._id) return;
 
@@ -481,6 +466,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
   loadDocuments(): void {
     if (!this.order?._id) return;
 
@@ -507,5 +493,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         console.error('History fetch failed', err);
       },
     });
+  }
+
+  getDisplayWeight(): number | null {
+    const borzoWeight = this.order?.rawProviderResponse?.order?.total_weight_kg;
+
+    if (borzoWeight) return Number(borzoWeight);
+
+    return this.order?.package?.weight || null;
   }
 }

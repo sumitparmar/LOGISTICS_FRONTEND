@@ -81,6 +81,13 @@
                 <div class="order-card summary-card">
                     <div class="card-header">
                         <h3>Order Summary</h3>
+                        <div class="summary-actions">
+                            <button class="edit-btn"
+                                *ngIf="['CREATED','ASSIGNED','IN_TRANSIT','DELAYED'].includes(order.status)"
+                                (click)="enableEdit()">
+                                Edit
+                            </button>
+                        </div>
                     </div>
 
                     <div class="summary-grid">
@@ -110,14 +117,27 @@
 
                         <div class="summary-item">
                             <div class="summary-label">Package</div>
-                            <div class="summary-value">{{ order.package?.description }}</div>
+                            <div class="summary-value" *ngIf="!isEditMode">
+                                {{ order.package?.description }}
+                            </div>
+
+                            <input *ngIf="isEditMode" [(ngModel)]="editForm.matter" class="edit-input" />
                         </div>
 
                         <div class="summary-item">
                             <div class="summary-label">Weight</div>
-                            <div class="summary-value">{{ order.package?.weight }} kg</div>
+                            <div class="summary-value" *ngIf="!isEditMode">
+                                {{ getDisplayWeight() }} kg </div>
+
+                            <input *ngIf="isEditMode" type="number" [(ngModel)]="editForm.weight" class="edit-input" />
                         </div>
 
+                    </div>
+
+                    <div class="edit-actions" *ngIf="isEditMode">
+                        <button class="save-btn" (click)="updateOrder()">
+                            Save Changes
+                        </button>
                     </div>
                 </div>
 

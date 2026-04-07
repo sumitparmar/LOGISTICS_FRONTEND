@@ -76,4 +76,8 @@ export class OrdersService {
   getDeliveryTypes() {
     return this.api.get('/meta/delivery-types');
   }
+
+  editOrder(orderId: string, payload: any) {
+    return this.api.post(`/orders/${orderId}/edit`, payload);
+  }
 }
