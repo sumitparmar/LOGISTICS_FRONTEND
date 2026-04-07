@@ -426,8 +426,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       next: () => {
         this.showCancelModal = false;
 
-        alert('Order cancelled successfully');
-
+        this.showToastMessage('Order cancelled successfully');
         this.loadOrder();
       },
 
@@ -437,6 +436,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.showCancelModal = false;
       },
     });
+  }
+
+  showToastMessage(message: string): void {
+    console.log(message); // temporary (safe, no break)
   }
 
   // loadPricingBreakdown(): void {

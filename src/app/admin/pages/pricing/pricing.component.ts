@@ -402,13 +402,16 @@ export class PricingComponent implements OnInit {
 
     if (this.form.value.surgeEnabled) {
       if (!this.form.value.surgeStart || !this.form.value.surgeEnd) {
-        alert('Please set surge time range');
+        this.toastService.show('Please set surge time range', 'warning');
         this.isSaving = false;
         return;
       }
 
       if (this.form.value.surgeMultiplier <= 1) {
-        alert('Surge multiplier must be greater than 1');
+        this.toastService.show(
+          'Surge multiplier must be greater than 1',
+          'warning',
+        );
         this.isSaving = false;
         return;
       }

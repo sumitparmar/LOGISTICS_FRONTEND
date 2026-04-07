@@ -468,7 +468,7 @@ export class CreateDeliveryComponent
     }
 
     // Temporary block until gateway API exists
-    alert('Online payment will be available soon');
+    this.showToastMessage('Online payment will be available soon');
   }
 
   processOnlinePayment(): void {
