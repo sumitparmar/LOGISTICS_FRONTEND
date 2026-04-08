@@ -1,0 +1,200 @@
+.support-page {
+  padding: 24px;
+  font-family: "Inter", sans-serif;
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.support-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: #777;
+    font-size: 13px;
+  }
+
+  input {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    width: 240px;
+  }
+}
+
+/* CONTAINER */
+.support-container {
+  display: flex;
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+/* LEFT PANEL */
+.ticket-list {
+  width: 320px;
+  border-right: 1px solid #eee;
+  overflow-y: auto;
+}
+
+.ticket-item {
+  padding: 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f3f3;
+  transition: 0.2s;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  &.active {
+    background: #eef2ff;
+  }
+
+  .ticket-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h4 {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .message {
+    font-size: 13px;
+    color: #666;
+    margin: 6px 0;
+  }
+
+  .ticket-bottom {
+    font-size: 11px;
+    color: #999;
+  }
+}
+
+/* STATUS */
+.status {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: capitalize;
+
+  &.open {
+    background: #e0f2fe;
+    color: #0284c7;
+  }
+
+  &.in-progress {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  &.resolved {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+}
+
+/* RIGHT PANEL */
+.ticket-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.detail-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+  }
+
+  select {
+    padding: 6px;
+    border-radius: 6px;
+  }
+}
+
+/* CHAT */
+.chat-box {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.chat-message {
+  max-width: 60%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: #fff;
+
+  &.admin {
+    margin-left: auto;
+    background: #6366f1;
+    color: #fff;
+  }
+
+  span {
+    font-size: 10px;
+    display: block;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+}
+
+/* REPLY */
+.reply-box {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #eee;
+
+  input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  button {
+    margin-left: 10px;
+    padding: 10px 16px;
+    border: none;
+    background: #6366f1;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .support-container {
+    flex-direction: column;
+  }
+
+  .ticket-list {
+    width: 100%;
+    height: 250px;
+  }
+}

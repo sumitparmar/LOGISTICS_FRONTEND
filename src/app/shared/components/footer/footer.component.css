@@ -1,33 +1,38 @@
 /* ================= FOOTER ================= */
 
 .footer {
-  background: #f6f7f9;
-  padding-top: 60px;
-  border-top: 1px solid #eaeaea;
+  background: #f8fafc;
+  padding-top: 64px;
+  border-top: 1px solid #e5e7eb;
   font-family: "Inter", sans-serif;
 }
 
 /* ================= CONTAINER ================= */
+
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
 
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-  gap: 40px;
+  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  gap: 48px;
 }
 
 /* ================= BRAND ================= */
+
 .footer-col.brand .logo {
   font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #111827;
+  letter-spacing: -0.3px;
 }
 
 .city-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 
   li {
     margin-bottom: 6px;
@@ -35,9 +40,9 @@
 
   a {
     font-size: 14px;
-    color: #3b6ef5;
+    color: #2563eb;
     text-decoration: none;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
       text-decoration: underline;
@@ -46,18 +51,21 @@
 }
 
 /* ================= LINKS ================= */
+
 .footer-col {
   h4 {
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
-    color: #8a8a8a;
+    color: #9ca3af;
     margin-bottom: 14px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
+    font-weight: 600;
   }
 
   ul {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
 
   li {
@@ -66,46 +74,61 @@
 
   a {
     font-size: 14px;
-    color: #111;
+    color: #111827;
     text-decoration: none;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
-      color: #3b6ef5;
+      color: #2563eb;
     }
   }
 }
 
 /* ================= APP BUTTONS ================= */
+
 .apps {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
+/* FIXED + PREMIUM BUTTON */
 .app-card {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 48px;
+  width: 100%;
 
   background: #0f172a;
-  color: #fff;
-  border-radius: 10px;
+  color: #ffffff !important;
+  border-radius: 12px;
 
   font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
-  transition: 0.25s;
 
-  &:hover {
-    background: #1e293b;
-  }
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* FORCE TEXT VISIBILITY */
+.app-card * {
+  color: #ffffff !important;
+}
+
+/* HOVER EFFECT */
+.app-card:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 /* ================= BOTTOM ================= */
+
 .footer-bottom {
-  margin-top: 40px;
-  border-top: 1px solid #eaeaea;
+  margin-top: 48px;
+  border-top: 1px solid #e5e7eb;
   padding: 20px 24px;
 
   max-width: 1200px;
@@ -118,6 +141,7 @@
 }
 
 /* ================= SOCIAL ================= */
+
 .socials {
   display: flex;
   gap: 12px;
@@ -133,32 +157,34 @@
   align-items: center;
   justify-content: center;
 
+  transition: all 0.25s ease;
+
   svg {
     width: 18px;
     height: 18px;
-    fill: #fff;
-  }
-
-  transition: 0.2s;
-
-  &:hover {
-    background: #1e293b;
+    fill: #ffffff;
   }
 }
 
+.icon:hover {
+  background: #1e293b;
+  transform: translateY(-2px);
+}
+
 /* ================= COPYRIGHT ================= */
+
 .copyright {
   font-size: 13px;
-  color: #777;
+  color: #6b7280;
 }
 
 /* ================= RESPONSIVE ================= */
 
-/* TABLET */
+/* LARGE TABLET */
 @media (max-width: 1024px) {
   .footer-container {
     grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
+    gap: 32px;
   }
 
   .apps {
@@ -171,10 +197,11 @@
   }
 }
 
-/* MOBILE */
+/* TABLET */
 @media (max-width: 768px) {
   .footer-container {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 
   .apps {
@@ -185,5 +212,34 @@
     flex-direction: column;
     gap: 12px;
     text-align: center;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .footer {
+    padding-top: 48px;
+  }
+
+  .footer-container {
+    padding: 0 16px;
+  }
+
+  .footer-col h4 {
+    font-size: 11px;
+  }
+
+  .app-card {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .copyright {
+    font-size: 12px;
   }
 }

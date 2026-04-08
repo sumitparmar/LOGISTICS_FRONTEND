@@ -1,1 +1,94 @@
-<p>support works!</p>
+<div class="support-page">
+
+    <!-- HEADER -->
+    <div class="support-header">
+        <div class="header-left">
+            <h2>Support Tickets</h2>
+            <p>Manage customer queries and issues</p>
+        </div>
+
+        <div class="header-right">
+            <input type="text" placeholder="Search tickets..." />
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="support-container">
+
+        <!-- LEFT: TICKET LIST -->
+        <div class="ticket-list">
+
+            <div class="ticket-item" *ngFor="let ticket of tickets" [class.active]="selectedTicket?._id === ticket._id"
+                (click)="selectTicket(ticket)">
+                <div class="ticket-top">
+                    <h4>{{ ticket.user?.name || 'N/A' }}</h4>
+
+                    <span class="status" [ngClass]="ticket.status">
+                        {{ ticket.status }}
+                    </span>
+                </div>
+
+                <!-- SUBJECT -->
+                <p class="message">
+                    {{ ticket.subject || 'No subject' }}
+                </p>
+
+                <!-- TIME -->
+                <div class="ticket-bottom">
+                    <span>
+                        {{ ticket.createdAt | date:'short' }}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: TICKET DETAIL -->
+        <div class="ticket-detail" *ngIf="selectedTicket">
+
+            <!-- DETAIL HEADER -->
+            <div class="detail-header">
+                <div>
+                    <h3>{{ selectedTicket.user?.name || 'User' }}</h3>
+
+                    <span class="status" [ngClass]="selectedTicket.status">
+                        {{ selectedTicket.status }}
+                    </span>
+                </div>
+
+                <!-- STATUS UPDATE -->
+                <select [ngModel]="selectedTicket.status" (ngModelChange)="updateStatus($event)">
+                    <option value="open">Open</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+
+            <!-- CHAT -->
+            <div class="chat-box">
+                <div *ngFor="let msg of selectedTicket.messages" class="chat-message"
+                    [class.admin]="msg.sender === 'admin'">
+                    <p>{{ msg.message }}</p>
+
+                    <span>
+                        {{ msg.createdAt | date:'shortTime' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div *ngIf="!selectedTicket.messages?.length" class="empty-chat">
+                No messages yet
+            </div>
+
+            <!-- REPLY -->
+            <div class="reply-box">
+                <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
+                <button (click)="sendReply()">Send</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
