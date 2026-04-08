@@ -110,12 +110,28 @@
 
                         <div class="summary-item">
                             <div class="summary-label">Package</div>
-                            <div class="summary-value">{{ order.package?.description }}</div>
+
+                            <!-- VIEW MODE -->
+                            <div class="summary-value" *ngIf="!isEditMode">
+                                {{ order.rawProviderResponse?.order?.matter }}
+                            </div>
+
+                            <!-- EDIT MODE -->
+                            <input *ngIf="isEditMode" type="text" [(ngModel)]="editableOrder.matter"
+                                class="edit-input" />
                         </div>
 
                         <div class="summary-item">
                             <div class="summary-label">Weight</div>
-                            <div class="summary-value">{{ order.package?.weight }} kg</div>
+
+                            <!-- VIEW MODE -->
+                            <div class="summary-value" *ngIf="!isEditMode">
+                                {{ editableOrder.weight }} kg
+                            </div>
+
+                            <!-- EDIT MODE -->
+                            <input *ngIf="isEditMode" type="number" [(ngModel)]="editableOrder.weight"
+                                class="edit-input" />
                         </div>
 
                     </div>
@@ -212,6 +228,11 @@
                     </div>
 
                 </div>
+
+
+                <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="edit-order-btn"
+                    (click)="onEditOrder()" [disabled]="loading">
+                    {{ isEditMode ? 'Save Changes' : 'Edit Order' }} </button>
 
                 <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="cancel-order-btn"
                     (click)="openCancelModal()" [disabled]="loading">

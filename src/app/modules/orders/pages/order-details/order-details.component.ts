@@ -10,6 +10,7 @@ import { SocketService } from '../../../../core/services/socket.service';
   styleUrls: ['./order-details.component.scss'],
 })
 export class OrderDetailsComponent implements OnInit, AfterViewInit {
+  isEditMode: boolean = false;
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   courierInfo: any = null;
   providerHistory: any = null;
@@ -34,6 +35,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   mapReady = false;
   pickupCoords: any;
   dropCoords: any;
+  editableOrder: any = {};
   private viewInitialized = false;
   private orderLoaded = false;
   constructor(
@@ -53,12 +55,91 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     this.loadOrder();
   }
 
+  onEditOrder(): void {
+    if (!this.order) return;
+
+    // First click → enable edit mode
+    if (!this.isEditMode) {
+      this.isEditMode = true;
+      return;
+    }
+
+    // Second click → save
+    const payload = this.buildEditPayload();
+
+    this.loading = true;
+
+    this.ordersService.editOrder(this.order._id, payload).subscribe({
+      next: () => {
+        this.loading = false;
+
+        alert('Order updated successfully');
+
+        this.isEditMode = false; // 🔥 back to view mode
+
+        this.loadOrder();
+      },
+      error: (err) => {
+        this.loading = false;
+
+        console.error('Edit failed', err);
+        alert('Edit failed');
+      },
+    });
+  }
+
+  buildEditPayload(): any {
+    const providerOrder = this.order?.rawProviderResponse?.order;
+
+    if (!providerOrder) {
+      console.error('No provider order found');
+      return null;
+    }
+
+    return {
+      order_id: providerOrder.order_id,
+
+      matter: this.editableOrder.matter,
+      vehicle_type_id: providerOrder.vehicle_type_id,
+
+      total_weight_kg: this.editableOrder.weight,
+      points: (providerOrder.points || []).map((p: any) => ({
+        point_id: p.point_id, // MUST
+
+        address: p.address,
+        latitude: p.latitude,
+        longitude: p.longitude,
+
+        contact_person: {
+          phone: p.contact_person?.phone,
+          name: p.contact_person?.name,
+        },
+
+        taking_amount: p.taking_amount || 0,
+        buyout_amount: p.buyout_amount || 0,
+
+        note: p.note || null,
+
+        packages: (p.packages || []).map((pkg: any) => ({
+          order_package_id: pkg.order_package_id, // MUST
+          items_count: pkg.items_count,
+        })),
+      })),
+    };
+  }
+
   loadOrder(): void {
     this.loading = true;
 
     this.ordersService.getOrderById(this.orderId).subscribe({
       next: (res: any) => {
         this.order = res?.data || res;
+
+        this.editableOrder = {
+          matter: this.order?.rawProviderResponse?.order?.matter || '',
+          weight: this.order?.package?.weight || 0,
+        };
+
         this.loading = false;
         // this.loadPricingBreakdown();
         this.loadCourier();
