@@ -11,6 +11,8 @@ import { SocketService } from '../../../../core/services/socket.service';
 })
 export class OrderDetailsComponent implements OnInit, AfterViewInit {
   isEditMode: boolean = false;
+  @ViewChild('pickupInput') pickupInput!: ElementRef;
+  @ViewChild('dropInput') dropInput!: ElementRef;
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   courierInfo: any = null;
   providerHistory: any = null;
@@ -61,11 +63,29 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     // First click → enable edit mode
     if (!this.isEditMode) {
       this.isEditMode = true;
+
+      setTimeout(() => {
+        this.initAutocomplete();
+      }, 200);
+
       return;
     }
 
-    // Second click → save
+    // ✅ STRICT VALIDATION (CRITICAL)
+    if (
+      (this.editableOrder.pickupAddress && !this.editableOrder.pickupLat) ||
+      (this.editableOrder.dropAddress && !this.editableOrder.dropLat)
+    ) {
+      alert('Please select address from suggestions only');
+      return;
+    }
+
     const payload = this.buildEditPayload();
+
+    if (!payload) {
+      alert('Invalid payload');
+      return;
+    }
 
     this.loading = true;
 
@@ -75,7 +95,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         alert('Order updated successfully');
 
-        this.isEditMode = false; // 🔥 back to view mode
+        this.isEditMode = false;
 
         this.loadOrder();
       },
@@ -83,9 +103,111 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.loading = false;
 
         console.error('Edit failed', err);
-        alert('Edit failed');
+
+        alert(
+          err?.error?.message || 'Edit failed. Try a different valid location.',
+        );
       },
     });
+  }
+
+  refreshMap() {
+    if (!this.order?.pickup || !this.order?.drop) return;
+
+    const pickupLat = this.order.pickup.lat;
+    const pickupLng = this.order.pickup.lng;
+    const dropLat = this.order.drop.lat;
+    const dropLng = this.order.drop.lng;
+
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return;
+
+    this.initializeMap();
+  }
+
+  initAutocomplete() {
+    if (!this.isEditMode) return;
+
+    // PICKUP
+    const pickupAutocomplete = new google.maps.places.Autocomplete(
+      this.pickupInput.nativeElement,
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry'],
+      },
+    );
+
+    pickupAutocomplete.addListener('place_changed', () => {
+      const place = pickupAutocomplete.getPlace();
+
+      if (!place || !place.geometry) {
+        alert('Select pickup from suggestions only');
+        return;
+      }
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+
+      if (!lat || !lng) {
+        alert('Invalid pickup location');
+        return;
+      }
+
+      this.editableOrder.pickupAddress = place.formatted_address;
+      this.editableOrder.pickupLat = lat;
+      this.editableOrder.pickupLng = lng;
+
+      this.order.pickup.lat = lat;
+      this.order.pickup.lng = lng;
+
+      this.refreshMap();
+    });
+
+    // DROP
+    const dropAutocomplete = new google.maps.places.Autocomplete(
+      this.dropInput.nativeElement,
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry'],
+      },
+    );
+
+    dropAutocomplete.addListener('place_changed', () => {
+      const place = dropAutocomplete.getPlace();
+
+      if (!place || !place.geometry) {
+        alert('Select drop from suggestions only');
+        return;
+      }
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+
+      if (!lat || !lng) {
+        alert('Invalid drop location');
+        return;
+      }
+
+      this.editableOrder.dropAddress = place.formatted_address;
+      this.editableOrder.dropLat = lat;
+      this.editableOrder.dropLng = lng;
+
+      this.order.drop.lat = lat;
+      this.order.drop.lng = lng;
+
+      this.refreshMap();
+    });
+  }
+
+  onManualAddressChange(type: 'pickup' | 'drop') {
+    if (type === 'pickup') {
+      this.editableOrder.pickupLat = null;
+      this.editableOrder.pickupLng = null;
+    }
+
+    if (type === 'drop') {
+      this.editableOrder.dropLat = null;
+      this.editableOrder.dropLng = null;
+    }
   }
 
   buildEditPayload(): any {
@@ -96,19 +218,38 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       return null;
     }
 
-    return {
-      order_id: providerOrder.order_id,
+    const points = (providerOrder.points || []).map((p: any, index: number) => {
+      let address = p.address;
+      let latitude = p.latitude;
+      let longitude = p.longitude;
 
-      matter: this.editableOrder.matter,
-      vehicle_type_id: providerOrder.vehicle_type_id,
+      // PICKUP
+      if (index === 0) {
+        address = this.editableOrder.pickupAddress || p.address;
 
-      total_weight_kg: this.editableOrder.weight,
-      points: (providerOrder.points || []).map((p: any) => ({
-        point_id: p.point_id, // MUST
+        latitude =
+          this.editableOrder.pickupLat ?? this.order.pickup?.lat ?? p.latitude;
 
-        address: p.address,
-        latitude: p.latitude,
-        longitude: p.longitude,
+        longitude =
+          this.editableOrder.pickupLng ?? this.order.pickup?.lng ?? p.longitude;
+      }
+
+      // DROP
+      if (index === 1) {
+        address = this.editableOrder.dropAddress || p.address;
+
+        latitude =
+          this.editableOrder.dropLat ?? this.order.drop?.lat ?? p.latitude;
+
+        longitude =
+          this.editableOrder.dropLng ?? this.order.drop?.lng ?? p.longitude;
+      }
+
+      return {
+        point_id: p.point_id,
+        address,
+        latitude: String(latitude),
+        longitude: String(longitude),
 
         contact_person: {
           phone: p.contact_person?.phone,
@@ -117,14 +258,21 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         taking_amount: p.taking_amount || 0,
         buyout_amount: p.buyout_amount || 0,
-
         note: p.note || null,
 
         packages: (p.packages || []).map((pkg: any) => ({
-          order_package_id: pkg.order_package_id, // MUST
+          order_package_id: pkg.order_package_id,
           items_count: pkg.items_count,
         })),
-      })),
+      };
+    });
+
+    return {
+      order_id: providerOrder.order_id,
+      matter: this.editableOrder.matter,
+      vehicle_type_id: Number(this.order.vehicle?.type),
+      total_weight_kg: this.editableOrder.weight,
+      points,
     };
   }
 
@@ -138,6 +286,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.editableOrder = {
           matter: this.order?.rawProviderResponse?.order?.matter || '',
           weight: this.order?.package?.weight || 0,
+
+          pickupAddress: this.order?.pickup?.address || '',
+          dropAddress: this.order?.drop?.address || '',
         };
 
         this.loading = false;
@@ -169,61 +320,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
-  // initializeMap() {
-  //   if (!this.mapContainer?.nativeElement) return;
-  //   const points = this.order?.rawProviderResponse?.order?.points;
-
-  //   if (!points || points.length === 0) return;
-
-  //   const pickupPoint = points.find((p: any) => !p.delivery);
-  //   const dropPoint = points.find((p: any) => p.delivery);
-
-  //   if (!pickupPoint || !dropPoint) return;
-
-  //   const pickupLat = Number(pickupPoint.latitude);
-  //   const pickupLng = Number(pickupPoint.longitude);
-
-  //   const dropLat = Number(dropPoint.latitude);
-  //   const dropLng = Number(dropPoint.longitude);
-
-  //   this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-  //     zoom: 12,
-  //     center: { lat: pickupLat, lng: pickupLng },
-  //   });
-
-  //   this.directionsService = new google.maps.DirectionsService();
-
-  //   this.directionsRenderer = new google.maps.DirectionsRenderer({
-  //     suppressMarkers: true,
-  //     polylineOptions: {
-  //       strokeColor: '#ff7a00',
-  //       strokeWeight: 4,
-  //     },
-  //   });
-
-  //   this.directionsRenderer.setMap(this.map);
-
-  //   this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
-
-  //   if (
-  //     this.order?.courier?.location?.lat &&
-  //     this.order?.courier?.location?.lng
-  //   ) {
-  //     const lat = this.order.courier.location.lat;
-  //     const lng = this.order.courier.location.lng;
-
-  //     this.courierMarker = new google.maps.Marker({
-  //       position: { lat, lng },
-  //       map: this.map,
-  //       icon: {
-  //         url: '/assets/icons/bike.png',
-  //         scaledSize: new google.maps.Size(36, 36),
-  //       },
-  //     });
-  //   }
-  //   this.startCourierTracking();
-  // }
 
   initializeMap() {
     if (!this.mapContainer?.nativeElement) return;

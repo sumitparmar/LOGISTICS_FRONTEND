@@ -43,9 +43,13 @@
                             <div class="route-content">
                                 <div class="route-label">Pickup</div>
 
-                                <div class="route-address">
+                                <div class="route-address" *ngIf="!isEditMode">
                                     {{ order.pickup?.address }}
                                 </div>
+
+                                <input #pickupInput *ngIf="isEditMode" type="text"
+                                    [(ngModel)]="editableOrder.pickupAddress" (input)="onManualAddressChange('pickup')"
+                                    class="edit-input" />
 
                                 <div class="route-contact" *ngIf="order.customer">
                                     {{ order.customer?.name }} • {{ order.customer?.phone }}
@@ -61,9 +65,12 @@
                             <div class="route-content">
                                 <div class="route-label">Drop</div>
 
-                                <div class="route-address">
+                                <div class="route-address" *ngIf="!isEditMode">
                                     {{ order.drop?.address }}
                                 </div>
+
+                                <input #dropInput *ngIf="isEditMode" type="text" [(ngModel)]="editableOrder.dropAddress"
+                                    (input)="onManualAddressChange('drop')" class="edit-input" />
 
                                 <div class="route-contact" *ngIf="order.customer">
                                     {{ order.customer?.name }} • {{ order.customer?.phone }}
