@@ -60,7 +60,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   onEditOrder(): void {
     if (!this.order) return;
 
-    // First click → enable edit mode
+    // 👉 First click → enable edit mode
     if (!this.isEditMode) {
       this.isEditMode = true;
 
@@ -71,12 +71,20 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // ✅ STRICT VALIDATION (CRITICAL)
-    if (
-      (this.editableOrder.pickupAddress && !this.editableOrder.pickupLat) ||
-      (this.editableOrder.dropAddress && !this.editableOrder.dropLat)
-    ) {
-      alert('Please select address from suggestions only');
+    // ✅ STRICT VALIDATION (FINAL FIX)
+    const pickupLat = this.editableOrder.pickupLat ?? this.order.pickup?.lat;
+    const pickupLng = this.editableOrder.pickupLng ?? this.order.pickup?.lng;
+
+    const dropLat = this.editableOrder.dropLat ?? this.order.drop?.lat;
+    const dropLng = this.editableOrder.dropLng ?? this.order.drop?.lng;
+
+    if (!pickupLat || !pickupLng) {
+      alert('Please select valid Pickup address from suggestions');
+      return;
+    }
+
+    if (!dropLat || !dropLng) {
+      alert('Please select valid Drop address from suggestions');
       return;
     }
 
@@ -90,15 +98,33 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     this.loading = true;
 
     this.ordersService.editOrder(this.order._id, payload).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.loading = false;
 
-        alert('Order updated successfully');
+        this.order = res?.data;
+
+        this.editableOrder = {
+          matter: this.order?.rawProviderResponse?.order?.matter || '',
+          weight: this.order?.package?.weight || 0,
+
+          pickupAddress: this.order?.pickup?.address || '',
+          pickupLat: this.order?.pickup?.lat,
+          pickupLng: this.order?.pickup?.lng,
+
+          dropAddress: this.order?.drop?.address || '',
+          dropLat: this.order?.drop?.lat,
+          dropLng: this.order?.drop?.lng,
+        };
+
+        setTimeout(() => {
+          this.refreshMap();
+        }, 100);
 
         this.isEditMode = false;
 
-        this.loadOrder();
+        alert('Order updated successfully');
       },
+
       error: (err) => {
         this.loading = false;
 
