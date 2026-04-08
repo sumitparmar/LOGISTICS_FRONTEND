@@ -1,0 +1,364 @@
+/* ================= DESIGN SYSTEM ================= */
+:root {
+  --text-primary: #111;
+  --text-secondary: #6f6f6f;
+
+  --bg-light: #f6f6f6;
+  --bg-card: #fafafa;
+
+  --border-light: #eaeaea;
+
+  --radius-lg: 24px;
+  --radius-md: 16px;
+
+  --spacing-xl: 120px;
+  --spacing-lg: 80px;
+  --spacing-md: 48px;
+  --spacing-sm: 24px;
+}
+
+/* ================= GLOBAL ================= */
+.courier {
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section {
+  padding: var(--spacing-xl) 0;
+}
+
+/* ================= BUTTON ================= */
+.btn-primary {
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: #2b2b2b;
+    transform: translateY(-1px);
+  }
+}
+
+/* ================= HERO ================= */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80vh;
+  background: var(--bg-light);
+
+  &__content {
+    max-width: 540px;
+  }
+
+  &__title {
+    font-size: 56px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 24px;
+
+    span {
+      display: block;
+      font-size: 40px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+  }
+
+  &__desc {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+
+  &__image img {
+    width: 420px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+}
+
+/* ================= BENEFITS ================= */
+.benefits {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px 40px;
+  }
+}
+
+.benefit {
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+}
+
+/* ================= CALCULATOR ================= */
+.calculator {
+  &__title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 48px;
+  }
+
+  &__content {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .control {
+    margin-bottom: 32px;
+
+    label {
+      font-size: 16px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: #ddd;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #111;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  }
+
+  &__result {
+    background: var(--bg-card);
+    padding: 48px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+
+    span {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    h3 {
+      font-size: 36px;
+      margin: 10px 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: #999;
+    }
+  }
+}
+
+/* ================= STEPS ================= */
+.steps {
+  &__title {
+    font-size: 32px;
+    margin-bottom: 48px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
+.step {
+  &__number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+}
+
+/* ================= APP SECTION ================= */
+.app-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+
+  &__content {
+    max-width: 500px;
+
+    h2 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+  }
+
+  &__image img {
+    width: 420px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  &.reverse {
+    flex-direction: row-reverse;
+  }
+}
+
+/* ================= CITIES ================= */
+.cities {
+  &__title {
+    font-size: 32px;
+    margin-bottom: 40px;
+  }
+
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.city {
+  padding: 10px 16px;
+  background: #f2f2f2;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: #111;
+    color: #fff;
+  }
+}
+
+.faq {
+  &__item {
+    border-bottom: 1px solid #eaeaea;
+    padding: 18px 0;
+  }
+
+  &__question {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  &__answer {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #777;
+    line-height: 1.6;
+  }
+}
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .hero__title {
+    font-size: 44px;
+
+    span {
+      font-size: 32px;
+    }
+  }
+
+  .benefits__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .steps__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .calculator__content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 40px;
+
+    &__title {
+      font-size: 34px;
+
+      span {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .benefits__grid,
+  .steps__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-section {
+    flex-direction: column;
+    text-align: center;
+
+    &.reverse {
+      flex-direction: column;
+    }
+  }
+}

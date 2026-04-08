@@ -1,0 +1,195 @@
+<div class="courier">
+
+    <!-- HERO -->
+    <section class="hero container">
+        <div class="hero__content">
+            <h1 class="hero__title">
+                Make easy money with delivery job
+                <span>Up to ₹7000 per week</span>
+            </h1>
+
+            <p class="hero__desc">
+                You don't need to look for a courier job anymore. Make extra money with
+                flexible delivery jobs in India.
+            </p>
+
+            <button class="btn-primary">Download app</button>
+        </div>
+
+        <div class="hero__image">
+            <img src="assets/images/rider.png" alt="delivery" />
+        </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="benefits container">
+        <div class="benefits__grid">
+
+            <div class="benefit">
+                <h3>Boost your income</h3>
+                <p>You get paid for time and distance of a trip, plus tips and bonuses.</p>
+            </div>
+
+            <div class="benefit">
+                <h3>Flexible timetable</h3>
+                <p>Make your own schedule and choose when to deliver.</p>
+            </div>
+
+            <div class="benefit">
+                <h3>Quick start</h3>
+                <p>Fill in your data and start receiving orders the same day.</p>
+            </div>
+
+            <div class="benefit">
+                <h3>Full-time or part-time</h3>
+                <p>Work regularly or deliver parcels on your way.</p>
+            </div>
+
+            <div class="benefit">
+                <h3>Support</h3>
+                <p>Our support team is available daily to help you.</p>
+            </div>
+
+            <div class="benefit">
+                <h3>Convenient app</h3>
+                <p>The app is easy to use and improves constantly.</p>
+            </div>
+
+        </div>
+    </section>
+
+
+
+    <!-- CALCULATOR -->
+    <section class="calculator container">
+
+        <h2 class="calculator__title">Plan your income</h2>
+
+        <div class="calculator__content">
+
+            <div class="calculator__controls">
+
+                <div class="control">
+                    <label>Hours per day: {{ hours }}</label>
+                    <input type="range" min="1" max="12" [(ngModel)]="hours" />
+                </div>
+
+                <div class="control">
+                    <label>Days per month: {{ days }}</label>
+                    <input type="range" min="1" max="30" [(ngModel)]="days" />
+                </div>
+
+            </div>
+
+            <div class="calculator__result">
+                <span>Estimated income</span>
+                <h3>₹{{ calculateIncome() }}</h3>
+
+                <p>+ Tips and bonuses</p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- STEPS -->
+    <section class="steps container">
+
+        <h2 class="steps__title">Start in 3 steps</h2>
+
+        <div class="steps__grid">
+
+            <div class="step">
+                <div class="step__number">1</div>
+                <h4>Fill in form</h4>
+                <p>Complete your basic details to register.</p>
+            </div>
+
+            <div class="step">
+                <div class="step__number">2</div>
+                <h4>Upload documents</h4>
+                <p>Submit required documents for verification.</p>
+            </div>
+
+            <div class="step">
+                <div class="step__number">3</div>
+                <h4>Start earning</h4>
+                <p>Begin taking delivery orders immediately.</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+    <!-- APP SHOWCASE 1 -->
+    <section class="app-section container">
+
+        <div class="app-section__content">
+            <h2>Easy to take orders</h2>
+            <p>Choose available orders from the list or on the map.</p>
+        </div>
+
+        <div class="app-section__image">
+            <img src="assets/images/rider.png" alt="orders" />
+        </div>
+
+    </section>
+
+    <!-- APP SHOWCASE 2 -->
+    <section class="app-section container reverse">
+
+        <div class="app-section__content">
+            <h2>Keep track</h2>
+            <p>Income, tips and order stats — all in one place.</p>
+        </div>
+
+        <div class="app-section__image">
+            <img src="assets/images/rider.png" alt="tracking" />
+        </div>
+
+    </section>
+
+    <!-- CITIES -->
+    <section class="cities container">
+
+        <h2 class="cities__title">
+            Hotspots for courier jobs: cities where we need couriers
+        </h2>
+
+        <div class="cities__grid">
+            <span *ngFor="let city of cities" class="city">
+                {{ city }}
+            </span>
+        </div>
+
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq container">
+
+        <h2 class="faq__title">
+            Get your courier job questions answered
+        </h2>
+        <div class="faq__list">
+
+            <div class="faq__item" *ngFor="let faq of faqs; let i = index">
+
+                <div class="faq__question" (click)="toggleFaq(i)">
+                    {{ faq.q }}
+                    <span>{{ faq.open ? '-' : '+' }}</span>
+                </div>
+
+                <div class="faq__answer" *ngIf="faq.open">
+                    {{ faq.a }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>

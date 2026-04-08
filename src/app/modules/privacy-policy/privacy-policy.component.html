@@ -1,0 +1,89 @@
+<div class="privacy">
+
+    <div class="privacy__container">
+
+        <!-- SIDEBAR -->
+        <aside class="privacy__sidebar">
+            <ul>
+                <li *ngFor="let item of navItems">
+                    <a (click)="scrollTo(item.id)" [class.active]="activeSection === item.id">
+                        {{ item.label }}
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- CONTENT -->
+        <div class="privacy__content">
+
+            <h1>Privacy Policy</h1>
+
+            <!-- INTRO -->
+            <section id="intro">
+                <h2>1. Introduction</h2>
+                <p>
+                    User privacy is of paramount importance. This Privacy Policy explains how information is collected,
+                    used, disclosed, and stored when using the platform.
+                </p>
+            </section>
+
+            <section id="definitions">
+                <h2>2. Definitions</h2>
+                <p><strong>Application:</strong> Platform used to access services.</p>
+                <p><strong>User:</strong> Any individual using services.</p>
+                <p><strong>Courier:</strong> Delivery partner.</p>
+            </section>
+
+            <section id="services">
+                <h2>3. Services</h2>
+                <p>On-demand logistics platform connecting users and couriers.</p>
+            </section>
+
+            <section id="collection">
+                <h2>4. Information Collection</h2>
+                <ul>
+                    <li>Name, phone, email</li>
+                    <li>Location data</li>
+                    <li>Device data</li>
+                </ul>
+            </section>
+
+            <section id="usage">
+                <h2>5. Use of Information</h2>
+                <ul>
+                    <li>Service delivery</li>
+                    <li>Payments</li>
+                    <li>Support</li>
+                </ul>
+            </section>
+
+            <section id="sharing">
+                <h2>6. Sharing</h2>
+                <p>Data may be shared with partners to enable services.</p>
+            </section>
+
+            <section id="thirdparty">
+                <h2>7. Third Party</h2>
+                <p>External services may have independent policies.</p>
+            </section>
+
+            <section id="security">
+                <h2>8. Security</h2>
+                <p>We apply industry security measures.</p>
+            </section>
+
+            <section id="updates">
+                <h2>9. Updates</h2>
+                <p>Policy may change over time.</p>
+            </section>
+
+            <section id="contact">
+                <h2>10. Contact</h2>
+                <p>Contact support for queries.</p>
+            </section>
+
+        </div>
+
+    </div>
+
+</div>

@@ -36,11 +36,44 @@ const routes: Routes = [
           ),
         pathMatch: 'full',
       },
+
+      {
+        path: 'become-courier',
+        loadChildren: () =>
+          import('./modules/courier/courier.module').then(
+            (m) => m.CourierModule,
+          ),
+      },
+
+      {
+        path: 'refund-policy',
+        loadChildren: () =>
+          import('./modules/refund-policy/refund-policy.module').then(
+            (m) => m.RefundPolicyModule,
+          ),
+      },
+
+      {
+        path: 'community-guidelines',
+        loadChildren: () =>
+          import('./modules/community-guidelines/community-guidelines.module').then(
+            (m) => m.CommunityGuidelinesModule,
+          ),
+      },
+      {
+        path: 'privacy-policy',
+        loadChildren: () =>
+          import('./modules/privacy-policy/privacy-policy.module').then(
+            (m) => m.PrivacyPolicyModule,
+          ),
+      },
+
       {
         path: 'track',
         loadChildren: () =>
           import('./modules/track/track.module').then((m) => m.TrackModule),
       },
+
       {
         path: 'pricing',
         loadChildren: () =>
@@ -48,15 +81,18 @@ const routes: Routes = [
             (m) => m.PricingModule,
           ),
       },
+
       {
         path: 'admin/orders/:id',
         component: OrderDetailsComponent,
       },
+
       {
         path: 'about',
         loadChildren: () =>
           import('./modules/about/about.module').then((m) => m.AboutModule),
       },
+
       {
         path: 'contact',
         loadChildren: () =>
@@ -67,9 +103,6 @@ const routes: Routes = [
     ],
   },
 
-  // ===============================
-  // FALLBACK
-  // ===============================
   {
     path: '**',
     redirectTo: '',
