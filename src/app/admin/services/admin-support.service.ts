@@ -10,8 +10,8 @@ export class AdminSupportService {
 
   constructor(private http: HttpClient) {}
 
-  getTickets(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/tickets`);
+  getTickets(params?: any) {
+    return this.http.get(`${this.baseUrl}/tickets`, { params });
   }
 
   getTicketById(id: string): Observable<any> {
@@ -24,5 +24,9 @@ export class AdminSupportService {
 
   updateStatus(id: string, status: string): Observable<any> {
     return this.http.patch(`${this.baseUrl}/tickets/${id}/status`, { status });
+  }
+
+  getCounts() {
+    return this.http.get(`${this.baseUrl}/tickets/count`);
   }
 }

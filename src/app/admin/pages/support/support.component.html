@@ -8,8 +8,23 @@
         </div>
 
         <div class="header-right">
-            <input type="text" placeholder="Search tickets..." />
+            <input #searchInput type="text" placeholder="Search tickets..." (input)="onSearch(searchInput.value)" />
         </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="support-tabs">
+        <button [class.active]="currentTab === 'open'" (click)="changeTab('open')">
+            Open ({{ counts.open || 0 }})
+        </button>
+
+        <button [class.active]="currentTab === 'in-progress'" (click)="changeTab('in-progress')">
+            In Progress ({{ counts['in-progress'] || 0 }})
+        </button>
+
+        <button [class.active]="currentTab === 'resolved'" (click)="changeTab('resolved')">
+            Resolved ({{ counts.resolved || 0 }})
+        </button>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -18,7 +33,20 @@
         <!-- LEFT: TICKET LIST -->
         <div class="ticket-list">
 
-            <div class="ticket-item" *ngFor="let ticket of tickets" [class.active]="selectedTicket?._id === ticket._id"
+            <!-- LOADER -->
+            <div *ngIf="isLoading" class="loading">
+                Loading tickets...
+            </div>
+
+            <!-- EMPTY -->
+            <div *ngIf="!isLoading && !tickets.length" class="empty">
+                <p *ngIf="currentTab === 'open'">No open tickets</p>
+                <p *ngIf="currentTab === 'in-progress'">No tickets in progress</p>
+                <p *ngIf="currentTab === 'resolved'">No resolved tickets</p>
+            </div>
+
+            <!-- LIST -->
+            <div *ngFor="let ticket of tickets" class="ticket-item" [class.active]="selectedTicket?._id === ticket._id"
                 (click)="selectTicket(ticket)">
                 <div class="ticket-top">
                     <h4>{{ ticket.user?.name || 'N/A' }}</h4>
@@ -28,64 +56,107 @@
                     </span>
                 </div>
 
-                <!-- SUBJECT -->
                 <p class="message">
                     {{ ticket.subject || 'No subject' }}
                 </p>
 
-                <!-- TIME -->
                 <div class="ticket-bottom">
-                    <span>
-                        {{ ticket.createdAt | date:'short' }}
-                    </span>
+                    <span>{{ ticket.createdAt | date:'short' }}</span>
                 </div>
             </div>
 
         </div>
 
+        <div class="pagination" *ngIf="total > limit">
+            <button (click)="page = page - 1; fetchTickets()" [disabled]="page === 1">
+                Prev
+            </button>
+
+            <span>Page {{ page }}</span>
+
+            <button (click)="page = page + 1; fetchTickets()" [disabled]="page * limit >= total">
+                Next
+            </button>
+        </div>
+
         <!-- RIGHT: TICKET DETAIL -->
-        <div class="ticket-detail" *ngIf="selectedTicket">
+        <div class="ticket-detail">
 
-            <!-- DETAIL HEADER -->
-            <div class="detail-header">
-                <div>
-                    <h3>{{ selectedTicket.user?.name || 'User' }}</h3>
+            <!-- NO SELECTION -->
+            <div *ngIf="!selectedTicket && !isLoading" class="empty">
 
-                    <span class="status" [ngClass]="selectedTicket.status">
-                        {{ selectedTicket.status }}
-                    </span>
+                <!-- when no tickets exist -->
+                <p *ngIf="tickets.length === 0">
+                    No tickets available in this section
+                </p>
+
+                <!-- when tickets exist but not selected -->
+                <p *ngIf="tickets.length > 0">
+                    Select a ticket to view conversation
+                </p>
+
+            </div>
+
+            <!-- DETAIL -->
+            <ng-container *ngIf="selectedTicket">
+
+                <!-- LOADER -->
+                <div *ngIf="isDetailLoading" class="loading">
+                    Loading conversation...
                 </div>
 
-                <!-- STATUS UPDATE -->
-                <select [ngModel]="selectedTicket.status" (ngModelChange)="updateStatus($event)">
-                    <option value="open">Open</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                </select>
-            </div>
+                <!-- CONTENT -->
+                <ng-container *ngIf="!isDetailLoading">
 
-            <!-- CHAT -->
-            <div class="chat-box">
-                <div *ngFor="let msg of selectedTicket.messages" class="chat-message"
-                    [class.admin]="msg.sender === 'admin'">
-                    <p>{{ msg.message }}</p>
+                    <!-- HEADER -->
+                    <div class="detail-header">
+                        <div>
+                            <h3>{{ selectedTicket.user?.name || 'User' }}</h3>
 
-                    <span>
-                        {{ msg.createdAt | date:'shortTime' }}
-                    </span>
-                </div>
-            </div>
+                            <span class="status" [ngClass]="selectedTicket.status">
+                                {{ selectedTicket.status }}
+                            </span>
+                        </div>
 
-            <!-- EMPTY STATE -->
-            <div *ngIf="!selectedTicket.messages?.length" class="empty-chat">
-                No messages yet
-            </div>
+                        <select [ngModel]="selectedTicket.status" (ngModelChange)="updateStatus($event)"
+                            [disabled]="selectedTicket.status === 'resolved'">
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
 
-            <!-- REPLY -->
-            <div class="reply-box">
-                <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
-                <button (click)="sendReply()">Send</button>
-            </div>
+                        <button *ngIf="selectedTicket.status === 'resolved'" class="reopen-btn"
+                            (click)="reopenTicket()">
+                            Reopen Ticket
+                        </button>
+                    </div>
+
+                    <!-- CHAT -->
+                    <div class="chat-box">
+
+                        <div *ngIf="!selectedTicket.messages?.length" class="empty-chat">
+                            No messages yet
+                        </div>
+
+                        <div *ngFor="let msg of selectedTicket.messages" class="chat-message"
+                            [class.admin]="msg.sender === 'admin'">
+                            <p>{{ msg.message }}</p>
+
+                            <span>
+                                {{ msg.createdAt | date:'shortTime' }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <!-- REPLY -->
+                    <div class="reply-box" *ngIf="selectedTicket?.status !== 'resolved'"> <input type="text"
+                            placeholder="Type your reply..." [(ngModel)]="replyText" />
+                        <button (click)="sendReply()">Send</button>
+                    </div>
+
+                </ng-container>
+
+            </ng-container>
 
         </div>
 
