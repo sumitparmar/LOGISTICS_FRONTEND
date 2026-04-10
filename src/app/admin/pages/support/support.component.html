@@ -48,8 +48,9 @@
             <!-- LIST -->
             <div *ngFor="let ticket of tickets" class="ticket-item" [class.active]="selectedTicket?._id === ticket._id"
                 (click)="selectTicket(ticket)">
+
                 <div class="ticket-top">
-                    <h4>{{ ticket.user?.name || 'N/A' }}</h4>
+                    <h4>{{ ticket.user?.name || ticket.name || 'User' }}</h4>
 
                     <span class="status" [ngClass]="ticket.status">
                         {{ ticket.status }}
@@ -67,96 +68,76 @@
 
         </div>
 
-        <div class="pagination" *ngIf="total > limit">
-            <button (click)="page = page - 1; fetchTickets()" [disabled]="page === 1">
-                Prev
-            </button>
-
-            <span>Page {{ page }}</span>
-
-            <button (click)="page = page + 1; fetchTickets()" [disabled]="page * limit >= total">
-                Next
-            </button>
-        </div>
-
-        <!-- RIGHT: TICKET DETAIL -->
+        <!-- RIGHT: DETAIL -->
         <div class="ticket-detail">
 
             <!-- NO SELECTION -->
             <div *ngIf="!selectedTicket && !isLoading" class="empty">
-
-                <!-- when no tickets exist -->
-                <p *ngIf="tickets.length === 0">
-                    No tickets available in this section
-                </p>
-
-                <!-- when tickets exist but not selected -->
-                <p *ngIf="tickets.length > 0">
-                    Select a ticket to view conversation
-                </p>
-
+                <p *ngIf="tickets.length === 0">No tickets available in this section</p>
+                <p *ngIf="tickets.length > 0">Select a ticket to view conversation</p>
             </div>
 
             <!-- DETAIL -->
-            <ng-container *ngIf="selectedTicket">
+            <div *ngIf="selectedTicket" class="detail-content">
 
-                <!-- LOADER -->
-                <div *ngIf="isDetailLoading" class="loading">
+                <!-- LOADER (overlay, no flicker) -->
+                <div class="loader-overlay" *ngIf="isDetailLoading">
                     Loading conversation...
                 </div>
 
-                <!-- CONTENT -->
-                <ng-container *ngIf="!isDetailLoading">
+                <!-- HEADER -->
+                <div class="detail-header">
+                    <div>
+                        <h3>{{ selectedTicket.user?.name || selectedTicket.name || 'User' }}</h3>
 
-                    <!-- HEADER -->
-                    <div class="detail-header">
-                        <div>
-                            <h3>{{ selectedTicket.user?.name || 'User' }}</h3>
-
-                            <span class="status" [ngClass]="selectedTicket.status">
-                                {{ selectedTicket.status }}
-                            </span>
-                        </div>
-
-                        <select [ngModel]="selectedTicket.status" (ngModelChange)="updateStatus($event)"
-                            [disabled]="selectedTicket.status === 'resolved'">
-                            <option value="in-progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                        </select>
-
-                        <button *ngIf="selectedTicket.status === 'resolved'" class="reopen-btn"
-                            (click)="reopenTicket()">
-                            Reopen Ticket
-                        </button>
+                        <span class="status" [ngClass]="selectedTicket.status">
+                            {{ selectedTicket.status }}
+                        </span>
                     </div>
 
-                    <!-- CHAT -->
-                    <div class="chat-box">
+                    <select [ngModel]="selectedTicket.status" (ngModelChange)="updateStatus($event)"
+                        [disabled]="selectedTicket.status === 'resolved'">
 
-                        <div *ngIf="!selectedTicket.messages?.length" class="empty-chat">
-                            No messages yet
-                        </div>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+
+                    <button *ngIf="selectedTicket.status === 'resolved'" class="reopen-btn" (click)="reopenTicket()">
+                        Reopen Ticket
+                    </button>
+                </div>
+
+                <!-- CHAT -->
+                <div class="chat-box">
+
+                    <ng-container *ngIf="selectedTicket.messages?.length > 0; else emptyState">
 
                         <div *ngFor="let msg of selectedTicket.messages" class="chat-message"
                             [class.admin]="msg.sender === 'admin'">
-                            <p>{{ msg.message }}</p>
 
-                            <span>
-                                {{ msg.createdAt | date:'shortTime' }}
-                            </span>
+                            <p>{{ msg.message }}</p>
+                            <span>{{ msg.createdAt | date:'shortTime' }}</span>
+
                         </div>
 
-                    </div>
+                    </ng-container>
 
-                    <!-- REPLY -->
-                    <div class="reply-box" *ngIf="selectedTicket?.status !== 'resolved'"> <input type="text"
-                            placeholder="Type your reply..." [(ngModel)]="replyText" />
-                        <button (click)="sendReply()">Send</button>
-                    </div>
+                    <ng-template #emptyState>
+                        <div class="empty-chat">
+                            No messages yet
+                        </div>
+                    </ng-template>
 
-                </ng-container>
+                </div>
 
-            </ng-container>
+                <!-- REPLY -->
+                <div class="reply-box" *ngIf="selectedTicket?.status !== 'resolved'">
+                    <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
+
+                    <button (click)="sendReply()">Send</button>
+                </div>
+
+            </div>
 
         </div>
 

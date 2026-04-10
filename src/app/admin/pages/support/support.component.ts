@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminSupportService } from '../../services/admin-support.service';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject, debounceTime, interval, Subscription } from 'rxjs';
 @Component({
   selector: 'app-support',
   templateUrl: './support.component.html',
@@ -13,19 +13,23 @@ export class SupportComponent implements OnInit {
   replyText: string = '';
   searchTerm = '';
   searchSubject = new Subject<string>();
-  currentTab: 'open' | 'in-progress' | 'resolved' = 'in-progress';
+  currentTab: 'open' | 'in-progress' | 'resolved' = 'open';
   page = 1;
   limit = 10;
   total = 0;
   isLoading = false;
   isDetailLoading = false;
   counts: any = {};
-
+  refreshSub!: Subscription;
   constructor(private adminSupportService: AdminSupportService) {}
 
   ngOnInit(): void {
     this.fetchTickets();
     this.fetchCounts();
+
+    this.refreshSub = interval(5000).subscribe(() => {
+      this.fetchTickets(true);
+    });
 
     this.searchSubject.pipe(debounceTime(400)).subscribe((value) => {
       this.searchTerm = value;
@@ -35,9 +39,10 @@ export class SupportComponent implements OnInit {
   }
 
   // 🔹 FETCH ALL TICKETS
-  fetchTickets(): void {
-    this.isLoading = true;
-
+  fetchTickets(isSilent = false): void {
+    if (!isSilent) {
+      this.isLoading = true;
+    }
     const params: any = {
       page: this.page,
       limit: this.limit,
@@ -52,15 +57,37 @@ export class SupportComponent implements OnInit {
       next: (res: any) => {
         this.tickets = res.data || [];
         this.total = res.pagination?.total || 0;
-        this.isLoading = false;
+        if (!isSilent) {
+          this.isLoading = false;
+        }
+        // ✅ PRESERVE SELECTION (NO FLICKER)
 
-        // auto-select first ticket
-        if (this.tickets.length && !this.selectedTicket) {
-          this.selectTicket(this.tickets[0]);
-        } else {
-          this.selectedTicket = null;
+        if (this.tickets.length) {
+          if (!this.selectedTicket) {
+            // first time only
+            this.selectTicket(this.tickets[0]);
+          } else {
+            // keep same ticket selected if exists
+            const updated = this.tickets.find(
+              (t) => t._id === this.selectedTicket._id,
+            );
+
+            if (!this.selectedTicket) {
+              // first load only
+              this.selectTicket(this.tickets[0]);
+            } else {
+              const exists = this.tickets.find(
+                (t) => t._id === this.selectedTicket._id,
+              );
+
+              if (!exists) {
+                this.selectTicket(this.tickets[0]);
+              }
+            }
+          }
         }
       },
+
       error: (err) => {
         console.error('Fetch tickets error:', err);
         this.isLoading = false;
@@ -84,8 +111,14 @@ export class SupportComponent implements OnInit {
     this.searchSubject.next(value);
   }
 
-  // 🔹 SELECT TICKET
+  //  SELECT TICKET
   selectTicket(ticket: any): void {
+    if (
+      this.selectedTicket?._id === ticket._id &&
+      this.selectedTicket?.messages?.length
+    ) {
+      return;
+    }
     if (!ticket?._id) return;
 
     this.isDetailLoading = true;
@@ -199,5 +232,11 @@ export class SupportComponent implements OnInit {
         console.error('Count fetch error:', err);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshSub) {
+      this.refreshSub.unsubscribe();
+    }
   }
 }

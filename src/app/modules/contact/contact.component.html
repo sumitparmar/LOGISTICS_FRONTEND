@@ -15,7 +15,7 @@
             </div>
 
             <div class="hero-visual">
-                <img src="/assets/illustrations/support.svg">
+                <img src="/assets/images/Movekart-post3.png">
             </div>
 
         </div>
@@ -99,18 +99,14 @@
 
             <h2 class="section-title">Send Us a Message</h2>
 
-            <form class="contact-form">
-
+            <form class="contact-form" [formGroup]="contactForm" (ngSubmit)="submitForm()">
                 <div class="form-grid">
 
-                    <input type="text" placeholder="Your Name">
-
-                    <input type="email" placeholder="Email Address">
-
-                    <input type="text" placeholder="Phone Number">
-
-                    <select>
-                        <option>Select inquiry type</option>
+                    <input type="text" formControlName="name" placeholder="Your Name">
+                    <input type="email" formControlName="email" placeholder="Email Address">
+                    <input type="text" formControlName="phone" placeholder="Phone Number">
+                    <select formControlName="inquiryType">
+                        <option value="">Select inquiry type</option>
                         <option>Delivery Issue</option>
                         <option>Tracking Support</option>
                         <option>Business Partnership</option>
@@ -119,10 +115,8 @@
 
                 </div>
 
-                <textarea placeholder="Describe your request or issue"></textarea>
-
-                <button class="primary-btn">
-                    Send Message
+                <textarea formControlName="message" placeholder="Describe your request or issue"></textarea>
+                <button type="submit" class="primary-btn" [disabled]="isSubmitting"> Send Message
                 </button>
 
             </form>
@@ -151,7 +145,7 @@
             </div>
 
             <div class="business-visual">
-                <img src="/assets/illustrations/business-logistics.svg">
+                <img src="/assets/images/Movekart-post-2.png">
             </div>
 
         </div>
