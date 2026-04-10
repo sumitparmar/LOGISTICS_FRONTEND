@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminSupportService } from '../../services/admin-support.service';
-import { Subject, debounceTime, interval, Subscription } from 'rxjs';
+import { Subject, debounceTime } from 'rxjs';
+import { io } from 'socket.io-client';
+import { environment } from 'src/environments/environment';
+
 @Component({
   selector: 'app-support',
   templateUrl: './support.component.html',
   styleUrls: ['./support.component.scss'],
 })
 export class SupportComponent implements OnInit {
-  // 🔹 STATE
+  socket: any;
   tickets: any[] = [];
   selectedTicket: any = null;
   replyText: string = '';
@@ -20,15 +23,57 @@ export class SupportComponent implements OnInit {
   isLoading = false;
   isDetailLoading = false;
   counts: any = {};
-  refreshSub!: Subscription;
   constructor(private adminSupportService: AdminSupportService) {}
 
   ngOnInit(): void {
     this.fetchTickets();
     this.fetchCounts();
+    this.socket = io(environment.socketUrl, {
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
 
-    this.refreshSub = interval(5000).subscribe(() => {
-      this.fetchTickets(true);
+    this.socket.on('connect', () => {
+      console.log(' Connected:', this.socket.id);
+      this.socket.emit('join-admin');
+    });
+
+    //  MUST ADD THIS
+    this.socket.io.on('reconnect', () => {
+      console.log('🔁 Reconnected');
+      this.socket.emit('join-admin');
+    });
+
+    this.socket.off('new_ticket');
+    this.socket.off('ticket_updated');
+
+    this.socket.on('new_ticket', (ticket: any) => {
+      const exists = this.tickets.find((t) => t._id === ticket._id);
+
+      if (!exists) {
+        this.tickets = [ticket, ...this.tickets];
+      }
+
+      // IMPORTANT — auto select + load messages
+      this.selectTicket(ticket);
+
+      this.fetchCounts();
+    });
+
+    this.socket.on('ticket_updated', (updatedTicket: any) => {
+      console.log('♻️ update aaya');
+
+      const index = this.tickets.findIndex((t) => t._id === updatedTicket._id);
+
+      if (index !== -1) {
+        this.tickets[index] = updatedTicket;
+      }
+
+      if (this.selectedTicket?._id === updatedTicket._id) {
+        this.selectedTicket = updatedTicket;
+        this.scrollToBottom();
+      }
     });
 
     this.searchSubject.pipe(debounceTime(400)).subscribe((value) => {
@@ -60,29 +105,17 @@ export class SupportComponent implements OnInit {
         if (!isSilent) {
           this.isLoading = false;
         }
-        // ✅ PRESERVE SELECTION (NO FLICKER)
 
         if (this.tickets.length) {
           if (!this.selectedTicket) {
-            // first time only
             this.selectTicket(this.tickets[0]);
           } else {
-            // keep same ticket selected if exists
-            const updated = this.tickets.find(
+            const exists = this.tickets.find(
               (t) => t._id === this.selectedTicket._id,
             );
 
-            if (!this.selectedTicket) {
-              // first load only
+            if (!exists) {
               this.selectTicket(this.tickets[0]);
-            } else {
-              const exists = this.tickets.find(
-                (t) => t._id === this.selectedTicket._id,
-              );
-
-              if (!exists) {
-                this.selectTicket(this.tickets[0]);
-              }
             }
           }
         }
@@ -141,13 +174,10 @@ export class SupportComponent implements OnInit {
   sendReply(): void {
     if (!this.replyText.trim() || !this.selectedTicket?._id) return;
 
-    const messageText = this.replyText;
-
     this.adminSupportService
-      .replyToTicket(this.selectedTicket._id, messageText)
+      .replyToTicket(this.selectedTicket._id, this.replyText)
       .subscribe({
         next: (res: any) => {
-          //  push message directly (NO REFETCH)
           if (!this.selectedTicket.messages) {
             this.selectedTicket.messages = [];
           }
@@ -155,8 +185,7 @@ export class SupportComponent implements OnInit {
           this.selectedTicket.messages.push(res.data);
 
           this.replyText = '';
-
-          this.scrollToBottom(); // smooth UX
+          this.scrollToBottom();
         },
         error: (err) => {
           console.error('Reply error:', err);
@@ -232,11 +261,5 @@ export class SupportComponent implements OnInit {
         console.error('Count fetch error:', err);
       },
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.refreshSub) {
-      this.refreshSub.unsubscribe();
-    }
   }
 }

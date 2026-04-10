@@ -106,11 +106,14 @@
                     <input type="email" formControlName="email" placeholder="Email Address">
                     <input type="text" formControlName="phone" placeholder="Phone Number">
                     <select formControlName="inquiryType">
-                        <option value="">Select inquiry type</option>
-                        <option>Delivery Issue</option>
-                        <option>Tracking Support</option>
-                        <option>Business Partnership</option>
-                        <option>Courier Application</option>
+                        <option value="" disabled selected hidden>
+                            Select inquiry type
+                        </option>
+
+                        <option value="Delivery Issue">Delivery Issue</option>
+                        <option value="Tracking Support">Tracking Support</option>
+                        <option value="Business Partnership">Business Partnership</option>
+                        <option value="Courier Application">Courier Application</option>
                     </select>
 
                 </div>
