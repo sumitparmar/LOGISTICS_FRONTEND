@@ -64,6 +64,9 @@ export class AdminLayoutComponent implements OnInit {
         this.isDropdownOpen = false;
       }
     });
+
+    this.notificationService.fetchUnreadCount();
+    this.notificationService.fetchAllNotifications();
   }
 
   toggleDropdown(event: Event) {
@@ -85,5 +88,25 @@ export class AdminLayoutComponent implements OnInit {
     event.stopPropagation();
     this.isDropdownOpen = false;
     this.router.navigate(['/admin/notifications']);
+  }
+
+  openNotification(notification: any) {
+    // 1. mark as read
+    if (!notification.isRead) {
+      this.markAsRead(notification._id);
+    }
+
+    // 2. close dropdown
+    this.isDropdownOpen = false;
+
+    // 3. routing logic (CORRECT)
+    if (notification.ticketId) {
+      this.router.navigate(['/admin/support'], {
+        queryParams: { ticketId: notification.ticketId },
+      });
+    } else {
+      // fallback for old notifications (no ticketId)
+      this.router.navigate(['/admin/notifications']);
+    }
   }
 }

@@ -10,6 +10,8 @@ import { ToastService } from './toast.service';
 })
 export class AdminSocketService {
   private socket: Socket;
+  private newTicketSubject = new Subject<any>();
+  newTicket$ = this.newTicketSubject.asObservable();
 
   private orderUpdateSubject = new Subject<any>();
   orderUpdate$ = this.orderUpdateSubject.asObservable();
@@ -27,7 +29,7 @@ export class AdminSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('✅ Socket connected:', this.socket.id);
+      console.log(' Socket connected:', this.socket.id);
       this.socket.emit('join-admin');
     });
 
@@ -47,6 +49,28 @@ export class AdminSocketService {
 
       this.notificationStore.addNotification(data);
       this.toastService.showNotification(data);
+    });
+
+    this.socket.on('new_ticket', (data: any) => {
+      // emit for components (support page)
+      this.newTicketSubject.next(data);
+
+      this.notificationStore.addNotification({
+        _id: data._id || new Date().getTime().toString(),
+        title: 'New Support Ticket',
+        message: data.subject,
+        type: 'ticket',
+        priority: 'HIGH',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      // show toast globally (dashboard, etc.)
+      this.toastService.showNotification({
+        title: 'New Support Ticket',
+        message: data.subject,
+        priority: 'HIGH',
+      });
     });
   }
 

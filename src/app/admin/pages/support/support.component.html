@@ -11,10 +11,14 @@
             <input #searchInput type="text" placeholder="Search tickets..." (input)="onSearch(searchInput.value)" />
         </div>
     </div>
+    <div *ngIf="isSearching" class="search-info">
+        Showing results for "{{ searchTerm }}"
+    </div>
+
 
     <!-- TABS -->
-    <div class="support-tabs">
-        <button [class.active]="currentTab === 'open'" (click)="changeTab('open')">
+    <div class="support-tabs" *ngIf="!isSearching"> <button [class.active]="currentTab === 'open'"
+            (click)="changeTab('open')">
             Open ({{ counts.open || 0 }})
         </button>
 
@@ -40,9 +44,15 @@
 
             <!-- EMPTY -->
             <div *ngIf="!isLoading && !tickets.length" class="empty">
-                <p *ngIf="currentTab === 'open'">No open tickets</p>
-                <p *ngIf="currentTab === 'in-progress'">No tickets in progress</p>
-                <p *ngIf="currentTab === 'resolved'">No resolved tickets</p>
+
+                <p *ngIf="isSearching">
+                    No results found for "{{ searchTerm }}"
+                </p>
+
+                <p *ngIf="!isSearching && currentTab === 'open'">No open tickets</p>
+                <p *ngIf="!isSearching && currentTab === 'in-progress'">No tickets in progress</p>
+                <p *ngIf="!isSearching && currentTab === 'resolved'">No resolved tickets</p>
+
             </div>
 
             <!-- LIST -->

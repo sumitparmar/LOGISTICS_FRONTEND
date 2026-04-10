@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { AdminNotificationService } from '../../services/admin-notification.service';
 import { AdminNotificationStore } from '../../services/admin-notification.store';
 import { map } from 'rxjs/operators';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
@@ -25,6 +25,7 @@ export class NotificationsComponent implements OnInit {
     private http: HttpClient,
     private notificationService: AdminNotificationService,
     private notificationStore: AdminNotificationStore,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -48,5 +49,17 @@ export class NotificationsComponent implements OnInit {
       .subscribe(() => {
         this.notificationStore.markAsRead(id);
       });
+  }
+
+  onNotificationClick(notification: any) {
+    // 1. mark as read (UI + backend)
+    if (!notification.isRead) {
+      this.markAsRead(notification._id);
+    }
+
+    // 2. navigate to support with ticket id
+    this.router.navigate(['/admin/support'], {
+      queryParams: { ticketId: notification.ticketId },
+    });
   }
 }

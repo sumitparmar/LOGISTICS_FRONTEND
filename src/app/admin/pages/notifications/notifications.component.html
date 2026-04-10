@@ -14,8 +14,8 @@
     </div>
 
     <!-- LIST -->
-    <div *ngFor="let n of (unreadNotifications$ | async)" class="card" [class.unread]="!n.isRead">
-        <!-- LEFT CONTENT -->
+    <div *ngFor="let n of (unreadNotifications$ | async)" class="card" [class.unread]="!n.isRead"
+        (click)="onNotificationClick(n)"> <!-- LEFT CONTENT -->
         <div class="card-left">
 
             <div class="title">
@@ -35,8 +35,8 @@
         <!-- RIGHT ACTION -->
         <div class="card-right">
 
-            <button *ngIf="!n.isRead" class="mark-btn" (click)="markAsRead(n._id)">
-                Mark as read
+            <button *ngIf="!n.isRead" class="mark-btn" (click)="markAsRead(n._id); $event.stopPropagation()"> Mark as
+                read
             </button>
 
         </div>

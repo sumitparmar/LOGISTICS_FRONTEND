@@ -114,7 +114,7 @@
                         </div>
 
                         <div class="notif-item" *ngFor="let n of notifications | slice:0:5"
-                            (click)="markAsRead(n._id); $event.stopPropagation()">
+                            (click)="openNotification(n); $event.stopPropagation()">
                             <div class="title">{{ n.title }}</div>
                             <div class="message">{{ n.message }}</div>
                         </div>

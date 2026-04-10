@@ -1,20 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminSupportService } from '../../services/admin-support.service';
 import { Subject, debounceTime } from 'rxjs';
-import { io } from 'socket.io-client';
-import { environment } from 'src/environments/environment';
-
+import { Subscription } from 'rxjs';
+import { AdminNotificationService } from '../../services/admin-notification.service';
+import { ToastService } from 'src/app/admin/services/toast.service';
+import { AdminSocketService } from '../../services/admin-socket.service';
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-support',
   templateUrl: './support.component.html',
   styleUrls: ['./support.component.scss'],
 })
 export class SupportComponent implements OnInit {
+  private ticketSub!: Subscription;
   socket: any;
   tickets: any[] = [];
   selectedTicket: any = null;
   replyText: string = '';
-  searchTerm = '';
+  searchTerm: string = '';
   searchSubject = new Subject<string>();
   currentTab: 'open' | 'in-progress' | 'resolved' = 'open';
   page = 1;
@@ -23,101 +26,105 @@ export class SupportComponent implements OnInit {
   isLoading = false;
   isDetailLoading = false;
   counts: any = {};
-  constructor(private adminSupportService: AdminSupportService) {}
+  isSearching = false;
+  constructor(
+    private adminSupportService: AdminSupportService,
+    private notificationService: AdminNotificationService,
+    private toastService: ToastService,
+    private socketService: AdminSocketService,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.fetchTickets();
     this.fetchCounts();
-    this.socket = io(environment.socketUrl, {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-    });
+    this.notificationService.fetchUnreadCount();
 
-    this.socket.on('connect', () => {
-      console.log(' Connected:', this.socket.id);
-      this.socket.emit('join-admin');
-    });
+    this.ticketSub = this.socketService.newTicket$.subscribe((ticket: any) => {
+      console.log(' SUPPORT RECEIVED:', ticket);
 
-    //  MUST ADD THIS
-    this.socket.io.on('reconnect', () => {
-      console.log('🔁 Reconnected');
-      this.socket.emit('join-admin');
-    });
-
-    this.socket.off('new_ticket');
-    this.socket.off('ticket_updated');
-
-    this.socket.on('new_ticket', (ticket: any) => {
       const exists = this.tickets.find((t) => t._id === ticket._id);
 
       if (!exists) {
         this.tickets = [ticket, ...this.tickets];
       }
 
-      // IMPORTANT — auto select + load messages
       this.selectTicket(ticket);
-
       this.fetchCounts();
     });
 
-    this.socket.on('ticket_updated', (updatedTicket: any) => {
-      console.log('♻️ update aaya');
-
-      const index = this.tickets.findIndex((t) => t._id === updatedTicket._id);
-
-      if (index !== -1) {
-        this.tickets[index] = updatedTicket;
-      }
-
-      if (this.selectedTicket?._id === updatedTicket._id) {
-        this.selectedTicket = updatedTicket;
-        this.scrollToBottom();
-      }
+    this.searchSubject.pipe(debounceTime(400)).subscribe((value) => {
+      this.searchTerm = value?.trim();
+      this.page = 1;
+      this.isSearching = !!value;
+      this.fetchTickets();
     });
 
-    this.searchSubject.pipe(debounceTime(400)).subscribe((value) => {
-      this.searchTerm = value;
-      this.page = 1;
-      this.fetchTickets();
+    this.route.queryParams.subscribe((params) => {
+      if (params['ticketId']) {
+        const ticketId = params['ticketId'];
+
+        console.log('OPEN FROM NOTIFICATION:', ticketId);
+
+        // fetch & open that ticket
+        this.adminSupportService.getTicketById(ticketId).subscribe({
+          next: (res: any) => {
+            this.selectedTicket = res.data;
+            this.scrollToBottom();
+          },
+          error: (err) => {
+            console.error('Notification open error:', err);
+          },
+        });
+      }
     });
   }
 
-  // 🔹 FETCH ALL TICKETS
   fetchTickets(isSilent = false): void {
     if (!isSilent) {
       this.isLoading = true;
     }
+
     const params: any = {
       page: this.page,
       limit: this.limit,
-      status: this.currentTab,
     };
 
-    if (this.searchTerm) {
+    if (this.searchTerm && this.searchTerm.length > 0) {
       params.search = this.searchTerm;
+    } else {
+      params.status = this.currentTab;
     }
-
     this.adminSupportService.getTickets(params).subscribe({
       next: (res: any) => {
         this.tickets = res.data || [];
         this.total = res.pagination?.total || 0;
+
         if (!isSilent) {
           this.isLoading = false;
         }
 
-        if (this.tickets.length) {
-          if (!this.selectedTicket) {
-            this.selectTicket(this.tickets[0]);
-          } else {
-            const exists = this.tickets.find(
-              (t) => t._id === this.selectedTicket._id,
-            );
+        // 🔥 FIX START (IMPORTANT)
 
-            if (!exists) {
-              this.selectTicket(this.tickets[0]);
-            }
-          }
+        // 1. if no tickets → clear selection
+        if (!this.tickets.length) {
+          this.selectedTicket = null;
+          return;
+        }
+
+        // 2. if no selected → select first
+        if (!this.selectedTicket) {
+          this.selectTicket(this.tickets[0]);
+          return;
+        }
+
+        // 3. if selected not in new list → select first
+        const exists = this.tickets.find(
+          (t) => t._id === this.selectedTicket._id,
+        );
+
+        if (!exists) {
+          this.selectTicket(this.tickets[0]);
         }
       },
 
@@ -261,5 +268,9 @@ export class SupportComponent implements OnInit {
         console.error('Count fetch error:', err);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ticketSub?.unsubscribe();
   }
 }
