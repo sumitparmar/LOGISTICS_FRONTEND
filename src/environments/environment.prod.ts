@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api',
-  socketUrl: '',
+  apiBaseUrl: 'http://localhost:5000/api',
+  socketUrl: 'http://localhost:5000',
   googleMapsApiKey: 'AIzaSyBUGjt6NN3biO0jQygMcsZmWJNKm-BUrSU',
   currency: 'INR',
   gaEnabled: true,
