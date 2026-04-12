@@ -12,21 +12,20 @@
         </div>
     </div>
     <div *ngIf="isSearching" class="search-info">
-        Showing results for "{{ searchTerm }}"
-    </div>
+        Showing results for "{{ searchTerm }}" across all tickets </div>
 
 
     <!-- TABS -->
-    <div class="support-tabs" *ngIf="!isSearching"> <button [class.active]="currentTab === 'open'"
+    <div class="support-tabs"> <button [class.active]="!isSearching && currentTab === 'open'"
             (click)="changeTab('open')">
             Open ({{ counts.open || 0 }})
         </button>
 
-        <button [class.active]="currentTab === 'in-progress'" (click)="changeTab('in-progress')">
+        <button [class.active]="!isSearching && currentTab === 'in-progress'" (click)="changeTab('in-progress')">
             In Progress ({{ counts['in-progress'] || 0 }})
         </button>
 
-        <button [class.active]="currentTab === 'resolved'" (click)="changeTab('resolved')">
+        <button [class.active]="!isSearching && currentTab === 'resolved'" (click)="changeTab('resolved')">
             Resolved ({{ counts.resolved || 0 }})
         </button>
     </div>
@@ -60,15 +59,14 @@
                 (click)="selectTicket(ticket)">
 
                 <div class="ticket-top">
-                    <h4>{{ ticket.user?.name || ticket.name || 'User' }}</h4>
-
+                    <h4 [innerHTML]="(ticket.user?.name || ticket.name || 'User') | highlight: searchTerm">
+                    </h4>
                     <span class="status" [ngClass]="ticket.status">
                         {{ ticket.status }}
                     </span>
                 </div>
 
-                <p class="message">
-                    {{ ticket.subject || 'No subject' }}
+                <p class="message" [innerHTML]="(ticket.subject || 'No subject') | highlight: searchTerm">
                 </p>
 
                 <div class="ticket-bottom">
@@ -98,8 +96,9 @@
                 <!-- HEADER -->
                 <div class="detail-header">
                     <div>
-                        <h3>{{ selectedTicket.user?.name || selectedTicket.name || 'User' }}</h3>
-
+                        <h3
+                            [innerHTML]="(selectedTicket.user?.name || selectedTicket.name || 'User') | highlight: searchTerm">
+                        </h3>
                         <span class="status" [ngClass]="selectedTicket.status">
                             {{ selectedTicket.status }}
                         </span>

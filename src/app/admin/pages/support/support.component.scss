@@ -46,6 +46,13 @@
   }
 }
 
+/* ================= SEARCH INFO ================= */
+.search-info {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
 /* ================= TABS ================= */
 .support-tabs {
   display: flex;
@@ -94,7 +101,6 @@
   overflow-y: auto;
   background: #fff;
   height: 100%;
-
   scrollbar-width: thin;
 }
 
@@ -104,6 +110,7 @@
   cursor: pointer;
   border-bottom: 1px solid #f5f5f5;
   transition: all 0.2s ease;
+  border-left: 3px solid transparent;
 
   &:hover {
     background: #f9fafb;
@@ -140,6 +147,19 @@
   }
 }
 
+/* ================= HIGHLIGHT ================= */
+mark {
+  background: rgba(255, 221, 87, 0.45);
+  color: inherit;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.ticket-item.active mark {
+  background: rgba(255, 255, 255, 0.65);
+}
+
 /* ================= STATUS ================= */
 .status {
   font-size: 11px;
@@ -172,7 +192,6 @@
   background: #fff;
 }
 
-/* 🔥 NEW: STABLE CONTENT */
 .detail-content {
   display: flex;
   flex-direction: column;
@@ -214,7 +233,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 300px; /* 🔥 FIX flicker */
+  min-height: 300px;
+  scroll-behavior: smooth;
 }
 
 /* ================= MESSAGE ================= */
@@ -261,7 +281,6 @@
   font-size: 13px;
 }
 
-/* 🔥 FIX EMPTY CHAT CENTER */
 .empty-chat {
   flex: 1;
   display: flex;
@@ -306,7 +325,7 @@
   }
 }
 
-/* ================= LOADER OVERLAY ================= */
+/* ================= LOADER ================= */
 .loader-overlay {
   position: absolute;
   top: 0;
@@ -365,21 +384,7 @@
   }
 }
 
-/* ================= FIX: REOPEN BUTTON ================= */
-.detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  > div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-}
-
-/* button reset override */
+/* ================= REOPEN BUTTON ================= */
 .reopen-btn {
   padding: 8px 14px;
   border-radius: 10px;
@@ -390,9 +395,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-
-  /* 🔥 IMPORTANT: override broken styles */
   display: inline-flex;
   align-items: center;
   justify-content: center;

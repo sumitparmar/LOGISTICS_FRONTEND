@@ -1,16 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-
+import { Observable, Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
 export class AdminSupportService {
   private baseUrl = 'http://localhost:5000/api/admin/support';
 
+  private ticketsSubject = new Subject<any>();
+  tickets$ = this.ticketsSubject.asObservable();
+
+  private lastParams: any = null;
+
   constructor(private http: HttpClient) {}
 
   getTickets(params?: any) {
+    return this.http.get(`${this.baseUrl}/tickets`, { params });
+  }
+
+  fetchTicketsReactive(params: any): Observable<any> {
+    if (JSON.stringify(this.lastParams) === JSON.stringify(params)) {
+      return this.tickets$;
+    }
+
+    this.lastParams = params;
+
     return this.http.get(`${this.baseUrl}/tickets`, { params });
   }
 

@@ -6,6 +6,8 @@ import { AdminNotificationService } from '../../services/admin-notification.serv
 import { ToastService } from 'src/app/admin/services/toast.service';
 import { AdminSocketService } from '../../services/admin-socket.service';
 import { ActivatedRoute } from '@angular/router';
+import { switchMap, catchError, of } from 'rxjs';
+
 @Component({
   selector: 'app-support',
   templateUrl: './support.component.html',
@@ -13,12 +15,17 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class SupportComponent implements OnInit {
   private ticketSub!: Subscription;
+  private searchSub!: Subscription;
+  private routeSub!: Subscription;
+  private ticketsStreamSub!: Subscription;
   socket: any;
   tickets: any[] = [];
   selectedTicket: any = null;
   replyText: string = '';
   searchTerm: string = '';
-  searchSubject = new Subject<string>();
+  // searchSubject = new Subject<string>();
+  private searchTerm$ = new Subject<string>();
+  // private page$ = new Subject<number>();
   currentTab: 'open' | 'in-progress' | 'resolved' = 'open';
   page = 1;
   limit = 10;
@@ -36,14 +43,14 @@ export class SupportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchTickets();
+    // this.searchTerm$.next('');
     this.fetchCounts();
     this.notificationService.fetchUnreadCount();
 
     this.ticketSub = this.socketService.newTicket$.subscribe((ticket: any) => {
       const exists = this.tickets.find((t) => t._id === ticket._id);
 
-      if (!exists) {
+      if (!exists && ticket.status === this.currentTab && !this.isSearching) {
         this.tickets = [ticket, ...this.tickets];
       }
 
@@ -51,14 +58,64 @@ export class SupportComponent implements OnInit {
       this.fetchCounts();
     });
 
-    this.searchSubject.pipe(debounceTime(400)).subscribe((value) => {
-      this.searchTerm = value?.trim();
-      this.page = 1;
-      this.isSearching = !!value;
-      this.fetchTickets();
-    });
+    this.searchSub = this.searchTerm$
+      .pipe(
+        debounceTime(400),
+        switchMap((value) => {
+          this.isLoading = true;
 
-    this.route.queryParams.subscribe((params) => {
+          this.searchTerm = value?.trim();
+          this.isSearching = this.searchTerm.length >= 2;
+
+          const params: any = {
+            page: this.page,
+            limit: this.limit,
+          };
+
+          if (!this.isSearching) {
+            params.status = this.currentTab;
+          }
+
+          if (this.isSearching) {
+            params.search = this.searchTerm;
+          }
+
+          return this.adminSupportService.fetchTicketsReactive(params).pipe(
+            catchError((err) => {
+              console.error('Search API error:', err);
+              return of({ data: [], pagination: { total: 0 } });
+            }),
+          );
+        }),
+      )
+
+      .subscribe((res: any) => {
+        this.isLoading = false;
+
+        this.tickets = res.data || [];
+        this.total = res.pagination?.total || 0;
+        this.adminSupportService['ticketsSubject'].next(res);
+
+        if (!this.tickets.length) {
+          this.selectedTicket = null;
+          return;
+        }
+
+        if (!this.selectedTicket) {
+          this.selectTicket(this.tickets[0]);
+          return;
+        }
+
+        const exists = this.tickets.find(
+          (t) => t._id === this.selectedTicket._id,
+        );
+
+        if (!exists) {
+          this.selectTicket(this.tickets[0]);
+        }
+      });
+
+    this.routeSub = this.route.queryParams.subscribe((params) => {
       if (params['ticketId']) {
         const ticketId = params['ticketId'];
 
@@ -74,9 +131,43 @@ export class SupportComponent implements OnInit {
         });
       }
     });
+    this.searchTerm$.next('');
+    this.ticketsStreamSub = this.adminSupportService.tickets$.subscribe(
+      (res: any) => {
+        if (!res) return;
+
+        this.tickets = res.data || [];
+        this.total = res.pagination?.total || 0;
+
+        if (!this.tickets.length) {
+          this.selectedTicket = null;
+          return;
+        }
+
+        if (!this.selectedTicket) {
+          this.selectTicket(this.tickets[0]);
+          return;
+        }
+
+        const exists = this.tickets.find(
+          (t) => t._id === this.selectedTicket._id,
+        );
+
+        if (!exists) {
+          this.selectTicket(this.tickets[0]);
+        }
+      },
+    );
+  }
+
+  onPageChange(newPage: number) {
+    this.page = newPage;
+    this.searchTerm$.next(this.searchTerm || '');
   }
 
   fetchTickets(isSilent = false): void {
+    if (this.isSearching) return;
+
     if (!isSilent) {
       this.isLoading = true;
     }
@@ -86,12 +177,13 @@ export class SupportComponent implements OnInit {
       limit: this.limit,
     };
 
-    if (this.searchTerm && this.searchTerm.length > 0) {
+    if (this.searchTerm && this.searchTerm.length >= 2) {
       params.search = this.searchTerm;
     } else {
       params.status = this.currentTab;
     }
-    this.adminSupportService.getTickets(params).subscribe({
+
+    this.adminSupportService.fetchTicketsReactive(params).subscribe({
       next: (res: any) => {
         this.tickets = res.data || [];
         this.total = res.pagination?.total || 0;
@@ -135,16 +227,14 @@ export class SupportComponent implements OnInit {
     if (this.currentTab === tab) return;
 
     this.currentTab = tab;
-
     this.page = 1;
     this.selectedTicket = null;
-
-    this.fetchTickets();
+    this.searchTerm$.next(this.searchTerm || '');
     this.fetchCounts();
   }
 
   onSearch(value: string) {
-    this.searchSubject.next(value);
+    this.searchTerm$.next(value);
   }
 
   //  SELECT TICKET
@@ -268,5 +358,8 @@ export class SupportComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.ticketSub?.unsubscribe();
+    this.searchSub?.unsubscribe();
+    this.routeSub?.unsubscribe();
+    this.ticketsStreamSub?.unsubscribe();
   }
 }

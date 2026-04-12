@@ -44,7 +44,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { SupportComponent } from './pages/support/support.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { SettingsComponent } from './pages/settings/settings.component';
-
+import { HighlightPipe } from './pipes/highlight.pipe';
 @NgModule({
   declarations: [
     AdminLayoutComponent,
@@ -67,6 +67,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
     SupportComponent,
     RolesComponent,
     SettingsComponent,
+    HighlightPipe,
   ],
   imports: [
     CommonModule,
