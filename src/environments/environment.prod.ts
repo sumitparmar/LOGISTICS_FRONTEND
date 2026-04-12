@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://logistics-backend-foym.onrender.com/api',
-  socketUrl: 'https://logistics-backend-foym.onrender.com',
+  apiBaseUrl: 'http://localhost:5000/api',
+  socketUrl: 'http://localhost:5000',
   googleMapsApiKey: 'AIzaSyBUGjt6NN3biO0jQygMcsZmWJNKm-BUrSU',
   currency: 'INR',
 
