@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
+import { environment } from 'src/environments/environment';
 export interface Driver {
   id: number;
   name: string;
@@ -23,7 +23,7 @@ export interface DriversResponse {
   providedIn: 'root',
 })
 export class AdminDriversService {
-  private baseUrl = '/api/admin/couriers';
+  private baseUrl = `${environment.apiBaseUrl}/admin/couriers`;
   constructor(private http: HttpClient) {}
 
   getDrivers(

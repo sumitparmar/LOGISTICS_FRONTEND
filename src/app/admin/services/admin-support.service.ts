@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { environment } from 'src/environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AdminSupportService {
-  private baseUrl = 'http://localhost:5000/api/admin/support';
+  private baseUrl = `${environment.apiBaseUrl}/admin/support`;
 
   private ticketsSubject = new Subject<any>();
   tickets$ = this.ticketsSubject.asObservable();

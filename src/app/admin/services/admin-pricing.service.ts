@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminPricingService {
-  private baseUrl = '/api/admin/pricing';
+  private baseUrl = `${environment.apiBaseUrl}/admin/pricing`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +20,7 @@ export class AdminPricingService {
 
   getAdminAnalytics(range: string = 'month') {
     return this.http.get(
-      `/api/analytics/admin/pricing/analytics?range=${range}`,
+      `${environment.apiBaseUrl}/analytics/admin/pricing/analytics?range=${range}`,
     );
   }
 }

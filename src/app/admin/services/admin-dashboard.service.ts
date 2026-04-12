@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+
 export interface AdminStats {
   totalUsers: number;
   totalOrders: number;
@@ -22,8 +24,7 @@ export interface AdminStats {
   providedIn: 'root',
 })
 export class AdminDashboardService {
-  private apiUrl = '/api/admin/dashboard';
-
+  private apiUrl = `${environment.apiBaseUrl}/admin/dashboard`;
   constructor(private http: HttpClient) {}
 
   getStats(range: string): Observable<AdminStats> {

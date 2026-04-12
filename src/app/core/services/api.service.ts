@@ -31,7 +31,8 @@ export class ApiService {
   delete<T>(endpoint: string) {
     return this.http.delete<T>(this.buildUrl(endpoint));
   }
+
   calculatePrice(payload: any) {
-    return this.http.post('/api/orders/calculate', payload);
+    return this.http.post(`${this.baseUrl}/orders/calculate`, payload);
   }
 }
