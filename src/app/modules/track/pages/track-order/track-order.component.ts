@@ -10,7 +10,7 @@ declare const google: any;
 @Component({
   selector: 'app-track-order',
   templateUrl: './track-order.component.html',
-  styleUrls: ['./track-order.component.css'],
+  styleUrls: ['./track-order.component.scss'],
 })
 export class TrackOrderComponent implements OnInit, AfterViewInit {
   orderId = '';
