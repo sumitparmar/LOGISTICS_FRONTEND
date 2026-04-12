@@ -54,7 +54,6 @@ export class ContactComponent implements OnInit {
         next: (res: any) => {
           this.isSubmitting = false;
           this.contactForm.reset();
-          console.log('Ticket created', res);
         },
         error: (err) => {
           this.isSubmitting = false;

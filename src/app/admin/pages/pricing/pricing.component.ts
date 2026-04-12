@@ -313,8 +313,6 @@ export class PricingComponent implements OnInit {
   }
 
   confirmExport(): void {
-    console.log('CLICK WORKING'); // 👈 add this
-
     this.confirmMode = 'export';
     this.showConfirm = true;
   }

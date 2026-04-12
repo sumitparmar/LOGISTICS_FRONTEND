@@ -25,8 +25,6 @@ export class OrderDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.orderId = this.route.snapshot.paramMap.get('id') || '';
 
-    console.log('ORDER ID:', this.orderId);
-
     if (this.orderId) {
       this.fetchOrderDetails();
     }

@@ -442,8 +442,6 @@ export class CreateDeliveryComponent
   loadBankCards(): void {
     this.ordersService.getBankCards().subscribe({
       next: (res: any) => {
-        console.log('BANK CARDS RESPONSE:', res);
-
         this.bankCards = res?.data || [];
       },
       error: (err) => {

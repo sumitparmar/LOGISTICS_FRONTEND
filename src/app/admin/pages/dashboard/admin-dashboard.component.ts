@@ -43,14 +43,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.socketService.orderUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log('Dashboard refresh via socket');
         this.loadStats();
       });
 
     this.socketService.userUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log(' Dashboard refresh via user update');
         this.loadStats();
       });
   }
@@ -158,8 +156,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     const statusMap = ['CREATED', 'IN_PROGRESS', 'DELIVERED', 'CANCELLED'];
     const selectedStatus = statusMap[index];
-
-    console.log('Clicked:', selectedStatus);
 
     // navigation (safe)
     window.location.href = `/admin/orders?status=${selectedStatus}`;

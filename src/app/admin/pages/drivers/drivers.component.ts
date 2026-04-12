@@ -51,8 +51,6 @@ export class DriversComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Drivers INIT');
-
     this.setupSearch();
 
     this.loadOrdersForDrivers();
@@ -205,8 +203,6 @@ export class DriversComponent implements OnInit {
           const lat = Number(courierPoint.latitude);
           const lng = Number(courierPoint.longitude);
 
-          console.log('TRACKING UPDATE:', lat, lng);
-
           this.updateDriverLocation(lat, lng);
         },
       });
@@ -312,8 +308,6 @@ export class DriversComponent implements OnInit {
     }
 
     if (this.currentPickup && this.currentDrop && !this.routePath.length) {
-      console.log('Drawing route after map init');
-
       this.drawRoute(this.currentPickup, this.currentDrop);
     }
   }
@@ -344,31 +338,6 @@ export class DriversComponent implements OnInit {
   getHeading(start: any, end: any): number {
     return google.maps.geometry.spherical.computeHeading(start, end);
   }
-  // openDriver(driver: any) {
-  //   this.selectedDriver = driver;
-
-  //   const activeOrder = this.getActiveOrders(driver)[0];
-  //   console.log('ACTIVE ORDER:', activeOrder);
-  //   if (activeOrder?.pickup && activeOrder?.drop) {
-  //     const pickup = {
-  //       lat: activeOrder.pickup.latitude,
-  //       lng: activeOrder.pickup.longitude,
-  //     };
-
-  //     const drop = {
-  //       lat: activeOrder.drop.latitude,
-  //       lng: activeOrder.drop.longitude,
-  //     };
-
-  //     this.drawRoute(pickup, drop);
-  //   }
-
-  //   if (!activeOrder?._id) return;
-
-  //   setTimeout(() => {
-  //     this.loadDriverTracking(activeOrder._id);
-  //   }, 300);
-  // }
 
   openDriver(driver: any) {
     this.selectedDriver = driver;

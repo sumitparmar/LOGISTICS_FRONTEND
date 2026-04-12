@@ -93,8 +93,6 @@ export class AdminOrdersComponent implements OnInit {
     this.ordersStore.orders$
       .pipe(takeUntil(this.destroy$))
       .subscribe((orders) => {
-        console.log('STORE UPDATE:', orders);
-
         this.orders = orders.map((o: any) => ({
           ...o,
           id: o.borzoOrderId || '-',
@@ -524,7 +522,6 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   exportAllCSV(): void {
-    console.log('EXPORT START');
     this.isExporting = true;
 
     const statusParam =
@@ -541,8 +538,6 @@ export class AdminOrdersComponent implements OnInit {
 
     this.ordersService.exportCSV(params).subscribe({
       next: (blob: Blob) => {
-        console.log('EXPORT SUCCESS'); // 👈 CHECK THIS
-
         const url = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -555,12 +550,8 @@ export class AdminOrdersComponent implements OnInit {
           this.isExporting = false;
           this.showConfirm = false;
         });
-
-        console.log('STATE RESET'); // 👈 CHECK THIS
       },
       error: (err) => {
-        console.log('EXPORT ERROR', err);
-
         this.ngZone.run(() => {
           this.isExporting = false;
           this.showConfirm = false;

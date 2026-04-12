@@ -33,10 +33,8 @@ export class AdminUserEditComponent implements OnInit {
 
     this.usersService.getUserById(this.userId).subscribe({
       next: (res) => {
-        // ✅ Always create new reference
+        //  Always create new reference
         this.userData = { ...res.data };
-
-        console.log('USER DATA:', this.userData); // debug
 
         this.loading = false;
       },

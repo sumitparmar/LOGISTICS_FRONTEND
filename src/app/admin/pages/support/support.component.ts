@@ -41,8 +41,6 @@ export class SupportComponent implements OnInit {
     this.notificationService.fetchUnreadCount();
 
     this.ticketSub = this.socketService.newTicket$.subscribe((ticket: any) => {
-      console.log(' SUPPORT RECEIVED:', ticket);
-
       const exists = this.tickets.find((t) => t._id === ticket._id);
 
       if (!exists) {
@@ -63,8 +61,6 @@ export class SupportComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       if (params['ticketId']) {
         const ticketId = params['ticketId'];
-
-        console.log('OPEN FROM NOTIFICATION:', ticketId);
 
         // fetch & open that ticket
         this.adminSupportService.getTicketById(ticketId).subscribe({
@@ -176,7 +172,7 @@ export class SupportComponent implements OnInit {
     });
   }
 
-  // 🔹 SEND REPLY
+  //  SEND REPLY
 
   sendReply(): void {
     if (!this.replyText.trim() || !this.selectedTicket?._id) return;

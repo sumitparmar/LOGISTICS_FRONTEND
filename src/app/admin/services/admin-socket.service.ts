@@ -29,24 +29,19 @@ export class AdminSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log(' Socket connected:', this.socket.id);
       this.socket.emit('join-admin');
     });
 
     //  SINGLE GLOBAL LISTENER
     this.socket.on('admin-order-update', (data: any) => {
-      console.log(' GLOBAL SOCKET EVENT:', data);
       this.orderUpdateSubject.next(data);
     });
 
     this.socket.on('admin-user-update', () => {
-      console.log(' USER EVENT RECEIVED');
       this.userUpdateSubject.next();
     });
 
     this.socket.on('admin_notification', (data: any) => {
-      console.log(' SOCKET NOTIFICATION:', data);
-
       this.notificationStore.addNotification(data);
       this.toastService.showNotification(data);
     });

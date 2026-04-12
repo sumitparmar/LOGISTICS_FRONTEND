@@ -28,7 +28,6 @@ export class AdminUsersStore {
     private socketService: AdminSocketService,
   ) {
     this.socketService.userUpdate$.subscribe(() => {
-      console.log(' STORE AUTO REFRESH');
       this.loadUsers(
         this.lastPage,
         this.lastLimit,

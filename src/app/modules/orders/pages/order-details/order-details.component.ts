@@ -380,20 +380,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       console.warn('⚡ Using fallback pickup/drop coords');
     }
 
-    // ❌ If still missing → stop
+    //  If still missing → stop
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) {
       console.error('❌ No valid coordinates for map');
       return;
     }
 
-    console.log('✅ FINAL COORDS:', {
-      pickupLat,
-      pickupLng,
-      dropLat,
-      dropLng,
-    });
-
-    // 🗺️ Initialize map
+    //  Initialize map
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 12,
       center: { lat: pickupLat, lng: pickupLng },
@@ -411,10 +404,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     this.directionsRenderer.setMap(this.map);
 
-    // 📍 Markers + route
+    //  Markers + route
     this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
 
-    // 🚴 Courier marker (if exists)
+    //  Courier marker (if exists)
     if (
       this.order?.courier?.location?.lat &&
       this.order?.courier?.location?.lng

@@ -168,8 +168,6 @@ export class AdminUsersComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          console.log(' Status updated');
-
           // instant UI (optional but good UX)
           // this.usersStore.removeUser(id);
 

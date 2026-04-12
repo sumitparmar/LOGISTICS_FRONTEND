@@ -78,34 +78,6 @@ export class HeroComponent implements OnInit, AfterViewInit {
     }, 1000);
   }
 
-  // getQuote() {
-  //   if (this.quoteForm.invalid) return;
-
-  //   this.loading = true;
-  //   this.price = null;
-  //   this.errorMessage = '';
-
-  //   const payload = {
-  //     matter: 'delivery',
-  //     vehicleTypeId: Number(this.quoteForm.value.vehicleType),
-  //     pickup: { address: this.quoteForm.value.pickup },
-  //     drop: { address: this.quoteForm.value.drop },
-  //   };
-  //   console.log('Calculate clicked', payload);
-
-  //   this.api.post<any>('/orders/calculate', payload).subscribe({
-  //     next: (res) => {
-  //       this.loading = false;
-  //       console.log('CALCULATE RESPONSE:', res);
-
-  //       this.price = res?.data?.amount || null;
-  //     },
-  //     error: (err) => {
-  //       this.loading = false;
-  //       this.errorMessage = err?.error?.message || 'Failed to calculate quote';
-  //     },
-  //   });
-  // }
   getQuote() {
     if (this.quoteForm.invalid) return;
 
@@ -120,17 +92,13 @@ export class HeroComponent implements OnInit, AfterViewInit {
       drop: { address: this.quoteForm.value.drop },
     };
 
-    console.log('Calculate clicked', payload);
-
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {
-        console.log('CALCULATE RESPONSE:', res);
-
         this.loading = false;
 
         const amount = res?.data?.amount || null;
 
-        // ✅ set price in parent component
+        //  set price in parent component
         this.price = amount;
 
         this.dialog.open(PriceDialogComponent, {

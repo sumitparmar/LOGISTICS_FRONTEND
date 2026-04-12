@@ -43,8 +43,6 @@ export class AdminLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.socketService.orderUpdate$.subscribe((payload: any) => {
-      console.log(' LAYOUT RECEIVED:', payload);
-
       const order = payload?.data || payload;
       if (!order?._id) return;
 

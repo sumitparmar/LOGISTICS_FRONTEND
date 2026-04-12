@@ -46,7 +46,6 @@ export class HeaderComponent implements OnInit {
 
   loadUser() {
     const user = this.authService.getUser();
-    console.log('USER OBJECT:', user);
     // if (user && user.name) {
     //   this.userName = user.name;
     //   this.userInitial = user.name.charAt(0).toUpperCase();

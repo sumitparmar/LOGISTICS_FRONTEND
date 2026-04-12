@@ -91,23 +91,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
       query.status = this.statusFilter;
     }
 
-    // 🔥 ADD HERE
-    console.log('PAGE:', this.page, 'LIMIT:', this.limit);
-    console.log('QUERY:', query);
-
     this.ordersService.getOrders(query).subscribe({
       next: (res: OrdersResponse) => {
         const data = res?.data || [];
 
-        // 🔥 ADD HERE
-        console.log(
-          'RESPONSE IDS:',
-          data.map((o) => o.borzoOrderId),
-        );
-
         this.orders = data;
 
-        // ❌ TEMP REMOVE FILTER (IMPORTANT)
+        //  TEMP REMOVE FILTER (IMPORTANT)
         this.filteredOrders = this.orders;
 
         this.total = res?.meta?.total || 0;
