@@ -24,6 +24,6 @@ export const FOOTER_DATA = {
     { label: 'FAQs', route: '/faq' },
     { label: 'Contacts', route: '/contact' },
     { label: 'Pricing', route: '/pricing' },
-    { label: 'Terms & Conditions', route: '/terms' },
+    { label: 'Terms & Conditions', route: '/terms-and-conditions' },
   ],
 };

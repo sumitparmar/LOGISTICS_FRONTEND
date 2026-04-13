@@ -60,6 +60,7 @@ const routes: Routes = [
             (m) => m.CommunityGuidelinesModule,
           ),
       },
+
       {
         path: 'privacy-policy',
         loadChildren: () =>
@@ -99,6 +100,13 @@ const routes: Routes = [
           import('./modules/contact/contact.module').then(
             (m) => m.ContactModule,
           ),
+      },
+
+      // ✅ ADDED HERE (CORRECT POSITION)
+      {
+        path: 'terms-and-conditions',
+        loadChildren: () =>
+          import('./modules/terms/terms.module').then((m) => m.TermsModule),
       },
     ],
   },

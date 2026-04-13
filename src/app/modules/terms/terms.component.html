@@ -1,0 +1,81 @@
+<div class="terms-layout">
+
+    <!-- SIDEBAR -->
+    <div class="terms-sidebar">
+
+        <!-- MAIN SECTIONS -->
+        <div class="sidebar-group">
+
+            <div class="sidebar-title">Sections</div>
+
+            <div class="sidebar-item" *ngFor="let section of sections.slice(0, 9); let i = index"
+                [class.active]="activeIndex === i" (click)="scrollToSection(i)">
+                {{ section.title }} </div>
+
+        </div>
+
+        <!-- SCHEDULES -->
+        <div class="sidebar-group">
+
+            <div class="sidebar-title">Schedules</div>
+            <div class="sidebar-item" *ngFor="let section of sections.slice(9); let i = index"
+                [class.active]="activeIndex === i + 9" (click)="scrollToSection(i + 9)">
+                {{ section.title }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="terms-content">
+
+        <!-- HEADER -->
+        <div class="terms-header">
+            <h1>Terms & Conditions</h1>
+            <p>
+                These Terms govern your use of MoveKart services, platform, and applications.
+            </p>
+        </div>
+
+        <!-- ACCORDION -->
+        <div class="terms-container">
+
+            <div class="accordion-item" [class.active]="activeIndex === i"
+                *ngFor="let section of sections; let i = index; trackBy: trackByIndex" #sectionRef>
+
+                <!-- HEADER -->
+                <div class="accordion-header" (click)="toggle(i)">
+                    <h3>{{ section.title }}</h3>
+
+                    <span [style.transform]="activeIndex === i ? 'rotate(45deg)' : 'rotate(0deg)'">
+                        +
+                    </span>
+                </div>
+
+                <!-- CONTENT -->
+                <div class="accordion-content" *ngIf="activeIndex === i">
+
+                    <div *ngFor="let block of section.content">
+
+                        <h4 *ngIf="block.heading">
+                            {{ block.heading }}
+                        </h4>
+
+                        <ul>
+                            <li *ngFor="let point of block.points">
+                                {{ point }}
+                            </li>
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
