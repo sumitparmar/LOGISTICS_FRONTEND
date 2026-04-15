@@ -31,6 +31,8 @@ import {
   LifeBuoy,
   Settings,
   Shield,
+  UserCheck,
+  UserX,
 } from 'lucide-angular';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { AdminUserEditComponent } from './pages/user-edit/user-edit.component';
@@ -94,6 +96,8 @@ import { HighlightPipe } from './pipes/highlight.pipe';
       LifeBuoy,
       Shield,
       Settings,
+      UserCheck,
+      UserX,
     }),
   ],
 })

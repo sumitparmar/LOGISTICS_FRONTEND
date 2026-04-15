@@ -83,7 +83,11 @@ export class AdminUsersComponent implements OnInit {
     // USERS
     this.sub.add(
       this.usersStore.users$.subscribe((users) => {
-        this.users = users;
+        this.users = users.map((u: any) => ({
+          ...u,
+          _id: u._id || u.id,
+        }));
+
         this.cdr.detectChanges();
       }),
     );
@@ -150,17 +154,21 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onEdit(user: any): void {
-    if (!user?.id) {
+    const id = user._id || user.id;
+
+    if (!id) {
       console.error('User ID missing');
       return;
     }
 
-    this.router.navigate(['/admin/users/edit', user.id]);
+    this.router.navigate(['/admin/users/edit', id]);
   }
 
   onRoleChange(user: any, roleId: string | null): void {
-    const userId = user.id || user._id;
-
+    const userId =
+      typeof user._id === 'string' ? user._id : user._id?._id || user.id;
+    console.log('USER OBJECT:', user);
+    console.log('USER ID SENT:', userId);
     const request$ = roleId
       ? this.adminUsersService.assignRole({
           userId,

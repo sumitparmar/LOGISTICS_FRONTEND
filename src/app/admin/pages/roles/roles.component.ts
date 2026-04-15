@@ -53,7 +53,7 @@ export class RolesComponent implements OnInit {
     this.createRoleForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      permissions: [[]],
+      permissions: [],
     });
 
     this.createRoleForm.get('name')?.valueChanges.subscribe(() => {
@@ -82,7 +82,12 @@ export class RolesComponent implements OnInit {
   fetchPermissions(): void {
     this.rolesService.getPermissions().subscribe({
       next: (res: any) => {
-        this.permissionsMap = res.data || {};
+        this.permissionsMap = Object.entries(res.data || res || {}).map(
+          ([key, value]) => ({
+            key,
+            value,
+          }),
+        );
       },
       error: (err) => {
         console.error('PERMISSIONS ERROR:', err);
@@ -135,18 +140,22 @@ export class RolesComponent implements OnInit {
   }
 
   getPermissionsList(module: any): string[] {
-    return module?.value || [];
+    return module?.value ? Object.values(module.value) : [];
   }
 
   isAllSelected(module: any): boolean {
-    const modulePerms: string[] = module.value || [];
+    const modulePerms: string[] = module.value
+      ? Object.values(module.value)
+      : [];
     const selected: string[] = this.createRoleForm.value.permissions || [];
 
     return modulePerms.every((p) => selected.includes(p));
   }
 
   toggleModule(module: any, event: any): void {
-    const modulePerms: string[] = module.value || [];
+    const modulePerms: string[] = module.value
+      ? Object.values(module.value)
+      : [];
     let selected: string[] = this.createRoleForm.value.permissions || [];
 
     if (event.target.checked) {
@@ -190,8 +199,14 @@ export class RolesComponent implements OnInit {
 
     this.isCreating = true;
 
-    const payload = this.createRoleForm.value;
+    const cleanPermissions = (
+      this.createRoleForm.value.permissions || []
+    ).filter((p: any) => typeof p === 'string' && p.trim());
 
+    const payload = {
+      ...this.createRoleForm.value,
+      permissions: cleanPermissions,
+    };
     console.log('CLICKED UPDATE / CREATE');
     console.log('isEditMode:', this.isEditMode);
     console.log('selectedRoleId:', this.selectedRoleId);

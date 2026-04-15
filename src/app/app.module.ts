@@ -28,6 +28,8 @@ import {
   Users,
   ShoppingCart,
   DollarSign,
+  UserCheck,
+  UserX,
 } from 'lucide-angular';
 export function HttpLoaderFactory(http: HttpClient) {}
 
@@ -53,6 +55,8 @@ export function HttpLoaderFactory(http: HttpClient) {}
       Users,
       ShoppingCart,
       DollarSign,
+      UserCheck,
+      UserX,
     }),
   ],
 
