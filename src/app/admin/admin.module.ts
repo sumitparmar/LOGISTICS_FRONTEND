@@ -45,6 +45,7 @@ import { SupportComponent } from './pages/support/support.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { HighlightPipe } from './pipes/highlight.pipe';
+
 @NgModule({
   declarations: [
     AdminLayoutComponent,

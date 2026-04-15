@@ -69,6 +69,33 @@
                 </div>
             </ng-template>
 
+
+            <!-- ROLE TEMPLATE -->
+            <ng-template #roleTemplate let-user>
+
+                <!-- Only for admin users -->
+                <div *ngIf="user.role === 'admin'; else noRole" class="role-cell">
+
+                    <select [ngModel]="getRoleId(user)" (ngModelChange)="onRoleChange(user, $event)">
+                        <option [ngValue]="null">Super Admin</option>
+
+                        <option *ngFor="let role of roles" [ngValue]="role._id">
+                            {{ role.name }}
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- Non-admin -->
+                <ng-template #noRole>
+                    <span>—</span>
+                </ng-template>
+
+            </ng-template>
+
+
+
             <!-- Empty State -->
             <div *ngIf="users.length === 0" class="empty-state">
                 No users found

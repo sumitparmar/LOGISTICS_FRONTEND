@@ -44,4 +44,16 @@ export class AdminUsersService {
   deleteUser(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
+  getRoles() {
+    return this.http.get('/api/admin/roles');
+  }
+
+  assignRole(payload: { userId: string; roleId: string }) {
+    return this.http.post('/api/admin/users/assign-role', payload);
+  }
+
+  removeRole(userId: string) {
+    return this.http.patch(`/api/admin/users/${userId}/remove-role`, {});
+  }
 }

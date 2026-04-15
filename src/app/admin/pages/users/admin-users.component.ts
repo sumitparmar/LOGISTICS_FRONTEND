@@ -23,6 +23,9 @@ export class AdminUsersComponent implements OnInit {
   @ViewChild('nameTemplate', { static: true })
   nameTemplate!: TemplateRef<any>;
 
+  @ViewChild('roleTemplate', { static: true })
+  roleTemplate!: TemplateRef<any>;
+
   filterStatus: string = '';
   users: any[] = [];
   page = 1;
@@ -32,10 +35,7 @@ export class AdminUsersComponent implements OnInit {
   columns: any[] = [];
   showConfirm = false;
   selectedUser: any = null;
-
-  // ngAfterViewInit(): void {
-  //   this.initializeColumns();
-  // }
+  roles: any[] = [];
 
   initializeColumns(): void {
     this.columns = [
@@ -46,7 +46,11 @@ export class AdminUsersComponent implements OnInit {
       },
       { key: 'email', label: 'Email' },
 
-      { key: 'role', label: 'Role' },
+      {
+        key: 'role',
+        label: 'Role',
+        template: this.roleTemplate,
+      },
 
       {
         key: 'isActive',
@@ -73,7 +77,7 @@ export class AdminUsersComponent implements OnInit {
     this.initializeColumns();
     this.loadUsers();
     this.setupSearchStream();
-
+    this.loadRoles();
     this.sub = new Subscription();
 
     // USERS
@@ -125,6 +129,17 @@ export class AdminUsersComponent implements OnInit {
     );
   }
 
+  loadRoles(): void {
+    this.adminUsersService.getRoles().subscribe({
+      next: (res: any) => {
+        this.roles = res.data || [];
+      },
+      error: (err: any) => {
+        console.error('Failed to load roles', err);
+      },
+    });
+  }
+
   onPageChange(page: number) {
     this.page = page;
     this.loadUsers();
@@ -141,6 +156,33 @@ export class AdminUsersComponent implements OnInit {
     }
 
     this.router.navigate(['/admin/users/edit', user.id]);
+  }
+
+  onRoleChange(user: any, roleId: string | null): void {
+    const userId = user.id || user._id;
+
+    const request$ = roleId
+      ? this.adminUsersService.assignRole({
+          userId,
+          roleId,
+        })
+      : this.adminUsersService.removeRole(userId);
+
+    request$.subscribe({
+      next: () => {
+        // Update UI instantly (no reload)
+        user.adminRole = roleId
+          ? this.roles.find((r) => r._id === roleId)
+          : null;
+      },
+      error: (err: any) => {
+        console.error('Role update failed', err);
+      },
+    });
+  }
+
+  getRoleId(user: any): string | null {
+    return user?.adminRole?._id || null;
   }
 
   onToggleStatus(user: any): void {

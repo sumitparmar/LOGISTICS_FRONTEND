@@ -1,1 +1,273 @@
-<p>roles works!</p>
+<div class="roles-page">
+
+    <!-- HEADER -->
+    <div class="roles-header">
+        <div class="left">
+            <h2>Roles & Permissions</h2>
+            <p class="subtitle">Manage system roles and access control</p>
+        </div>
+
+        <div class="right">
+            <button class="primary-btn" (click)="openDrawer()">
+                + Create Role
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="roles-content">
+
+        <!-- LOADING -->
+        <div *ngIf="isLoading" class="table-wrapper">
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Permissions</th>
+                            <th>Created</th>
+                            <th class="actions">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let item of [1,2,3,4,5]">
+
+                            <td>
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+
+                            <td>
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+
+                            <td>
+                                <div class="skeleton skeleton-chip"></div>
+                                <div class="skeleton skeleton-chip"></div>
+                            </td>
+
+                            <td>
+                                <div class="skeleton skeleton-text small"></div>
+                            </td>
+
+                            <td>
+                                <div class="skeleton skeleton-btn"></div>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- ERROR -->
+        <div *ngIf="!isLoading && error" class="state error">
+            {{ error }}
+        </div>
+
+        <!-- EMPTY -->
+        <div *ngIf="!isLoading && roles.length === 0" class="state empty">
+            <p>No roles found</p>
+            <button class="primary-btn" (click)="openDrawer()">Create First Role</button>
+        </div>
+
+        <!-- ================= TOOLBAR (SEARCH + PAGINATION) ================= -->
+        <div class="roles-toolbar" *ngIf="!isLoading && roles.length > 0">
+
+            <!-- LEFT -->
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <input type="text" placeholder="Search roles..." [(ngModel)]="searchTerm"
+                        (input)="onSearchInput()" />
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="toolbar-right">
+
+                <button class="page-btn" [disabled]="page === 1" (click)="onPageChange(page - 1)">
+                    ‹
+                </button>
+
+                <div class="page-info">
+                    Page {{ page }} of {{ totalPages }}
+                </div>
+
+                <button class="page-btn" [disabled]="page === totalPages" (click)="onPageChange(page + 1)">
+                    ›
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TABLE ================= -->
+        <div *ngIf="!isLoading && roles.length > 0" class="table-wrapper">
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Permissions</th>
+                            <th>Created</th>
+                            <th class="actions">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let role of roles; trackBy: trackByRole">
+
+                            <td>{{ role.name }}</td>
+
+                            <td>{{ role.description || '-' }}</td>
+
+                            <td class="permissions-cell">
+                                <span *ngFor="let perm of role.permissions.slice(0, 2)">
+                                    {{ perm }}
+                                </span>
+
+                                <span *ngIf="role.permissions.length > 2" class="more">
+                                    +{{ role.permissions.length - 2 }} more
+                                </span>
+                            </td>
+
+                            <td>{{ role.createdAt | date:'mediumDate' }}</td>
+
+                            <td class="actions">
+                                <button class="link-btn" (click)="editRole(role)">Edit</button>
+                                <button class="link-btn danger" (click)="confirmDelete(role)">Delete</button>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= DRAWER ================= -->
+    <div class="drawer-backdrop" *ngIf="isDrawerOpen" (click)="closeDrawer()"></div>
+
+    <div class="drawer" *ngIf="isDrawerOpen">
+        <div class="drawer-content">
+
+            <div class="drawer-header">
+                <h3>{{ isEditMode ? 'Edit Role' : 'Create Role' }}</h3>
+                <button class="close-btn" (click)="closeDrawer()">✕</button>
+            </div>
+
+            <form [formGroup]="createRoleForm" class="drawer-form">
+
+                <div class="form-body">
+
+                    <!-- NAME -->
+                    <div class="form-group">
+                        <label>Role Name</label>
+                        <input formControlName="name" placeholder="Enter role name" />
+
+                        <small class="error"
+                            *ngIf="createRoleForm.get('name')?.touched && createRoleForm.get('name')?.invalid">
+                            Role name is required
+                        </small>
+
+                        <small class="error" *ngIf="createRoleForm.get('name')?.errors?.['duplicate']">
+                            Role already exists
+                        </small>
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input formControlName="description" placeholder="Optional" />
+                    </div>
+
+                    <!-- PERMISSIONS -->
+                    <div class="permissions-section" *ngIf="permissionsMap">
+
+                        <div class="permission-card" *ngFor="let module of permissionsMap | keyvalue">
+
+                            <div class="module-header">
+                                <h4>{{ module.key }}</h4>
+
+                                <label class="select-all">
+                                    <input type="checkbox" [checked]="isAllSelected(module)"
+                                        (change)="toggleModule(module, $event)" />
+                                    Select All
+                                </label>
+                            </div>
+
+                            <div class="permission-grid">
+
+                                <label *ngFor="let perm of getPermissionsList(module)" class="permission-item">
+
+                                    <input type="checkbox" [value]="perm"
+                                        [checked]="createRoleForm.value.permissions?.includes(perm)"
+                                        (change)="onPermissionChange($event)" />
+
+                                    <span>{{ perm.split('.')[1] | titlecase }}</span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="drawer-footer">
+                    <button type="button" (click)="closeDrawer()">Cancel</button>
+
+                    <button type="button" class="primary-btn" [disabled]="createRoleForm.invalid || isCreating"
+                        (click)="createRole()">
+
+                        {{
+                        isCreating
+                        ? (isEditMode ? 'Updating...' : 'Creating...')
+                        : (isEditMode ? 'Update' : 'Create')
+                        }}
+
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- ================= DELETE MODAL ================= -->
+    <div class="modal-backdrop" *ngIf="deleteModalOpen"></div>
+
+    <div class="delete-modal" *ngIf="deleteModalOpen">
+        <div class="modal-box">
+
+            <h3>Delete Role</h3>
+
+            <p>
+                Are you sure you want to delete
+                <strong>{{ roleToDelete?.name }}</strong>?
+            </p>
+
+            <div class="modal-actions">
+                <button (click)="closeDeleteModal()">Cancel</button>
+
+                <button class="danger-btn" (click)="deleteRole()" [disabled]="isDeleting">
+
+                    {{ isDeleting ? 'Deleting...' : 'Delete' }}
+
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
