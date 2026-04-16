@@ -11,6 +11,10 @@ export class AdminSettingsService {
     return this.api.get('/admin/settings');
   }
 
+  getAuditLogs() {
+    return this.api.get('/admin/settings/audit');
+  }
+
   updateSettings(payload: any) {
     return this.api.put('/admin/settings', payload);
   }

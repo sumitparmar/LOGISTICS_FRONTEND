@@ -221,10 +221,70 @@
                         }}
                     </strong>
                 </div>
+
+                <div class="audit-history" *ngIf="auditLogs.length > 0">
+                    <div class="audit-history-title">Recent Activity</div>
+
+                    <div class="audit-log-item" *ngFor="let log of auditLogs">
+                        <div class="audit-log-top">
+                            <strong>
+                                {{
+                                log?.user?.name ||
+                                log?.user?.email ||
+                                'System'
+                                }}
+                            </strong>
+
+                            <span>
+                                {{ log.createdAt | date:'short' }}
+                            </span>
+                        </div>
+
+                        <div class="audit-log-meta">
+                            Updated settings
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audit-empty" *ngIf="auditLogs.length === 0">
+                    No recent audit records found.
+                </div>
             </div>
 
         </div>
 
     </form>
+
+    <!-- Maintenance Confirmation Modal -->
+
+    <div class="modal-backdrop" *ngIf="showMaintenanceConfirm" (click)="closeMaintenanceModal()">
+        <div class="confirm-modal" (click)="$event.stopPropagation()">
+            <div class="modal-head">
+                <h3>Enable Maintenance Mode?</h3>
+
+                <p>
+                    Public users will be redirected to the maintenance page
+                    until this setting is turned off.
+                </p>
+            </div>
+
+            <div class="modal-warning">
+                Use only during deployments, outages, or planned maintenance.
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="button" class="secondary-btn" (click)="cancelMaintenanceSave()">
+                    Cancel
+                </button>
+
+                <button type="button" class="danger-btn" (click)="confirmMaintenanceSave()">
+                    Enable & Save
+                </button>
+
+            </div>
+
+        </div>
+    </div>
 
 </div>
