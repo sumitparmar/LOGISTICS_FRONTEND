@@ -38,4 +38,16 @@ export class ToastService {
     const updated = this.currentToasts.filter((t) => t.id !== id);
     this.toastsSubject.next(updated);
   }
+
+  success(message: string) {
+    this.show(message, 'success');
+  }
+
+  error(message: string) {
+    this.show(message, 'error');
+  }
+
+  warning(message: string) {
+    this.show(message, 'warning');
+  }
 }

@@ -5,7 +5,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { AdminUsersStore } from '../../services/admin-users.store';
 import { Subscription } from 'rxjs';
-
+import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-admin-users',
   templateUrl: './admin-users.component.html',
@@ -71,6 +71,7 @@ export class AdminUsersComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private usersStore: AdminUsersStore,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -86,6 +87,7 @@ export class AdminUsersComponent implements OnInit {
         this.users = users.map((u: any) => ({
           ...u,
           _id: u._id || u.id,
+          adminRoleId: u.adminRole?._id || null,
         }));
 
         this.cdr.detectChanges();
@@ -167,31 +169,35 @@ export class AdminUsersComponent implements OnInit {
   onRoleChange(user: any, roleId: string | null): void {
     const userId =
       typeof user._id === 'string' ? user._id : user._id?._id || user.id;
-    console.log('USER OBJECT:', user);
-    console.log('USER ID SENT:', userId);
+
     const request$ = roleId
-      ? this.adminUsersService.assignRole({
-          userId,
-          roleId,
-        })
+      ? this.adminUsersService.assignRole({ userId, roleId })
       : this.adminUsersService.removeRole(userId);
 
     request$.subscribe({
       next: () => {
-        // Update UI instantly (no reload)
-        user.adminRole = roleId
-          ? this.roles.find((r) => r._id === roleId)
-          : null;
+        // ✅ Always sync from backend (single source of truth)
+        this.loadUsers();
       },
+
       error: (err: any) => {
         console.error('Role update failed', err);
+
+        // ✅ Reload to revert UI properly
+        this.loadUsers();
+
+        this.toastService.error(err?.error?.message || 'Role update failed');
       },
     });
   }
 
-  getRoleId(user: any): string | null {
-    return user?.adminRole?._id || null;
+  trackByUser(index: number, user: any) {
+    return user._id || user.id;
   }
+
+  // getRoleId(user: any): string | null {
+  //   return user?.adminRole?._id || null;
+  // }
 
   onToggleStatus(user: any): void {
     this.selectedUser = user;

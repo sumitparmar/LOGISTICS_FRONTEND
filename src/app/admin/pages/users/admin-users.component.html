@@ -36,7 +36,6 @@
             <!-- Data Table -->
             <app-data-table [columns]="columns" [data]="users">
             </app-data-table>
-
             <!-- NAME TEMPLATE -->
             <ng-template #nameTemplate let-user>
                 <div class="user-info">
@@ -76,7 +75,7 @@
                 <!-- Only for admin users -->
                 <div *ngIf="user.role === 'admin'; else noRole" class="role-cell">
 
-                    <select [ngModel]="getRoleId(user)" (ngModelChange)="onRoleChange(user, $event)">
+                    <select [(ngModel)]="user.adminRoleId" (ngModelChange)="onRoleChange(user, $event)">
                         <option [ngValue]="null">Super Admin</option>
 
                         <option *ngFor="let role of roles" [ngValue]="role._id">
