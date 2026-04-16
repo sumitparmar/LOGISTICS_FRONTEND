@@ -1,1 +1,169 @@
-<p>settings works!</p>
+<div class="settings-page">
+
+    <!-- Header -->
+    <div class="settings-header">
+        <div>
+            <h2>Settings</h2>
+            <p>Manage platform configuration, security and operations.</p>
+        </div>
+
+        <div class="header-actions">
+            <button type="button" class="secondary-btn" (click)="onReset()" [disabled]="loading || saving">
+                Reset
+            </button>
+
+            <button type="button" class="primary-btn" (click)="onSave()" [disabled]="loading || saving || form.invalid">
+                {{ saving ? 'Saving Changes...' : 'Save Changes' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-card">
+        Loading settings...
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!loading" [formGroup]="form" class="settings-grid">
+
+        <!-- LEFT -->
+        <div class="settings-column">
+
+            <!-- Business -->
+            <div class="settings-card">
+                <div class="card-head">
+                    <h3>Business Identity</h3>
+                    <p>Core platform information used across the website.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Platform Name</label>
+                    <input type="text" formControlName="platformName" placeholder="Enter business name" />
+                </div>
+
+                <div class="form-group">
+                    <label>Support Email</label>
+                    <input type="email" formControlName="supportEmail" placeholder="support@company.com" />
+                </div>
+
+                <div class="form-group">
+                    <label>Support Phone</label>
+                    <input type="text" formControlName="supportPhone" placeholder="+91 98765 43210" />
+                </div>
+            </div>
+
+            <!-- Regional -->
+            <div class="settings-card">
+                <div class="card-head">
+                    <h3>Regional Preferences</h3>
+                    <p>Default currency and timezone behavior.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Timezone</label>
+                    <select formControlName="timezone">
+                        <option *ngFor="let zone of timezoneOptions" [value]="zone">
+                            {{ zone }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select formControlName="currency">
+                        <option *ngFor="let item of currencyOptions" [value]="item">
+                            {{ item }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="settings-column">
+
+            <!-- Operations -->
+            <div class="settings-card">
+                <div class="card-head">
+                    <h3>Operations</h3>
+                    <p>Platform access and operational controls.</p>
+                </div>
+
+                <label class="toggle-row">
+                    <span>Allow New Registrations</span>
+                    <input type="checkbox" formControlName="allowRegistrations" />
+                </label>
+
+                <label class="toggle-row danger-row">
+                    <span>Maintenance Mode</span>
+                    <input type="checkbox" formControlName="maintenanceMode" />
+                </label>
+            </div>
+
+            <!-- Notifications -->
+            <div class="settings-card">
+                <div class="card-head">
+                    <h3>Admin Notifications</h3>
+                    <p>Internal alerts for operational events.</p>
+                </div>
+
+                <label class="toggle-row">
+                    <span>New Order Alerts</span>
+                    <input type="checkbox" formControlName="newOrderAlerts" />
+                </label>
+
+                <label class="toggle-row">
+                    <span>Support Alerts</span>
+                    <input type="checkbox" formControlName="supportAlerts" />
+                </label>
+            </div>
+
+            <!-- Security -->
+            <div class="settings-card">
+                <div class="card-head">
+                    <h3>Security</h3>
+                    <p>Session management controls.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Session Timeout (Minutes)</label>
+                    <input type="number" min="5" max="1440" formControlName="sessionTimeoutMinutes" />
+                </div>
+            </div>
+
+            <!-- Audit -->
+            <div class="settings-card audit-card">
+                <div class="card-head">
+                    <h3>Audit Trail</h3>
+                    <p>Recent configuration update information.</p>
+                </div>
+
+                <div class="audit-row">
+                    <span>Last Updated</span>
+                    <strong>
+                        {{
+                        settingsData?.updatedAt
+                        ? (settingsData.updatedAt | date:'medium')
+                        : '—'
+                        }}
+                    </strong>
+                </div>
+
+                <div class="audit-row">
+                    <span>Updated By</span>
+                    <strong>
+                        {{
+                        settingsData?.updatedBy?.name ||
+                        settingsData?.updatedBy?.email ||
+                        'System'
+                        }}
+                    </strong>
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
