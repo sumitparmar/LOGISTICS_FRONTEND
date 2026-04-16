@@ -8,14 +8,16 @@
         </div>
 
         <div class="header-actions">
-            <button type="button" class="secondary-btn" (click)="onReset()" [disabled]="loading || saving">
+            <button type="button" class="secondary-btn" (click)="onReset()" [disabled]="!canReset">
                 Reset
             </button>
 
-            <button type="button" class="primary-btn" (click)="onSave()" [disabled]="loading || saving || form.invalid">
+            <button type="submit" class="primary-btn" (click)="onSave()" [disabled]="!canSave">
                 {{ saving ? 'Saving Changes...' : 'Save Changes' }}
             </button>
         </div>
+
+
     </div>
 
     <!-- Loading -->
@@ -24,8 +26,7 @@
     </div>
 
     <!-- Form -->
-    <form *ngIf="!loading" [formGroup]="form" class="settings-grid">
-
+    <form *ngIf="!loading" [formGroup]="form" class="settings-grid" (ngSubmit)="onSave()">
         <!-- LEFT -->
         <div class="settings-column">
 
@@ -38,17 +39,45 @@
 
                 <div class="form-group">
                     <label>Platform Name</label>
-                    <input type="text" formControlName="platformName" placeholder="Enter business name" />
+
+                    <input type="text" formControlName="platformName" placeholder="Enter business name"
+                        autocomplete="organization" />
+
+                    <div class="field-error"
+                        *ngIf="form.get('platformName')?.touched && form.get('platformName')?.invalid">
+
+                        <span *ngIf="form.get('platformName')?.errors?.['required']">
+                            Platform name is required.
+                        </span>
+
+                        <span *ngIf="form.get('platformName')?.errors?.['minlength']">
+                            Minimum 2 characters required.
+                        </span>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Support Email</label>
-                    <input type="email" formControlName="supportEmail" placeholder="support@company.com" />
+
+                    <input type="email" formControlName="supportEmail" placeholder="support@company.com"
+                        autocomplete="email" />
+                    <div class="field-error"
+                        *ngIf="form.get('supportEmail')?.touched && form.get('supportEmail')?.invalid">
+
+                        Enter a valid email address.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Support Phone</label>
-                    <input type="text" formControlName="supportPhone" placeholder="+91 98765 43210" />
+
+                    <input type="text" formControlName="supportPhone" placeholder="+91 98765 43210" maxlength="15"
+                        autocomplete="tel" inputmode="tel" />
+                    <div class="field-error"
+                        *ngIf="form.get('supportPhone')?.touched && form.get('supportPhone')?.invalid">
+
+                        Enter a valid support phone number.
+                    </div>
                 </div>
             </div>
 
@@ -90,13 +119,21 @@
                     <p>Platform access and operational controls.</p>
                 </div>
 
-                <label class="toggle-row">
-                    <span>Allow New Registrations</span>
+                <label class="toggle-row toggle-switch-row">
+                    <div>
+                        <span>Allow New Registrations</span>
+                        <small>New users can create accounts on platform.</small>
+                    </div>
+
                     <input type="checkbox" formControlName="allowRegistrations" />
                 </label>
 
-                <label class="toggle-row danger-row">
-                    <span>Maintenance Mode</span>
+                <label class="toggle-row toggle-switch-row danger-row">
+                    <div>
+                        <span>Maintenance Mode</span>
+                        <small>Public users will be redirected to maintenance page.</small>
+                    </div>
+
                     <input type="checkbox" formControlName="maintenanceMode" />
                 </label>
             </div>
@@ -108,13 +145,20 @@
                     <p>Internal alerts for operational events.</p>
                 </div>
 
-                <label class="toggle-row">
-                    <span>New Order Alerts</span>
+                <label class="toggle-row toggle-switch-row">
+                    <div>
+                        <span>New Order Alerts</span>
+                        <small>Notify admins when new orders are placed.</small>
+                    </div>
+
                     <input type="checkbox" formControlName="newOrderAlerts" />
                 </label>
+                <label class="toggle-row toggle-switch-row">
+                    <div>
+                        <span>Support Alerts</span>
+                        <small>Notify admins when support tickets are raised.</small>
+                    </div>
 
-                <label class="toggle-row">
-                    <span>Support Alerts</span>
                     <input type="checkbox" formControlName="supportAlerts" />
                 </label>
             </div>
@@ -128,7 +172,24 @@
 
                 <div class="form-group">
                     <label>Session Timeout (Minutes)</label>
-                    <input type="number" min="5" max="1440" formControlName="sessionTimeoutMinutes" />
+
+                    <input type="number" min="5" max="1440" formControlName="sessionTimeoutMinutes"
+                        inputmode="numeric" />
+                    <div class="field-error"
+                        *ngIf="form.get('sessionTimeoutMinutes')?.touched && form.get('sessionTimeoutMinutes')?.invalid">
+
+                        <span *ngIf="form.get('sessionTimeoutMinutes')?.errors?.['required']">
+                            Session timeout is required.
+                        </span>
+
+                        <span *ngIf="form.get('sessionTimeoutMinutes')?.errors?.['min']">
+                            Minimum allowed value is 5 minutes.
+                        </span>
+
+                        <span *ngIf="form.get('sessionTimeoutMinutes')?.errors?.['max']">
+                            Maximum allowed value is 1440 minutes.
+                        </span>
+                    </div>
                 </div>
             </div>
 
