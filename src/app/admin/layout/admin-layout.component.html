@@ -17,53 +17,56 @@
             </a>
 
             <!-- Orders -->
-            <a routerLink="/admin/orders" routerLinkActive="active">
+            <a *ngIf="permissionService.has('orders.read')" routerLink="/admin/orders" routerLinkActive="active">
                 <lucide-icon name="shopping-cart"></lucide-icon>
                 <span>Orders</span>
             </a>
 
             <!-- Users -->
-            <a routerLink="/admin/users" routerLinkActive="active">
+            <a *ngIf="permissionService.has('users.read')" routerLink="/admin/users" routerLinkActive="active">
                 <lucide-icon name="users"></lucide-icon>
                 <span>Users</span>
             </a>
 
             <!-- Drivers -->
-            <a routerLink="/admin/drivers" routerLinkActive="active">
+            <a *ngIf="permissionService.has('drivers.read')" routerLink="/admin/drivers" routerLinkActive="active">
                 <lucide-icon name="truck"></lucide-icon>
                 <span>Drivers</span>
             </a>
 
             <!-- Payments -->
-            <a routerLink="/admin/payments" routerLinkActive="active">
+            <a *ngIf="permissionService.has('payments.read')" routerLink="/admin/payments" routerLinkActive="active">
                 <lucide-icon name="credit-card"></lucide-icon>
                 <span>Payments</span>
             </a>
 
             <!-- Pricing -->
-            <a routerLink="/admin/pricing" routerLinkActive="active">
+            <a *ngIf="permissionService.has('pricing.read')" routerLink="/admin/pricing" routerLinkActive="active">
                 <lucide-icon name="tag"></lucide-icon>
                 <span>Pricing</span>
             </a>
 
             <!-- Notifications -->
-            <a routerLink="/admin/notifications" routerLinkActive="active">
+            <a *ngIf="permissionService.has('notifications.read')" routerLink="/admin/notifications"
+                routerLinkActive="active">
                 <lucide-icon name="bell"></lucide-icon>
+
                 <span class="menu-item">
                     Notifications
                     <span *ngIf="unreadCount > 0" class="badge">
                         {{ unreadCount }}
                     </span>
-                </span> </a>
+                </span>
+            </a>
 
             <!-- Support -->
-            <a routerLink="/admin/support" routerLinkActive="active">
+            <a *ngIf="permissionService.has('support.read')" routerLink="/admin/support" routerLinkActive="active">
                 <lucide-icon name="life-buoy"></lucide-icon>
                 <span>Support</span>
             </a>
 
             <!-- Roles -->
-            <a routerLink="/admin/roles" routerLinkActive="active">
+            <a *ngIf="permissionService.has('users.read')" routerLink="/admin/roles" routerLinkActive="active">
                 <lucide-icon name="shield"></lucide-icon>
                 <span>Roles</span>
             </a>
@@ -75,6 +78,7 @@
             </a>
 
         </nav>
+
 
     </aside>
 
@@ -94,7 +98,8 @@
             <div class="admin-actions">
 
                 <!--  Notification Bell -->
-                <div class="notification-wrapper" (click)="toggleDropdown($event)">
+                <div *ngIf="permissionService.has('notifications.read')" class="notification-wrapper"
+                    (click)="toggleDropdown($event)">
 
                     <lucide-icon name="bell"></lucide-icon>
 
@@ -131,7 +136,7 @@
                     <div class="avatar-wrapper">
 
                         <div class="avatar">
-                            A
+                            {{ currentUser?.name?.charAt(0) || 'A' }}
                         </div>
 
                         <span class="status-dot"></span>
@@ -139,8 +144,16 @@
                     </div>
 
                     <div class="user-info">
-                        <div class="name">Admin</div>
-                        <div class="role">Super Admin</div>
+                        <div class="name">
+                            {{ currentUser?.name || 'Admin' }}
+                        </div>
+                        <div class="role">
+                            {{
+                            permissionService.isSuperAdmin()
+                            ? 'Super Admin'
+                            : currentUser?.adminRole?.name || 'Admin'
+                            }}
+                        </div>
                     </div>
 
                 </div>

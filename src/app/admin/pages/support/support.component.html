@@ -104,8 +104,8 @@
                         </span>
                     </div>
 
-                    <select [(ngModel)]="selectedTicket.status" (ngModelChange)="updateStatus($event)"
-                        [disabled]="selectedTicket.status === 'resolved'">
+                    <select *ngIf="permissionService.has('support.update')" [(ngModel)]="selectedTicket.status"
+                        (ngModelChange)="updateStatus($event)" [disabled]="selectedTicket.status === 'resolved'">
 
                         <option value="open">Open</option>
                         <option value="in-progress">In Progress</option>
@@ -113,7 +113,10 @@
 
                     </select>
 
-                    <button *ngIf="selectedTicket.status === 'resolved'" class="reopen-btn" (click)="reopenTicket()">
+                    <button *ngIf="
+                    selectedTicket.status === 'resolved' &&
+                    permissionService.has('support.update')
+                  " class="reopen-btn" (click)="reopenTicket()">
                         Reopen Ticket
                     </button>
                 </div>
@@ -142,8 +145,10 @@
                 </div>
 
                 <!-- REPLY -->
-                <div class="reply-box" *ngIf="selectedTicket?.status !== 'resolved'">
-                    <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
+                <div class="reply-box" *ngIf="
+    selectedTicket?.status !== 'resolved' &&
+    permissionService.has('support.reply')
+  "> <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
 
                     <button (click)="sendReply()">Send</button>
                 </div>

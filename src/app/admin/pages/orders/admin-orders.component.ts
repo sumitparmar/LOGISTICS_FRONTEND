@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { OrdersStore } from '../../services/admin-orders.store';
 import { NgZone } from '@angular/core';
+import { PermissionService } from '../../services/permission.service';
 
 import {
   AdminOrdersService,
@@ -74,6 +75,7 @@ export class AdminOrdersComponent implements OnInit {
     private route: ActivatedRoute,
     private ordersStore: OrdersStore,
     private ngZone: NgZone,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
@@ -115,6 +117,8 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   confirmExport(): void {
+    if (!this.permissionService.has('orders.update')) return;
+
     this.confirmMode = 'export';
     this.showConfirm = true;
   }
@@ -271,6 +275,8 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onDelete(order: any): void {
+    if (!this.permissionService.has('orders.delete')) return;
+
     this.selectedOrder = order;
     this.confirmMode = 'single';
     this.showConfirm = true;
@@ -408,7 +414,11 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   toggleSelection(order: any): void {
-    if (!order?._id) return;
+    if (
+      !this.permissionService.has('orders.update') &&
+      !this.permissionService.has('orders.delete')
+    )
+      return;
 
     if (this.selectedOrders.has(order._id)) {
       this.selectedOrders.delete(order._id);
@@ -418,6 +428,12 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   toggleSelectAll(): void {
+    if (
+      !this.permissionService.has('orders.update') &&
+      !this.permissionService.has('orders.delete')
+    )
+      return;
+
     const selectable = this.orders.filter(
       (o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED',
     );
@@ -463,6 +479,8 @@ export class AdminOrdersComponent implements OnInit {
   // }
 
   bulkCancel(): void {
+    if (!this.permissionService.has('orders.delete')) return;
+
     if (!this.selectedOrders.size || this.isBulkCancelling) {
       this.showToast('Select at least one order', 'warning');
       return;
@@ -507,6 +525,8 @@ export class AdminOrdersComponent implements OnInit {
   // }
 
   onBulkStatusChange(status: string, selectEl?: HTMLSelectElement): void {
+    if (!this.permissionService.has('orders.update')) return;
+
     if (status === '') return;
     if (!status || !this.selectedOrders.size || this.isBulkUpdating) return;
 

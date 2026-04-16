@@ -23,10 +23,23 @@
 
     <!-- Role -->
     <div class="form-group">
-        <label>Role</label>
+        <label>Account Type</label>
+
         <select formControlName="role">
             <option value="user">User</option>
             <option value="admin">Admin</option>
+        </select>
+    </div>
+
+    <div class="form-group" *ngIf="form.get('role')?.value === 'admin'">
+        <label>Admin Access Role</label>
+
+        <select formControlName="adminRoleId">
+            <option [ngValue]="null">Super Admin</option>
+
+            <option *ngFor="let role of roles" [ngValue]="role._id">
+                {{ role.name }}
+            </option>
         </select>
     </div>
 

@@ -7,6 +7,7 @@ import { AdminOrdersComponent } from './pages/orders/admin-orders.component';
 import { AdminUserEditComponent } from './pages/user-edit/user-edit.component';
 import { AdminUserCreateComponent } from './pages/user-create/user-create.component';
 import { AdminGuard } from '../core/guards/admin.guard';
+import { PermissionGuard } from '../core/guards/permission.guard';
 
 import { DriversComponent } from './pages/drivers/drivers.component';
 import { PaymentsComponent } from './pages/payments/payments.component';
@@ -26,49 +27,80 @@ const routes: Routes = [
         path: '',
         component: AdminDashboardComponent,
       },
+
       {
         path: 'users',
         component: AdminUsersComponent,
-      },
-      { path: 'orders', component: AdminOrdersComponent },
-
-      {
-        path: 'drivers',
-        component: DriversComponent,
-      },
-      {
-        path: 'payments',
-        component: PaymentsComponent,
-      },
-      {
-        path: 'pricing',
-        component: PricingComponent,
-      },
-      {
-        path: 'notifications',
-        component: NotificationsComponent,
-      },
-      {
-        path: 'support',
-        component: SupportComponent,
-      },
-      {
-        path: 'roles',
-        component: RolesComponent,
-      },
-      {
-        path: 'settings',
-        component: SettingsComponent,
-      },
-
-      {
-        path: 'users/edit/:id',
-        component: AdminUserEditComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'users.read' },
       },
 
       {
         path: 'users/create',
         component: AdminUserCreateComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'users.create' },
+      },
+
+      {
+        path: 'users/edit/:id',
+        component: AdminUserEditComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'users.update' },
+      },
+
+      {
+        path: 'orders',
+        component: AdminOrdersComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'orders.read' },
+      },
+
+      {
+        path: 'drivers',
+        component: DriversComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'drivers.read' },
+      },
+
+      {
+        path: 'payments',
+        component: PaymentsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'payments.read' },
+      },
+
+      {
+        path: 'pricing',
+        component: PricingComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'pricing.read' },
+      },
+
+      {
+        path: 'notifications',
+        component: NotificationsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'notifications.read' },
+      },
+
+      {
+        path: 'support',
+        component: SupportComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'support.read' },
+      },
+
+      {
+        path: 'roles',
+        component: RolesComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'users.read' },
+      },
+
+      {
+        path: 'settings',
+        component: SettingsComponent,
       },
     ],
   },

@@ -6,6 +6,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { AdminUsersStore } from '../../services/admin-users.store';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../../services/toast.service';
+import { PermissionService } from '../../services/permission.service';
+
 @Component({
   selector: 'app-admin-users',
   templateUrl: './admin-users.component.html',
@@ -72,6 +74,7 @@ export class AdminUsersComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private usersStore: AdminUsersStore,
     private toastService: ToastService,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {

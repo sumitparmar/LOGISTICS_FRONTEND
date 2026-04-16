@@ -5,6 +5,8 @@ import { AdminNotificationStore } from '../services/admin-notification.store';
 import { HostListener } from '@angular/core';
 import { AdminNotificationService } from '../services/admin-notification.service';
 import { Router, NavigationStart } from '@angular/router';
+import { PermissionService } from '../services/permission.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -15,6 +17,7 @@ export class AdminLayoutComponent implements OnInit {
   unreadCount = 0;
   isDropdownOpen = false;
   notifications: any[] = [];
+  currentUser: any = null;
 
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: Event) {
@@ -39,9 +42,12 @@ export class AdminLayoutComponent implements OnInit {
     private notificationStore: AdminNotificationStore,
     private notificationService: AdminNotificationService,
     private router: Router,
+    public permissionService: PermissionService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getUser();
     this.socketService.orderUpdate$.subscribe((payload: any) => {
       const order = payload?.data || payload;
       if (!order?._id) return;
@@ -89,21 +95,20 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   openNotification(notification: any) {
-    // 1. mark as read
     if (!notification.isRead) {
       this.markAsRead(notification._id);
     }
 
-    // 2. close dropdown
     this.isDropdownOpen = false;
 
-    // 3. routing logic (CORRECT)
-    if (notification.ticketId) {
+    if (notification.ticketId && this.permissionService.has('support.read')) {
       this.router.navigate(['/admin/support'], {
         queryParams: { ticketId: notification.ticketId },
       });
-    } else {
-      // fallback for old notifications (no ticketId)
+      return;
+    }
+
+    if (this.permissionService.has('notifications.read')) {
       this.router.navigate(['/admin/notifications']);
     }
   }

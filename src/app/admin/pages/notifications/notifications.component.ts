@@ -5,6 +5,8 @@ import { AdminNotificationService } from '../../services/admin-notification.serv
 import { AdminNotificationStore } from '../../services/admin-notification.store';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { PermissionService } from '../../services/permission.service';
+
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
@@ -26,6 +28,7 @@ export class NotificationsComponent implements OnInit {
     private notificationService: AdminNotificationService,
     private notificationStore: AdminNotificationStore,
     private router: Router,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +43,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   createTest() {
+    if (!this.permissionService.isSuperAdmin()) return;
+
     this.http.post(`${this.API}/notifications/test`, {}).subscribe();
   }
 
@@ -52,12 +57,12 @@ export class NotificationsComponent implements OnInit {
   }
 
   onNotificationClick(notification: any) {
-    // 1. mark as read (UI + backend)
     if (!notification.isRead) {
       this.markAsRead(notification._id);
     }
 
-    // 2. navigate to support with ticket id
+    if (!this.permissionService.has('support.read')) return;
+
     this.router.navigate(['/admin/support'], {
       queryParams: { ticketId: notification.ticketId },
     });

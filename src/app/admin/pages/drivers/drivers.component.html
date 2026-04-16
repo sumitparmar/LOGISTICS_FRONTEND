@@ -170,7 +170,8 @@
                     <h4>Active Orders</h4>
 
                     <div *ngIf="getActiveOrders(selectedDriver).length; else noActive">
-                        <div class="order-item" *ngFor="let o of getActiveOrders(selectedDriver)"
+                        <div class="order-item" [class.disabled]="!permissionService.has('orders.read')"
+                            *ngFor="let o of getActiveOrders(selectedDriver)"
                             (click)="goToOrder(o._id); $event.stopPropagation()">
                             <div class="order-id">{{ o._id }}</div>
                             <div class="order-status">{{ o.status }}</div>

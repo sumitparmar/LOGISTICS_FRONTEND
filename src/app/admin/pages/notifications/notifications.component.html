@@ -4,8 +4,7 @@
     <div class="header">
         <h2>Notifications</h2>
 
-        <button class="header-btn" (click)="createTest()">
-            + Test
+        <button *ngIf="permissionService.isSuperAdmin()" class="header-btn" (click)="createTest()"> + Test
         </button>
     </div>
 
@@ -15,7 +14,8 @@
 
     <!-- LIST -->
     <div *ngFor="let n of (unreadNotifications$ | async)" class="card" [class.unread]="!n.isRead"
-        (click)="onNotificationClick(n)"> <!-- LEFT CONTENT -->
+        (click)="onNotificationClick(n)" [class.clickable]="permissionService.has('support.read')">
+        <!-- LEFT CONTENT -->
         <div class="card-left">
 
             <div class="title">

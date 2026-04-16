@@ -7,6 +7,7 @@ import { ToastService } from 'src/app/admin/services/toast.service';
 import { AdminSocketService } from '../../services/admin-socket.service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap, catchError, of } from 'rxjs';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-support',
@@ -40,6 +41,7 @@ export class SupportComponent implements OnInit {
     private toastService: ToastService,
     private socketService: AdminSocketService,
     private route: ActivatedRoute,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
@@ -263,8 +265,8 @@ export class SupportComponent implements OnInit {
   }
 
   //  SEND REPLY
-
   sendReply(): void {
+    if (!this.permissionService.has('support.reply')) return;
     if (!this.replyText.trim() || !this.selectedTicket?._id) return;
 
     this.adminSupportService
@@ -293,9 +295,9 @@ export class SupportComponent implements OnInit {
     }, 50);
   }
 
-  // 🔹 UPDATE STATUS
-
+  //  UPDATE STATUS
   updateStatus(status: string): void {
+    if (!this.permissionService.has('support.update')) return;
     if (!this.selectedTicket?._id) return;
 
     this.adminSupportService
@@ -322,6 +324,7 @@ export class SupportComponent implements OnInit {
   }
 
   reopenTicket(): void {
+    if (!this.permissionService.has('support.update')) return;
     if (!this.selectedTicket?._id) return;
 
     this.adminSupportService

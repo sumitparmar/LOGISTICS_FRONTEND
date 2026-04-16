@@ -9,6 +9,8 @@ import { OrdersStore } from '../../services/admin-orders.store';
 import { takeUntil } from 'rxjs/operators';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from 'src/app/core/services/api.service';
+import { PermissionService } from '../../services/permission.service';
+
 declare const google: any;
 @Component({
   selector: 'app-drivers',
@@ -48,6 +50,7 @@ export class DriversComponent implements OnInit {
     // private driversStore: DriversStore,
     private ordersService: AdminOrdersService,
     private ordersStore: OrdersStore,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
@@ -105,6 +108,7 @@ export class DriversComponent implements OnInit {
   }
 
   goToOrder(orderId: string) {
+    if (!this.permissionService.has('orders.read')) return;
     if (!orderId) return;
 
     this.router.navigate(['/admin/orders'], {

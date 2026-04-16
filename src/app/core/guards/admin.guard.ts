@@ -12,17 +12,21 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    const isLoggedIn = this.authService.hasToken();
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
 
-    if (!isLoggedIn) {
-      this.router.navigate(['/login']);
+    // Not authenticated
+    if (!token || !user) {
+      this.router.navigate(['/auth/login']);
       return false;
     }
 
-    if (this.authService.isAdmin()) {
+    // Only admin can access admin panel
+    if (user.role === 'admin') {
       return true;
     }
 
+    // Logged in but not admin
     this.router.navigate(['/']);
     return false;
   }

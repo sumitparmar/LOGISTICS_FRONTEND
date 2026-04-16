@@ -8,8 +8,8 @@
         </div>
 
         <div class="right">
-            <button class="primary-btn" (click)="openDrawer()">
-                + Create Role
+            <button *ngIf="permissionService.has('users.create')" class="primary-btn" (click)="openDrawer()"> + Create
+                Role
             </button>
         </div>
     </div>
@@ -71,7 +71,9 @@
         <!-- EMPTY -->
         <div *ngIf="!isLoading && roles.length === 0" class="state empty">
             <p>No roles found</p>
-            <button class="primary-btn" (click)="openDrawer()">Create First Role</button>
+            <button *ngIf="permissionService.has('users.create')" class="primary-btn" (click)="openDrawer()">
+                Create First Role
+            </button>
         </div>
 
         <!-- ================= TOOLBAR (SEARCH + PAGINATION) ================= -->
@@ -139,8 +141,17 @@
                             <td>{{ role.createdAt | date:'mediumDate' }}</td>
 
                             <td class="actions">
-                                <button class="link-btn" (click)="editRole(role)">Edit</button>
-                                <button class="link-btn danger" (click)="confirmDelete(role)">Delete</button>
+
+                                <button *ngIf="permissionService.has('users.update')" class="link-btn"
+                                    (click)="editRole(role)">
+                                    Edit
+                                </button>
+
+                                <button *ngIf="permissionService.has('users.delete')" class="link-btn danger"
+                                    (click)="confirmDelete(role)">
+                                    Delete
+                                </button>
+
                             </td>
 
                         </tr>
@@ -227,8 +238,10 @@
                 <div class="drawer-footer">
                     <button type="button" (click)="closeDrawer()">Cancel</button>
 
-                    <button type="button" class="primary-btn" [disabled]="createRoleForm.invalid || isCreating"
-                        (click)="createRole()">
+                    <button *ngIf="
+    (isEditMode && permissionService.has('users.update')) ||
+    (!isEditMode && permissionService.has('users.create'))
+  " type="button" class="primary-btn" [disabled]="createRoleForm.invalid || isCreating" (click)="createRole()">
 
                         {{
                         isCreating

@@ -7,8 +7,13 @@
 
     <!-- Card -->
     <div class="orders-card">
-        <div class="bulk-actions" *ngIf="selectedOrders.size > 0">
-
+        <div class="bulk-actions" *ngIf="
+    selectedOrders.size > 0 &&
+    (
+      permissionService.has('orders.update') ||
+      permissionService.has('orders.delete')
+    )
+  ">
             <span>
                 {{ selectedOrders.size }} selected
                 <small *ngIf="selectedOrders.size > orders.length">
@@ -23,7 +28,8 @@
 
 
             <!-- STATUS DROPDOWN -->
-            <select #bulkSelect (change)="onBulkStatusChange(bulkSelect.value, bulkSelect)" [disabled]="isBulkUpdating">
+            <select *ngIf="permissionService.has('orders.update')" #bulkSelect
+                (change)="onBulkStatusChange(bulkSelect.value, bulkSelect)" [disabled]="isBulkUpdating">
                 <option value="">Update Status</option>
                 <option value="ASSIGNED">Assigned</option>
                 <option value="PICKED_UP">Picked Up</option>
@@ -32,7 +38,7 @@
             </select>
 
             <!-- CANCEL -->
-            <button (click)="bulkCancel()" [disabled]="isBulkCancelling">
+            <button *ngIf="permissionService.has('orders.delete')" (click)="bulkCancel()" [disabled]="isBulkCancelling">
                 {{ isBulkCancelling ? 'Cancelling...' : 'Cancel Selected' }}
             </button>
 
@@ -136,7 +142,7 @@
 
                 <!-- RIGHT SIDE -->
                 <div class="controls-right">
-                    <button class="export-btn" (click)="confirmExport()"
+                    <button *ngIf="permissionService.has('orders.update')" class="export-btn" (click)="confirmExport()"
                         [disabled]="loading || isExporting || isExportingFromModal || !orders.length">
                         {{ (isExporting || isExportingFromModal) ? 'Exporting...' : 'Export CSV' }}
                     </button>
@@ -200,11 +206,22 @@
         </div>
         <ng-template #selectTemplate let-order let-isHeader="isHeader">
             <!-- HEADER CHECKBOX -->
-            <input *ngIf="isHeader" type="checkbox" [checked]="isAllSelectableChecked()"
-                (click)="toggleSelectAll(); $event.stopPropagation()" />
+            <input *ngIf="
+    isHeader &&
+    (
+      permissionService.has('orders.update') ||
+      permissionService.has('orders.delete')
+    )
+  " type="checkbox" [checked]="isAllSelectableChecked()" (click)="toggleSelectAll(); $event.stopPropagation()" />
 
             <!-- ROW CHECKBOX -->
-            <input *ngIf="!isHeader" type="checkbox" [checked]="selectedOrders.has(order._id)"
+            <input *ngIf="
+    !isHeader &&
+    (
+      permissionService.has('orders.update') ||
+      permissionService.has('orders.delete')
+    )
+  " type="checkbox" [checked]="selectedOrders.has(order._id)"
                 [disabled]="order.status === 'DELIVERED' || order.status === 'CANCELLED'"
                 (click)="toggleSelection(order); $event.stopPropagation()" />
         </ng-template>
@@ -221,10 +238,11 @@
             <div class="actions">
 
                 <!-- STOP ROW CLICK PROPAGATION -->
-                <lucide-icon name="edit" (click)="onEdit(order); $event.stopPropagation()">
+                <lucide-icon *ngIf="permissionService.has('orders.update')" name="edit"
+                    (click)="onEdit(order); $event.stopPropagation()">
                 </lucide-icon>
 
-                <lucide-icon name="trash"
+                <lucide-icon *ngIf="permissionService.has('orders.delete')" name="trash"
                     [class.disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
                     (click)="(order.status !== 'CANCELLED' && order.status !== 'DELIVERED') && onDelete(order); $event.stopPropagation()">
                 </lucide-icon>

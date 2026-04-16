@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminRolesService, Role } from '../../services/admin-roles.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-roles',
@@ -32,6 +33,7 @@ export class RolesComponent implements OnInit {
   constructor(
     private rolesService: AdminRolesService,
     private fb: FormBuilder,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
