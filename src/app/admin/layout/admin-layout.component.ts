@@ -18,22 +18,34 @@ export class AdminLayoutComponent implements OnInit {
   isDropdownOpen = false;
   notifications: any[] = [];
   currentUser: any = null;
+  globalSearch = '';
+  isUserMenuOpen = false;
+  isOnline = false;
 
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: Event) {
     const target = event.target as HTMLElement;
 
-    // ignore clicks inside dropdown or bell
     if (target.closest('.notification-wrapper')) {
       return;
     }
 
+    if (target.closest('.admin-user')) {
+      return;
+    }
+
+    if (target.closest('.user-dropdown')) {
+      return;
+    }
+
     this.isDropdownOpen = false;
+    this.isUserMenuOpen = false;
   }
 
   @HostListener('document:keydown.escape')
   handleEscape() {
     this.isDropdownOpen = false;
+    this.isUserMenuOpen = false;
   }
 
   constructor(
@@ -48,6 +60,7 @@ export class AdminLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
+    this.isOnline = !!this.currentUser;
     this.socketService.orderUpdate$.subscribe((payload: any) => {
       const order = payload?.data || payload;
       if (!order?._id) return;
@@ -111,5 +124,53 @@ export class AdminLayoutComponent implements OnInit {
     if (this.permissionService.has('notifications.read')) {
       this.router.navigate(['/admin/notifications']);
     }
+  }
+
+  runGlobalSearch(): void {
+    const term = this.globalSearch.trim();
+
+    if (!term) return;
+
+    const isNumeric = /^[0-9]+$/.test(term);
+    const isEmail = term.includes('@');
+
+    if (isNumeric || term.length >= 3) {
+      this.router.navigate(['/admin/orders'], {
+        queryParams: { search: term },
+      });
+      return;
+    }
+
+    if (isEmail) {
+      this.router.navigate(['/admin/users'], {
+        queryParams: { search: term },
+      });
+      return;
+    }
+
+    this.router.navigate(['/admin/orders'], {
+      queryParams: { search: term },
+    });
+  }
+
+  toggleUserMenu(event: Event): void {
+    event.stopPropagation();
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  goDashboard(): void {
+    this.isUserMenuOpen = false;
+    this.router.navigate(['/admin']);
+  }
+
+  goSettings(): void {
+    this.isUserMenuOpen = false;
+    this.router.navigate(['/admin/settings']);
+  }
+
+  logout(): void {
+    this.isUserMenuOpen = false;
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

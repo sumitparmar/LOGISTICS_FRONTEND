@@ -376,3 +376,69 @@
     width: calc(100vw - 20px);
   }
 }
+
+.admin-logo {
+  cursor: pointer;
+}
+
+.admin-logo:hover {
+  opacity: 0.9;
+}
+
+.status-dot.offline {
+  background: #94a3b8;
+}
+
+.admin-user {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 58px;
+  right: 0;
+  width: 180px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  padding: 8px;
+  z-index: 9999;
+  animation: dropdownFade 0.18s ease;
+}
+
+.user-dropdown button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.user-dropdown button:hover {
+  background: #f8fafc;
+}
+
+.user-dropdown button.danger {
+  color: #dc2626;
+}
+
+.user-dropdown button.danger:hover {
+  background: #fef2f2;
+}
+
+.search-box input::placeholder {
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .user-dropdown {
+    right: 0;
+    width: 160px;
+  }
+}

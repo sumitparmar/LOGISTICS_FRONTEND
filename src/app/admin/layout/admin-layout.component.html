@@ -3,8 +3,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
 
-        <div class="admin-logo">
-            <span class="logo-text">MoveKart</span>
+        <div class="admin-logo" routerLink="/admin"> <span class="logo-text">MoveKart</span>
             <span class="logo-sub"> Admin</span>
         </div>
 
@@ -91,7 +90,9 @@
             <!-- Search -->
             <div class="search-box">
                 <lucide-icon name="search"></lucide-icon>
-                <input type="text" placeholder="Search..." />
+
+                <input type="text" placeholder="Search orders, users..." [(ngModel)]="globalSearch"
+                    (keyup.enter)="runGlobalSearch()" />
             </div>
 
             <!-- Right Section -->
@@ -131,16 +132,14 @@
 
                 </div>
 
-                <div class="admin-user">
-
+                <div class="admin-user" (click)="toggleUserMenu($event)">
                     <div class="avatar-wrapper">
 
                         <div class="avatar">
                             {{ currentUser?.name?.charAt(0) || 'A' }}
                         </div>
 
-                        <span class="status-dot"></span>
-
+                        <span class="status-dot" [class.offline]="!isOnline"></span>
                     </div>
 
                     <div class="user-info">
@@ -155,6 +154,22 @@
                             }}
                         </div>
                     </div>
+
+                </div>
+
+                <div class="user-dropdown" *ngIf="isUserMenuOpen" (click)="$event.stopPropagation()">
+
+                    <button type="button" (click)="goDashboard()">
+                        Dashboard
+                    </button>
+
+                    <button type="button" (click)="goSettings()">
+                        Settings
+                    </button>
+
+                    <button type="button" class="danger" (click)="logout()">
+                        Logout
+                    </button>
 
                 </div>
             </div>

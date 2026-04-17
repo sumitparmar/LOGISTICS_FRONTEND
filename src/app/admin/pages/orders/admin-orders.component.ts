@@ -81,12 +81,15 @@ export class AdminOrdersComponent implements OnInit {
   ngOnInit(): void {
     this.initializeColumns();
     this.setupSearchDebounce();
+
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params: any) => {
         const status = params['status'];
+        const search = params['search'];
 
         this.selectedStatus = status || 'ALL';
+        this.searchTerm = search || '';
         this.page = 1;
 
         this.loadOrders();

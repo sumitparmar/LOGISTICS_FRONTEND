@@ -119,9 +119,8 @@
 
                 <!-- LEFT SIDE -->
                 <div class="controls-left">
-
-                    <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
-                        (searchChange)="onSearchChange($event)">
+                    <app-table-controls [page]="page" [totalPages]="totalPages" [search]="searchTerm"
+                        (pageChange)="onPageChange($event)" (searchChange)="onSearchChange($event)">
                     </app-table-controls>
 
                     <div class="advanced-filters">
