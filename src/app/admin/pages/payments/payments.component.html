@@ -1,1 +1,248 @@
-<p>payments works!</p>
+<div class="payments-page">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Payments</h1>
+            <p class="page-subtitle">
+                Manage COD collections and prepare for future online gateway integrations.
+            </p>
+        </div>
+
+        <div class="header-actions">
+            <button type="button" class="btn btn-secondary" (click)="exportPayments()" [disabled]="isExporting">
+                {{ isExporting ? 'Exporting...' : 'Export' }}
+            </button>
+
+            <button type="button" class="btn btn-primary" (click)="reconcilePayments()" [disabled]="isReconciling">
+                {{ isReconciling ? 'Reconciling...' : 'Reconcile' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Future Ready Notice -->
+    <div class="gateway-banner">
+        <div class="banner-dot"></div>
+
+        <div>
+            <strong>Gateway Status:</strong>
+            Online payment gateway not integrated yet. COD mode is active.
+        </div>
+    </div>
+
+    <div class="sync-meta" *ngIf="lastReconciledAt">
+        Last reconciled: {{ lastReconciledAt }}
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+
+        <div class="kpi-card">
+            <span class="kpi-label">Total COD Orders</span>
+            <h3>{{ summary.totalCodOrders }}</h3>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">Pending Collection</span>
+            <h3>₹{{ summary.pendingCollection }}</h3>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">Collected</span>
+            <h3>₹{{ summary.collectedAmount | number:'1.0-0' }}</h3>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">Refund Queue</span>
+            <h3>{{ summary.refundQueue }}</h3>
+        </div>
+
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+
+        <div class="filter-row">
+
+            <div class="field">
+                <label>Search</label>
+
+                <input type="text" placeholder="Order ID / Customer" [(ngModel)]="filters.search"
+                    (keyup.enter)="applyFilters()" />
+            </div>
+
+            <div class="field">
+                <label>Status</label>
+
+                <select [(ngModel)]="filters.status" (change)="applyFilters()">
+                    <option value="All">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Collected">Collected</option>
+                    <option value="Failed">Failed</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Payment Type</label>
+
+                <select [(ngModel)]="filters.type" (change)="applyFilters()">
+                    <option value="COD">COD</option>
+                    <option value="Online">Online</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Date</label>
+
+                <input type="date" [(ngModel)]="filters.date" (change)="applyFilters()" />
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+
+        <div class="table-header">
+            <h3>Transactions</h3>
+            <span class="table-count">{{ records.length }} Records</span>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th (click)="onSort('orderId')" class="sortable">
+                            Order ID
+                            <span class="sort-icon" *ngIf="sortBy === 'orderId'">
+                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                            </span>
+                        </th>
+
+                        <th (click)="onSort('customer')" class="sortable">
+                            Customer
+                            <span class="sort-icon" *ngIf="sortBy === 'customer'">
+                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                            </span>
+                        </th>
+
+                        <th (click)="onSort('amount')" class="sortable">
+                            Amount
+                            <span class="sort-icon" *ngIf="sortBy === 'amount'">
+                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                            </span>
+                        </th>
+
+                        <th>Type</th>
+
+                        <th (click)="onSort('status')" class="sortable">
+                            Status
+                            <span class="sort-icon" *ngIf="sortBy === 'status'">
+                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                            </span>
+                        </th>
+
+                        <th (click)="onSort('createdAt')" class="sortable">
+                            Date
+                            <span class="sort-icon" *ngIf="sortBy === 'createdAt'">
+                                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                            </span>
+                        </th>
+
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <!-- Loading -->
+                    <tr *ngIf="isLoading">
+                        <td colspan="7" class="empty-state">
+                            Loading payments...
+                        </td>
+                    </tr>
+
+                    <!-- Empty -->
+                    <tr *ngIf="!isLoading && records.length === 0">
+                        <td colspan="7" class="empty-state">
+                            No payment records available yet.
+                        </td>
+                    </tr>
+
+                    <!-- Data Rows -->
+                    <tr *ngFor="let item of records">
+                        <td>{{ item.orderId }}</td>
+                        <td>{{ item.customer }}</td>
+                        <td>₹{{ item.amount | number:'1.0-0' }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>
+                            <span class="status-badge" [ngClass]="{
+      'status-collected': item.status === 'Collected',
+      'status-pending': item.status === 'Pending',
+      'status-failed': item.status === 'Failed'
+    }">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td>{{ item.createdAt }}</td>
+                        <td class="text-right">
+                            <div class="row-actions">
+
+                                <button type="button" class="table-btn" (click)="viewOrder(item.orderId)">
+                                    View
+                                </button>
+
+                                <button type="button" class="table-btn secondary" (click)="copyOrderId(item.orderId)">
+                                    Copy
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+    <div class="pagination-bar" *ngIf="!isLoading && total > 0">
+        <div class="pagination-left">
+            <span class="pagination-meta">
+                Showing
+                {{ ((page - 1) * limit) + 1 }}
+                -
+                {{ (page * limit) > total ? total : (page * limit) }}
+                of
+                {{ total }}
+                records
+            </span>
+
+            <select class="limit-select" [ngModel]="limit" (ngModelChange)="onLimitChange($event)">
+                <option [ngValue]="10">10</option>
+                <option [ngValue]="25">25</option>
+                <option [ngValue]="50">50</option>
+            </select>
+        </div>
+
+        <div class="pagination-right">
+
+            <button type="button" class="page-btn" (click)="onPageChange(page - 1)" [disabled]="page === 1">
+                Prev
+            </button>
+
+            <span class="page-indicator">
+                Page {{ page }} of {{ totalPages }}
+            </span>
+
+            <button type="button" class="page-btn" (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
+                Next
+            </button>
+
+        </div>
+    </div>
+
+</div>
