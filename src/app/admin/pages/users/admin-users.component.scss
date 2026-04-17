@@ -10,7 +10,9 @@
 
 .users-title {
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: #111827;
   margin-bottom: 20px;
 }
@@ -24,21 +26,27 @@
 }
 
 /* ===============================
-   Card (Dashboard Consistent)
+   Card
 =============================== */
 
 .users-card {
   background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-
+  border-radius: 16px;
+  border: 1px solid #eef2f7;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.05),
+    0 2px 8px rgba(15, 23, 42, 0.03);
   padding: 20px;
-  transition: all 0.25s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .users-card:hover {
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 34px rgba(15, 23, 42, 0.08),
+    0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 /* ===============================
@@ -50,63 +58,78 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 /* ===============================
-   Filter Dropdown (NEW)
+   Scoped Select Styling
 =============================== */
 
-select {
+.users-controls select,
+.users-card table select,
+.users-card tbody select,
+.users-card td select {
   height: 36px;
-  padding: 0 10px;
-
-  border-radius: 8px;
+  padding: 0 12px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
-
   font-size: 13px;
+  font-weight: 500;
   color: #374151;
-
   cursor: pointer;
-  transition: all 0.2s ease;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
 
-select:hover {
+.users-controls select:hover,
+.users-card table select:hover,
+.users-card tbody select:hover,
+.users-card td select:hover {
   border-color: #d1d5db;
 }
 
-select:focus {
-  outline: none;
+.users-controls select:focus,
+.users-card table select:focus,
+.users-card tbody select:focus,
+.users-card td select:focus {
   border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
 }
 
 /* ===============================
-   Button (Design System)
+   Button
 =============================== */
 
 .primary-btn {
   height: 36px;
   padding: 0 14px;
-  border-radius: 8px;
-
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
   font-size: 13px;
-  font-weight: 500;
-  color: #111827;
-
+  font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
 
-.primary-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(79, 70, 229, 0.18);
+}
+
+.primary-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ===============================
@@ -116,7 +139,8 @@ select:focus {
 app-data-table {
   display: block;
   width: 100%;
-  overflow-x: auto; // ✅ prevents breaking on small screens
+  overflow-x: auto;
+  border-radius: 12px;
 }
 
 /* ===============================
@@ -133,16 +157,14 @@ app-data-table {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-
   background: rgba(79, 70, 229, 0.12);
   color: #4f46e5;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* ===============================
@@ -150,20 +172,24 @@ app-data-table {
 =============================== */
 
 .status {
-  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .status.active {
-  background: rgba(34, 197, 94, 0.12);
+  background: #ecfdf5;
   color: #16a34a;
 }
 
 .status.inactive {
-  background: rgba(239, 68, 68, 0.12);
+  background: #fef2f2;
   color: #dc2626;
 }
 
@@ -182,20 +208,23 @@ app-data-table {
   height: 18px;
   cursor: pointer;
   color: #6b7280;
-  transition: all 0.2s ease;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .actions lucide-icon:hover {
   color: #111827;
 }
 
-/* Specific icons */
 .action-icon {
-  transition: 0.2s ease;
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease;
 }
 
 .action-icon:hover {
-  transform: scale(1.12);
+  transform: scale(1.08);
 }
 
 /* ===============================
@@ -204,46 +233,55 @@ app-data-table {
 
 .empty-state {
   text-align: center;
-  padding: 30px;
+  padding: 32px;
   color: #9ca3af;
   font-size: 14px;
+  font-weight: 500;
 }
 
 /* ===============================
    RESPONSIVE DESIGN
 =============================== */
 
-/* Tablet */
 @media (max-width: 1024px) {
   .users-title {
-    font-size: 20px;
+    font-size: 21px;
   }
 
   .users-card {
-    padding: 16px;
+    padding: 18px;
   }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .users-controls {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .users-controls select,
   .primary-btn {
     width: 100%;
   }
 
-  select {
-    width: 100%;
+  .users-card {
+    padding: 16px;
+  }
+
+  .users-title {
+    font-size: 20px;
   }
 }
 
-/* Small Mobile */
 @media (max-width: 480px) {
   .users-title {
     font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .users-card {
+    padding: 14px;
+    border-radius: 14px;
   }
 
   .avatar {
@@ -253,7 +291,17 @@ app-data-table {
   }
 
   .status {
-    font-size: 11px;
-    padding: 4px 10px;
+    min-height: 26px;
+    font-size: 10px;
+    padding: 0 10px;
+  }
+
+  .primary-btn,
+  .users-controls select,
+  .users-card table select,
+  .users-card tbody select,
+  .users-card td select {
+    height: 34px;
+    font-size: 12px;
   }
 }

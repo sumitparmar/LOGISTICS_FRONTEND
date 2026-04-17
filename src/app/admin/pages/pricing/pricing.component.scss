@@ -1,11 +1,3 @@
-/* ================================================================
-   PRICING COMPONENT — PRODUCTION SCSS
-   Audited against full HTML: range filter, export, analytics,
-   charts grid, simulator, confirm modal, save bar.
-   ================================================================ */
-
-/* ================= BOX MODEL RESET ================= */
-
 *,
 *::before,
 *::after {
@@ -30,23 +22,26 @@
 
   --border: #e5e7eb;
   --border-strong: #d1d5db;
+
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --bg-muted: #f8fafc;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 14px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
   --radius-pill: 999px;
 
   --shadow-sm:
-    0 1px 3px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04);
-  --shadow-md:
-    0 4px 12px rgba(15, 23, 42, 0.07), 0 8px 24px rgba(15, 23, 42, 0.06);
-  --shadow-hover:
-    0 6px 18px rgba(15, 23, 42, 0.09), 0 16px 36px rgba(15, 23, 42, 0.07);
+    0 10px 24px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.02);
 
-  --transition: 0.17s ease;
+  --shadow-md:
+    0 16px 34px rgba(15, 23, 42, 0.07), 0 4px 12px rgba(15, 23, 42, 0.03);
+
+  --shadow-hover:
+    0 22px 46px rgba(15, 23, 42, 0.09), 0 8px 18px rgba(15, 23, 42, 0.05);
+
+  --transition: 0.18s ease;
 
   display: block;
   width: 100%;
@@ -57,17 +52,18 @@
 
 .pricing-page {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 28px 24px 96px;
-  background: var(--bg-page);
   min-height: calc(100vh - 64px);
+  background: var(--bg-page);
+
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ================= PAGE HEADER ================= */
+/* ================= HEADER ================= */
 
 .page-header {
   display: flex;
@@ -75,19 +71,19 @@
   gap: 4px;
 
   h2 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.3px;
     margin: 0;
+    font-size: 24px;
     line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
   }
 
   p.sub-text {
-    font-size: 13px;
-    color: var(--text-muted);
     margin: 0;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
   }
 }
 
@@ -95,36 +91,36 @@
 
 .range-filter {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 
   button {
-    padding: 7px 16px;
+    padding: 8px 16px;
     border-radius: var(--radius-pill);
     border: 1px solid var(--border);
     background: var(--bg-card);
-    font-size: 13px;
-    font-weight: 500;
     color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     transition: all var(--transition);
-    white-space: nowrap;
 
     &:hover {
+      background: var(--primary-light);
       border-color: var(--primary-border);
       color: var(--primary);
-      background: var(--primary-light);
     }
 
     &.active {
       background: var(--primary);
       color: #ffffff;
       border-color: var(--primary);
+      box-shadow: 0 10px 18px rgba(79, 70, 229, 0.16);
     }
   }
 }
 
-/* ================= EXPORT WRAPPER ================= */
+/* ================= EXPORT ================= */
 
 .export-wrapper {
   display: flex;
@@ -134,28 +130,30 @@
 .export-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: var(--bg-card);
-  color: var(--primary);
-  border: 1px solid var(--primary-border);
+  gap: 8px;
+
+  padding: 10px 18px;
   border-radius: var(--radius-sm);
+
+  background: var(--bg-card);
+  border: 1px solid var(--primary-border);
+  color: var(--primary);
+
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+
   cursor: pointer;
   transition: all var(--transition);
-  white-space: nowrap;
 
   &::before {
     content: "↓";
     font-size: 14px;
-    font-weight: 700;
   }
 
   &:hover:not(:disabled) {
     background: var(--primary);
-    color: #ffffff;
     border-color: var(--primary);
+    color: #fff;
   }
 
   &:disabled {
@@ -164,7 +162,7 @@
   }
 }
 
-/* ================= PRICING CONTAINER (form) ================= */
+/* ================= CONTAINER ================= */
 
 .pricing-container {
   display: flex;
@@ -172,23 +170,22 @@
   gap: 16px;
 }
 
-/* ================= SHARED CARD ================= */
+/* ================= CARD ================= */
 
 .card {
   background: var(--bg-card);
-  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  transition:
-    box-shadow var(--transition),
-    transform var(--transition);
+
   overflow: hidden;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
 
   &:hover {
-    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
   .card-body {
@@ -196,39 +193,33 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    position: relative;
     width: 100%;
-    overflow: hidden;
   }
 
   h3,
   h4 {
     margin: 0;
     font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
+    font-weight: 800;
     line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 
   p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
     margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
   }
 }
 
-/* ================= OVERVIEW CARD ================= */
+/* ================= SPECIAL CARDS ================= */
 
 .pricing-overview {
   border-left: 3px solid var(--primary);
-  background: linear-gradient(
-    100deg,
-    rgba(79, 70, 229, 0.05) 0%,
-    var(--bg-card) 60%
-  );
+  background: linear-gradient(120deg, rgba(79, 70, 229, 0.05) 0%, #ffffff 62%);
 
   &:hover {
     transform: none;
@@ -236,7 +227,17 @@
   }
 }
 
-/* ================= PRICING GRID ================= */
+.simulator {
+  border-color: var(--primary-border);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, #ffffff 72%);
+
+  &:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ================= GRID ================= */
 
 .pricing-grid {
   display: grid;
@@ -244,37 +245,56 @@
   gap: 16px;
 }
 
-/* ================= FORM GROUP ================= */
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ================= FORM ================= */
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin: 0;
+  gap: 6px;
 
   label {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    letter-spacing: 0.45px;
     color: var(--text-muted);
-    display: block;
   }
 
   input:not([type="checkbox"]) {
     width: 100%;
-    height: 38px;
+    height: 42px;
+    padding: 0 12px;
+
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
-    padding: 0 12px;
-    font-size: 14px;
-    color: var(--text-primary);
+
     background: var(--bg-muted);
+    color: var(--text-primary);
+
+    font-size: 14px;
     transition:
       border-color var(--transition),
-      background var(--transition),
-      box-shadow var(--transition);
-    box-sizing: border-box;
+      box-shadow var(--transition),
+      background var(--transition);
+
     appearance: none;
     -webkit-appearance: none;
 
@@ -287,15 +307,10 @@
     }
 
     &:focus {
-      border-color: var(--primary);
-      background: var(--bg-card);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
       outline: none;
-    }
-
-    &[type="time"] {
-      padding-right: 8px;
-      cursor: pointer;
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
     }
 
     &[type="number"] {
@@ -314,46 +329,6 @@
     height: 16px;
     accent-color: var(--primary);
     cursor: pointer;
-    flex-shrink: 0;
-  }
-}
-
-/* ================= HINT ================= */
-
-.hint {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* ================= VEHICLE GRID ================= */
-
-.vehicle-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-/* ================= GRID-2 ================= */
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* ================= TIME RANGE ================= */
-
-.time-range {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-
-  input {
-    flex: 1;
-    min-width: 0;
   }
 }
 
@@ -362,68 +337,69 @@
 .toggle {
   display: inline-flex !important;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
+
   font-size: 14px !important;
   font-weight: 500 !important;
-  text-transform: none !important;
   letter-spacing: 0 !important;
+  text-transform: none !important;
+
   color: var(--text-secondary) !important;
   cursor: pointer;
-  user-select: none;
 }
 
-/* ================= SIMULATOR CARD ================= */
+/* ================= TIME RANGE ================= */
 
-.simulator {
-  border-color: var(--primary-border);
-  background: linear-gradient(
-    135deg,
-    rgba(79, 70, 229, 0.04) 0%,
-    var(--bg-card) 70%
-  );
+.time-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-  &:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm);
+  input {
+    flex: 1;
+    min-width: 0;
   }
 }
 
-/* ================= RESULT BOX ================= */
+/* ================= TEXT HELPERS ================= */
+
+.hint,
+.metric-hint {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.metric-hint {
+  margin-top: 6px;
+}
+
+/* ================= RESULT ================= */
 
 .result-box {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 6px;
 
   label {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    letter-spacing: 0.45px;
     color: var(--text-muted);
-    display: block;
   }
 }
 
 .result {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--primary);
-  letter-spacing: -0.5px;
-  line-height: 1.2;
 }
 
-/* ================= CANVAS (Chart.js) ================= */
-
-canvas {
-  display: block !important;
-  width: 100% !important;
-  height: 300px !important;
-  max-width: 100%;
-}
-
-/* ================= ANALYTICS SECTION ================= */
+/* ================= ANALYTICS ================= */
 
 .analytics-section {
   display: flex;
@@ -444,21 +420,22 @@ canvas {
   }
 }
 
-/* ================= CHARTS GRID ================= */
+/* ================= CANVAS ================= */
 
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 300px !important;
+  max-width: 100%;
 }
 
-/* ================= EMPTY STATE ================= */
+/* ================= EMPTY ================= */
 
 .empty-state {
-  font-size: 13px;
-  color: var(--text-muted);
   text-align: center;
   padding: 24px 0;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 /* ================= SAVE BAR ================= */
@@ -466,38 +443,45 @@ canvas {
 .save-bar {
   position: sticky;
   bottom: 0;
-  background: rgba(248, 250, 252, 0.96);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
+  z-index: 10;
+
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  z-index: 10;
+
+  padding: 12px 0;
+
+  border-top: 1px solid var(--border);
+  background: rgba(248, 250, 252, 0.96);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* ================= BUTTONS ================= */
 
-.btn-primary {
+.btn-primary,
+.btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary);
-  color: #ffffff;
-  border: none;
+
+  min-width: 148px;
   padding: 10px 22px;
+
   border-radius: var(--radius-sm);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+
   cursor: pointer;
-  transition:
-    background var(--transition),
-    transform var(--transition),
-    box-shadow var(--transition);
-  white-space: nowrap;
-  min-width: 148px;
+  transition: all var(--transition);
+}
+
+.btn-primary {
+  border: none;
+  background: var(--primary);
+  color: #fff;
 
   &:hover:not(:disabled) {
     background: var(--primary-hover);
@@ -505,34 +489,16 @@ canvas {
     box-shadow: var(--shadow-md);
   }
 
-  &:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: none;
-  }
-
   &:disabled {
     opacity: 0.55;
     cursor: not-allowed;
-    transform: none;
   }
 }
 
 .btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-card);
   border: 1px solid var(--border-strong);
+  background: #fff;
   color: var(--text-secondary);
-  padding: 10px 22px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background var(--transition),
-    border-color var(--transition);
-  white-space: nowrap;
 
   &:hover {
     background: var(--bg-muted);
@@ -545,8 +511,9 @@ canvas {
 .loader-box {
   padding: 56px 24px;
   text-align: center;
-  font-size: 14px;
   color: var(--text-muted);
+  font-size: 14px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -556,12 +523,10 @@ canvas {
     content: "";
     width: 28px;
     height: 28px;
-    border: 2.5px solid var(--border);
-    border-top-color: var(--primary);
     border-radius: 50%;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
     animation: spin 0.85s linear infinite;
-    display: block;
-    flex-shrink: 0;
   }
 }
 
@@ -571,35 +536,38 @@ canvas {
   }
 }
 
-/* ================= CONFIRM MODAL ================= */
+/* ================= MODAL ================= */
 
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  z-index: 1000;
+
+  padding: 16px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 16px;
+
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  box-sizing: border-box;
 }
 
 .confirm-box {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  padding: 28px 24px;
   width: 100%;
   max-width: 360px;
-  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.18);
+
+  padding: 28px 24px;
+  border-radius: var(--radius-md);
+
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+
   text-align: center;
-  animation: modal-in 0.17s ease;
-  box-sizing: border-box;
+  animation: modalIn 0.18s ease;
 }
 
-@keyframes modal-in {
+@keyframes modalIn {
   from {
     opacity: 0;
     transform: translateY(8px) scale(0.98);
@@ -611,17 +579,17 @@ canvas {
 }
 
 .confirm-title {
+  margin: 0 0 8px;
   font-size: 17px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px;
 }
 
 .confirm-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
   margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 .confirm-actions {
@@ -637,11 +605,7 @@ canvas {
   }
 }
 
-/* ================================================================
-   RESPONSIVE BREAKPOINTS
-   ================================================================ */
-
-/* ---- TABLET WIDE (≤ 1024px) ---- */
+/* ================= RESPONSIVE ================= */
 
 @media (max-width: 1024px) {
   .pricing-page {
@@ -657,28 +621,20 @@ canvas {
   }
 }
 
-/* ---- TABLET (≤ 900px) ---- */
-
 @media (max-width: 900px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Keep analytics 2-col at tablet */
-  .analytics-section .pricing-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
+  .pricing-grid,
   .charts-grid {
     grid-template-columns: 1fr;
+  }
+
+  .analytics-section .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .vehicle-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* ---- MOBILE (≤ 640px) ---- */
 
 @media (max-width: 640px) {
   .pricing-page {
@@ -687,17 +643,14 @@ canvas {
   }
 
   .page-header h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .card .card-body {
     padding: 14px 16px;
   }
 
-  .vehicle-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .vehicle-grid,
   .grid-2 {
     grid-template-columns: 1fr;
   }
@@ -712,14 +665,11 @@ canvas {
   }
 
   .result {
-    font-size: 20px;
+    font-size: 22px;
   }
 
-  .save-bar {
-    padding: 10px 0;
-  }
-
-  .btn-primary {
+  .btn-primary,
+  .btn-outline {
     width: 100%;
     min-width: unset;
   }
@@ -729,11 +679,9 @@ canvas {
   }
 }
 
-/* ---- SMALL MOBILE (≤ 420px) ---- */
-
 @media (max-width: 420px) {
   .page-header h2 {
-    font-size: 17px;
+    font-size: 18px;
   }
 
   .analytics-section .pricing-grid {
@@ -741,8 +689,8 @@ canvas {
   }
 
   .range-filter button {
-    padding: 6px 12px;
     font-size: 12px;
+    padding: 7px 12px;
   }
 
   .confirm-actions {
@@ -753,11 +701,4 @@ canvas {
       width: 100%;
     }
   }
-}
-
-.metric-hint {
-  display: block;
-  margin-top: 6px;
-  font-size: 12px;
-  color: #8a8fa3;
 }

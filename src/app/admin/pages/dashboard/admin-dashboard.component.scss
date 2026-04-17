@@ -1,143 +1,197 @@
-//
-
 :host {
   display: block;
   width: 100%;
 }
 
-/* ============================= */
-/* BASE LAYOUT */
-/* ============================= */
+/* =============================
+   BASE LAYOUT
+============================= */
 
 .dashboard {
+  min-height: calc(100vh - 72px);
   padding: 24px;
   background: #f8fafc;
-  min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ============================= */
-/* HEADER */
-/* ============================= */
+/* =============================
+   HEADER
+============================= */
 
 .dashboard-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
 .dashboard-title {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: #0f172a;
 }
 
-/* FILTER */
+/* =============================
+   RANGE FILTER
+============================= */
 
 .range-filter {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
 .range-filter button {
-  height: 34px;
+  height: 36px;
+  min-width: 68px;
   padding: 0 14px;
-  border-radius: 10px;
   border: 1px solid #e5e7eb;
+  border-radius: 12px;
   background: #ffffff;
-  font-size: 12px;
-  font-weight: 500;
   color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 64px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .range-filter button:hover {
-  background: #f9fafb;
+  background: #f8fafc;
+  color: #111827;
+  transform: translateY(-1px);
+}
+
+.range-filter button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
 }
 
 .range-filter button.active {
-  background: #4f46e5;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
   color: #ffffff;
   border-color: transparent;
+  box-shadow: 0 10px 18px rgba(79, 70, 229, 0.18);
 }
 
-/* ============================= */
-/* KPI CARDS */
-/* ============================= */
+/* =============================
+   KPI GRID
+============================= */
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
-/* Individual Card */
+/* =============================
+   KPI CARD
+============================= */
 
 .dashboard-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 128px;
   padding: 18px;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid #eef2f7;
   background: #ffffff;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-  transition: all 0.2s ease;
-  min-height: 110px;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.05),
+    0 2px 8px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  opacity: 0.75;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-3px);
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.08),
+    0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 /* Variants */
 
 .dashboard-card.users {
-  background: #eef2ff;
+  background: linear-gradient(180deg, #eef2ff 0%, #ffffff 72%);
+}
+
+.dashboard-card.users::after {
+  background: #6366f1;
 }
 
 .dashboard-card.orders {
-  background: #fff7ed;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 72%);
+}
+
+.dashboard-card.orders::after {
+  background: #f97316;
 }
 
 .dashboard-card.revenue {
-  background: #ecfdf5;
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 72%);
 }
 
-/* Card Content */
+.dashboard-card.revenue::after {
+  background: #16a34a;
+}
+
+/* =============================
+   CARD CONTENT
+============================= */
 
 .card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .card-title {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   color: #64748b;
+  text-transform: uppercase;
 }
 
 .card-value {
-  font-size: 26px;
-  font-weight: 700;
-  margin-top: 10px;
+  margin-top: 12px;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: #0f172a;
 }
 
 .card-change {
+  margin-top: 8px;
   font-size: 12px;
-  margin-top: 6px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .card-change.positive {
@@ -148,16 +202,20 @@
   color: #dc2626;
 }
 
-/* Icon */
+/* =============================
+   ICON
+============================= */
 
 .card-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
 }
 
 .card-icon lucide-icon {
@@ -166,47 +224,53 @@
   color: #4f46e5;
 }
 
-/* ============================= */
-/* CHART */
-/* ============================= */
+/* =============================
+   CHART CARD
+============================= */
 
 .chart-card {
-  margin-top: 8px;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 20px;
   border: 1px solid #eef2f7;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.05),
+    0 2px 8px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
 }
 
 .chart-header {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
   font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 14px;
+  font-weight: 700;
   color: #0f172a;
 }
 
-/* Chart Responsive Fix */
+/* Chart Responsive */
 .chart-card canvas {
   width: 100% !important;
-  height: 320px !important;
-  max-height: 40vh;
+  height: 340px !important;
+  max-height: 44vh;
 }
 
-/* Empty */
+/* =============================
+   EMPTY STATE
+============================= */
 
 .no-data {
+  padding: 44px 0;
   text-align: center;
-  padding: 40px 0;
   color: #94a3b8;
   font-size: 14px;
+  font-weight: 500;
 }
 
-/* ============================= */
-/* SKELETON */
-/* ============================= */
+/* =============================
+   SKELETON
+============================= */
 
 .dashboard-skeleton {
   display: flex;
@@ -216,15 +280,16 @@
 
 .skeleton-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .skeleton-title {
-  width: 140px;
-  height: 20px;
-  border-radius: 6px;
+  width: 150px;
+  height: 22px;
+  border-radius: 8px;
   background: #e2e8f0;
 }
 
@@ -235,75 +300,76 @@
 }
 
 .skeleton-btn {
-  width: 70px;
-  height: 30px;
-  border-radius: 8px;
+  width: 72px;
+  height: 34px;
+  border-radius: 12px;
   background: #e2e8f0;
 }
 
 .skeleton-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
-.skeleton-card {
-  height: 100px;
-  border-radius: 14px;
+.skeleton-card,
+.skeleton-chart {
+  border-radius: 18px;
   background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
   background-size: 400% 100%;
-  animation: shimmer 1.2s infinite;
+  animation: shimmer 1.2s infinite linear;
+}
+
+.skeleton-card {
+  height: 128px;
 }
 
 .skeleton-chart {
-  height: 280px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
-  background-size: 400% 100%;
-  animation: shimmer 1.2s infinite;
+  height: 300px;
 }
 
 @keyframes shimmer {
   0% {
     background-position: 100% 0;
   }
+
   100% {
     background-position: -100% 0;
   }
 }
 
-/* ============================= */
-/* RESPONSIVE */
-/* ============================= */
+/* =============================
+   LARGE TABLET
+============================= */
 
-/* Tablet */
 @media (max-width: 1024px) {
   .dashboard {
     padding: 20px;
   }
 
-  .dashboard-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
+  .dashboard-cards,
   .skeleton-cards {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .chart-card canvas {
-    height: 280px !important;
+    height: 300px !important;
   }
 }
 
-/* Mobile */
+/* =============================
+   TABLET
+============================= */
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 16px;
+    gap: 16px;
   }
 
   .dashboard-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .range-filter {
@@ -312,15 +378,20 @@
 
   .range-filter button {
     flex: 1;
-    text-align: center;
+    min-width: auto;
   }
 
-  .dashboard-cards {
-    grid-template-columns: 1fr;
-  }
-
+  .dashboard-cards,
   .skeleton-cards {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    min-height: 118px;
+  }
+
+  .card-value {
+    font-size: 28px;
   }
 
   .chart-card {
@@ -328,26 +399,63 @@
   }
 
   .chart-card canvas {
-    height: 240px !important;
+    height: 260px !important;
   }
 }
 
-/* Small Mobile */
+/* =============================
+   MOBILE
+============================= */
+
 @media (max-width: 480px) {
-  .dashboard-title {
-    font-size: 18px;
+  .dashboard {
+    padding: 12px;
   }
 
-  .card-value {
-    font-size: 22px;
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .range-filter {
+    gap: 6px;
   }
 
   .range-filter button {
+    height: 34px;
     font-size: 11px;
-    height: 32px;
+    padding: 0 10px;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+    min-height: 110px;
+  }
+
+  .card-title {
+    font-size: 11px;
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .chart-header {
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
   }
 
   .chart-card canvas {
     height: 220px !important;
+  }
+
+  .skeleton-chart {
+    height: 240px;
   }
 }
