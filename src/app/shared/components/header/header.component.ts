@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -8,86 +9,83 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
-  menuOpen = false;
   currentUrl: string = '';
   userName: string = '';
   userInitial: string = '';
   isLoggedIn: boolean = false;
   isAdmin: boolean = false;
+  isMenuOpen: boolean = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
+    this.currentUrl = this.router.url;
+
     this.authService.isAuthenticated$.subscribe((status) => {
       this.isLoggedIn = status;
 
       if (status) {
         this.loadUser();
       } else {
-        this.userName = '';
-        this.userInitial = '';
+        this.resetUser();
       }
     });
 
-    this.currentUrl = this.router.url;
-
-    this.router.events.subscribe(() => {
-      this.currentUrl = this.router.url;
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.currentUrl = this.router.url;
+        this.isMenuOpen = false;
+      });
   }
 
-  isMenuOpen = false;
-
-  toggleMenu() {
+  toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  loadUser() {
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
+  loadUser(): void {
     const user = this.authService.getUser();
-    // if (user && user.name) {
-    //   this.userName = user.name;
-    //   this.userInitial = user.name.charAt(0).toUpperCase();
-    // }
 
     if (user) {
       this.userName = user.name || '';
       this.userInitial = user.name?.charAt(0)?.toUpperCase() || '';
-
       this.isAdmin = user.role?.toLowerCase() === 'admin';
     }
   }
 
-  clearUser() {
+  resetUser(): void {
     this.userName = '';
     this.userInitial = '';
+    this.isAdmin = false;
   }
 
-  openMenu() {
-    this.menuOpen = true;
-  }
-
-  closeMenu() {
-    this.menuOpen = false;
-  }
-
-  goToProfile() {
+  goToProfile(): void {
+    this.closeMenu();
     this.router.navigate(['/app/profile']);
   }
 
   logout(): void {
+    this.closeMenu();
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
 
-  goToLogin() {
+  goToLogin(): void {
+    this.closeMenu();
+
     if (this.router.url !== '/auth/login') {
       this.router.navigate(['/auth/login']);
     }
   }
 
-  openAdminPanel() {
+  openAdminPanel(): void {
     window.open('/admin', '_blank');
   }
 }

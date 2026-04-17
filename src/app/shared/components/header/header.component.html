@@ -2,39 +2,45 @@
 
     <div class="container">
 
-        <!-- Logo Section -->
-        <div class="logo">
-            <img src="assets/images/movekart-logo.png" alt="MoveKart" />
-        </div>
-        <div class="menu-toggle" (click)="toggleMenu()">
+        <!-- Logo -->
+        <a class="logo" routerLink="/">
+            <img src="assets/images/movekart-logo.png" alt="MoveKart Logistics" />
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="menu-toggle" (click)="toggleMenu()" type="button">
             ☰
-        </div>
-        <!-- Navigation -->
-        <nav class="nav-links" [class.open]="isMenuOpen"> <a routerLink="/app/dashboard"
-                routerLinkActive="active">Home</a>
-            <a routerLink="/pricing" routerLinkActive="active">Pricing</a>
-            <a routerLink="/track" routerLinkActive="active">Track Order</a>
-            <a routerLink="/about" routerLinkActive="active">About Us</a>
-            <a routerLink="/contact" routerLinkActive="active">Contact Us</a>
+        </button>
+
+        <!-- Nav -->
+        <nav class="nav-links" [class.open]="isMenuOpen">
+
+            <a routerLink="/app/dashboard" routerLinkActive="active" (click)="closeMenu()">Home</a>
+
+            <a routerLink="/pricing" routerLinkActive="active" (click)="closeMenu()">Pricing</a>
+
+            <a routerLink="/track" routerLinkActive="active" (click)="closeMenu()">Track Order</a>
+
+            <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About Us</a>
+
+            <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+
         </nav>
 
-        <!-- Right Section -->
+        <!-- Right -->
         <div class="nav-right">
 
-            <!--  LOGGED IN -->
             <ng-container *ngIf="isLoggedIn; else guestUser">
 
-
-                <button *ngIf="isAdmin" class="admin-btn" (click)="openAdminPanel()">
+                <button *ngIf="isAdmin" class="admin-btn" (click)="openAdminPanel()" type="button">
                     Admin Panel
                 </button>
 
-                <!-- Profile -->
                 <div class="profile-menu">
 
-                    <div class="avatar" (click)="goToProfile()">
+                    <button class="avatar" type="button">
                         {{ userInitial }}
-                    </div>
+                    </button>
 
                     <div class="dropdown">
 
@@ -56,25 +62,14 @@
 
                 </div>
 
-
-
-
-
-
-
-
-
-                <!-- Logout Button -->
-                <button class="logout-btn" (click)="logout()">
-                    Logout
-                </button>
-
             </ng-container>
 
             <ng-template #guestUser>
-                <button class="login-btn" (click)="goToLogin()" [disabled]="currentUrl === '/auth/login'">
+
+                <button class="login-btn" (click)="goToLogin()" [disabled]="currentUrl === '/auth/login'" type="button">
                     Login
                 </button>
+
             </ng-template>
 
         </div>

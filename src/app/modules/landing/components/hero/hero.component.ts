@@ -116,8 +116,10 @@ export class HeroComponent implements OnInit, AfterViewInit {
   }
 
   bookDelivery() {
-    if (!this.price) return;
-
+    if (!this.price) {
+      this.errorMessage = 'Please check price first.';
+      return;
+    }
     const data = {
       pickup: this.quoteForm.value.pickup,
       drop: this.quoteForm.value.drop,

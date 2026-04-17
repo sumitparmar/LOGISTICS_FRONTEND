@@ -6,9 +6,14 @@
         <div class="hero-left layout-left">
 
             <h1 class="hero-title">
-                INDIA’S FAST & AFFORDABLE <br />
-                <span class="highlight">LOGISTICS & TRUCK BOOKING</span> SERVICE
+                India’s Fast & Affordable <br />
+                <span class="highlight">Logistics & Truck Booking</span> Service
             </h1>
+
+            <p class="hero-sub">
+                MoveKart provides truck booking service, mini truck booking,
+                pickup truck service and goods transport solutions across India.
+            </p>
 
             <div class="hero-points">
 
@@ -51,8 +56,7 @@
 
             <div class="hero-buttons">
 
-                <button class="primary-btn" (click)="bookDelivery()">
-                    Book Delivery
+                <button class="primary-btn" (click)="bookDelivery()" [disabled]="!price"> Book Delivery
                 </button>
 
                 <button class="secondary-btn" routerLink="/auth/login">
