@@ -49,15 +49,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.statusFilter = params['status'] || null;
+      this.searchText = params['search'] || '';
+      this.page = 1;
 
       this.loadOrders();
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.routeSub) {
-      this.routeSub.unsubscribe();
-    }
   }
 
   trackOrderEvent(order: any) {
@@ -132,19 +128,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.loadOrders();
   }
 
-  // calculateStats(orders: any[]): void {
-  //   this.stats.active = orders.filter((o) =>
-  //     this.ACTIVE_STATUSES.includes(o.status),
-  //   ).length;
-
-  //   this.stats.delivered = orders.filter(
-  //     (o) => o.status === 'DELIVERED',
-  //   ).length;
-
-  //   this.stats.cancelled = orders.filter(
-  //     (o) => o.status === 'CANCELLED',
-  //   ).length;
-  // }
   searchTimeout: any;
 
   applyStatusFilter(): void {
@@ -164,7 +147,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.searchTimeout = setTimeout(() => {
       this.page = 1;
 
-      this.loadOrders();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          search: this.searchText || null,
+        },
+        queryParamsHandling: 'merge',
+      });
     }, 400);
   }
 
@@ -180,16 +169,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  // cancelOrder(orderId: string): void {
-  //   if (!confirm('Cancel this order?')) return;
-
-  //   this.ordersService.cancelOrder(orderId).subscribe({
-  //     next: () => this.loadOrders(),
-
-  //     error: (err) => console.error('Cancel order failed', err),
-  //   });
-  // }
-
   openCancelModal(orderId: string): void {
     this.orderToCancel = orderId;
     this.showCancelModal = true;
@@ -199,6 +178,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.showCancelModal = false;
     this.orderToCancel = null;
   }
+
   confirmCancel(): void {
     if (!this.orderToCancel) return;
 
@@ -209,6 +189,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.ordersService.cancelOrder(this.orderToCancel).subscribe({
       next: () => {
         this.closeCancelModal();
+        this.page = 1;
         this.loadOrders();
       },
       error: (err) => {
@@ -225,13 +206,19 @@ export class OrdersComponent implements OnInit, OnDestroy {
   getVehicleIcon(id: number): string {
     switch (id) {
       case 1:
-        return '🏍️'; // Bike
+        return '🛺';
 
       case 2:
-        return '🚚'; // Mini Truck
+        return '🚚';
 
       case 3:
-        return '🚛'; // Truck
+        return '🚛';
+
+      case 5:
+        return '🚐';
+
+      case 8:
+        return '🏍️';
 
       default:
         return '🚚';
@@ -241,56 +228,37 @@ export class OrdersComponent implements OnInit, OnDestroy {
   getVehicleLabel(id: number): string {
     switch (id) {
       case 1:
-        return 'Bike';
+        return 'Mini 3-Wheeler';
 
       case 2:
-        return 'Mini Truck';
+        return 'Tata Ace 8ft';
 
       case 3:
-        return 'Truck';
+        return 'Tata Ace 7ft';
+
+      case 5:
+        return 'Tempo Truck';
+
+      case 8:
+        return 'Motorbike';
 
       default:
-        return 'Vehicle';
+        return 'Assigned Vehicle';
     }
   }
 
   getEstimatedDuration(order: any): string {
-    const points = order?.rawProviderResponse?.order?.points;
+    const eta =
+      order?.rawProviderResponse?.order?.points?.[1]
+        ?.estimated_arrival_datetime;
 
-    if (!points || points.length < 2) return 'Calculating';
+    if (eta) {
+      return eta;
+    }
 
-    const pickup = points[0];
-    const drop = points[1];
-
-    if (!pickup?.latitude || !drop?.latitude) return 'Calculating';
-
-    const lat1 = Number(pickup.latitude);
-    const lng1 = Number(pickup.longitude);
-    const lat2 = Number(drop.latitude);
-    const lng2 = Number(drop.longitude);
-
-    const R = 6371;
-
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c;
-
-    const avgSpeed = 30;
-
-    const durationMinutes = Math.round((distance / avgSpeed) * 60);
-
-    return durationMinutes + ' mins';
+    return 'Awaiting ETA';
   }
+
   openOrder(id: string): void {
     this.analytics.trackEvent('view_order_details', {
       orderId: id,
@@ -318,5 +286,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.limit = limit;
     this.page = 1;
     this.loadOrders();
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
+
+    clearTimeout(this.searchTimeout);
   }
 }

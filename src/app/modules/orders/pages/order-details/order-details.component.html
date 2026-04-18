@@ -16,6 +16,42 @@
             </div>
         </div>
 
+
+        <div class="order-progress-wrap">
+
+            <div class="order-card">
+                <div class="card-header">
+                    <h3>Shipment Progress</h3>
+                </div>
+
+                <div class="progress-bar">
+
+                    <div class="progress-step" [class.active]="isStepActive('CREATED')">
+                        Created
+                    </div>
+
+                    <div class="progress-step" [class.active]="isStepActive('ASSIGNED')">
+                        Assigned
+                    </div>
+
+                    <div class="progress-step" [class.active]="isStepActive('PICKED_UP')">
+                        Picked Up
+                    </div>
+
+                    <div class="progress-step" [class.active]="isStepActive('IN_TRANSIT')">
+                        Transit
+                    </div>
+
+                    <div class="progress-step" [class.active]="isStepActive('DELIVERED')">
+                        Delivered
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
         <div class="order-layout">
 
             <div class="order-left">
@@ -28,6 +64,33 @@
                     <div class="map-wrapper">
                         <div #mapContainer id="orderMap"></div>
                     </div>
+                </div>
+
+
+                <div class="order-card estimate-card">
+
+                    <div class="card-header">
+                        <h3>Live Estimate</h3>
+                    </div>
+
+                    <div class="estimate-grid">
+
+                        <div class="estimate-item">
+                            <div class="estimate-label">Distance</div>
+                            <div class="estimate-value">
+                                {{ distanceText || 'Updating...' }}
+                            </div>
+                        </div>
+
+                        <div class="estimate-item">
+                            <div class="estimate-label">ETA</div>
+                            <div class="estimate-value">
+                                {{ etaText || 'Updating...' }}
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
                 <div class="order-card route-card">
@@ -227,23 +290,33 @@
                         </div>
                     </ng-template>
 
-                    <div class="track-action">
+                    <div class="track-action" *ngIf="order.status !== 'DELIVERED'
+                        && order.status !== 'CANCELLED'
+                        && order.status !== 'FAILED'">
+
                         <button class="live-track-btn" [routerLink]="['/app/track']"
                             [queryParams]="{ orderId: order._id }">
+
                             Live Tracking
                         </button>
+
                     </div>
 
                 </div>
 
 
-                <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="edit-order-btn"
+                <button *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'" class="edit-order-btn"
                     (click)="onEditOrder()" [disabled]="loading">
-                    {{ isEditMode ? 'Save Changes' : 'Edit Order' }} </button>
 
-                <button *ngIf="order.status !== 'DELIVERED' && order.status !== 'CANCELLED'" class="cancel-order-btn"
+                    {{ isEditMode ? 'Save Changes' : 'Edit Order' }}
+
+                </button>
+
+                <button *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'" class="cancel-order-btn"
                     (click)="openCancelModal()" [disabled]="loading">
+
                     Cancel Order
+
                 </button>
 
             </div>

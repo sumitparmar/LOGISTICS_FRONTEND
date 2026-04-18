@@ -4,6 +4,8 @@ import { OrdersService } from '../../../../core/services/orders.service';
 declare const google: any;
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket.service';
+import { ToastService } from '../../../../admin/services/toast.service';
+
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
@@ -40,10 +42,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   editableOrder: any = {};
   private viewInitialized = false;
   private orderLoaded = false;
+
   constructor(
     private route: ActivatedRoute,
     private ordersService: OrdersService,
     private socketService: SocketService,
+    private toastService: ToastService,
   ) {}
 
   ngAfterViewInit(): void {
@@ -71,7 +75,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // ✅ STRICT VALIDATION (FINAL FIX)
+    // STRICT VALIDATION (FINAL FIX)
     const pickupLat = this.editableOrder.pickupLat ?? this.order.pickup?.lat;
     const pickupLng = this.editableOrder.pickupLng ?? this.order.pickup?.lng;
 
@@ -79,19 +83,23 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     const dropLng = this.editableOrder.dropLng ?? this.order.drop?.lng;
 
     if (!pickupLat || !pickupLng) {
-      alert('Please select valid Pickup address from suggestions');
+      this.toastService.error(
+        'Please select valid pickup address from suggestions',
+      );
       return;
     }
 
     if (!dropLat || !dropLng) {
-      alert('Please select valid Drop address from suggestions');
+      this.toastService.error(
+        'Please select valid drop address from suggestions',
+      );
       return;
     }
 
     const payload = this.buildEditPayload();
 
     if (!payload) {
-      alert('Invalid payload');
+      this.toastService.error('Unable to update order payload');
       return;
     }
 
@@ -122,7 +130,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         this.isEditMode = false;
 
-        alert('Order updated successfully');
+        this.toastService.success('Order updated successfully');
       },
 
       error: (err) => {
@@ -130,7 +138,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         console.error('Edit failed', err);
 
-        alert(
+        this.toastService.error(
           err?.error?.message || 'Edit failed. Try a different valid location.',
         );
       },
@@ -166,7 +174,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       const place = pickupAutocomplete.getPlace();
 
       if (!place || !place.geometry) {
-        alert('Select pickup from suggestions only');
+        this.toastService.error('Select pickup from suggestions only');
         return;
       }
 
@@ -174,7 +182,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       const lng = place.geometry.location.lng();
 
       if (!lat || !lng) {
-        alert('Invalid pickup location');
+        this.toastService.error('Invalid pickup location');
         return;
       }
 
@@ -201,7 +209,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       const place = dropAutocomplete.getPlace();
 
       if (!place || !place.geometry) {
-        alert('Select drop from suggestions only');
+        this.toastService.error('Select drop from suggestions only');
         return;
       }
 
@@ -209,7 +217,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       const lng = place.geometry.location.lng();
 
       if (!lat || !lng) {
-        alert('Invalid drop location');
+        this.toastService.error('Invalid drop location');
         return;
       }
 
@@ -296,7 +304,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     return {
       order_id: providerOrder.order_id,
       matter: this.editableOrder.matter,
-      vehicle_type_id: Number(this.order.vehicle?.type),
+      vehicle_type_id: Number(this.order.vehicleTypeId),
       total_weight_kg: this.editableOrder.weight,
       points,
     };
@@ -357,7 +365,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     let dropLat: number | undefined;
     let dropLng: number | undefined;
 
-    // ✅ PRIMARY SOURCE (provider response)
+    //  PRIMARY SOURCE (provider response)
     if (points && points.length >= 2) {
       const pickupPoint = points.find((p: any) => !p.delivery);
       const dropPoint = points.find((p: any) => p.delivery);
@@ -370,7 +378,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // ✅ FALLBACK (DB pickup/drop)
+    //  FALLBACK (DB pickup/drop)
     if (!pickupLat || !dropLat) {
       pickupLat = this.order?.pickup?.lat;
       pickupLng = this.order?.pickup?.lng;
@@ -430,10 +438,26 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   isStepActive(step: string): boolean {
-    if (!this.order?.statusHistory) return false;
+    if (!this.order?.status) return false;
 
-    return this.order.statusHistory.some((s: any) => s.status === step);
+    const flow = [
+      'CREATED',
+      'ASSIGNED',
+      'PICKED_UP',
+      'IN_TRANSIT',
+      'DELIVERED',
+    ];
+
+    const currentIndex = flow.indexOf(this.order.status);
+    const stepIndex = flow.indexOf(step);
+
+    if (currentIndex === -1 || stepIndex === -1) {
+      return false;
+    }
+
+    return stepIndex <= currentIndex;
   }
+
   getStatusTimestamp(status: string): string | null {
     if (!this.order?.statusHistory) return null;
 
@@ -462,13 +486,14 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
   getVehicleLabel(id: number): string {
     const map: Record<number, string> = {
-      7: 'Bike Courier',
-      8: 'Bike Courier',
-      9: 'Mini Truck',
-      10: 'Truck',
+      1: 'Mini 3-Wheeler',
+      2: 'Tata Ace 8ft',
+      3: 'Tata Ace 7ft',
+      5: 'Tempo Truck',
+      8: 'Motorbike',
     };
 
-    return map[id] || 'Vehicle';
+    return map[id] || 'Assigned Vehicle';
   }
 
   addMarkers(
@@ -554,7 +579,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
           }
         },
       });
-    }, 5000); // update every 5 seconds
+    }, 10000);
   }
 
   cancelOrder() {
@@ -622,8 +647,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       next: () => {
         this.showCancelModal = false;
 
-        alert('Order cancelled successfully');
-
+        this.toastService.success('Order cancelled successfully');
         this.loadOrder();
       },
 

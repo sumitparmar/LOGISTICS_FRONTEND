@@ -1,219 +1,245 @@
-<div class="orders-page">
+<div class="mk-orders-page">
 
-    <div class="orders-container">
+    <div class="mk-orders-shell">
 
         <!-- HEADER -->
-        <div class="orders-header">
-            <h2>My Orders</h2>
+        <div class="mk-orders-header">
 
-            <a (click)="createDeliveryClick()" class="create-order-btn">
-                + New Delivery
-            </a>
-        </div>
+            <div class="mk-orders-header-left">
+                <span class="mk-page-chip">Operations Center</span>
 
-        <!-- STATS -->
-        <div class="stats-grid">
+                <h1 class="mk-page-title">My Orders</h1>
 
-            <div class="stat-card">
-                <div class="stat-value">{{ stats.total }}</div>
-                <div class="stat-label">Total Orders</div>
+                <p class="mk-page-subtitle">
+                    Manage bookings, track live deliveries, monitor status and control shipments.
+                </p>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-value">{{ stats.active }}</div>
-                <div class="stat-label">Active Orders</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-value">{{ stats.delivered }}</div>
-                <div class="stat-label">Delivered</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-value">{{ stats.cancelled }}</div>
-                <div class="stat-label">Cancelled</div>
+            <div class="mk-orders-header-right">
+                <button class="mk-create-btn" (click)="createDeliveryClick()">
+                    + New Delivery
+                </button>
             </div>
 
         </div>
 
-        <!-- FILTERS -->
-        <div class="orders-filters">
+        <!-- KPI -->
+        <div class="mk-kpi-grid">
 
-            <input type="text" placeholder="Search order, pickup, drop..." [(ngModel)]="searchText"
-                (input)="onSearch()" />
+            <div class="mk-kpi-card blue">
+                <div class="mk-kpi-value">{{ stats.total }}</div>
+                <div class="mk-kpi-label">Total Orders</div>
+                <div class="mk-kpi-sub">All time shipments</div>
+            </div>
 
-            <div class="status-filters">
+            <div class="mk-kpi-card orange">
+                <div class="mk-kpi-value">{{ stats.active }}</div>
+                <div class="mk-kpi-label">Active Orders</div>
+                <div class="mk-kpi-sub">Currently in progress</div>
+            </div>
 
-                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">All</button>
-                <button (click)="setStatusFilter('CREATED')"
-                    [class.active]="statusFilter === 'CREATED'">Created</button>
-                <button (click)="setStatusFilter('ASSIGNED')"
-                    [class.active]="statusFilter === 'ASSIGNED'">Assigned</button>
-                <button (click)="setStatusFilter('PICKED_UP')"
-                    [class.active]="statusFilter === 'PICKED_UP'">Picked</button>
-                <button (click)="setStatusFilter('IN_TRANSIT')" [class.active]="statusFilter === 'IN_TRANSIT'">In
-                    Transit</button>
-                <button (click)="setStatusFilter('DELIVERED')"
-                    [class.active]="statusFilter === 'DELIVERED'">Delivered</button>
-                <button (click)="setStatusFilter('CANCELLED')"
-                    [class.active]="statusFilter === 'CANCELLED'">Cancelled</button>
+            <div class="mk-kpi-card green">
+                <div class="mk-kpi-value">{{ stats.delivered }}</div>
+                <div class="mk-kpi-label">Delivered</div>
+                <div class="mk-kpi-sub">Successfully completed</div>
+            </div>
+
+            <div class="mk-kpi-card red">
+                <div class="mk-kpi-value">{{ stats.cancelled }}</div>
+                <div class="mk-kpi-label">Cancelled</div>
+                <div class="mk-kpi-sub">Closed / cancelled</div>
+            </div>
+
+        </div>
+
+        <!-- FILTER PANEL -->
+        <div class="mk-filter-panel">
+
+            <div class="mk-search-wrap">
+                <input type="text" placeholder="Search by order ID, pickup or drop..." [(ngModel)]="searchText"
+                    (input)="onSearch()" />
+            </div>
+
+            <div class="mk-status-tabs">
+
+                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">
+                    All
+                </button>
+
+                <button (click)="setStatusFilter('ACTIVE')" [class.active]="statusFilter === 'ACTIVE'">
+                    Active
+                </button>
+
+                <button (click)="setStatusFilter('DELIVERED')" [class.active]="statusFilter === 'DELIVERED'">
+                    Delivered
+                </button>
+
+                <button (click)="setStatusFilter('CANCELLED')" [class.active]="statusFilter === 'CANCELLED'">
+                    Cancelled
+                </button>
 
             </div>
 
         </div>
 
         <!-- LOADING -->
-        <div *ngIf="loading" class="orders-loading">
-            <div class="loading-spinner"></div>
+        <div *ngIf="loading" class="mk-orders-loading">
+            <div class="mk-loader"></div>
+            <span>Loading orders...</span>
         </div>
 
-        <!-- TABLE -->
-        <div class="orders-table" *ngIf="!loading">
+        <!-- TABLE CARD -->
+        <div class="mk-orders-card" *ngIf="!loading">
 
-            <div class="table-wrapper">
+            <div class="mk-card-top">
+                <h3>Recent Orders</h3>
+                <span>{{ total }} Records</span>
+            </div>
 
-                <table *ngIf="filteredOrders.length">
+            <!-- DESKTOP TABLE -->
+            <div class="mk-table-wrap">
+
+                <table *ngIf="filteredOrders.length" class="mk-table">
 
                     <thead>
                         <tr>
-                            <th>Progress</th>
-
-                            <th (click)="sort('borzoOrderId')" class="sortable">
-                                Order ID
-                                <span *ngIf="sortBy === 'borzoOrderId'">
-                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                                </span>
-                            </th>
-
-                            <th>Pickup</th>
-                            <th>Drop</th>
-
-                            <th (click)="sort('status')" class="sortable">
-                                Status
-                                <span *ngIf="sortBy === 'status'">
-                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                                </span>
-                            </th>
-
+                            <th>Order</th>
+                            <th>Route</th>
+                            <th>Status</th>
                             <th>Vehicle</th>
                             <th>Courier</th>
                             <th>ETA</th>
-
-                            <th (click)="sort('pricing.amount')" class="sortable">
-                                Price
-                                <span *ngIf="sortBy === 'pricing.amount'">
-                                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                                </span>
-                            </th>
-
+                            <th>Amount</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
 
                     <tbody>
 
-                        <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="order-row"
-                            [ngClass]="'row-' + order.status?.toLowerCase()">
+                        <tr *ngFor="let order of filteredOrders; trackBy: trackByOrder" class="mk-row">
 
-                            <!-- PROGRESS -->
-                            <td class="progress-cell">
-                                <div class="route-tracker">
-                                    <div *ngFor="let step of statusFlow; let i = index" class="route-step"
-                                        [class.completed]="getStatusIndex(order.status) >= i">
-
-                                        <div class="route-dot"></div>
-
-                                        <div *ngIf="i < statusFlow.length - 1" class="route-line"
-                                            [class.completed]="getStatusIndex(order.status) > i">
-                                        </div>
-
-                                    </div>
+                            <!-- Order -->
+                            <td>
+                                <div class="mk-order-id-box">
+                                    <span class="mk-order-id">{{ order.borzoOrderId }}</span>
+                                    <small>{{ order.createdAt | date:'dd MMM, hh:mm a' }}</small>
                                 </div>
                             </td>
 
-                            <!-- ORDER ID -->
-                            <td (click)="openOrder(order._id)" class="order-id-cell">
-                                <span class="order-id">
-                                    {{ order.borzoOrderId }}
-                                </span>
+                            <!-- Route -->
+                            <td>
+                                <div class="mk-route-box">
+                                    <div class="mk-route-item pickup">{{ order.pickup?.address }}</div>
+                                    <div class="mk-route-line"></div>
+                                    <div class="mk-route-item drop">{{ order.drop?.address }}</div>
+                                </div>
                             </td>
 
-                            <!-- PICKUP / DROP -->
-                            <td>{{ order.pickup?.address }}</td>
-                            <td>{{ order.drop?.address }}</td>
-
-                            <!-- STATUS -->
+                            <!-- Status -->
                             <td>
-                                <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
+                                <span class="mk-status-badge" [ngClass]="order.status?.toLowerCase()">
                                     {{ order.status }}
                                 </span>
                             </td>
 
-                            <!-- VEHICLE -->
-                            <td class="vehicle-cell">
-                                <span class="vehicle-icon">
-                                    {{ getVehicleIcon(order.vehicleTypeId) }}
-                                </span>
-                                <span class="vehicle-label">
-                                    {{ getVehicleLabel(order.vehicleTypeId) }}
-                                </span>
+                            <!-- Vehicle -->
+                            <td>
+                                <div class="mk-vehicle-box">
+                                    <span>{{ getVehicleIcon(order.vehicleTypeId) }}</span>
+                                    <span>{{ getVehicleLabel(order.vehicleTypeId) }}</span>
+                                </div>
                             </td>
 
-                            <!-- COURIER -->
+                            <!-- Courier -->
                             <td>
-                                <div *ngIf="order.courier; else noCourier" class="courier-info">
-                                    <div class="courier-avatar">
+                                <div *ngIf="order.courier; else noCourier" class="mk-courier-box">
+                                    <div class="mk-avatar">
                                         {{ order.courier?.name?.charAt(0) || '?' }}
                                     </div>
 
-                                    <div class="courier-meta">
-                                        <div class="courier-name">{{ order.courier?.name }}</div>
-                                        <div class="courier-phone">{{ order.courier?.phone }}</div>
+                                    <div>
+                                        <div class="mk-courier-name">{{ order.courier?.name }}</div>
+                                        <small>{{ order.courier?.phone }}</small>
                                     </div>
                                 </div>
 
                                 <ng-template #noCourier>
-                                    <span class="no-courier">Not assigned</span>
+
+                                    <span class="mk-muted" *ngIf="ACTIVE_STATUSES.includes(order.status)">
+                                        Awaiting Assignment
+                                    </span>
+
+                                    <span class="mk-muted" *ngIf="order.status === 'DELIVERED'">
+                                        Completed
+                                    </span>
+
+                                    <span class="mk-muted" *ngIf="order.status === 'CANCELLED'">
+                                        Cancelled
+                                    </span>
+
+                                    <span class="mk-muted" *ngIf="order.status === 'FAILED'">
+                                        Failed
+                                    </span>
+
                                 </ng-template>
                             </td>
 
                             <!-- ETA -->
                             <td>
-                                <ng-container
-                                    *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
-                                    {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime | date:'dd
-                                    MMM HH:mm' }}
+
+                                <ng-container [ngSwitch]="order.status">
+
+                                    <span *ngSwitchCase="'DELIVERED'" class="mk-muted">Delivered</span>
+
+                                    <span *ngSwitchCase="'CANCELLED'" class="mk-muted">—</span>
+                                    <span *ngSwitchCase="'FAILED'" class="mk-muted">—</span>
+                                    <ng-container *ngSwitchDefault>
+
+                                        <ng-container
+                                            *ngIf="order?.rawProviderResponse?.order?.points?.[1]?.estimated_arrival_datetime; else fallbackEta">
+
+                                            {{ order.rawProviderResponse.order.points[1].estimated_arrival_datetime |
+                                            date:'dd MMM HH:mm' }}
+
+                                        </ng-container>
+
+                                        <ng-template #fallbackEta>
+                                            <span class="mk-muted">Awaiting ETA</span>
+                                        </ng-template>
+
+                                    </ng-container>
+
                                 </ng-container>
 
-                                <ng-template #fallbackEta>
-                                    <span class="eta-estimate">
-                                        {{ getEstimatedDuration(order) }}
-                                    </span>
-                                </ng-template>
                             </td>
 
-                            <!-- PRICE -->
-                            <td (click)="$event.stopPropagation()">
-                                {{ order.pricing?.amount | currency:'INR':'symbol':'1.2-2' }}
-                            </td>
+                            <!-- Amount -->
+                            <td class="mk-price">
+                                {{ order.pricing?.amount | currency:(order.pricing?.currency || 'INR'):'symbol':'1.2-2'
+                                }} </td>
 
-                            <!-- ACTIONS -->
-                            <td class="actions" (click)="$event.stopPropagation()">
+                            <!-- Actions -->
+                            <td>
 
-                                <button class="action-btn track-btn" (click)="trackOrderEvent(order)">
-                                    Track
-                                </button>
+                                <div class="mk-actions">
 
-                                <button class="action-btn details-btn" [routerLink]="['/app/orders', order._id]">
-                                    Details
-                                </button>
+                                    <button *ngIf="ACTIVE_STATUSES.includes(order.status)" class="track"
+                                        (click)="trackOrderEvent(order)">
+                                        Track
+                                    </button>
 
-                                <button class="action-btn cancel-btn"
-                                    [disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
-                                    (click)="openCancelModal(order._id)"
-                                    *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
-                                    Cancel
-                                </button>
+                                    <button class="details" (click)="openOrder(order._id)">
+                                        Details
+                                    </button>
+
+                                    <button class="cancel"
+                                        [disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
+                                        (click)="openCancelModal(order._id)"
+                                        *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
+                                        Cancel
+                                    </button>
+
+                                </div>
 
                             </td>
 
@@ -231,13 +257,18 @@
             </app-pagination>
 
             <!-- EMPTY -->
-            <div *ngIf="!filteredOrders.length" class="orders-empty">
-                <h3>No deliveries yet</h3>
-                <p>Create your first delivery to get started.</p>
+            <div *ngIf="!filteredOrders.length" class="mk-empty">
 
-                <a routerLink="/app/delivery/create" class="create-order-btn">
+                <h3>No Orders Found</h3>
+
+                <p>
+                    Start your first booking and manage deliveries from one place.
+                </p>
+
+                <button class="mk-create-btn" (click)="createDeliveryClick()">
                     Create Delivery
-                </a>
+                </button>
+
             </div>
 
         </div>
@@ -246,28 +277,30 @@
 
 </div>
 
-<!-- MODAL -->
-<div class="cancel-modal-overlay" *ngIf="showCancelModal">
-    <div class="cancel-modal">
+<!-- CANCEL MODAL -->
+<div class="mk-modal-overlay" *ngIf="showCancelModal">
+
+    <div class="mk-modal">
 
         <h3>Cancel Delivery</h3>
 
         <p>
-            Are you sure you want to cancel this order?
+            Are you sure you want to cancel this shipment?
             This action cannot be undone.
         </p>
 
-        <div class="cancel-actions">
+        <div class="mk-modal-actions">
 
-            <button class="cancel-keep-btn" (click)="closeCancelModal()">
+            <button class="secondary" (click)="closeCancelModal()">
                 Keep Order
             </button>
 
-            <button class="cancel-confirm-btn" (click)="confirmCancel()">
+            <button class="danger" (click)="confirmCancel()">
                 Cancel Delivery
             </button>
 
         </div>
 
     </div>
+
 </div>
