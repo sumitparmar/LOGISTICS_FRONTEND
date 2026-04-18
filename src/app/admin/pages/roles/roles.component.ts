@@ -209,10 +209,7 @@ export class RolesComponent implements OnInit {
       ...this.createRoleForm.value,
       permissions: cleanPermissions,
     };
-    console.log('CLICKED UPDATE / CREATE');
-    console.log('isEditMode:', this.isEditMode);
-    console.log('selectedRoleId:', this.selectedRoleId);
-    console.log('payload:', payload);
+
     let request$;
 
     if (this.selectedRoleId) {
