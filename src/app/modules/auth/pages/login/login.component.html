@@ -1,17 +1,42 @@
 <div class="login-page">
 
-
-
     <section class="hero">
 
         <div class="layout-container">
 
+            <!-- LEFT CONTENT -->
             <div class="hero-left layout-left">
 
-                <h1 class="page-title">Login</h1>
+                <div class="eyebrow">
+                    Secure Access to MoveKart
+                </div>
+
+                <h1 class="page-title">
+                    Login to Manage Deliveries, Quotes & Orders
+                </h1>
+
+                <p class="page-subtitle">
+                    Access business logistics tools or continue instant personal delivery booking with OTP login.
+                </p>
+
+                <div class="trust-points">
+                    <span>Secure Authentication</span>
+                    <span>Fast OTP Login</span>
+                    <span>Real-Time Orders</span>
+                </div>
 
                 <div class="login-card">
 
+                    <div class="card-head">
+                        <h2>Welcome Back</h2>
+                        <p>Select your preferred login method</p>
+                    </div>
+
+                    <div class="pending-banner" *ngIf="hasPendingBooking"> Your delivery quote is saved. Login to
+                        continue booking.
+                    </div>
+
+                    <!-- MODE SWITCH -->
                     <div class="mode-switch">
                         <button type="button" [class.active]="loginMode === 'BUSINESS'"
                             (click)="switchMode('BUSINESS')">
@@ -20,59 +45,74 @@
 
                         <button type="button" [class.active]="loginMode === 'INDIVIDUAL'"
                             (click)="switchMode('INDIVIDUAL')">
-                            Individual Login
+                            Personal OTP
                         </button>
                     </div>
 
+                    <!-- BUSINESS LOGIN -->
                     <form *ngIf="loginMode === 'BUSINESS'" [formGroup]="businessForm" (ngSubmit)="submitBusiness()">
 
                         <div class="input-group">
-                            <input type="email" placeholder="Email" formControlName="email" />
+                            <input type="email" placeholder="Business Email" formControlName="email" />
                         </div>
 
                         <div class="input-group">
                             <input type="password" placeholder="Password" formControlName="password" />
                         </div>
 
-                        <a class="forgot" *ngIf="loginMode === 'BUSINESS'" routerLink="/auth/forgot-password">
+                        <a class="forgot" routerLink="/auth/forgot-password">
                             Forgot password?
-                        </a> <button type="submit" [disabled]="loading">
-                            {{ loading ? 'Logging in...' : 'Login' }}
+                        </a>
+
+                        <button type="submit" [disabled]="loading">
+                            {{ loading ? 'Signing In...' : 'Login to Dashboard' }}
                         </button>
 
                         <p class="switch">
                             Don’t have an account?
                             <a routerLink="/auth/register">Register</a>
                         </p>
+
                     </form>
 
+                    <!-- INDIVIDUAL OTP LOGIN -->
                     <div *ngIf="loginMode === 'INDIVIDUAL'">
 
+                        <!-- PHONE STEP -->
                         <form *ngIf="otpStep === 'PHONE'" [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
 
                             <div class="input-group">
-                                <input type="text" placeholder="Phone Number" formControlName="phone" />
+                                <input type="text" placeholder="Enter Phone Number" formControlName="phone" />
                             </div>
 
                             <button type="submit" [disabled]="loading">
                                 {{ loading ? 'Sending OTP...' : 'Send OTP' }}
                             </button>
+
                         </form>
 
+                        <!-- OTP STEP -->
                         <form *ngIf="otpStep === 'OTP'" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+
+                            <div class="otp-status">
+                                OTP sent to {{ phoneNumber }}
+                            </div>
 
                             <div class="input-group">
                                 <input type="text" placeholder="Enter OTP" formControlName="otp" />
                             </div>
 
                             <button type="submit" [disabled]="loading">
-                                {{ loading ? 'Verifying...' : 'Verify OTP' }}
+                                {{ loading ? 'Verifying...' : 'Verify & Continue' }}
                             </button>
 
                             <p class="switch otp-switch">
-                                Didn’t receive OTP?
-                                <a class="change-phone" (click)="otpStep = 'PHONE'">Change phone</a>
+                                Wrong number?
+                                <a class="change-phone" (click)="otpStep = 'PHONE'">
+                                    Change phone
+                                </a>
                             </p>
+
                         </form>
 
                     </div>
@@ -85,14 +125,13 @@
 
             </div>
 
+            <!-- RIGHT IMAGE -->
             <div class="hero-image layout-right">
-                <img src="assets/images/rider.png" />
+                <img src="assets/images/rider.png" alt="MoveKart Delivery Login" />
             </div>
 
         </div>
 
     </section>
-
-
 
 </div>

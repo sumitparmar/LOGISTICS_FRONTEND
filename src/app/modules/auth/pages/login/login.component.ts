@@ -8,12 +8,12 @@ type OtpStep = 'PHONE' | 'OTP';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   loginMode: LoginMode = 'BUSINESS';
   otpStep: OtpStep = 'PHONE';
-
+  hasPendingBooking = false;
   businessForm!: FormGroup;
   phoneForm!: FormGroup;
   otpForm!: FormGroup;
@@ -30,6 +30,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // Business login form
+    this.hasPendingBooking = !!localStorage.getItem('PENDING_DELIVERY');
     this.businessForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
