@@ -1,0 +1,176 @@
+.price-modal {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.price-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 110px;
+  background: linear-gradient(135deg, #0f172a, #2563eb);
+  opacity: 0.04;
+}
+
+.close-icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.top-badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #111827;
+}
+
+.modal-subtitle {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.price-card {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #111827, #1d4ed8);
+  color: #fff;
+}
+
+.price-label {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.price-row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 6px;
+}
+
+.currency {
+  font-size: 24px;
+  margin-top: 6px;
+}
+
+.amount {
+  font-size: 54px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.price-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.benefits-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.benefit-item {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.secure-strip {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.action-row {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+}
+
+.secondary-btn,
+.primary-btn {
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .price-modal {
+    padding: 20px 16px;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .modal-title {
+    font-size: 24px;
+  }
+
+  .amount {
+    font-size: 42px;
+  }
+
+  .benefits-grid,
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+}

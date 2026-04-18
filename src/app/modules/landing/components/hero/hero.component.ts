@@ -19,6 +19,7 @@ declare var google: any;
   styleUrls: ['./hero.component.scss'],
 })
 export class HeroComponent implements OnInit, AfterViewInit {
+  currency = 'INR';
   quoteForm!: FormGroup;
   loading = false;
   price: number | null = null;
@@ -43,7 +44,7 @@ export class HeroComponent implements OnInit, AfterViewInit {
     this.quoteForm = this.fb.group({
       pickup: ['', Validators.required],
       drop: ['', Validators.required],
-      vehicleType: [1, Validators.required], // default Bike
+      vehicleType: [8, Validators.required],
     });
   }
 
@@ -79,7 +80,10 @@ export class HeroComponent implements OnInit, AfterViewInit {
   }
 
   getQuote() {
-    if (this.quoteForm.invalid) return;
+    if (this.quoteForm.invalid) {
+      this.quoteForm.markAllAsTouched();
+      return;
+    }
 
     this.loading = true;
     this.price = null;
@@ -94,20 +98,21 @@ export class HeroComponent implements OnInit, AfterViewInit {
 
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {
-        this.loading = false;
-
         const amount = res?.data?.amount || null;
 
-        //  set price in parent component
         this.price = amount;
+        this.currency = res?.data?.currency || 'INR';
 
         this.dialog.open(PriceDialogComponent, {
-          width: '350px',
+          width: '420px',
+          maxWidth: '95vw',
+          panelClass: 'premium-price-dialog',
           data: { amount },
         });
 
         this.loading = false;
       },
+
       error: (err) => {
         this.loading = false;
         this.errorMessage = err?.error?.message || 'Failed to calculate quote';

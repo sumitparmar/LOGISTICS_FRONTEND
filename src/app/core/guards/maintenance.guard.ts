@@ -14,7 +14,7 @@ export class MaintenanceGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean> {
-    return this.api.get<any>('/admin/settings').pipe(
+    return this.api.get<any>('/admin/public/settings-status').pipe(
       map((res) => {
         const isMaintenance = res?.data?.maintenanceMode;
 

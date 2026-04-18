@@ -2,100 +2,191 @@
 
     <div class="hero-content layout-container">
 
-        <!-- LEFT SIDE -->
+        <!-- LEFT -->
         <div class="hero-left layout-left">
 
+            <div class="hero-badge">
+                India Trusted Logistics Platform
+            </div>
+
             <h1 class="hero-title">
-                India’s Fast & Affordable <br />
-                <span class="highlight">Logistics & Truck Booking</span> Service
+                Fast & Affordable
+                <span class="highlight">Logistics & Delivery</span>
+                Service in India
             </h1>
 
             <p class="hero-sub">
-                MoveKart provides truck booking service, mini truck booking,
-                pickup truck service and goods transport solutions across India.
+                Book same-day delivery, goods transport service and business logistics with MoveKart.
+                Smart pricing, live tracking and fast transport solutions across India.
             </p>
 
+            <!-- TRUST METRICS -->
+            <div class="hero-stats">
+
+                <div class="stat-card">
+                    <strong>10K+</strong>
+                    <span>Bookings</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>25+</strong>
+                    <span>Cities</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>24/7</strong>
+                    <span>Support</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>Live</strong>
+                    <span>Tracking</span>
+                </div>
+
+            </div>
+
+            <!-- POINTS -->
             <div class="hero-points">
 
                 <div class="point">
                     <mat-icon>local_shipping</mat-icon>
-                    <span>Mini trucks & pickup vehicles for all delivery needs</span>
+                    <span>Fast local and city delivery service</span>
                 </div>
 
                 <div class="point">
                     <mat-icon>inventory_2</mat-icon>
-                    <span>Safe and reliable goods transport across India</span>
+                    <span>Safe goods transport service with verified partners</span>
                 </div>
 
                 <div class="point">
-                    <mat-icon>payments</mat-icon>
-                    <span>Fast, affordable and cost-effective pricing</span>
+                    <mat-icon>bolt</mat-icon>
+                    <span>Instant quote calculation in seconds</span>
                 </div>
 
             </div>
 
-            <!-- UPDATED FEATURES (REPLACES CHIPS) -->
+            <!-- QUICK ACTIONS -->
             <div class="hero-chips">
 
                 <div class="chip" (click)="scrollToBooking()">
                     <mat-icon>flash_on</mat-icon>
-                    <span>Quick Delivery</span>
+                    <span>Book Now</span>
                 </div>
 
                 <div class="chip" (click)="openSecureInfo()">
                     <mat-icon>security</mat-icon>
-                    <span>Secure Handling</span>
+                    <span>Secure Delivery</span>
                 </div>
 
                 <div class="chip" (click)="goToTracking()">
                     <mat-icon>location_on</mat-icon>
-                    <span>Live Tracking</span>
+                    <span>Track Order</span>
                 </div>
 
             </div>
 
+            <!-- CTA -->
             <div class="hero-buttons">
 
-                <button class="primary-btn" (click)="bookDelivery()" [disabled]="!price"> Book Delivery
+                <button class="primary-btn" (click)="bookDelivery()" [disabled]="!price">
+                    Continue Booking
                 </button>
 
-                <button class="secondary-btn" routerLink="/auth/login">
-                    Track Order
+                <button class="secondary-btn" (click)="scrollToBooking()">
+                    Check Price
                 </button>
 
             </div>
 
         </div>
-        <!-- RIGHT SIDE -->
+
+        <!-- RIGHT -->
         <div class="hero-right layout-right">
 
-            <!-- Booking Card -->
             <div class="booking-card rider-bg" [formGroup]="quoteForm" id="booking-section">
+
+                <div class="card-topline">
+                    Trusted by customers & businesses
+                </div>
+
                 <h2>Book Your Delivery</h2>
+
+                <p class="card-subtitle">
+                    Get instant pricing for same-day delivery and logistics services. </p>
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Pickup Location</mat-label>
-                    <input matInput formControlName="pickup" #pickupInput />
+                    <input matInput formControlName="pickup" #pickupInput [disabled]="loading" />
                 </mat-form-field>
+
+                <div class="field-error" *ngIf="quoteForm.get('pickup')?.touched && quoteForm.get('pickup')?.invalid">
+                    Pickup location is required
+                </div>
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Drop Location</mat-label>
-                    <input matInput formControlName="drop" #dropInput />
+                    <input matInput formControlName="drop" #dropInput [disabled]="loading" />
                 </mat-form-field>
 
+                <div class="field-error" *ngIf="quoteForm.get('drop')?.touched && quoteForm.get('drop')?.invalid">
+                    Drop location is required
+                </div>
+
                 <mat-form-field appearance="outline" class="full">
-                    <mat-label>Select Vehicle</mat-label> <mat-select formControlName="vehicleType">
-                        <mat-option value="1">Bike (Small Delivery)</mat-option>
-                        <mat-option value="2">Mini Truck (Goods Transport)</mat-option>
-                        <mat-option value="3">Cargo Van (Bulk Delivery)</mat-option>
+                    <mat-label>Select Service</mat-label>
+
+                    <mat-select formControlName="vehicleType">
+
+                        <mat-option value="8">Instant Delivery</mat-option>
+                        <mat-option value="8">Same Day Delivery</mat-option>
+                        <mat-option value="8">Priority Delivery</mat-option>
+
                     </mat-select>
                 </mat-form-field>
 
+                <div class="field-error"
+                    *ngIf="quoteForm.get('vehicleType')?.touched && quoteForm.get('vehicleType')?.invalid">
+                    Select a vehicle type
+                </div>
+
                 <button mat-raised-button class="quote-btn" (click)="getQuote()" [disabled]="loading">
-                    {{ loading ? 'Calculating...' : 'Check Price' }}
+                    {{ loading ? 'Calculating...' : 'Check Instant Price' }}
                 </button>
 
-                <!-- ERROR -->
+                <!-- INLINE RESULT -->
+                <div class="quote-result-card" *ngIf="price && !loading">
+
+                    <div class="quote-row">
+                        <span>Estimated Price</span>
+                        <strong>₹{{ price }}</strong>
+                    </div>
+
+                    <div class="quote-row muted">
+                        <span>Currency</span>
+                        <strong>{{ currency }}</strong>
+                    </div>
+
+                    <div class="quote-row muted">
+                        <span>Status</span>
+                        <strong>Quote Ready</strong>
+                    </div>
+
+                    <div class="quote-freshness">
+                        Updated just now • Price based on selected route
+                    </div>
+
+                    <button class="continue-btn" (click)="bookDelivery()">
+
+
+                        Continue Booking
+                    </button>
+
+                </div>
+
+                <div class="mini-trust">
+                    No hidden charges • Fast pickup • Reliable support
+                </div>
+
                 <div class="error-text" *ngIf="errorMessage">
                     {{ errorMessage }}
                 </div>
@@ -116,26 +207,293 @@
             <div class="icon-circle">
                 <mat-icon>local_shipping</mat-icon>
             </div>
-            <h3>Fast Truck Booking</h3>
-            <p>Instant booking for mini trucks and delivery vehicles.</p>
+
+            <h3>Fast Delivery Booking</h3>
+
+            <p>
+                Book same-day delivery and urgent movement instantly. </p>
         </div>
 
         <div class="feature-card">
             <div class="icon-circle">
                 <mat-icon>verified</mat-icon>
             </div>
+
             <h3>Safe Goods Transport</h3>
-            <p>Reliable and secure transport for all types of goods.</p>
+
+            <p>
+                Verified delivery partners with secure order handling.
+            </p>
         </div>
 
         <div class="feature-card">
             <div class="icon-circle">
                 <mat-icon>public</mat-icon>
             </div>
-            <h3>Pan India Service</h3>
-            <p>Available across major cities in India.</p>
+
+            <h3>Pan India Logistics</h3>
+
+            <p>
+                Reliable logistics services across major Indian cities.
+            </p>
         </div>
 
     </div>
 
 </section>
+
+
+<section class="how-it-works">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">How It Works</span>
+            <h2>Book Logistics in 3 Simple Steps</h2>
+            <p>
+                MoveKart helps households and businesses book fast truck booking,
+                goods transport and delivery services in minutes.
+            </p>
+        </div>
+
+        <div class="steps-grid">
+
+            <div class="step-card">
+                <div class="step-no">01</div>
+                <h3>Enter Pickup & Drop</h3>
+                <p>
+                    Add your route and delivery addresses using smart location search.
+                </p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-no">02</div>
+                <h3>Get Instant Price</h3>
+                <p>
+                    Receive transparent pricing for your selected delivery route. </p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-no">03</div>
+                <h3>Book & Track Live</h3>
+                <p>
+                    Confirm booking, track driver movement and complete delivery smoothly.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="why-movekart">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">Why Choose Us</span>
+            <h2>Trusted Logistics Company in India</h2>
+            <p>
+                Built for households, retailers and businesses that need reliable daily transport.
+            </p>
+        </div>
+
+        <div class="benefits-grid">
+
+            <div class="benefit-card">
+                <mat-icon>verified</mat-icon>
+                <h3>Verified Drivers</h3>
+                <p>Trusted delivery partners for secure movement of goods.</p>
+            </div>
+
+            <div class="benefit-card">
+                <mat-icon>schedule</mat-icon>
+                <h3>Same Day Pickup</h3>
+                <p>Quick assignment and faster order pickup in supported cities.</p>
+            </div>
+
+            <div class="benefit-card">
+                <mat-icon>payments</mat-icon>
+                <h3>Transparent Pricing</h3>
+                <p>No hidden surprises. Upfront route based pricing.</p>
+            </div>
+
+            <div class="benefit-card">
+                <mat-icon>location_on</mat-icon>
+                <h3>Live Tracking</h3>
+                <p>Track your order status and movement in real time.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="services-section">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">Services</span>
+            <h2>Transport Solutions for Every Need</h2>
+            <p>
+                MoveKart offers flexible logistics services for individuals and businesses.
+            </p>
+        </div>
+        <div class="services-grid">
+
+            <div class="service-pill">Truck Booking Service</div>
+            <div class="service-pill">Goods Transport Service</div>
+            <div class="service-pill">Mini Truck Booking</div>
+            <div class="service-pill">Pickup Truck Service</div>
+            <div class="service-pill">Business Delivery Solutions</div>
+            <div class="service-pill">Same Day Logistics</div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="cities-section">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">Cities We Serve</span>
+            <h2>Fast Logistics Across Major Indian Cities</h2>
+            <p>
+                MoveKart offers truck booking, goods transport and delivery support across growing markets.
+            </p>
+        </div>
+
+        <div class="cities-grid">
+            <div class="city-pill">Delhi</div>
+            <div class="city-pill">Mumbai</div>
+            <div class="city-pill">Bangalore</div>
+            <div class="city-pill">Pune</div>
+            <div class="city-pill">Hyderabad</div>
+            <div class="city-pill">Chandigarh</div>
+            <div class="city-pill">Jaipur</div>
+            <div class="city-pill">Ahmedabad</div>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="testimonial-section">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">Customer Trust</span>
+            <h2>Loved by Individuals & Businesses</h2>
+        </div>
+
+        <div class="testimonial-grid">
+
+            <div class="testimonial-card">
+                <p>
+                    “Booked a mini truck in minutes. Smooth pickup and fair pricing.”
+                </p>
+                <strong>Rohit Sharma</strong>
+                <span>Delhi</span>
+            </div>
+
+            <div class="testimonial-card">
+                <p>
+                    “We use MoveKart for store deliveries. Reliable service.”
+                </p>
+                <strong>Neha Traders</strong>
+                <span>Mumbai</span>
+            </div>
+
+            <div class="testimonial-card">
+                <p>
+                    “Best option for urgent city transport needs.”
+                </p>
+                <strong>Arjun Mehta</strong>
+                <span>Bangalore</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="business-cta">
+
+    <div class="section-shell">
+
+        <div class="business-box">
+
+            <div class="business-copy">
+                <span class="eyebrow">MoveKart for Business</span>
+                <h2>Need Daily Deliveries for Your Business?</h2>
+                <p>
+                    Get scalable logistics support from MoveKart for stores, wholesalers, eCommerce and growing brands.
+                </p>
+            </div>
+
+            <button class="business-btn" (click)="scrollToBooking()">
+                Start Business Booking
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="faq-section">
+
+    <div class="section-shell">
+
+        <div class="section-head">
+            <span class="eyebrow">FAQs</span>
+            <h2>Frequently Asked Questions</h2>
+        </div>
+
+        <div class="faq-grid">
+
+            <div class="faq-card">
+                <h3>How does truck booking service work?</h3>
+                <p>Enter pickup and drop, get price, confirm booking and track live.</p>
+            </div>
+
+            <div class="faq-card">
+                <h3>Can I book delivery online?</h3>
+                <p>Yes, MoveKart supports online delivery booking in supported cities.</p>
+            </div>
+
+            <div class="faq-card">
+                <h3>Do you offer business logistics?</h3>
+                <p>Yes, we support recurring transport needs for businesses.</p>
+            </div>
+
+            <div class="faq-card">
+                <h3>Can I track my order?</h3>
+                <p>Yes, live tracking is available for active deliveries.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<div class="mobile-sticky-cta">
+
+    <button *ngIf="!price" class="sticky-btn primary" (click)="scrollToBooking()">
+        Check Price
+    </button>
+
+    <button *ngIf="price" class="sticky-btn success" (click)="bookDelivery()">
+        Continue Booking ₹{{ price }}
+    </button>
+
+</div>

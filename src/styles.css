@@ -292,3 +292,10 @@ img {
 .hidden {
   display: none !important;
 }
+
+.premium-price-dialog .mat-mdc-dialog-container,
+.premium-price-dialog .mat-dialog-container {
+  padding: 0 !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}

@@ -1,13 +1,70 @@
-<h2 mat-dialog-title>Estimated Price</h2>
+<div class="price-modal">
 
-<div mat-dialog-content style="text-align:center">
-    <h1 style="margin:16px 0">₹{{ data.amount }}</h1>
-</div>
-
-<div mat-dialog-actions align="end">
-    <button mat-stroked-button mat-dialog-close>Close</button>
-
-    <button mat-raised-button color="primary" (click)="book()">
-        Book Delivery
+    <button class="close-icon" mat-dialog-close aria-label="Close dialog">
+        ✕
     </button>
+
+    <div class="top-badge">
+        Live Instant Quote
+    </div>
+
+    <h2 class="modal-title">Your Delivery Estimate</h2>
+
+    <p class="modal-subtitle">
+        Real-time pricing based on pickup route, drop distance and live provider availability.
+    </p>
+
+    <div class="price-card">
+        <div class="price-label">Estimated Fare</div>
+
+        <div class="price-row">
+            <span class="currency">₹</span>
+            <span class="amount">{{ data.amount }}</span>
+        </div>
+
+        <div class="price-meta">
+            Inclusive of standard service charges
+        </div>
+    </div>
+
+    <div class="benefits-grid">
+
+        <div class="benefit-item">
+            <span class="dot"></span>
+            Transparent pricing
+        </div>
+
+        <div class="benefit-item">
+            <span class="dot"></span>
+            No hidden charges
+        </div>
+
+        <div class="benefit-item">
+            <span class="dot"></span>
+            Fast booking confirmation
+        </div>
+
+        <div class="benefit-item">
+            <span class="dot"></span>
+            Trusted logistics network
+        </div>
+
+    </div>
+
+    <div class="secure-strip">
+        Secure login required to continue booking
+    </div>
+
+    <div class="action-row">
+
+        <button class="secondary-btn" mat-dialog-close>
+            Close
+        </button>
+
+        <button class="primary-btn" (click)="book()">
+            Proceed to Secure Booking
+        </button>
+
+    </div>
+
 </div>

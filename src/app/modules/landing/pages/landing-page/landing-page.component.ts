@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../../core/services/api.service';
 import { Router } from '@angular/router';
@@ -18,13 +19,52 @@ export class LandingPageComponent implements OnInit {
     private fb: FormBuilder,
     private api: ApiService,
     private router: Router,
+    private title: Title,
+    private meta: Meta,
   ) {}
 
   ngOnInit(): void {
+    this.setSeoTags();
+
     this.quoteForm = this.fb.group({
       matter: ['', Validators.required],
       pickupAddress: ['', Validators.required],
       dropAddress: ['', Validators.required],
+    });
+  }
+
+  setSeoTags(): void {
+    this.title.setTitle(
+      'MoveKart | Logistics Company in India | Truck Booking & Delivery Service',
+    );
+
+    this.meta.updateTag({
+      name: 'description',
+      content:
+        'MoveKart offers truck booking service, goods transport service, mini truck booking, pickup truck service and same-day delivery solutions across India.',
+    });
+
+    this.meta.updateTag({
+      name: 'keywords',
+      content:
+        'logistics company in India, truck booking service, goods transport service, mini truck booking, pickup truck service, logistics services India, MoveKart',
+    });
+
+    this.meta.updateTag({
+      property: 'og:title',
+      content:
+        'MoveKart | Fast & Affordable Logistics & Delivery Service in India',
+    });
+
+    this.meta.updateTag({
+      property: 'og:description',
+      content:
+        'Book truck booking, goods transport and delivery solutions with MoveKart.',
+    });
+
+    this.meta.updateTag({
+      property: 'og:type',
+      content: 'website',
     });
   }
 

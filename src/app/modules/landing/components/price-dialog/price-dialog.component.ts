@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-price-dialog',
   templateUrl: './price-dialog.component.html',
+  styleUrls: ['./price-dialog.component.scss'],
 })
 export class PriceDialogComponent {
   constructor(
