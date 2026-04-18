@@ -1,38 +1,76 @@
 <div class="login-page">
 
-
-
     <section class="hero">
 
         <div class="layout-container">
 
+            <!-- LEFT -->
             <div class="hero-left layout-left">
 
-                <h1 class="page-title">Register</h1>
+                <div class="eyebrow">
+                    Create Your MoveKart Account
+                </div>
+
+                <h1 class="page-title">
+                    Fast Registration for Delivery & Logistics Booking
+                </h1>
+
+                <p class="page-subtitle">
+                    Join MoveKart to book mini trucks, goods transport and same-day delivery across India.
+                </p>
+
+                <div class="trust-points">
+                    <span>Secure onboarding</span>
+                    <span>Quick login access</span>
+                    <span>Live booking support</span>
+                </div>
 
                 <div class="login-card">
+
+                    <div class="card-head">
+                        <h2>Create Account</h2>
+                        <p>Start booking in minutes</p>
+                    </div>
+
+                    <div *ngIf="hasPendingBooking" class="pending-banner">
+                        Your delivery quote is ready. Register to continue booking.
+                    </div>
 
                     <form [formGroup]="registerForm" (ngSubmit)="submit()">
 
                         <div class="input-group">
                             <input type="text" placeholder="Full Name" formControlName="name" />
+                            <small *ngIf="f['name'].touched && f['name'].invalid">
+                                Enter your full name
+                            </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="email" placeholder="Email" formControlName="email" />
+                            <input type="email" placeholder="Email Address" formControlName="email" />
+                            <small *ngIf="f['email'].touched && f['email'].invalid">
+                                Enter valid email
+                            </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="text" placeholder="Phone" formControlName="phone" />
+                            <input type="text" placeholder="Phone Number" formControlName="phone" />
+                            <small *ngIf="f['phone'].touched && f['phone'].invalid">
+                                Enter valid 10 digit phone number
+                            </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" placeholder="Password (At least 6 characters)"
-                                formControlName="password" />
+                            <input type="password" placeholder="Password" formControlName="password" />
+                            <small *ngIf="f['password'].touched && f['password'].invalid">
+                                Minimum 6 characters required
+                            </small>
                         </div>
 
                         <div class="input-group">
                             <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
+                            <small *ngIf="registerForm.errors?.['passwordMismatch'] && f['confirmPassword'].touched">
+                                Passwords do not match
+                            </small>
                         </div>
 
                         <div *ngIf="errorMessage" class="error-message">
@@ -40,7 +78,7 @@
                         </div>
 
                         <button type="submit" [disabled]="loading">
-                            {{ loading ? 'Registering...' : 'Register' }}
+                            {{ loading ? 'Creating Account...' : 'Create Account' }}
                         </button>
 
                         <p class="switch">
@@ -54,14 +92,13 @@
 
             </div>
 
+            <!-- RIGHT -->
             <div class="hero-image layout-right">
-                <img src="assets/images/rider.png" />
+                <img src="assets/images/rider.png" alt="MoveKart Delivery" />
             </div>
 
         </div>
 
     </section>
-
-
 
 </div>
