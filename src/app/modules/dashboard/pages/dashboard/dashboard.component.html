@@ -1,120 +1,336 @@
-<div class="dashboard-wrapper">
+<div class="mk-dash-wrapper">
 
-    <div class="dashboard-panel">
+    <div class="mk-header">
+        <div class="mk-header-left">
+            <div class="mk-top-line">
+                <span class="mk-user-badge">Welcome back</span>
+                <span class="mk-user-name">{{ userName }}</span>
+            </div>
 
-        <!-- HEADER -->
-        <div class="panel-header">
-            <h1 class="dashboard-title">Dashboard</h1>
+            <h1 class="mk-greeting-title">Dashboard Overview</h1>
 
-            <button class="book-btn" (click)="goToBookDelivery()">
-                + New Delivery
+            <p class="mk-greeting-desc">
+                Manage truck bookings, deliveries, active shipments and wallet balance.
+            </p>
+
+            <div class="mk-mini-stats">
+                <span>{{ dashboardStats.totalOrders }} Total Orders</span>
+                <span>{{ dashboardStats.activeOrders }} Active</span>
+                <span>{{ dashboardStats.walletCurrency }} Ready Wallet</span>
+            </div>
+        </div>
+
+        <div class="mk-header-right">
+            <button class="mk-new-btn" (click)="goToBookDelivery()" aria-label="Book new delivery">
+                New Delivery
+            </button>
+        </div>
+    </div>
+
+    <!-- ── LOADING ────────────────────────── -->
+    <ng-container *ngIf="isLoading">
+        <div class="mk-skeleton-grid">
+            <div class="mk-skeleton-card" *ngFor="let i of [1,2,3]"></div>
+        </div>
+        <div class="mk-skeleton-table">
+            <div class="mk-skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+        </div>
+    </ng-container>
+
+    <!-- ── ERROR ──────────────────────────── -->
+    <div class="mk-error-state" *ngIf="hasError && !isLoading">
+        <div class="mk-error-icon">⚠️</div>
+        <p class="mk-error-title">Failed to load dashboard</p>
+        <p class="mk-error-sub">Please check your connection and try again.</p>
+        <button class="mk-retry-btn" (click)="reloadDashboard()">Retry</button>
+    </div>
+
+    <!-- ── MAIN CONTENT ───────────────────── -->
+    <ng-container *ngIf="!isLoading && !hasError">
+
+        <!-- STAT CARDS -->
+        <div class="mk-stats-grid">
+
+            <!-- Total Orders -->
+            <div class="mk-stat-card mk-stat-blue" (click)="goToAllOrders()" role="button" tabindex="0"
+                (keydown.enter)="goToAllOrders()" aria-label="View all orders">
+                <div class="mk-stat-top">
+                    <div class="mk-stat-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        </svg>
+                    </div>
+                    <span class="mk-stat-badge">All Time</span>
+                </div>
+                <div class="mk-stat-value">{{ dashboardStats.totalOrders }}</div>
+                <div class="mk-stat-label">Total Orders</div>
+                <div class="mk-stat-sub">Goods transport &amp; mini truck bookings</div>
+                <div class="mk-stat-cta">View all →</div>
+            </div>
+
+            <!-- Active Orders -->
+            <div class="mk-stat-card mk-stat-orange" (click)="goToActiveOrders()" role="button" tabindex="0"
+                (keydown.enter)="goToActiveOrders()" aria-label="View active orders">
+                <div class="mk-stat-top">
+                    <div class="mk-stat-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13" rx="2" />
+                            <path d="M16 8h4l3 5v3h-7V8z" />
+                            <circle cx="5.5" cy="18.5" r="2.5" />
+                            <circle cx="18.5" cy="18.5" r="2.5" />
+                        </svg>
+                    </div>
+                    <span class="mk-stat-badge mk-badge-live">
+                        <span class="mk-live-dot"></span>Live
+                    </span>
+                </div>
+                <div class="mk-stat-value">{{ dashboardStats.activeOrders }}</div>
+                <div class="mk-stat-label">Active Orders</div>
+                <div class="mk-stat-sub">Pickup truck &amp; delivery in progress</div>
+                <div class="mk-stat-cta">Track orders →</div>
+            </div>
+
+            <!-- Wallet Balance -->
+            <div class="mk-stat-card mk-stat-purple" (click)="goToWallet()" role="button" tabindex="0"
+                (keydown.enter)="goToWallet()" aria-label="View wallet balance">
+                <div class="mk-stat-top">
+                    <div class="mk-stat-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 12V8H6a2 2 0 0 1 0-4h14v4" />
+                            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+                            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
+                        </svg>
+                    </div>
+                    <span class="mk-stat-badge">{{ dashboardStats.walletCurrency }}</span>
+                </div>
+                <div class="mk-stat-value">
+                    {{ dashboardStats.walletCurrency }} {{ dashboardStats.walletBalance | number:'1.2-2' }} </div>
+                <div class="mk-stat-label">Wallet Balance</div>
+                <div class="mk-stat-sub">Prepaid logistics &amp; transport balance</div>
+                <div class="mk-stat-cta">Add money →</div>
+            </div>
+
+        </div>
+        <!-- /stats -->
+
+        <!-- ── QUICK ACTIONS ──────────────────── -->
+        <div class="mk-quick-actions">
+            <button class="mk-quick-btn" (click)="goToBookDelivery()">
+                <span class="mk-qa-icon">🚚</span><span>Book Delivery</span>
+            </button>
+            <button class="mk-quick-btn" (click)="goToAllOrders()">
+                <span class="mk-qa-icon">📦</span><span>All Orders</span>
+            </button>
+            <button class="mk-quick-btn" (click)="goToWallet()">
+                <span class="mk-qa-icon">💳</span><span>Add Money</span>
+            </button>
+            <button class="mk-quick-btn" (click)="goToActiveOrders()">
+                <span class="mk-qa-icon">📍</span><span>Track Order</span>
             </button>
         </div>
 
-        <!-- CONTENT -->
-        <ng-container *ngIf="!isLoading; else loadingTemplate">
 
-            <!-- STATS -->
-            <div class="stats-row">
 
-                <div class="stat-card blue" (click)="goToAllOrders()">
-                    <div class="stat-top">
-                        <div class="stat-value">{{ dashboardStats.totalOrders }}</div>
-                        <div class="stat-icon">📦</div>
+
+
+        <!-- ── STATUS BREAKDOWN STRIP ─────────── -->
+        <div class="mk-status-strip">
+            <div class="mk-strip-header">
+                <h2 class="mk-strip-title">Order Status Overview</h2>
+                <span class="mk-strip-sub">All time breakdown</span>
+            </div>
+            <div class="mk-strip-cards">
+                <div class="mk-strip-item" *ngFor="let s of statusStrip" [style.border-color]="s.color"
+                    [style.background]="s.bg" (click)="goToAllOrders()" role="button" tabindex="0">
+                    <span class="mk-strip-dot" [style.background]="s.color"></span>
+                    <span class="mk-strip-count" [style.color]="s.color">
+                        {{ getStatusCount(s.key) }}
+                    </span>
+                    <span class="mk-strip-label">{{ s.label }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CHART + ORDERS GRID ─────────────── -->
+        <div class="mk-bottom-grid">
+
+            <!-- SPENDING CHART -->
+            <div class="mk-chart-card">
+                <div class="mk-chart-header">
+                    <div>
+                        <h2 class="mk-chart-title">Spending Overview</h2>
+                        <p class="mk-chart-sub">Last 6 months — delivered orders</p>
                     </div>
-                    <div class="stat-label">Total Orders</div>
-                    <div class="stat-desc">Safe and fast handling for all your packages.</div>
                 </div>
 
-                <div class="stat-card orange" (click)="goToActiveOrders()">
-                    <div class="stat-top">
-                        <div class="stat-value">{{ dashboardStats.activeOrders }}</div>
-                        <div class="stat-icon">🚚</div>
+                <!-- Chart: data exists -->
+                <div class="mk-bar-chart" *ngIf="spendingChart.length > 0; else noChart">
+                    <div class="mk-bar-wrap" *ngFor="let point of spendingChart">
+                        <div class="mk-bar-col">
+                            <span class="mk-bar-amount">{{ dashboardStats.walletCurrency }} {{ point.total |
+                                number:'1.0-0' }}</span>
+                            <div class="mk-bar-outer">
+                                <div class="mk-bar-fill" [style.height.%]="getBarHeight(point.total)"></div>
+                            </div>
+                        </div>
+                        <span class="mk-bar-label">{{ point.month }}</span>
                     </div>
-                    <div class="stat-label">Active Orders</div>
-                    <div class="stat-desc">Reliable service for your shipments.</div>
                 </div>
 
-                <div class="stat-card purple" (click)="goToWallet()">
-                    <div class="stat-top">
-                        <div class="stat-value">₹{{ dashboardStats.walletBalance }}</div>
-                        <div class="stat-icon">💰</div>
+                <!-- Chart: no data -->
+                <ng-template #noChart>
+                    <div class="mk-chart-empty">
+                        <span class="mk-chart-empty-icon">📊</span>
+                        <p>No spending data yet</p>
+                        <span>Completed deliveries will appear here</span>
                     </div>
-                    <div class="stat-label">Wallet Balance</div>
-                    <div class="stat-desc">Main balance for outstanding or prepaid orders.</div>
+                </ng-template>
+
+            </div>
+            <!-- /chart -->
+
+            <!-- RECENT ORDERS -->
+            <div class="mk-orders-card">
+                <div class="mk-orders-header">
+                    <div class="mk-orders-title-group">
+                        <h2 class="mk-orders-title">Recent Orders</h2>
+                        <span class="mk-orders-badge">{{ allRecentOrders.length }}</span>
+                    </div>
+                    <button class="mk-view-all-btn" (click)="goToAllOrders()">
+                        View all
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="mk-table-wrap">
+                    <table class="mk-table" role="table" aria-label="Recent delivery orders">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Pickup</th>
+                                <th>Drop</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let order of recentOrders; trackBy: trackByOrder" class="mk-order-row"
+                                (click)="goToOrder(order.id)" role="row" tabindex="0"
+                                (keydown.enter)="goToOrder(order.id)">
+                                <td>
+                                    <span class="mk-order-id">{{ truncateId(order.id) }}</span>
+                                </td>
+                                <td>
+                                    <div class="mk-addr-cell">
+                                        <span class="mk-addr-dot mk-dot-green"></span>
+                                        <span class="mk-addr-text" [title]="order.pickup">
+                                            {{ truncateAddress(order.pickup) }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="mk-addr-cell">
+                                        <span class="mk-addr-dot mk-dot-red"></span>
+                                        <span class="mk-addr-text" [title]="order.drop">
+                                            {{ truncateAddress(order.drop) }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="mk-status-badge" [ngClass]="getStatusConfig(order.status).class">
+                                        {{ getStatusConfig(order.status).label }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="mk-amount">
+                                        {{ order.currency || dashboardStats.walletCurrency }} {{ order.amount |
+                                        number:'1.0-0' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="mk-time">{{ order.time }}</span>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="recentOrders.length === 0">
+                                <td colspan="6">
+                                    <div class="mk-empty-state">
+                                        <div class="mk-empty-icon">📭</div>
+                                        <p class="mk-empty-title">No orders yet</p>
+                                        <p class="mk-empty-sub">
+                                            Book your first goods transport or mini truck delivery
+                                        </p>
+                                        <button class="mk-empty-cta" (click)="goToBookDelivery()">
+                                            + Book Delivery
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="mk-mobile-orders">
+                    <div class="mk-mobile-order-card" *ngFor="let order of recentOrders; trackBy: trackByOrder"
+                        (click)="goToOrder(order.id)">
+                        <div class="mk-mob-top">
+                            <span class="mk-order-id">{{ truncateId(order.id) }}</span>
+                            <span class="mk-status-badge" [ngClass]="getStatusConfig(order.status).class">
+                                {{ getStatusConfig(order.status).label }}
+                            </span>
+                        </div>
+                        <div class="mk-mob-route">
+                            <div class="mk-mob-stop">
+                                <span class="mk-addr-dot mk-dot-green"></span>
+                                <span>{{ truncateAddress(order.pickup, 32) }}</span>
+                            </div>
+                            <div class="mk-mob-line"></div>
+                            <div class="mk-mob-stop">
+                                <span class="mk-addr-dot mk-dot-red"></span>
+                                <span>{{ truncateAddress(order.drop, 32) }}</span>
+                            </div>
+                        </div>
+                        <div class="mk-mob-footer">
+                            <span class="mk-amount">
+                                {{ order.currency || dashboardStats.walletCurrency }} {{ order.amount | number:'1.0-0'
+                                }}
+                            </span> <span class="mk-time">{{ order.time }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mk-empty-state" *ngIf="recentOrders.length === 0">
+                        <div class="mk-empty-icon">📭</div>
+                        <p class="mk-empty-title">No orders yet</p>
+                        <button class="mk-empty-cta" (click)="goToBookDelivery()">
+                            + Book Delivery
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="mk-pagination-wrap" *ngIf="allRecentOrders.length > 0">
+                    <app-pagination [total]="allRecentOrders.length" [page]="page" [limit]="limit"
+                        (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)">
+                    </app-pagination>
                 </div>
 
             </div>
+            <!-- /orders card -->
 
-            <!-- BOTTOM SECTION -->
-            <div class="bottom-row">
+        </div>
+        <!-- /bottom grid -->
 
-                <!-- LEFT: ORDERS -->
-                <div class="layout-left">
-
-                    <div class="recent-orders">
-
-                        <h2 class="recent-title">Recent Orders</h2>
-
-                        <table class="recent-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Drop Location</th>
-                                    <th>Created At</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr *ngFor="let order of recentOrders; trackBy: trackByOrder" class="order-row"
-                                    (click)="goToOrder(order.id)">
-                                    <td class="order-id">{{ order.id }}</td>
-
-                                    <td class="order-drop">
-                                        <span class="icon">📍</span>
-                                        {{ order.drop }}
-                                    </td>
-
-                                    <td class="order-time">
-                                        <span class="icon">🕒</span>
-                                        {{ order.time }}
-                                    </td>
-                                </tr>
-
-                                <tr *ngIf="recentOrders.length === 0">
-                                    <td colspan="3" class="empty-state">
-                                        No recent orders found
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- PAGINATION (SHARED COMPONENT) -->
-                        <app-pagination *ngIf="allRecentOrders.length > 0" [total]="allRecentOrders.length"
-                            [page]="page" [limit]="limit" (pageChange)="onPageChange($event)"
-                            (limitChange)="onLimitChange($event)">
-                        </app-pagination>
-
-                    </div>
-
-                </div>
-
-                <!-- RIGHT: ILLUSTRATION -->
-                <div class="layout-right illustration">
-                    <img src="assets/images/dashboard-boy.jpg" alt="Dashboard Illustration" />
-                </div>
-
-            </div>
-
-        </ng-container>
-
-        <!-- LOADING -->
-        <ng-template #loadingTemplate>
-            <div class="loading-container">
-                <p>Loading dashboard data...</p>
-            </div>
-        </ng-template>
-
-    </div>
+    </ng-container>
+    <!-- /main content -->
 
 </div>
