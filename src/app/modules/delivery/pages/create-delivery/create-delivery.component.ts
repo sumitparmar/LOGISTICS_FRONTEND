@@ -69,48 +69,41 @@ export class CreateDeliveryComponent
     'Parcel',
   ];
 
-  // deliverySpeedOptions = [
-  //   {
-  //     code: 'NOW',
-  //     title: 'Deliver Now',
-  //     description: 'Courier arrives immediately',
-  //     icon: 'flash_on',
-  //   },
-  //   {
-  //     code: 'END_OF_DAY',
-  //     title: 'By End of Day',
-  //     description: 'Lower price delivery',
-  //     icon: 'schedule',
-  //   },
-  //   {
-  //     code: 'SCHEDULED',
-  //     title: 'Schedule',
-  //     description: 'Choose pickup time',
-  //     icon: 'event',
-  //   },
-  // ];
-
   vehicleOptions = [
     {
-      id: 1,
-      title: '2-Wheeler Courier',
-      description: 'Delivery via bike or public transport',
+      id: 8,
+      title: 'Motorbike',
+      description: 'Fast delivery via bike',
       limit: 'Up to 20 kg',
       icon: 'two_wheeler',
     },
     {
-      id: 2,
-      title: 'Mini Truck',
-      description: 'Medium parcel deliveries',
-      limit: 'Up to 500 kg',
+      id: 1,
+      title: 'Mini 3-Wheeler',
+      description: 'Small vehicle for medium parcels',
+      limit: 'Up to 100 kg',
       icon: 'local_shipping',
     },
     {
-      id: 3,
-      title: 'Truck',
-      description: 'Heavy shipment transport',
-      limit: 'Up to 2000 kg',
+      id: 2,
+      title: 'Tata Ace 8ft',
+      description: 'Medium cargo deliveries',
+      limit: 'Up to 500 kg',
       icon: 'airport_shuttle',
+    },
+    {
+      id: 3,
+      title: 'Tata Ace 7ft',
+      description: 'Heavy shipment transport',
+      limit: 'Up to 1000 kg',
+      icon: 'airport_shuttle',
+    },
+    {
+      id: 5,
+      title: 'Tempo Truck',
+      description: 'Large scale cargo delivery',
+      limit: 'Up to 2000 kg',
+      icon: 'local_shipping',
     },
   ];
 
@@ -155,25 +148,6 @@ export class CreateDeliveryComponent
     }
   }
 
-  // ngOnInit(): void {
-  //   this.initializeForm();
-
-  //   this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
-  //     if (!this.canAutoCalculate()) return;
-
-  //     this.resetPrice();
-
-  //     this.calculatePrice();
-  //   });
-  //   this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
-  //     this.resetPrice();
-  //   });
-
-  //   this.deliveryForm.get('package.description')?.valueChanges.subscribe(() => {
-  //     this.resetPrice();
-  //   });
-  // }
-
   ngOnInit(): void {
     this.initializeForm();
     this.loadSavedAddresses();
@@ -204,6 +178,22 @@ export class CreateDeliveryComponent
       this.resetPrice();
     });
 
+    this.deliveryForm.get('pickupAddress')?.valueChanges.subscribe(() => {
+      this.deliveryForm.patchValue(
+        {
+          pickupLat: null,
+          pickupLng: null,
+        },
+        { emitEvent: false },
+      );
+
+      this.resetPrice();
+    });
+
+    this.stops.valueChanges.subscribe(() => {
+      this.resetPrice();
+    });
+
     const pending = history.state;
 
     if (pending?.pickup) {
@@ -211,25 +201,6 @@ export class CreateDeliveryComponent
     }
   }
 
-  // applyModeDefaults(mode: string | null): void {
-  //   if (!mode) return;
-
-  //   if (this.deliveryForm.get('vehicleTypeId')?.value !== 1) return;
-
-  //   if (mode === 'BUSINESS') {
-  //     this.deliveryForm.patchValue({
-  //       deliveryType: 'NOW',
-  //       paymentMethod: 'CASH',
-  //     });
-  //   }
-
-  //   if (mode === 'PERSONAL') {
-  //     this.deliveryForm.patchValue({
-  //       deliveryType: 'EOD',
-  //       paymentMethod: 'CASH',
-  //     });
-  //   }
-  // }
   applyPendingDelivery(data: any): void {
     // 🔹 Set pickup (ONLY ADDRESS — lat/lng must come from autocomplete)
     this.deliveryForm.patchValue({
@@ -237,7 +208,7 @@ export class CreateDeliveryComponent
       pickupLat: null,
       pickupLng: null,
 
-      vehicleTypeId: data.vehicleType || 1,
+      vehicleTypeId: data.vehicleType || 8,
     });
 
     // 🔹 Set first stop (drop)
@@ -449,48 +420,37 @@ export class CreateDeliveryComponent
       },
     });
   }
+
   handleCheckout(): void {
     const form = this.deliveryForm.value;
 
     if (!this.priceSummary.total) {
       this.showToastMessage('Please calculate price first');
-
       return;
     }
 
-    const paymentMethod = form.paymentMethod;
-
-    if (paymentMethod === 'CASH') {
-      this.createOrder();
+    if (form.paymentMethod === 'BANK_CARD') {
+      this.showToastMessage(
+        'Online payment launching soon. Please use Cash on Delivery.',
+      );
       return;
     }
 
-    // Temporary block until gateway API exists
-    alert('Online payment will be available soon');
+    this.currentStep = 3;
+    this.createOrder();
   }
 
-  processOnlinePayment(): void {
-    // this.isPaymentProcessing = true;
-    // // Temporary mock payment
-    // // Replace later with Razorpay / your gateway
-    // setTimeout(() => {
-    //   this.isPaymentProcessing = false;
-    //   this.paymentCompleted = true;
-    //   this.createOrder();
-    // }, 1500);
-  }
+  processOnlinePayment(): void {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
-    }, 300);
-    this.initPickupAutocomplete();
-    setTimeout(() => {
+      this.initPickupAutocomplete();
       this.attachStopAutocompletes();
-    });
+    }, 300);
 
     this.stopInputSubscription = this.stopInputs.changes.subscribe(() => {
-      this.attachStopAutocompletes();
+      setTimeout(() => this.attachStopAutocompletes(), 300);
     });
   }
 
@@ -533,7 +493,7 @@ export class CreateDeliveryComponent
       paymentMethod: ['CASH', Validators.required],
       bankCardId: [null],
 
-      vehicleTypeId: [1, Validators.required],
+      vehicleTypeId: [8, Validators.required],
 
       parcelValue: [null],
     });
@@ -621,24 +581,11 @@ export class CreateDeliveryComponent
 
     this.currentStep = 2;
 
-    // if (!form.pickupLat || !form.pickupLng) {
-    //   alert('Please select pickup address from suggestions');
-    //   return;
-    // }
-
-    // for (const stop of form.stops) {
-    //   if (!stop.lat || !stop.lng) {
-    //     alert('Please select delivery address from suggestions');
-    //     return;
-    //   }
-    // }
-
     this.isCalculatingPrice = true;
 
     try {
       const payload = {
         matter: form.package.description,
-
         vehicleTypeId: form.vehicleTypeId,
         deliveryType: form.deliveryType,
         scheduledAt:
@@ -650,11 +597,14 @@ export class CreateDeliveryComponent
           lat: form.pickupLat,
           lng: form.pickupLng,
         },
-
         drop: {
           address: form.stops[form.stops.length - 1].address,
           lat: form.stops[form.stops.length - 1].lat,
           lng: form.stops[form.stops.length - 1].lng,
+        },
+        package: {
+          weight: form.package.weight,
+          declaredValue: form.parcelValue || 0,
         },
       };
 
@@ -671,7 +621,16 @@ export class CreateDeliveryComponent
 
         error: (err) => {
           console.error('Price calculation failed', err);
+
           this.isCalculatingPrice = false;
+
+          const message =
+            err?.error?.message ||
+            err?.error?.errors?.[0] ||
+            err?.message ||
+            'Price calculation failed';
+
+          this.showToastMessage(message);
         },
       });
     } catch (error) {
@@ -679,8 +638,21 @@ export class CreateDeliveryComponent
       this.isCalculatingPrice = false;
     }
   }
+
   createOrder(): void {
     const form = this.deliveryForm.value;
+
+    if (this.isCreatingOrder) {
+      return;
+    }
+
+    if (!this.canAutoCalculate()) {
+      this.showToastMessage(
+        'Please complete valid pickup and delivery addresses',
+      );
+      return;
+    }
+
     if (form.deliveryType === 'SCHEDULED' && !this.isScheduleValid()) {
       this.showToastMessage('Please select a valid future time');
       return;
@@ -736,6 +708,7 @@ export class CreateDeliveryComponent
           lng: form.pickupLng,
           phone: form.pickupPhone,
           name: form.pickupName,
+          notes: form.pickupNotes || null,
         },
         {
           type: 'DROP',
@@ -744,6 +717,7 @@ export class CreateDeliveryComponent
           lng: lastStop.lng,
           phone: lastStop.phone,
           name: lastStop.name,
+          notes: lastStop.notes || null,
         },
       ],
 
@@ -827,10 +801,11 @@ export class CreateDeliveryComponent
       }
 
       if (opt.code === 'END_OF_DAY') {
-        const discounted = nowPrice;
+        const discounted = Math.round(nowPrice * 0.85);
+        const saving = nowPrice - discounted;
         return {
           ...opt,
-          description: `Save ₹${nowPrice - discounted}`,
+          description: saving > 0 ? `Save ₹${saving}` : 'Lower cost delivery',
           price: discounted,
         };
       }
@@ -903,11 +878,13 @@ export class CreateDeliveryComponent
   }
 
   selectPayment(type: string): void {
-    this.deliveryForm.get('paymentMethod')?.setValue(type);
-
-    if (type !== 'BANK_CARD') {
-      this.deliveryForm.get('bankCardId')?.setValue(null);
+    if (type === 'BANK_CARD') {
+      this.showToastMessage('Online payment launching soon');
+      return;
     }
+
+    this.deliveryForm.get('paymentMethod')?.setValue('CASH');
+    this.deliveryForm.get('bankCardId')?.setValue(null);
   }
 
   selectCategory(category: string): void {

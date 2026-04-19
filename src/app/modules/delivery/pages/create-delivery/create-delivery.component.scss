@@ -2,204 +2,191 @@
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  background: lightgray;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  min-height: 100vh;
 }
 
 .delivery-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px;
 }
 
-/* HEADER */
+.delivery-header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+}
 
 .page-title {
-  font-size: 28px;
+  margin: 0;
+  font-size: 32px;
   font-weight: 700;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.reuse-btn {
+  align-self: flex-start;
+  border: 1px solid #ff7a00;
+  background: #fff;
   color: #ff7a00;
-  margin-bottom: 15px;
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.reuse-btn:hover {
+  background: #ff7a00;
+  color: #fff;
 }
 
 .delivery-steps {
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
+  gap: 10px;
 }
 
 .step {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #777;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .circle {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #ddd;
+  background: #e5e7eb;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+}
+
+.step.active {
+  color: #111827;
 }
 
 .step.active .circle {
   background: #ff7a00;
-  color: white;
+  color: #fff;
 }
 
 .step-line {
   flex: 1;
   height: 2px;
-  background: #ddd;
-  margin: 0 10px;
+  background: #e5e7eb;
 }
-
-/* MAIN LAYOUT */
 
 .delivery-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 25px;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 24px;
 }
 
 .left-panel,
 .right-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .right-panel {
   position: sticky;
-  top: 80px;
+  top: 88px;
   height: fit-content;
 }
 
-/* CARD */
-
 .card-section {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 22px;
-  border: 1px solid #eef1f6;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.card-section {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #edf1f5;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 16px; /* improves spacing */
+  gap: 16px;
 }
-.pricesummary {
-  padding: 1px 2px;
+
+.card-section h2,
+.card-section h3,
+.card-section h4 {
+  margin: 0;
+  color: #111827;
+  font-weight: 700;
 }
-/* ROUTE GRID */
 
 .route-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  row-gap: 22px;
+  gap: 22px;
   position: relative;
 }
-
-/* ROUTE LINE */
 
 .route-grid::before {
   content: "";
   position: absolute;
-  left: 17px;
-  top: 35px;
-  bottom: 35px;
-  border-left: 2px dashed #2563eb;
-  z-index: 0;
+  left: 16px;
+  top: 34px;
+  bottom: 34px;
+  border-left: 2px dashed #dbeafe;
 }
-.form-input.ng-invalid.ng-touched {
-  border-color: #e53935;
-  background: #fff5f5;
-}
-/* ROW STRUCTURE */
 
 .route-row {
   display: grid;
   grid-template-columns: 34px 1fr;
-  column-gap: 18px;
+  gap: 18px;
   align-items: start;
+  position: relative;
+  z-index: 1;
 }
-
-/* TIMELINE */
 
 .route-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  z-index: 2;
 }
-
-/* STEP CIRCLE */
 
 .step-circle {
   width: 34px;
   height: 34px;
   border-radius: 50%;
+  background: #eff6ff;
   border: 2px solid #2563eb;
-  background: white;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  color: #2563eb;
 }
 
 .step-text {
-  font-size: 12px;
   margin-top: 6px;
-  color: darkorange;
-  font-family: "Courier New", Courier, monospace;
-  margin-right: 2rem;
+  font-size: 12px;
+  color: #6b7280;
 }
-
-/* FORM BLOCK */
 
 .route-form {
   width: 100%;
 }
 
-/* HEADER */
-
 .route-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: space-between;
 }
 
 .route-title {
-  font-weight: 600;
-}
-
-/* INPUTS */
-
-.form-input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid #e4e4e7;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  box-sizing: border-box;
   font-size: 14px;
-  margin-top: 6px;
+  font-weight: 700;
+  color: #111827;
 }
-
-/* TWO COLUMN */
-
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* CLOSE BUTTON */
 
 .close-stop {
   border: none;
@@ -207,595 +194,434 @@
   cursor: pointer;
 }
 
-/* STOP ACTIONS */
+.form-input {
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-sizing: border-box;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.08);
+}
+
+.form-input.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  background: #fff7f7;
+}
+
+.form-error {
+  margin: -6px 0 10px;
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-secondary,
+.btn-add-stop,
+.btn-reorder {
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-secondary {
+  border: 1px solid #ff7a00;
+  background: #fff;
+  color: #ff7a00;
+  width: fit-content;
+}
+
+.btn-secondary:hover,
+.btn-add-stop:hover,
+.btn-reorder:hover {
+  transform: translateY(-1px);
+}
 
 .stop-actions {
-  margin-top: 12px;
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .btn-add-stop,
 .btn-reorder {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   border: 1px dashed #ff7a00;
-  background: transparent;
-  padding: 9px 15px;
-  border-radius: 8px;
-  cursor: pointer;
+  background: #fff8f1;
+  color: #ff7a00;
 }
 
-/* PACKAGE */
-
-.weight-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.weight-option {
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
+.weight-selector,
 .package-categories {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
 }
 
+.weight-option,
 .category {
-  border: 1px solid #ddd;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-/* DELIVERY OPTIONS */
-
-.delivery-card {
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  gap: 12px;
-  align-items: center;
-  border: 1px solid #eee;
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  cursor: pointer;
-}
-
-.delivery-card.active {
-  border: 2px solid #ff7a00;
-  background: #fff7f0;
-}
-
-.delivery-icon {
-  font-size: 22px;
-}
-
-.delivery-price {
-  font-weight: 600;
-  color: #ff7a00;
-}
-
-/* COURIER */
-
-.courier-block {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 10px;
-  align-items: center;
-}
-
-.vehicle-icon {
-  font-size: 24px;
-}
-
-/* PRICE */
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.price-total {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 700;
-  margin-top: 10px;
-}
-
-.btn-price {
-  width: 100%;
-  background: linear-gradient(135deg, #2f80ed, #1c60c0);
-  color: white;
-  border: none;
-  padding: 11px;
-  margin-top: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-price:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(47, 128, 237, 0.25);
-}
-/* PAYMENT */
-
-.payment-types {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.payment-option {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.payment-section {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 15px;
-}
-
-.payment-card {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #e4e7ec;
-  border-radius: 10px;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.2s ease;
-}
-
-.payment-card:hover {
-  border-color: #ff7a00;
-  transform: translateY(-1px);
-}
-
-.payment-card.active {
-  border: 2px solid #ff7a00;
-  background: #fff7f0;
-}
-
-.payment-icon {
-  font-size: 24px;
-  color: #ff7a00;
-}
-
-.payment-info h4 {
-  margin: 0;
-  font-size: 14px;
-}
-
-.payment-info p {
-  margin: 0;
-  font-size: 12px;
-  color: #667085;
-}
-
-.saved-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.saved-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #e4e7ec;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.saved-card.active {
-  border-color: #ff7a00;
-  background: #fff7f0;
-}
-
-.card-number {
-  font-weight: 600;
-}
-
-.card-type {
-  font-size: 12px;
-  color: #667085;
-}
-
-.btn-submit {
-  width: 100%;
-  background: linear-gradient(135deg, #ff9a3d, #ff7a00);
-  color: white;
-  border: none;
-  padding: 13px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-submit:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(255, 122, 0, 0.3);
-}
-/* REORDER MODAL */
-
-.reorder-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reorder-modal {
-  background: white;
-  width: 420px;
-  padding: 24px;
-  border-radius: 12px;
-}
-
-.reorder-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.confirm-btn {
-  width: 100%;
-  padding: 12px;
-  background: #2563eb;
-  border: none;
-  color: white;
-  border-radius: 8px;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 900px) {
-  .delivery-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .route-row {
-    grid-template-columns: 30px 1fr;
-  }
-}
-
-.weight-option.active {
-  border: 2px solid #ff7a00;
-  background: #fff7f0;
-}
-
-.payment-option.active {
-  border: 2px solid #ff7a00;
-  background: #fff7f0;
-}
-.route-map {
-  width: 100%;
-  height: 250px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.vehicle-card {
   border: 1px solid #e5e7eb;
-  padding: 12px;
-  border-radius: 8px;
-  display: flex;
-  gap: 10px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.vehicle-card.active {
-  border-color: #ff7a00;
-  background: #fff7f0;
-}
+.weight-option.active,
 .category.active {
   border-color: #ff7a00;
   background: #fff7f0;
   color: #ff7a00;
 }
 
-// .insurance-row {
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between; /* 👈 key */
-//   gap: 12px;
-//   margin-bottom: 10px;
-// }
-
-/* Control input size */
-.insurance-input {
-  width: 220px; /* 👈 fixed width like Borzo */
-  margin-bottom: 0; /* remove default spacing */
+.mode-recommendation,
+.mode-hint {
+  background: #fff7ed;
+  color: #c2410c;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
 }
 
-/* Right side text */
-.insurance-charge {
-  font-size: 13px;
-  color: #667085;
-  white-space: nowrap; /* 👈 prevents breaking */
+.route-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #eef2f7;
 }
 
-/* Description text */
-.insurance-text {
+.price-row,
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-row {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.price-total {
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid #eef2f7;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.btn-price,
+.btn-submit,
+.confirm-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-price {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #ff9a3d, #ff7a00);
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.btn-price:hover,
+.btn-submit:hover,
+.confirm-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.12);
+}
+
+.btn-submit:disabled,
+.btn-price:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.checkout-note {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.delivery-card,
+.vehicle-card,
+.payment-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: #fff;
+}
+
+.delivery-card:hover,
+.vehicle-card:hover,
+.payment-card:hover {
+  border-color: #ff7a00;
+  transform: translateY(-1px);
+}
+
+.delivery-card.active,
+.vehicle-card.active,
+.payment-card.active {
+  border-color: #ff7a00;
+  background: #fff7f0;
+}
+
+.delivery-icon,
+.vehicle-icon,
+.payment-icon {
+  font-size: 24px;
+  color: #ff7a00;
+}
+
+.delivery-info h4,
+.payment-info h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.delivery-desc,
+.payment-info p,
+.vehicle-card p {
+  margin: 2px 0 0;
   font-size: 13px;
-  color: #555;
-  line-height: 1.5;
+  color: #6b7280;
+}
+
+.delivery-price,
+.vehicle-limit {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.disabled-payment {
+  opacity: 0.7;
+}
+
+.soon-badge {
+  margin-left: 8px;
+  background: #fff3cd;
+  color: #92400e;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  vertical-align: middle;
 }
 
 .insurance-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between; /* 👈 key */
   gap: 12px;
-  margin-bottom: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-/* Control input size */
 .insurance-input {
-  width: 220px; /* 👈 fixed width like Borzo */
-  margin-bottom: 0; /* remove default spacing */
+  width: 220px;
+  margin: 0;
 }
 
-/* Right side text */
 .insurance-charge {
   font-size: 13px;
-  color: #667085;
-  white-space: nowrap; /* 👈 prevents breaking */
+  color: #6b7280;
 }
 
-/* Description text */
 .insurance-text {
+  margin: 0;
   font-size: 13px;
-  color: #555;
-  line-height: 1.5;
-}
-.checkbox-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-
-  input[type="checkbox"] {
-    margin-top: 3px;
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
-
-  span {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.4;
-  }
-}
-.form-input.ng-invalid.ng-touched {
-  border: 1px solid #e53935;
-  background-color: #fff5f5;
+  line-height: 1.6;
+  color: #4b5563;
 }
 
-.form-error {
-  color: #e53935;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.reuse-btn:hover {
-  background: #ff7a00;
-  color: white;
-}
-
-.delivery-header {
-  display: flex;
-  flex-direction: column;
-}
-
-.reuse-btn {
-  align-self: flex-start;
-  margin: 8px 0 12px;
-  padding: 6px 14px;
-  font-size: 13px;
-  background: #fff;
-  border: 1px solid #ff7a00;
-  color: #ff7a00;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.reuse-btn:hover {
-  background: #ff7a00;
-  color: white;
-}
-h2 {
-  margin-bottom: 12px;
-}
-
-h3 {
-  margin-bottom: 10px;
-}
-.mode-recommendation {
-  font-size: 12px;
-  color: #ff7a00;
-  background: #fff4e8;
-  padding: 6px 10px;
-  border-radius: 6px;
-  display: inline-block;
-  margin-top: 4px;
-}
 .custom-toast {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 9999;
-  animation: slideIn 0.3s ease;
 }
 
 .toast-content {
-  background: #1f2937; /* dark elegant */
-  color: white;
+  background: #111827;
+  color: #fff;
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: 14px;
   font-size: 14px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.2);
 }
 
-/* animation */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) translateX(0);
-  }
-}
-.route-form select.form-input {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.route-form select.form-input:hover {
-  border-color: #ff7a00;
-  background: #fff7f0;
-}
-
-.route-form select.form-input:focus {
-  border-color: #ff7a00;
-  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.15);
-  outline: none;
-}
-
-/* Dropdown option styling (limited support but still useful) */
-.route-form select.form-input option {
-  padding: 10px;
-}
-
-/* ============================= */
-/* SAVE ADDRESS BUTTON */
-/* ============================= */
-
-.btn-secondary {
-  display: inline-flex;
+.reorder-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.5);
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 8px;
-  border: 1px solid #ff7a00;
+  z-index: 999;
+  padding: 20px;
+}
+
+.reorder-modal {
+  width: 100%;
+  max-width: 460px;
   background: #fff;
-  color: #ff7a00;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18);
+}
+
+.reorder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: fit-content;
+  font-size: 18px;
 }
 
-.btn-secondary:hover {
-  background: #ff7a00;
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(255, 122, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-/* spacing tweak */
-.route-form .form-group {
-  margin-bottom: 10px;
-}
-
-.route-form select.form-input option[value]::before {
-  font-weight: 600;
-}
-
-.route-form select.form-input {
-  padding-right: 30px;
-}
 .reorder-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 18px;
 }
 
 .reorder-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #eef2f7;
   background: #fff;
-  cursor: grab;
-  transition: 0.2s;
-}
-
-.reorder-item:active {
-  cursor: grabbing;
-  background: #fff7f0;
 }
 
 .drag-icon {
-  font-size: 18px;
   color: #9ca3af;
 }
-.delivery-info h4 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
 
-.delivery-desc {
-  font-size: 13px;
-  color: #6b7280; /* 👈 THIS WAS MISSING */
-  margin-top: 2px;
-}
-
-.delivery-price {
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 4px;
-  color: #111827;
-}
 .full-width {
   width: 100%;
 }
 
-/* Fix overlay look */
 ::ng-deep .ngx-mat-datetime-content {
-  border-radius: 12px;
-}
-::ng-deep .ngx-mat-timepicker {
-  display: flex !important;
-  justify-content: center;
+  border-radius: 16px;
 }
 
-::ng-deep .ngx-mat-timepicker-table {
-  font-size: 18px;
+@media (max-width: 1100px) {
+  .delivery-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .right-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .delivery-page {
+    padding: 22px 14px;
+  }
+
+  .page-title {
+    font-size: 26px;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-steps {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .step-line {
+    min-width: 40px;
+  }
+
+  .route-row {
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .card-section {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .payment-section,
+  .stop-actions {
+    flex-direction: column;
+  }
+
+  .insurance-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 22px;
+  }
+
+  .btn-submit,
+  .btn-price,
+  .confirm-btn {
+    font-size: 14px;
+    padding: 13px;
+  }
+
+  .route-map {
+    height: 220px;
+  }
 }

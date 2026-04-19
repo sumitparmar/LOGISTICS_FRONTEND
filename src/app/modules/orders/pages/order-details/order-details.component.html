@@ -4,7 +4,8 @@
 
         <div class="order-header">
             <div class="order-title">
-                Order #{{ order.borzoOrderId }}
+                Order #{{ order.borzoOrderId || order.rawProviderResponse?.order?.order_id ||
+                order._id?.slice(-6)?.toUpperCase() }}
             </div>
 
             <div class="order-meta">
@@ -89,6 +90,11 @@
                             </div>
                         </div>
 
+                        <div class="estimate-item" *ngIf="getBorzoEta()">
+                            <div class="estimate-label">Scheduled Arrival</div>
+                            <div class="estimate-value">{{ getBorzoEta() }}</div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -135,8 +141,9 @@
                                 <input #dropInput *ngIf="isEditMode" type="text" [(ngModel)]="editableOrder.dropAddress"
                                     (input)="onManualAddressChange('drop')" class="edit-input" />
 
-                                <div class="route-contact" *ngIf="order.customer">
-                                    {{ order.customer?.name }} • {{ order.customer?.phone }}
+                                <div class="route-contact">
+                                    {{ order.stops?.[1]?.name || order.customer?.name }} •
+                                    {{ order.stops?.[1]?.phone || order.customer?.phone }}
                                 </div>
                             </div>
                         </div>
@@ -168,8 +175,8 @@
                         <div class="summary-item">
                             <div class="summary-label">Vehicle</div>
                             <div class="summary-value">
-                                {{ order.vehicle?.type ? getVehicleLabel(order.vehicle?.type) :
-                                getVehicleLabel(order.vehicleTypeId) }}
+                                {{ getVehicleLabel(order.vehicleTypeId) }}
+
                             </div>
                         </div>
 
@@ -183,7 +190,7 @@
 
                             <!-- VIEW MODE -->
                             <div class="summary-value" *ngIf="!isEditMode">
-                                {{ order.rawProviderResponse?.order?.matter }}
+                                {{ order.rawProviderResponse?.order?.matter || order.package?.description || '—' }}
                             </div>
 
                             <!-- EDIT MODE -->

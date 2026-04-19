@@ -64,7 +64,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   onEditOrder(): void {
     if (!this.order) return;
 
-    // 👉 First click → enable edit mode
+    console.log('=== onEditOrder called ===');
+    console.log('isEditMode:', this.isEditMode);
+    console.log('editableOrder:', this.editableOrder);
+    console.log('order.pickup:', this.order.pickup);
+    console.log('order.drop:', this.order.drop);
+
     if (!this.isEditMode) {
       this.isEditMode = true;
 
@@ -96,6 +101,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (!dropLat || !dropLng) {
+      this.toastService.error(
+        'Please select valid drop address from suggestions',
+      );
+      return;
+    }
+
     const payload = this.buildEditPayload();
 
     if (!payload) {
@@ -110,10 +122,14 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.loading = false;
 
         this.order = res?.data;
-
         this.editableOrder = {
-          matter: this.order?.rawProviderResponse?.order?.matter || '',
+          matter:
+            this.order?.rawProviderResponse?.order?.matter ||
+            this.order?.package?.description ||
+            '',
           weight: this.order?.package?.weight || 0,
+          category: this.order?.package?.category || '',
+          description: this.order?.package?.description || '',
 
           pickupAddress: this.order?.pickup?.address || '',
           pickupLat: this.order?.pickup?.lat,
@@ -129,7 +145,8 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         }, 100);
 
         this.isEditMode = false;
-
+        this.editableOrder.pickupAddressManuallyChanged = false;
+        this.editableOrder.dropAddressManuallyChanged = false;
         this.toastService.success('Order updated successfully');
       },
 
@@ -305,7 +322,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       order_id: providerOrder.order_id,
       matter: this.editableOrder.matter,
       vehicle_type_id: Number(this.order.vehicleTypeId),
-      total_weight_kg: this.editableOrder.weight,
+      total_weight_kg: Number(this.editableOrder.weight || 0),
       points,
     };
   }
@@ -318,11 +335,21 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.order = res?.data || res;
 
         this.editableOrder = {
-          matter: this.order?.rawProviderResponse?.order?.matter || '',
+          matter:
+            this.order?.rawProviderResponse?.order?.matter ||
+            this.order?.package?.description ||
+            '',
           weight: this.order?.package?.weight || 0,
+          category: this.order?.package?.category || '',
+          description: this.order?.package?.description || '',
 
           pickupAddress: this.order?.pickup?.address || '',
+          pickupLat: this.order?.pickup?.lat,
+          pickupLng: this.order?.pickup?.lng,
+
           dropAddress: this.order?.drop?.address || '',
+          dropLat: this.order?.drop?.lat,
+          dropLng: this.order?.drop?.lng,
         };
 
         this.loading = false;
@@ -330,9 +357,11 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.loadCourier();
         this.loadDocuments();
         this.loadProviderHistory();
-        const userId = this.order.user;
+        const userId = this.order?.user?._id ?? this.order?.user;
 
-        this.socketService.connect(userId);
+        if (userId) {
+          this.socketService.connect(userId);
+        }
 
         this.socketService.onOrderStatusUpdate((data: any) => {
           if (data.orderId === this.order._id) {
@@ -355,6 +384,21 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  getBorzoEta(): string {
+    const eta =
+      this.order?.rawProviderResponse?.order?.points?.[1]
+        ?.estimated_arrival_datetime;
+
+    if (!eta) return '';
+
+    return new Date(eta).toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   initializeMap() {
     if (!this.mapContainer?.nativeElement) return;
 
@@ -365,8 +409,15 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     let dropLat: number | undefined;
     let dropLng: number | undefined;
 
-    //  PRIMARY SOURCE (provider response)
-    if (points && points.length >= 2) {
+    // PRIMARY SOURCE — DB se (always fresh)
+    if (this.order?.pickup?.lat && this.order?.drop?.lat) {
+      pickupLat = this.order.pickup.lat;
+      pickupLng = this.order.pickup.lng;
+      dropLat = this.order.drop.lat;
+      dropLng = this.order.drop.lng;
+    }
+    // FALLBACK — rawProviderResponse
+    else if (points && points.length >= 2) {
       const pickupPoint = points.find((p: any) => !p.delivery);
       const dropPoint = points.find((p: any) => p.delivery);
 
@@ -378,23 +429,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       }
     }
 
-    //  FALLBACK (DB pickup/drop)
-    if (!pickupLat || !dropLat) {
-      pickupLat = this.order?.pickup?.lat;
-      pickupLng = this.order?.pickup?.lng;
-      dropLat = this.order?.drop?.lat;
-      dropLng = this.order?.drop?.lng;
-
-      console.warn('⚡ Using fallback pickup/drop coords');
-    }
-
-    //  If still missing → stop
+    // If still missing → stop
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) {
       console.error('❌ No valid coordinates for map');
       return;
     }
 
-    //  Initialize map
+    // Initialize map
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 12,
       center: { lat: pickupLat, lng: pickupLng },
@@ -412,10 +453,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     this.directionsRenderer.setMap(this.map);
 
-    //  Markers + route
+    // Markers + route
     this.addMarkers(pickupLat, pickupLng, dropLat, dropLng);
 
-    //  Courier marker (if exists)
+    // Courier marker (if exists)
     if (
       this.order?.courier?.location?.lat &&
       this.order?.courier?.location?.lng
@@ -433,7 +474,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    // 🔁 Start tracking
+    // Start tracking
     this.startCourierTracking();
   }
 

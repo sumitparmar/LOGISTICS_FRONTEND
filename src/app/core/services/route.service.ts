@@ -9,7 +9,9 @@ export class RouteService {
   private directionsService: any;
 
   constructor() {
-    this.directionsService = new google.maps.DirectionsService();
+    if (typeof google !== 'undefined' && google.maps) {
+      this.directionsService = new google.maps.DirectionsService();
+    }
   }
 
   /**
@@ -43,11 +45,16 @@ export class RouteService {
     return this.runRoute(request);
   }
 
-  /**
-   * Core route executor
-   */
   private runRoute(request: any): Promise<any> {
     return new Promise((resolve, reject) => {
+      if (!this.directionsService) {
+        if (typeof google !== 'undefined' && google.maps) {
+          this.directionsService = new google.maps.DirectionsService();
+        } else {
+          reject('Google Maps not loaded');
+          return;
+        }
+      }
       this.directionsService.route(request, (result: any, status: any) => {
         if (status === 'OK') {
           resolve(result);

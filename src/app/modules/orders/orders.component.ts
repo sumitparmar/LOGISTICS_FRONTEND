@@ -83,7 +83,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
       query.search = this.searchText;
     }
 
-    if (this.statusFilter) {
+    if (this.statusFilter === 'ACTIVE') {
+      query.statuses = this.ACTIVE_STATUSES.join(',');
+    } else if (this.statusFilter) {
       query.status = this.statusFilter;
     }
 

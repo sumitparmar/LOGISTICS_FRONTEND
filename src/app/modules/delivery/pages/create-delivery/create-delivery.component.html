@@ -1,4 +1,4 @@
-<form [formGroup]="deliveryForm">
+<div [formGroup]="deliveryForm">
 
     <div class="delivery-page">
 
@@ -289,11 +289,11 @@ deliveryForm.get('package.description')?.invalid">
                     <div class="pricesummary">
                         <div class="card-section price-summary">
 
-                            <h4>Price Summary</h4>
-
+                            <h4>Estimated Fare</h4>
                             <div class="price-row">
                                 <span>Delivery Fee</span>
-                                <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : '—' }}</span>
+                                <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : 'Pending'
+                                    }}</span>
                             </div>
 
                             <div class="price-row">
@@ -303,11 +303,11 @@ deliveryForm.get('package.description')?.invalid">
 
                             <div class="price-total">
                                 <span>Total</span>
-                                <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : '—' }}</span>
+                                <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : 'Calculate fare' }}</span>
                             </div>
 
                             <button type="button" class="btn-price" (click)="calculatePrice()"
-                                [disabled]="isCalculatingPrice">
+                                [disabled]="isCalculatingPrice || isCreatingOrder">
                                 {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
                             </button>
 
@@ -462,23 +462,41 @@ deliveryForm.get('package.description')?.invalid">
                             </div>
 
                             <!-- ONLINE PAYMENT -->
-                            <div class="payment-card"
+                            <div class="payment-card disabled-payment"
                                 [class.active]="deliveryForm.get('paymentMethod')?.value === 'BANK_CARD'"
                                 (click)="selectPayment('BANK_CARD')">
+
+
                                 <span class="material-icons payment-icon">credit_card</span>
 
                                 <div class="payment-info">
-                                    <h4>Pay Online</h4>
-                                    <p>Secure payment via payment gateway</p>
+                                    <h4>
+                                        Pay Online
+                                        <span class="soon-badge">Soon</span>
+                                    </h4>
+                                    <p>Launching soon • Secure online payments</p>
                                 </div>
                             </div>
 
                         </div>
 
                         <button type="button" class="btn-submit" (click)="handleCheckout()"
-                            [disabled]="priceSummary.total === 0 || isPaymentProcessing">
-                            {{ isPaymentProcessing ? 'Processing Payment...' : 'Pay & Create Order' }}
+                            [disabled]="priceSummary.total === 0 || isPaymentProcessing || isCreatingOrder">
+
+                            {{
+                            isCreatingOrder
+                            ? 'Creating Order...'
+                            : isPaymentProcessing
+                            ? 'Processing Payment...'
+                            : deliveryForm.get('paymentMethod')?.value === 'CASH'
+                            ? 'Create Order'
+                            : 'Pay & Create Order'
+                            }}
+
                         </button>
+                        <div class="checkout-note">
+                            Secure booking • Live tracking • Instant confirmation
+                        </div>
 
                     </div>
 
@@ -490,8 +508,7 @@ deliveryForm.get('package.description')?.invalid">
         </div>
     </div>
 
-</form>
-
+</div>
 <!-- REORDER MODAL -->
 
 <div class="reorder-overlay" *ngIf="showReorderModal">

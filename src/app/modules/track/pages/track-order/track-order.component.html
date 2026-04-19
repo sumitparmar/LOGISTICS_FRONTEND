@@ -1,300 +1,347 @@
 <div class="track-page">
-    <div class="track-container">
-        <!-- HERO -->
-        <div class="track-hero">
-            <div class="track-hero__content">
 
-                <h1 class="page-title">Track Your Order</h1>
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <div class="hero__bg">
+            <div class="hero__orb hero__orb--1"></div>
+            <div class="hero__orb hero__orb--2"></div>
+            <div class="hero__grid"></div>
+        </div>
+        <div class="hero__content">
+            <div class="hero__badge">
+                <span class="badge-dot"></span>
+                Live Tracking System
+            </div>
+            <h1 class="hero__title">Track Your <span class="hero__title--accent">Delivery</span></h1>
+            <p class="hero__subtitle">Real-time visibility into your shipment — from pickup to doorstep.</p>
+        </div>
+    </div>
 
-                <p class="hero-subtitle">
-                    Looks like you are expecting a delivery. Enter your tracking number.
-                    You will see your courier on the map once it is enroute to you.
-                </p>
+    <!-- SEARCH BAR -->
+    <div class="search-wrap">
+        <div class="search-card">
+            <div class="search-card__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+            </div>
+            <input class="search-card__input" type="text" placeholder="Enter Order ID (e.g. #B24AE02F)"
+                [(ngModel)]="orderId" (input)="orderId = orderId.trim()" (keyup.enter)="trackOrder()" />
+            <button class="search-card__btn" (click)="trackOrder()" [disabled]="loading">
+                <span *ngIf="!loading">Track</span>
+                <span *ngIf="loading" class="spinner"></span>
+            </button>
+            <button class="search-card__reset" (click)="resetTracking()" *ngIf="order">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                </svg>
+            </button>
+        </div>
+        <div class="search-error" *ngIf="error">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            {{ error }}
+        </div>
+    </div>
 
+    <!-- TRACKING CONTENT -->
+    <div class="tracking-wrap" *ngIf="order" [@fadeIn]>
+
+        <!-- STATUS BANNER -->
+        <div class="status-banner" [ngClass]="'status-banner--' + order.status?.toLowerCase()">
+            <div class="status-banner__left">
+                <div class="status-banner__icon">
+                    <svg *ngIf="order.status === 'CREATED'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <svg *ngIf="order.status === 'ASSIGNED'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <svg *ngIf="order.status === 'PICKED_UP'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                    <svg *ngIf="order.status === 'IN_TRANSIT'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                    <svg *ngIf="order.status === 'DELIVERED'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <svg *ngIf="order.status === 'CANCELLED'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="status-banner__label">Order Status</div>
+                    <div class="status-banner__status">{{ order.status?.replace('_', ' ') }}</div>
+                </div>
+            </div>
+            <div class="status-banner__right">
+                <div class="status-banner__id">Order #{{ order.borzoOrderId || order._id?.slice(-8)?.toUpperCase() }}
+                </div>
+                <div class="status-banner__date">{{ order.createdAt | date:'dd MMM yyyy, hh:mm a' }}</div>
             </div>
         </div>
 
-
-        <!-- SEARCH -->
-        <div class="track-card">
-
-            <div class="search-row">
-
-                <input type="text" placeholder="Enter Order ID" [(ngModel)]="orderId"
-                    (input)="orderId = orderId.trim()" />
-
-                <button class="primary" (click)="trackOrder()" [disabled]="loading">
-                    Track
-                </button>
-
-                <button class="secondary reset-btn" (click)="resetTracking()">
-                    Reset
-                </button>
-
+        <!-- PROGRESS STEPS -->
+        <div class="progress-wrap">
+            <div class="progress-steps">
+                <div class="progress-step" *ngFor="let step of statusSteps; let i = index"
+                    [class.done]="isStepDone(step)" [class.active]="order.status === step">
+                    <div class="progress-step__circle">
+                        <svg *ngIf="isStepDone(step) && order.status !== step" width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span *ngIf="!isStepDone(step) || order.status === step">{{ i + 1 }}</span>
+                    </div>
+                    <div class="progress-step__info">
+                        <div class="progress-step__label">{{ step.replace('_', ' ') }}</div>
+                        <div class="progress-step__time">{{ getStepTimestamp(step) }}</div>
+                    </div>
+                    <div class="progress-step__line" *ngIf="i < statusSteps.length - 1"
+                        [class.done]="isStepDone(statusSteps[i+1])"></div>
+                </div>
             </div>
-
-            <div class="error" *ngIf="error">
-                {{ error }}
-            </div>
-
         </div>
 
+        <!-- MAIN GRID -->
+        <div class="main-grid">
 
-        <!-- MAIN LAYOUT -->
-        <div class="tracking-layout" *ngIf="order">
+            <!-- LEFT: MAP + ROUTE -->
+            <div class="left-col">
 
-            <!-- LEFT COLUMN -->
-            <div class="left-column">
-
-                <!-- LIVE ROUTE -->
+                <!-- MAP CARD -->
                 <div class="map-card">
-
-                    <div class="map-header">
-                        <h3>Live Route</h3>
-
-                        <button class="live-btn" (click)="viewLiveTracking()"
-                            *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'">
-                            View Live Tracking
+                    <div class="map-card__header">
+                        <div class="map-card__title">
+                            <div class="pulse-dot"
+                                *ngIf="order.status === 'IN_TRANSIT' || order.status === 'PICKED_UP'"></div>
+                            Live Route
+                        </div>
+                        <button class="map-card__live-btn"
+                            *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'"
+                            (click)="viewLiveTracking()">
+                            <div class="pulse-dot pulse-dot--sm"></div>
+                            Start Live View
                         </button>
                     </div>
 
-                    <div class="tracking-map">
-
-                        <!-- BEFORE PICKUP -->
-                        <div *ngIf="order.status === 'ASSIGNED' || order.status === 'CREATED'" class="waiting-msg">
-                            Courier assigned. Live tracking will start after pickup.
+                    <div class="map-card__body">
+                        <div *ngIf="order.status === 'ASSIGNED' || order.status === 'CREATED'" class="map-waiting">
+                            <div class="map-waiting__icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                            </div>
+                            <p>Courier assigned. Live tracking begins after pickup.</p>
                         </div>
-
-                        <!-- MAP -->
-                        <div #mapContainer class="map-container" *ngIf="order">
-                        </div>
-
+                        <div #mapContainer class="map-container"></div>
                     </div>
-
                 </div>
 
-
-                <!-- ROUTE ADDRESSES -->
+                <!-- ROUTE CARD -->
                 <div class="route-card">
-
-                    <h3>Route</h3>
-
-                    <div class="address-block">
-                        <label>Pickup</label>
-                        <p>{{ order.pickup?.address }}</p>
+                    <div class="route-card__title">Route Details</div>
+                    <div class="route-stops">
+                        <div class="route-stop">
+                            <div class="route-stop__icon route-stop__icon--pickup">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <circle cx="12" cy="12" r="8" />
+                                </svg>
+                            </div>
+                            <div class="route-stop__content">
+                                <div class="route-stop__label">Pickup</div>
+                                <div class="route-stop__address">{{ order.pickup?.address }}</div>
+                                <div class="route-stop__contact">
+                                    {{ order.customer?.name }} • {{ order.customer?.phone }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="route-line-vert"></div>
+                        <div class="route-stop">
+                            <div class="route-stop__icon route-stop__icon--drop">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                </svg>
+                            </div>
+                            <div class="route-stop__content">
+                                <div class="route-stop__label">Drop</div>
+                                <div class="route-stop__address">{{ order.drop?.address }}</div>
+                                <div class="route-stop__contact">
+                                    {{ order.stops?.[1]?.name || order.customer?.name }} •
+                                    {{ order.stops?.[1]?.phone || order.customer?.phone }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="address-block">
-                        <label>Drop</label>
-                        <p>{{ order.drop?.address }}</p>
+                    <!-- DISTANCE + ETA -->
+                    <div class="route-meta" *ngIf="distanceText || etaText">
+                        <div class="route-meta__item" *ngIf="distanceText">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 12h18M3 6h18M3 18h18" />
+                            </svg>
+                            {{ distanceText }}
+                        </div>
+                        <div class="route-meta__item" *ngIf="etaText">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            ETA: {{ etaText }}
+                        </div>
                     </div>
-
-                </div>
-
-
-
-
-
-                <!-- CANCELLED STATE -->
-                <div class="cancelled-block" *ngIf="order.status === 'CANCELLED'">
-
-                    <div class="cancelled-label">
-                        Order Cancelled
-                    </div>
-
-                    <div class="cancelled-time">
-                        {{ getStepTimestamp('CANCELLED') }}
-                    </div>
-
                 </div>
 
             </div>
 
-
-            <!-- RIGHT COLUMN -->
-            <div class="right-column">
+            <!-- RIGHT: INFO CARDS -->
+            <div class="right-col">
 
                 <!-- ORDER SUMMARY -->
-                <div class="summary-card">
-
-                    <div class="details-header">
-
-                        <div>
-                            <h3>Order #{{ order._id }}</h3>
-                        </div>
-
-                        <span class="status-badge" [ngClass]="order.status?.toLowerCase()">
-                            {{ order.status }}
-                        </span>
-
+                <div class="info-card">
+                    <div class="info-card__header">
+                        <div class="info-card__title">Order Summary</div>
                     </div>
-
-                    <div class="meta-grid">
-
-                        <div>
-                            <label>Vehicle</label>
-                            <p>{{ getVehicleLabel() }}</p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-item__label">Vehicle</div>
+                            <div class="info-item__value">{{ getVehicleLabel() }}</div>
                         </div>
-
-                        <div>
-                            <label>Delivery Type</label>
-                            <p>{{ order.deliveryType }}</p>
+                        <div class="info-item">
+                            <div class="info-item__label">Delivery Type</div>
+                            <div class="info-item__value">{{ order.deliveryType }}</div>
                         </div>
-
-                        <div>
-                            <label>Price</label>
-                            <p>{{ currencySymbol }}{{ order.pricing?.amount }}</p>
+                        <div class="info-item">
+                            <div class="info-item__label">Distance</div>
+                            <div class="info-item__value">{{ distanceText || getEstimatedDistance(order) }}</div>
                         </div>
-
-                        <div>
-                            <label>ETA</label>
-
-                            <p *ngIf="etaText; else etaFallback">
-                                {{ etaText }}
-                            </p>
-
-                            <ng-template #etaFallback>
-                                <p>{{ getEstimatedDuration(order) }}</p>
-                            </ng-template>
-
+                        <div class="info-item">
+                            <div class="info-item__label">ETA</div>
+                            <div class="info-item__value">{{ etaText || getEstimatedDuration(order) }}</div>
                         </div>
-
-                        <div>
-                            <label>Distance</label>
-
-                            <p *ngIf="distanceText; else distanceFallback">
-                                {{ distanceText }}
-                            </p>
-
-                            <ng-template #distanceFallback>
-                                <p>{{ getEstimatedDistance(order) }}</p>
-                            </ng-template>
-
-                        </div>
-
                     </div>
-
                 </div>
 
-
-                <!-- COURIER -->
+                <!-- COURIER CARD -->
                 <div class="courier-card" *ngIf="courier">
-
-                    <h3>Courier</h3>
-
-                    <div class="courier-grid">
-
-                        <div>
-                            <label>Name</label>
-                            <p>{{ courier.name || 'Courier' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Phone</label>
-                            <p>{{ courier.phone || 'Not available' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Vehicle</label>
-                            <p>{{ getVehicleLabel() }}</p>
-                        </div>
-
-                        <div>
-                            <label>Rating</label>
-                            <p>{{ courier.rating || '—' }}</p>
-                        </div>
-
+                    <div class="info-card__header">
+                        <div class="info-card__title">Your Courier</div>
+                        <a *ngIf="courier?.phone" [href]="'tel:' + courier.phone" class="call-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            Call
+                        </a>
                     </div>
-
-                    <a *ngIf="courier?.phone" [href]="'tel:' + courier.phone" class="call-btn">
-                        Call Courier
-                    </a>
-
+                    <div class="courier-profile">
+                        <div class="courier-avatar">
+                            {{ courier.name ? courier.name.charAt(0).toUpperCase() : 'C' }}
+                        </div>
+                        <div class="courier-info">
+                            <div class="courier-name">{{ courier.name || 'Courier' }}</div>
+                            <div class="courier-phone">{{ courier.phone || 'Not available' }}</div>
+                            <div class="courier-rating" *ngIf="courier.rating">
+                                <span class="star">★</span> {{ courier.rating }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-
-                <!-- PRICING -->
-                <div class="pricing-card" *ngIf="order?.pricing">
-
-                    <h3>Pricing</h3>
-
-                    <div class="pricing-row">
-                        <span>Delivery Fee</span>
-                        <span>
-                            {{ currencySymbol }}{{ order.pricing?.baseAmount | number:'1.2-2' }}
-                        </span>
+                <!-- NO COURIER YET -->
+                <div class="info-card" *ngIf="!courier && order.status !== 'DELIVERED' && order.status !== 'CANCELLED'">
+                    <div class="info-card__header">
+                        <div class="info-card__title">Courier</div>
                     </div>
-
-                    <div class="pricing-row" *ngIf="order.pricing?.insurance > 0">
-                        <span>Insurance</span>
-                        <span>
-                            {{ currencySymbol }}{{ order.pricing?.insurance | number:'1.2-2' }}
-                        </span>
+                    <div class="empty-state">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="12" cy="8" r="4" />
+                            <path d="M20 21a8 8 0 1 0-16 0" />
+                        </svg>
+                        <p>Courier not assigned yet</p>
                     </div>
-
-                    <div class="pricing-total">
-                        <span>Total</span>
-                        <span>
-                            {{ currencySymbol }}{{ order.pricing?.amount | number:'1.2-2' }}
-                        </span>
-                    </div>
-
                 </div>
 
-                <!-- DELIVERY PROGRESS -->
-                <div class="timeline-card" *ngIf="order.statusHistory?.length">
+                <!-- PRICING CARD -->
+                <div class="info-card" *ngIf="order?.pricing">
+                    <div class="info-card__header">
+                        <div class="info-card__title">Pricing</div>
+                    </div>
+                    <div class="pricing-rows">
+                        <div class="pricing-row">
+                            <span>Delivery Fee</span>
+                            <span>{{ currencySymbol }}{{ order.pricing?.baseAmount | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="pricing-row" *ngIf="order.pricing?.insurance > 0">
+                            <span>Insurance</span>
+                            <span>{{ currencySymbol }}{{ order.pricing?.insurance | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="pricing-total">
+                            <span>Total</span>
+                            <span>{{ currencySymbol }}{{ order.pricing?.amount | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <h3>Delivery Progress</h3>
-
+                <!-- TIMELINE -->
+                <div class="info-card" *ngIf="order.statusHistory?.length">
+                    <div class="info-card__header">
+                        <div class="info-card__title">Delivery Timeline</div>
+                    </div>
                     <div class="timeline">
-
-                        <div class="step" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)"
-                            [class.pending]="!isStepDone(step)">
-
-                            <div class="step-title">
-                                {{ step.replace('_',' ') }}
+                        <div class="timeline-item" *ngFor="let step of statusSteps" [class.done]="isStepDone(step)"
+                            [class.active]="order.status === step">
+                            <div class="timeline-item__dot"></div>
+                            <div class="timeline-item__content">
+                                <div class="timeline-item__label">{{ step.replace('_', ' ') }}</div>
+                                <div class="timeline-item__time">{{ getStepTimestamp(step) }}</div>
                             </div>
-
-                            <div class="step-time">
-                                {{ getStepTimestamp(step) }}
-                            </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
             </div>
-
         </div>
-
-
-        <!-- COMMUNITY GUIDELINES -->
-        <div class="guidelines-section track-container-inner">
-            <h2>Community Guidelines</h2>
-
-            <p class="guidelines-intro">
-                While technology helps ensure the speed, dependability, and safety of our service,
-                people matter most to the experience.
-            </p>
-
-            <div class="guidelines-list">
-
-                <div class="guideline-item">
-                    <h4>Professionalism & Respect</h4>
-                    <p>Zero tolerance for discrimination, harassment or abuse.</p>
-                </div>
-
-                <div class="guideline-item">
-                    <h4>Non-discrimination</h4>
-                    <p>Respect all individuals regardless of background.</p>
-                </div>
-
-            </div>
-
-        </div>
-
 
     </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-hero" *ngIf="!order && !loading && !error">
+        <div class="empty-hero__icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="1" y="3" width="15" height="13" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+        </div>
+        <h3>Enter your Order ID to track</h3>
+        <p>You can find your Order ID in your confirmation email or order history.</p>
+    </div>
+
 </div>

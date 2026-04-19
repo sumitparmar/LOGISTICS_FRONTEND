@@ -121,8 +121,10 @@
                             <!-- Order -->
                             <td>
                                 <div class="mk-order-id-box">
-                                    <span class="mk-order-id">{{ order.borzoOrderId }}</span>
-                                    <small>{{ order.createdAt | date:'dd MMM, hh:mm a' }}</small>
+                                    <span class="mk-order-id">
+                                        {{ order.borzoOrderId || order.rawProviderResponse?.order?.order_id ||
+                                        order._id?.slice(-6)?.toUpperCase() }}
+                                    </span> <small>{{ order.createdAt | date:'dd MMM, hh:mm a' }}</small>
                                 </div>
                             </td>
 
@@ -215,8 +217,10 @@
 
                             <!-- Amount -->
                             <td class="mk-price">
-                                {{ order.pricing?.amount | currency:(order.pricing?.currency || 'INR'):'symbol':'1.2-2'
-                                }} </td>
+                                {{ order.pricing?.amount ? (order.pricing.amount | currency:(order.pricing?.currency ||
+                                'INR'):'symbol':'1.2-2') : '—'
+                                }}
+                            </td>
 
                             <!-- Actions -->
                             <td>
