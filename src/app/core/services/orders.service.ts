@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
+
 export interface OrdersResponse {
   data: any[];
   meta?: {
@@ -15,15 +16,12 @@ export interface OrdersResponse {
     };
   };
 }
+
 @Injectable({
   providedIn: 'root',
 })
 export class OrdersService {
   constructor(private api: ApiService) {}
-
-  // getOrders(params?: any) {
-  //   return this.api.get('/orders/list', params);
-  // }
 
   getOrders(query: {
     search?: string;
@@ -36,48 +34,51 @@ export class OrdersService {
     return this.api.get<OrdersResponse>('/orders/list', query);
   }
 
-  getOrderById(id: string) {
+  getOrderById(id: string): Observable<any> {
     return this.api.get(`/orders/${id}`);
   }
 
-  cancelOrder(id: string) {
+  cancelOrder(id: string): Observable<any> {
     return this.api.post(`/orders/${id}/cancel`, {});
   }
-  calculatePrice(payload: any) {
+
+  calculatePrice(payload: any): Observable<any> {
     return this.api.post('/orders/calculate', payload);
   }
 
-  createOrder(payload: any) {
+  createOrder(payload: any): Observable<any> {
     return this.api.post('/orders/create', payload);
   }
 
-  getPricingBreakdown(orderId: string) {
+  getPricingBreakdown(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/pricing-breakdown`);
   }
-  getCourier(orderId: string) {
+
+  getCourier(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/courier`);
   }
 
-  getPOD(orderId: string) {
+  getPOD(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/pod`);
   }
 
-  getDocuments(orderId: string) {
+  getDocuments(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/documents`);
   }
 
-  getProviderHistory(orderId: string) {
+  getProviderHistory(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/history`);
   }
-  getBankCards() {
+
+  getBankCards(): Observable<any> {
     return this.api.get('/borzo/bank-cards');
   }
 
-  getDeliveryTypes() {
+  getDeliveryTypes(): Observable<any> {
     return this.api.get('/meta/delivery-types');
   }
 
-  editOrder(orderId: string, payload: any) {
+  editOrder(orderId: string, payload: any): Observable<any> {
     return this.api.post(`/orders/${orderId}/edit`, payload);
   }
 }

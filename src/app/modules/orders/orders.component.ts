@@ -82,7 +82,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
     if (this.searchText) {
       query.search = this.searchText;
     }
-
     if (this.statusFilter === 'ACTIVE') {
       query.statuses = this.ACTIVE_STATUSES.join(',');
     } else if (this.statusFilter) {
@@ -94,9 +93,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         const data = res?.data || [];
 
         this.orders = data;
-
-        //  TEMP REMOVE FILTER (IMPORTANT)
-        this.filteredOrders = this.orders;
+        this.filteredOrders = data;
 
         this.total = res?.meta?.total || 0;
 
@@ -135,6 +132,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
   applyStatusFilter(): void {
     if (!this.statusFilter) {
       this.filteredOrders = this.orders;
+      return;
+    }
+
+    if (this.statusFilter === 'ACTIVE') {
+      this.filteredOrders = this.orders.filter((order) =>
+        this.ACTIVE_STATUSES.includes(order.status),
+      );
       return;
     }
 

@@ -107,6 +107,24 @@ export class AuthService {
 
   logout() {
     this.removeToken();
+    this.deliveryModeSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+  }
+
+  refreshProfileState() {
+    this.getProfile().subscribe({
+      next: (res: any) => {
+        const user = res?.data || res;
+
+        if (user) {
+          this.setUser(user);
+          this.isAuthenticatedSubject.next(true);
+        }
+      },
+      error: () => {
+        this.logout();
+      },
+    });
   }
 
   // ------------------------
@@ -141,9 +159,18 @@ export class AuthService {
     const user = this.getUser();
     return user?.deliveryMode || null;
   }
+
   setDeliveryMode(mode: string) {
+    const user = this.getUser();
+
+    if (user) {
+      user.deliveryMode = mode;
+      this.setUser(user);
+    }
+
     this.deliveryModeSubject.next(mode);
   }
+
   getProfile() {
     return this.api.get('/auth/me');
   }

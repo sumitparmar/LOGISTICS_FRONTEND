@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
 import { LandingGuard } from './core/guards/landing.guard';
 import { MaintenanceGuard } from './core/guards/maintenance.guard';
-
+import { AdminGuard } from './core/guards/admin.guard';
 import { OrderDetailsComponent } from './features/admin/order-details/order-details.component';
 
 const routes: Routes = [
@@ -36,6 +36,7 @@ const routes: Routes = [
   {
     path: 'admin/orders/:id',
     component: OrderDetailsComponent,
+    canActivate: [AdminGuard],
   },
 
   {

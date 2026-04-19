@@ -12,6 +12,7 @@ import { ToastService } from '../../../../admin/services/toast.service';
   styleUrls: ['./order-details.component.scss'],
 })
 export class OrderDetailsComponent implements OnInit, AfterViewInit {
+  private socketBound = false;
   isEditMode: boolean = false;
   @ViewChild('pickupInput') pickupInput!: ElementRef;
   @ViewChild('dropInput') dropInput!: ElementRef;
@@ -363,11 +364,25 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
           this.socketService.connect(userId);
         }
 
-        this.socketService.onOrderStatusUpdate((data: any) => {
-          if (data.orderId === this.order._id) {
-            this.order.status = data.status;
-          }
-        });
+        if (!this.socketBound) {
+          this.socketBound = true;
+
+          this.socketService.onOrderStatusUpdate((data: any) => {
+            if (data.orderId === this.order._id) {
+              this.order.status = data.status;
+              this.loadOrderSilently();
+
+              if (data.status === 'DELIVERED') {
+                if (this.trackingInterval) {
+                  clearInterval(this.trackingInterval);
+                }
+
+                this.loadPOD();
+              }
+            }
+          });
+        }
+
         if (this.order.status === 'DELIVERED') {
           this.loadPOD();
         }
@@ -381,6 +396,15 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       error: () => {
         this.loading = false;
       },
+    });
+  }
+
+  loadOrderSilently(): void {
+    this.ordersService.getOrderById(this.orderId).subscribe({
+      next: (res: any) => {
+        this.order = res?.data || res;
+      },
+      error: () => {},
     });
   }
 
@@ -667,10 +691,36 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.animationFrame = requestAnimationFrame(animate);
       } else {
         this.courierPosition = target;
+
+        if (this.order?.drop?.lat && this.order?.drop?.lng) {
+          this.drawCourierToDropRoute();
+        }
       }
     };
 
     animate();
+  }
+
+  drawCourierToDropRoute() {
+    if (!this.courierPosition || !this.order?.drop) return;
+
+    this.directionsService.route(
+      {
+        origin: this.courierPosition,
+        destination: {
+          lat: this.order.drop.lat,
+          lng: this.order.drop.lng,
+        },
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result: any, status: any) => {
+        if (status === 'OK') {
+          const leg = result.routes[0].legs[0];
+          this.distanceText = leg.distance.text;
+          this.etaText = leg.duration.text;
+        }
+      },
+    );
   }
 
   openCancelModal(): void {
