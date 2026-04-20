@@ -144,9 +144,20 @@ export class HeroComponent implements OnInit, AfterViewInit {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
-  openSecureInfo() {
-    this.dialog.open(SecureInfoDialogComponent, {
-      width: '400px',
+
+  openSecureInfo(): void {
+    const dialogRef = this.dialog.open(SecureInfoDialogComponent, {
+      width: '430px',
+      maxWidth: '95vw',
+      disableClose: false,
+      autoFocus: false,
+      restoreFocus: false,
+      panelClass: 'secure-info-modal',
+      backdropClass: 'secure-info-backdrop',
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      document.body.classList.remove('cdk-global-scrollblock');
     });
   }
 

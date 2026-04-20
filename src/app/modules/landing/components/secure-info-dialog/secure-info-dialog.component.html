@@ -1,10 +1,79 @@
-<h2 mat-dialog-title>Secure Handling</h2>
+<div class="secure-modal" [class.closing]="isClosing" *ngIf="isVisible">
 
-<div mat-dialog-content>
-    <p>All deliveries are professionally handled and insured.</p>
-    <p>Real-time tracking and verified couriers ensure safe transport.</p>
-</div>
+    <!-- Header -->
+    <div class="modal-header">
+        <div class="header-left">
 
-<div mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Close</button>
+            <div class="icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 2L4 5.5V10.5C4 14.65 7.07 18.52 11 19.5C14.93 18.52 18 14.65 18 10.5V5.5L11 2Z"
+                        fill="white" fill-opacity="0.95" />
+                    <path d="M8.5 11L10.2 12.7L13.5 9.3" stroke="#FF6A00" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <div class="header-text">
+                <h2 class="title">Secure Handling</h2>
+                <p class="subtitle">Protection for valuable deliveries</p>
+            </div>
+
+        </div>
+
+        <button class="close-btn" (click)="close()" aria-label="Close dialog">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <button *ngFor="let tab of tabs; let i = index" class="tab-btn" [class.active]="activeTab === i"
+            (click)="setTab(i)">
+            {{ tab }}
+        </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+        <div *ngFor="let feature of features; let i = index" class="feature-card"
+            [style.animation-delay]="(i * 60) + 'ms'">
+
+            <div class="feature-icon" [style.background]="feature.iconBg">
+                <span>{{ feature.emoji }}</span>
+            </div>
+
+            <div class="feature-content">
+                <h4>{{ feature.title }}</h4>
+                <p>{{ feature.description }}</p>
+            </div>
+
+            <div class="card-arrow">
+                <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                    <path d="M1.5 4.5H7.5M5 2L7.5 4.5L5 7" stroke="white" stroke-width="1.3" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+
+        </div>
+
+
+
+
+
+    </div>
+
+    <!-- Status Bar
+    <div class="status-bar">
+        <span class="status-dot"></span>
+        <span class="status-text">All features active on your current plan</span>
+        <span class="plan-badge">Pro</span>
+    </div> -->
+    <!-- Footer -->
+    <div class="modal-footer">
+        <button class="secondary-btn" (click)="learnMore()">Learn more</button>
+        <button class="primary-btn" (click)="close()">Got it</button>
+    </div>
+
 </div>
