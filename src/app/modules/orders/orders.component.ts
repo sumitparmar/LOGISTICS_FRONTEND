@@ -201,6 +201,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Cancel order failed', err);
         this.closeCancelModal();
+        alert(err?.error?.message || 'Cancel failed. Please try again.');
       },
     });
   }

@@ -275,54 +275,69 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       return null;
     }
 
-    const points = (providerOrder.points || []).map((p: any, index: number) => {
-      let address = p.address;
-      let latitude = p.latitude;
-      let longitude = p.longitude;
+    const providerPoints = providerOrder.points || [];
 
-      // PICKUP
-      if (index === 0) {
-        address = this.editableOrder.pickupAddress || p.address;
+    // ✅ Pehle pickup point dhundo, phir drop
+    const pickupPoint = providerPoints[0];
+    const dropPoint = providerPoints[1];
 
-        latitude =
-          this.editableOrder.pickupLat ?? this.order.pickup?.lat ?? p.latitude;
+    if (!pickupPoint || !dropPoint) {
+      console.error('Points missing in provider order');
+      return null;
+    }
 
-        longitude =
-          this.editableOrder.pickupLng ?? this.order.pickup?.lng ?? p.longitude;
-      }
-
-      // DROP
-      if (index === 1) {
-        address = this.editableOrder.dropAddress || p.address;
-
-        latitude =
-          this.editableOrder.dropLat ?? this.order.drop?.lat ?? p.latitude;
-
-        longitude =
-          this.editableOrder.dropLng ?? this.order.drop?.lng ?? p.longitude;
-      }
-
-      return {
-        point_id: p.point_id,
-        address,
-        latitude: String(latitude),
-        longitude: String(longitude),
-
+    const points = [
+      {
+        point_id: pickupPoint.point_id,
+        address: this.editableOrder.pickupAddress || pickupPoint.address,
+        latitude: String(
+          this.editableOrder.pickupLat ??
+            this.order.pickup?.lat ??
+            pickupPoint.latitude,
+        ),
+        longitude: String(
+          this.editableOrder.pickupLng ??
+            this.order.pickup?.lng ??
+            pickupPoint.longitude,
+        ),
         contact_person: {
-          phone: p.contact_person?.phone,
-          name: p.contact_person?.name,
+          phone: pickupPoint.contact_person?.phone,
+          name: pickupPoint.contact_person?.name,
         },
-
-        taking_amount: p.taking_amount || 0,
-        buyout_amount: p.buyout_amount || 0,
-        note: p.note || null,
-
-        packages: (p.packages || []).map((pkg: any) => ({
+        taking_amount: pickupPoint.taking_amount || '0.00',
+        buyout_amount: pickupPoint.buyout_amount || '0.00',
+        note: pickupPoint.note || null,
+        packages: (pickupPoint.packages || []).map((pkg: any) => ({
           order_package_id: pkg.order_package_id,
           items_count: pkg.items_count,
         })),
-      };
-    });
+      },
+      {
+        point_id: dropPoint.point_id,
+        address: this.editableOrder.dropAddress || dropPoint.address,
+        latitude: String(
+          this.editableOrder.dropLat ??
+            this.order.drop?.lat ??
+            dropPoint.latitude,
+        ),
+        longitude: String(
+          this.editableOrder.dropLng ??
+            this.order.drop?.lng ??
+            dropPoint.longitude,
+        ),
+        contact_person: {
+          phone: dropPoint.contact_person?.phone,
+          name: dropPoint.contact_person?.name,
+        },
+        taking_amount: dropPoint.taking_amount || '0.00',
+        buyout_amount: dropPoint.buyout_amount || '0.00',
+        note: dropPoint.note || null,
+        packages: (dropPoint.packages || []).map((pkg: any) => ({
+          order_package_id: pkg.order_package_id,
+          items_count: pkg.items_count,
+        })),
+      },
+    ];
 
     return {
       order_id: providerOrder.order_id,

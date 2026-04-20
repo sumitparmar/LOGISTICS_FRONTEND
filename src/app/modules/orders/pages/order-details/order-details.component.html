@@ -266,7 +266,15 @@
                             <span>Delivery Fee</span>
                             <span>
                                 {{ order.pricing?.currency }}
-                                {{ order.pricing?.baseAmount | number:'1.2-2' }}
+                                {{ order.pricing?.adjustedAmount | number:'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <div class="price-row" *ngIf="order.pricing?.insurance > 0">
+                            <span>Insurance</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricing?.insurance | number:'1.2-2' }}
                             </span>
                         </div>
 

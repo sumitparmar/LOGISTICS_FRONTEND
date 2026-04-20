@@ -236,9 +236,7 @@
                                         Details
                                     </button>
 
-                                    <button class="cancel"
-                                        [disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
-                                        (click)="openCancelModal(order._id)"
+                                    <button class="cancel" (click)="openCancelModal(order._id)"
                                         *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
                                         Cancel
                                     </button>
