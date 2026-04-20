@@ -41,6 +41,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   pickupCoords: any;
   dropCoords: any;
   editableOrder: any = {};
+
+  get providerOrder(): any {
+    const raw = this.order?.rawProviderResponse;
+    return raw?.order || raw?.orders?.[0] || null;
+  }
+
   private viewInitialized = false;
   private orderLoaded = false;
 
@@ -125,7 +131,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         this.order = res?.data;
         this.editableOrder = {
           matter:
-            this.order?.rawProviderResponse?.order?.matter ||
+            this.providerOrder?.matter ||
             this.order?.package?.description ||
             '',
           weight: this.order?.package?.weight || 0,
@@ -263,8 +269,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   buildEditPayload(): any {
-    const providerOrder = this.order?.rawProviderResponse?.order;
-
+    const providerOrder = this.providerOrder;
     if (!providerOrder) {
       console.error('No provider order found');
       return null;
@@ -337,9 +342,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         this.editableOrder = {
           matter:
-            this.order?.rawProviderResponse?.order?.matter ||
+            this.providerOrder?.matter ||
             this.order?.package?.description ||
             '',
+
           weight: this.order?.package?.weight || 0,
           category: this.order?.package?.category || '',
           description: this.order?.package?.description || '',

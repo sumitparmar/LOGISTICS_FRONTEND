@@ -190,8 +190,9 @@
 
                             <!-- VIEW MODE -->
                             <div class="summary-value" *ngIf="!isEditMode">
-                                {{ order.rawProviderResponse?.order?.matter || order.package?.description || '—' }}
-                            </div>
+                                {{ order.rawProviderResponse?.order?.matter ||
+                                order.rawProviderResponse?.orders?.[0]?.matter ||
+                                order.package?.description || '—' }} </div>
 
                             <!-- EDIT MODE -->
                             <input *ngIf="isEditMode" type="text" [(ngModel)]="editableOrder.matter"

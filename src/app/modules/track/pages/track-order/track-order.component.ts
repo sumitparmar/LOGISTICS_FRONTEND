@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { ApiService } from '../../../../core/services/api.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket.service';
-import { AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { APP_CONFIG } from 'src/environments/app.config';
 import { getCurrencySymbol } from '../../../../core/utils/currency.util';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -14,73 +19,80 @@ declare const google: any;
   templateUrl: './track-order.component.html',
   styleUrls: ['./track-order.component.scss'],
   animations: [
-    trigger('fadeIn', [
+    trigger('slideUp', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(16px)' }),
+        style({ opacity: 0, transform: 'translateY(20px)' }),
         animate(
-          '400ms ease',
+          '350ms cubic-bezier(.4,0,.2,1)',
           style({ opacity: 1, transform: 'translateY(0)' }),
         ),
       ]),
     ]),
   ],
 })
-export class TrackOrderComponent implements OnInit, AfterViewInit {
-  orderId = '';
+export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
-  currencySymbol = getCurrencySymbol();
-  private socketListener: any;
-  autoFollowCourier = true;
-  routeBounds: any;
-  timelineMap: Record<string, Date> = {};
-  map: any;
-  courierMarker: any;
+
+  orderId = '';
   order: any = null;
+  courier: any = null;
   loading = false;
   error = '';
-  directionsService: any;
-  directionsRenderer: any;
-  trackingInterval: any;
-  pickupMarker: any;
-  dropMarker: any;
+  etaText = '';
+  distanceText = '';
+  currencySymbol = getCurrencySymbol();
+
+  private map: any;
+  private directionsService: any;
+  private directionsRenderer: any;
+  private pickupMarker: any;
+  private dropMarker: any;
+  private courierMarker: any;
+  private trackingInterval: any;
+  private animationInterval: any;
+  private socketListener: any;
+  private routeBounds: any;
+
+  private previousLat: number | null = null;
+  private previousLng: number | null = null;
+
+  autoFollowCourier = true;
+  timelineMap: Record<string, Date> = {};
   vehicleMap: Record<number, string> = {};
-  previousLat: number | null = null;
-  previousLng: number | null = null;
-  animationInterval: any;
-  etaText: string = '';
-  distanceText: string = '';
-  courier: any = null;
-  courierLoading = false;
-  statusSteps: string[] = [
-    'CREATED',
-    'ASSIGNED',
-    'PICKED_UP',
-    'IN_TRANSIT',
-    'DELIVERED',
-  ];
+
+  statusSteps = ['CREATED', 'ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'];
+
+  // ─── Status label map (Borzo order statuses → human readable) ───────────
+  private statusLabels: Record<string, string> = {
+    CREATED: 'Order Created',
+    ASSIGNED: 'Courier Assigned',
+    PICKED_UP: 'Parcel Picked Up',
+    IN_TRANSIT: 'In Transit',
+    DELIVERED: 'Delivered',
+    CANCELLED: 'Cancelled',
+    FAILED: 'Failed',
+  };
 
   constructor(
     private api: ApiService,
     private router: Router,
     private route: ActivatedRoute,
-    private socketService: SocketService,
+    private socket: SocketService,
   ) {}
-
-  ngAfterViewInit(): void {}
 
   ngOnInit(): void {
     this.loadVehicleCatalog();
 
-    this.route.queryParams.subscribe((params) => {
-      this.orderId = params['orderId'] || params['id'] || '';
-
-      if (this.orderId) {
-        this.trackOrder();
-      }
+    this.route.queryParams.subscribe((p) => {
+      this.orderId = p['orderId'] || p['id'] || '';
+      if (this.orderId) this.trackOrder();
     });
   }
 
-  loadVehicleCatalog() {
+  ngAfterViewInit(): void {}
+
+  // ─── Vehicle catalog ────────────────────────────────────────────────────
+  loadVehicleCatalog(): void {
     this.api.get('/providers/vehicles').subscribe({
       next: (res: any) => {
         const vehicles = res?.data || [];
@@ -89,15 +101,14 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
           this.vehicleMap[Number(v.id)] = v.name;
         });
       },
-      error: (err) => {
-        console.error('Failed to load vehicle catalog', err);
-      },
+      error: (err) => console.error('Vehicle catalog failed', err),
     });
   }
 
-  trackOrder() {
+  // ─── Track ──────────────────────────────────────────────────────────────
+  trackOrder(): void {
     if (!this.orderId?.trim()) {
-      this.error = 'Please enter order ID';
+      this.error = 'Please enter a valid Order ID';
       return;
     }
 
@@ -105,60 +116,46 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     this.error = '';
     this.order = null;
 
-    if (Object.keys(this.vehicleMap).length === 0) {
-      this.loadVehicleCatalog();
-    }
-
     this.api.get(`/orders/${this.orderId}`).subscribe({
       next: (res: any) => {
         this.loading = false;
         this.order = res?.data;
 
-        this.buildTimelineMap();
-        this.startTrackingPolling();
-        this.loadCourierInfo();
-
-        setTimeout(() => {
-          const pickupLat = Number(this.order?.pickup?.lat);
-          const pickupLng = Number(this.order?.pickup?.lng);
-
-          if (pickupLat && pickupLng && this.mapContainer) {
-            this.initMap(pickupLat, pickupLng);
-          }
-        }, 200);
-
-        if (this.order?.user) {
-          this.socketService.connect(this.order.user);
-        }
-
-        this.socketListener = (data: any) => {
-          if (data.orderId === this.order._id) {
-            this.order.status = data.status;
-
-            const exists = this.order.statusHistory.find(
-              (s: any) => s.status === data.status,
-            );
-
-            if (!exists) {
-              this.order.statusHistory.push({
-                status: data.status,
-                timestamp: new Date(),
-              });
-
-              this.buildTimelineMap();
-            }
-
-            this.startTrackingPolling();
-          }
-        };
-
-        this.socketService.onOrderStatusUpdate(this.socketListener);
-
         if (!this.order) {
           this.error = 'Order not found';
+          return;
         }
-      },
 
+        this.buildTimelineMap();
+        this.loadCourierInfo();
+        this.startTrackingPolling();
+
+        // Socket
+        if (this.order?.user) this.socket.connect(this.order.user);
+
+        this.socketListener = (data: any) => {
+          if (data.orderId !== this.order._id) return;
+          this.order.status = data.status;
+          if (
+            !this.order.statusHistory.find((s: any) => s.status === data.status)
+          ) {
+            this.order.statusHistory.push({
+              status: data.status,
+              timestamp: new Date(),
+            });
+            this.buildTimelineMap();
+          }
+          this.startTrackingPolling();
+        };
+        this.socket.onOrderStatusUpdate(this.socketListener);
+
+        // Map init after DOM renders
+        setTimeout(() => {
+          const lat = Number(this.order?.pickup?.lat);
+          const lng = Number(this.order?.pickup?.lng);
+          if (lat && lng && this.mapContainer) this.initMap(lat, lng);
+        }, 400);
+      },
       error: (err) => {
         this.loading = false;
         this.error =
@@ -167,80 +164,213 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     });
   }
 
-  buildTimelineMap() {
-    this.timelineMap = {};
-
-    if (!this.order?.statusHistory?.length) {
-      return;
-    }
-
-    this.order.statusHistory.forEach((entry: any) => {
-      if (entry.status && entry.timestamp) {
-        this.timelineMap[entry.status] = new Date(entry.timestamp);
-      }
-    });
+  // ─── Provider order helper (create = .order, sync = .orders[0]) ─────────
+  private getProviderOrder(): any {
+    const raw = this.order?.rawProviderResponse;
+    return raw?.order || raw?.orders?.[0] || null;
   }
 
-  isPositive(value: any): boolean {
-    const num = Number(value);
-    return !isNaN(num) && num > 0;
-  }
-
-  formatAmount(value: any): string {
-    const amount = Number(value);
-    if (isNaN(amount)) return '0.00';
-    return amount.toFixed(2);
-  }
-
-  calculateETA(courierLat: number, courierLng: number) {
-    if (!this.order?.drop?.lat || !this.order?.drop?.lng) return;
-
-    const dropLat = Number(this.order.drop.lat);
-    const dropLng = Number(this.order.drop.lng);
-
-    const service = this.directionsService;
-    service.route(
-      {
-        origin: { lat: courierLat, lng: courierLng },
-        destination: { lat: dropLat, lng: dropLng },
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result: any, status: any) => {
-        if (status !== 'OK') return;
-        const leg = result.routes[0].legs[0];
-        this.etaText = leg.duration.text;
-        this.distanceText = leg.distance.text;
-      },
+  getProviderMatter(): string {
+    return (
+      this.getProviderOrder()?.matter || this.order?.package?.description || '—'
     );
   }
 
-  getBearing(
-    startLat: number,
-    startLng: number,
-    endLat: number,
-    endLng: number,
-  ): number {
-    const startLatRad = (startLat * Math.PI) / 180;
-    const startLngRad = (startLng * Math.PI) / 180;
-    const endLatRad = (endLat * Math.PI) / 180;
-    const endLngRad = (endLng * Math.PI) / 180;
-
-    const dLng = endLngRad - startLngRad;
-    const y = Math.sin(dLng) * Math.cos(endLatRad);
-    const x =
-      Math.cos(startLatRad) * Math.sin(endLatRad) -
-      Math.sin(startLatRad) * Math.cos(endLatRad) * Math.cos(dLng);
-
-    let bearing = (Math.atan2(y, x) * 180) / Math.PI;
-    bearing = (bearing + 360) % 360;
-    return bearing;
+  getProviderWeight(): number {
+    return (
+      this.getProviderOrder()?.total_weight_kg ??
+      this.order?.package?.weight ??
+      0
+    );
   }
 
-  initMap(lat: number, lng: number) {
+  // ─── Status helpers ──────────────────────────────────────────────────────
+  getStatusLabel(status: string): string {
+    return this.statusLabels[status] || status?.replace('_', ' ');
+  }
+
+  isStepDone(step: string): boolean {
+    return (
+      this.order?.statusHistory?.some((s: any) => s.status === step) ?? false
+    );
+  }
+
+  getStepTimestamp(step: string): string {
+    const d = this.timelineMap[step];
+    if (!d) return 'Pending';
+    return new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(d);
+  }
+
+  buildTimelineMap(): void {
+    this.timelineMap = {};
+    this.order?.statusHistory?.forEach((e: any) => {
+      if (e.status && e.timestamp)
+        this.timelineMap[e.status] = new Date(e.timestamp);
+    });
+  }
+
+  // ─── Vehicle label ───────────────────────────────────────────────────────
+  getVehicleLabel(): string {
+    const t = this.order?.vehicle?.type;
+    return t ? this.vehicleMap[t] || 'Courier Vehicle' : 'Courier Vehicle';
+  }
+
+  // ─── Estimated distance & duration (fallback haversine) ─────────────────
+  getEstimatedDistance(order: any): string {
+    const raw = order?.rawProviderResponse;
+    const pts = raw?.order?.points || raw?.orders?.[0]?.points;
+    if (!pts || pts.length < 2) return 'Calculating...';
+
+    const p = pts[0],
+      q = pts[1];
+    if (!p?.latitude || !q?.latitude) return 'Calculating...';
+
+    const d = this.haversine(
+      Number(p.latitude),
+      Number(p.longitude),
+      Number(q.latitude),
+      Number(q.longitude),
+    );
+    return d.toFixed(1) + ' km';
+  }
+
+  getEstimatedDuration(order: any): string {
+    const raw = order?.rawProviderResponse;
+    const pts = raw?.order?.points || raw?.orders?.[0]?.points;
+    if (!pts || pts.length < 2) return 'Calculating...';
+
+    const p = pts[0],
+      q = pts[1];
+    if (!p?.latitude || !q?.latitude) return 'Calculating...';
+
+    const d = this.haversine(
+      Number(p.latitude),
+      Number(p.longitude),
+      Number(q.latitude),
+      Number(q.longitude),
+    );
+    const mins = Math.round((d / 30) * 60);
+    return mins >= 60
+      ? `${Math.floor(mins / 60)} hr ${mins % 60} min`
+      : `${mins} min`;
+  }
+
+  private haversine(
+    lat1: number,
+    lng1: number,
+    lat2: number,
+    lng2: number,
+  ): number {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // ─── Courier info ────────────────────────────────────────────────────────
+  // Borzo courier API returns: { courier_id, name, surname, phone, photo_url, latitude, longitude }
+  loadCourierInfo(): void {
+    if (!this.order?._id) return;
+
+    this.api.get(`/orders/${this.order._id}/courier`).subscribe({
+      next: (res: any) => {
+        this.courier = res?.data || null;
+
+        // ✅ If Borzo returned live location — update map immediately
+        const lat = this.courier?.latitude
+          ? Number(this.courier.latitude)
+          : null;
+        const lng = this.courier?.longitude
+          ? Number(this.courier.longitude)
+          : null;
+        if (lat && lng) this.updateCourierLocation(lat, lng);
+      },
+      error: () => {
+        /* courier not available yet — silent */
+      },
+    });
+  }
+
+  // ─── Live tracking polling ───────────────────────────────────────────────
+  // Uses Borzo courier API directly (returns lat/lng for active orders)
+  startTrackingPolling(): void {
+    if (this.order?.status === 'DELIVERED') {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+      return;
+    }
+
+    if (
+      this.order?.status !== 'PICKED_UP' &&
+      this.order?.status !== 'IN_TRANSIT'
+    )
+      return;
+    if (this.trackingInterval) return;
+
+    this.trackingInterval = setInterval(() => {
+      if (!this.order?._id) return;
+
+      // ✅ Poll Borzo courier API — it returns latitude/longitude directly
+      this.api.get(`/orders/${this.order._id}/courier`).subscribe({
+        next: (res: any) => {
+          const c = res?.data;
+          if (!c) return;
+
+          // Update courier card
+          if (c.name || c.phone) this.courier = c;
+
+          // Update map location — Borzo returns String coords
+          const lat = c.latitude ? Number(c.latitude) : null;
+          const lng = c.longitude ? Number(c.longitude) : null;
+          if (lat && lng) this.updateCourierLocation(lat, lng);
+        },
+      });
+    }, APP_CONFIG.TRACKING_POLL_INTERVAL);
+  }
+
+  viewLiveTracking(): void {
+    if (!this.order?._id) return;
+
+    this.api.get(`/orders/${this.order._id}/tracking`).subscribe({
+      next: (res: any) => {
+        const points = res?.data?.points;
+        if (!points?.length) return;
+
+        const courierPoint = points.find((p: any) => p.delivery);
+
+        if (!courierPoint?.latitude) {
+          const lat = Number(this.order.pickup?.lat);
+          const lng = Number(this.order.pickup?.lng);
+          if (lat && lng) this.initMap(lat, lng);
+          return;
+        }
+
+        this.updateCourierLocation(
+          Number(courierPoint.latitude),
+          Number(courierPoint.longitude),
+        );
+        this.startTrackingPolling();
+      },
+      error: () => console.error('Tracking fetch failed'),
+    });
+  }
+
+  // ─── Map ─────────────────────────────────────────────────────────────────
+  initMap(lat: number, lng: number): void {
     if (!this.mapContainer?.nativeElement) return;
 
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-      zoom: 14,
+      zoom: 13,
       center: { lat, lng },
       gestureHandling: 'greedy',
       zoomControl: true,
@@ -258,80 +388,68 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     });
 
     this.directionsService = new google.maps.DirectionsService();
-
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#ff7a00',
+        strokeColor: '#ff6b00',
         strokeWeight: 4,
         strokeOpacity: 0.85,
       },
     });
-
     this.directionsRenderer.setMap(this.map);
+
     this.addPickupDropMarkers();
   }
 
-  addPickupDropMarkers() {
+  addPickupDropMarkers(): void {
     if (!this.order) return;
-
-    const pickupLat = Number(this.order.pickup?.lat);
-    const pickupLng = Number(this.order.pickup?.lng);
-    const dropLat = Number(this.order.drop?.lat);
-    const dropLng = Number(this.order.drop?.lng);
-
-    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return;
+    const pLat = Number(this.order.pickup?.lat);
+    const pLng = Number(this.order.pickup?.lng);
+    const dLat = Number(this.order.drop?.lat);
+    const dLng = Number(this.order.drop?.lng);
+    if (!pLat || !pLng || !dLat || !dLng) return;
 
     this.pickupMarker = new google.maps.Marker({
-      position: { lat: pickupLat, lng: pickupLng },
+      position: { lat: pLat, lng: pLng },
       map: this.map,
       icon: '/assets/icons/pickup-marker.svg',
     });
 
     this.dropMarker = new google.maps.Marker({
-      position: { lat: dropLat, lng: dropLng },
+      position: { lat: dLat, lng: dLng },
       map: this.map,
       icon: '/assets/icons/drop-marker.svg',
     });
 
-    this.drawRoute(pickupLat, pickupLng, dropLat, dropLng);
+    this.drawRoute(pLat, pLng, dLat, dLng);
   }
 
-  drawRoute(
-    pickupLat: number,
-    pickupLng: number,
-    dropLat: number,
-    dropLng: number,
-  ) {
+  drawRoute(pLat: number, pLng: number, dLat: number, dLng: number): void {
     this.directionsService.route(
       {
-        origin: { lat: pickupLat, lng: pickupLng },
-        destination: { lat: dropLat, lng: dropLng },
+        origin: { lat: pLat, lng: pLng },
+        destination: { lat: dLat, lng: dLng },
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (result: any, status: any) => {
-        if (status === 'OK') {
-          this.directionsRenderer.setDirections(result);
+        if (status !== 'OK') return;
+        this.directionsRenderer.setDirections(result);
 
-          const bounds = new google.maps.LatLngBounds();
-          bounds.extend({ lat: pickupLat, lng: pickupLng });
-          bounds.extend({ lat: dropLat, lng: dropLng });
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend({ lat: pLat, lng: pLng });
+        bounds.extend({ lat: dLat, lng: dLng });
+        this.routeBounds = bounds;
+        this.map.fitBounds(bounds);
 
-          this.routeBounds = bounds;
-          this.map.fitBounds(bounds);
-
-          const leg = result.routes[0].legs[0];
-          this.distanceText = leg.distance.text;
-          this.etaText = leg.duration.text;
-        }
+        const leg = result.routes[0].legs[0];
+        this.distanceText = leg.distance.text;
+        this.etaText = leg.duration.text;
       },
     );
   }
 
-  updateCourierLocation(lat: number, lng: number) {
-    if (!this.map) {
-      this.initMap(lat, lng);
-    }
+  updateCourierLocation(lat: number, lng: number): void {
+    if (!this.map) this.initMap(lat, lng);
 
     if (!this.courierMarker) {
       this.courierMarker = new google.maps.Marker({
@@ -342,218 +460,61 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
           scaledSize: new google.maps.Size(40, 40),
         },
       });
-
       this.previousLat = lat;
       this.previousLng = lng;
-      this.map.panTo({ lat, lng });
+      if (this.autoFollowCourier) this.map.panTo({ lat, lng });
       return;
     }
 
     if (this.previousLat === lat && this.previousLng === lng) return;
 
-    this.animateMarker(
-      this.previousLat as number,
-      this.previousLng as number,
-      lat,
-      lng,
-    );
+    this.animateMarker(this.previousLat!, this.previousLng!, lat, lng);
     this.calculateETA(lat, lng);
-
     this.previousLat = lat;
     this.previousLng = lng;
   }
 
-  animateMarker(
-    startLat: number,
-    startLng: number,
-    endLat: number,
-    endLng: number,
-  ) {
+  animateMarker(sLat: number, sLng: number, eLat: number, eLng: number): void {
     if (this.animationInterval) clearInterval(this.animationInterval);
-
     const steps = 60;
     let step = 0;
-
-    const deltaLat = (endLat - startLat) / steps;
-    const deltaLng = (endLng - startLng) / steps;
+    const dLat = (eLat - sLat) / steps;
+    const dLng = (eLng - sLng) / steps;
 
     this.animationInterval = setInterval(() => {
       step++;
-
-      const lat = startLat + deltaLat * step;
-      const lng = startLng + deltaLng * step;
-      const position = new google.maps.LatLng(lat, lng);
-
-      this.courierMarker.setIcon({
-        url: '/assets/icons/courier-bike.svg',
-        scaledSize: new google.maps.Size(40, 40),
-        anchor: new google.maps.Point(20, 20),
-      });
-
-      this.courierMarker.setPosition(position);
-
-      if (this.autoFollowCourier) this.map.panTo(position);
-
+      const pos = new google.maps.LatLng(
+        sLat + dLat * step,
+        sLng + dLng * step,
+      );
+      this.courierMarker.setPosition(pos);
+      if (this.autoFollowCourier) this.map.panTo(pos);
       if (step >= steps) clearInterval(this.animationInterval);
     }, 80);
   }
 
-  getVehicleLabel(): string {
-    const vehicleType = this.order?.vehicle?.type;
-    if (!vehicleType) return 'Courier Vehicle';
-    return this.vehicleMap[vehicleType] || 'Courier Vehicle';
-  }
-
-  getEstimatedDuration(order: any): string {
-    const points = order?.rawProviderResponse?.order?.points;
-    if (!points || points.length < 2) return 'Calculating...';
-
-    const pickup = points[0];
-    const drop = points[1];
-    if (!pickup?.latitude || !drop?.latitude) return 'Calculating...';
-
-    const lat1 = Number(pickup.latitude);
-    const lng1 = Number(pickup.longitude);
-    const lat2 = Number(drop.latitude);
-    const lng2 = Number(drop.longitude);
-
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const durationMinutes = Math.round((distance / 30) * 60);
-    return durationMinutes + ' mins';
-  }
-
-  getEstimatedDistance(order: any): string {
-    const points = order?.rawProviderResponse?.order?.points;
-    if (!points || points.length < 2) return 'Calculating...';
-
-    const pickup = points[0];
-    const drop = points[1];
-    if (!pickup?.latitude || !drop?.latitude) return 'Calculating...';
-
-    const lat1 = Number(pickup.latitude);
-    const lng1 = Number(pickup.longitude);
-    const lat2 = Number(drop.latitude);
-    const lng2 = Number(drop.longitude);
-
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return distance.toFixed(1) + ' km';
-  }
-
-  viewLiveTracking() {
-    if (!this.order?._id) return;
-
-    this.api.get(`/orders/${this.order._id}/tracking`).subscribe({
-      next: (res: any) => {
-        const points = res?.data?.points;
-        if (!points?.length) return;
-
-        const courierPoint = points.find((p: any) => p.delivery);
-
-        if (!courierPoint?.latitude) {
-          const pickupLat = Number(this.order.pickup?.lat);
-          const pickupLng = Number(this.order.pickup?.lng);
-          if (pickupLat && pickupLng) this.initMap(pickupLat, pickupLng);
-          return;
-        }
-
-        const lat = Number(courierPoint.latitude);
-        const lng = Number(courierPoint.longitude);
-        this.updateCourierLocation(lat, lng);
-        this.startTrackingPolling();
-      },
-      error: () => {
-        console.error('Unable to fetch courier tracking');
-      },
-    });
-  }
-
-  startTrackingPolling() {
-    if (this.order?.status === 'DELIVERED') {
-      clearInterval(this.trackingInterval);
-      this.trackingInterval = null;
-      return;
-    }
-
-    if (
-      this.order?.status !== 'PICKED_UP' &&
-      this.order?.status !== 'IN_TRANSIT'
-    ) {
-      return;
-    }
-
-    if (this.trackingInterval) return;
-
-    this.trackingInterval = setInterval(() => {
-      if (!this.order?._id) return;
-
-      this.api.get(`/orders/${this.order._id}/tracking`).subscribe({
-        next: (res: any) => {
-          const points = res?.data?.points;
-          if (!points?.length) return;
-
-          const courierPoint = points.find((p: any) => p.delivery);
-          if (!courierPoint?.latitude) return;
-
-          const lat = Number(courierPoint.latitude);
-          const lng = Number(courierPoint.longitude);
-          this.updateCourierLocation(lat, lng);
+  calculateETA(cLat: number, cLng: number): void {
+    if (!this.directionsService || !this.order?.drop?.lat) return;
+    this.directionsService.route(
+      {
+        origin: { lat: cLat, lng: cLng },
+        destination: {
+          lat: Number(this.order.drop.lat),
+          lng: Number(this.order.drop.lng),
         },
-      });
-    }, APP_CONFIG.TRACKING_POLL_INTERVAL);
-  }
-
-  loadCourierInfo() {
-    if (!this.order?._id) return;
-    this.courierLoading = true;
-
-    this.api.get(`/orders/${this.order._id}/courier`).subscribe({
-      next: (res: any) => {
-        this.courier = res?.data || null;
-        this.courierLoading = false;
+        travelMode: google.maps.TravelMode.DRIVING,
       },
-      error: () => {
-        this.courierLoading = false;
+      (result: any, status: any) => {
+        if (status !== 'OK') return;
+        const leg = result.routes[0].legs[0];
+        this.etaText = leg.duration.text;
+        this.distanceText = leg.distance.text;
       },
-    });
+    );
   }
 
-  isStepDone(step: string): boolean {
-    if (!this.order?.statusHistory?.length) return false;
-    return this.order.statusHistory.some((s: any) => s.status === step);
-  }
-
-  getStepTimestamp(step: string): string {
-    const date = this.timelineMap[step];
-    if (!date) return 'Pending';
-    return new Intl.DateTimeFormat('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  }
-
-  resetTracking() {
+  // ─── Reset ───────────────────────────────────────────────────────────────
+  resetTracking(): void {
     this.orderId = '';
     this.order = null;
     this.error = '';
@@ -563,43 +524,29 @@ export class TrackOrderComponent implements OnInit, AfterViewInit {
     this.previousLat = null;
     this.previousLng = null;
 
-    if (this.trackingInterval) {
-      clearInterval(this.trackingInterval);
-      this.trackingInterval = null;
-    }
+    clearInterval(this.trackingInterval);
+    this.trackingInterval = null;
+    clearInterval(this.animationInterval);
+    this.animationInterval = null;
 
-    if (this.animationInterval) {
-      clearInterval(this.animationInterval);
-      this.animationInterval = null;
-    }
-
-    if (this.courierMarker) {
-      this.courierMarker.setMap(null);
-      this.courierMarker = null;
-    }
-
-    if (this.pickupMarker) {
-      this.pickupMarker.setMap(null);
-      this.pickupMarker = null;
-    }
-
-    if (this.dropMarker) {
-      this.dropMarker.setMap(null);
-      this.dropMarker = null;
-    }
+    [this.courierMarker, this.pickupMarker, this.dropMarker].forEach((m) => {
+      if (m) m.setMap(null);
+    });
+    this.courierMarker = null;
+    this.pickupMarker = null;
+    this.dropMarker = null;
 
     if (this.directionsRenderer) {
       this.directionsRenderer.setMap(null);
       this.directionsRenderer = null;
     }
-
     this.map = null;
   }
 
   ngOnDestroy(): void {
-    if (this.trackingInterval) clearInterval(this.trackingInterval);
-    if (this.animationInterval) clearInterval(this.animationInterval);
-    if (this.socketListener) this.socketListener = null;
-    this.socketService.disconnect();
+    clearInterval(this.trackingInterval);
+    clearInterval(this.animationInterval);
+    this.socketListener = null;
+    this.socket.disconnect();
   }
 }
