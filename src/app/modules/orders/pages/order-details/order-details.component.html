@@ -270,13 +270,7 @@
                             </span>
                         </div>
 
-                        <div class="price-row" *ngIf="order.pricing?.insurance > 0">
-                            <span>Insurance</span>
-                            <span>
-                                {{ order.pricing?.currency }}
-                                {{ order.pricing?.insurance | number:'1.2-2' }}
-                            </span>
-                        </div>
+
 
                         <div class="price-row" *ngIf="order.pricing?.insurance > 0">
                             <span>Insurance</span>

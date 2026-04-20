@@ -71,12 +71,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   onEditOrder(): void {
     if (!this.order) return;
 
-    console.log('=== onEditOrder called ===');
-    console.log('isEditMode:', this.isEditMode);
-    console.log('editableOrder:', this.editableOrder);
-    console.log('order.pickup:', this.order.pickup);
-    console.log('order.drop:', this.order.drop);
-
     if (!this.isEditMode) {
       this.isEditMode = true;
 
@@ -97,13 +91,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     if (!pickupLat || !pickupLng) {
       this.toastService.error(
         'Please select valid pickup address from suggestions',
-      );
-      return;
-    }
-
-    if (!dropLat || !dropLng) {
-      this.toastService.error(
-        'Please select valid drop address from suggestions',
       );
       return;
     }
@@ -277,7 +264,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     const providerPoints = providerOrder.points || [];
 
-    // ✅ Pehle pickup point dhundo, phir drop
     const pickupPoint = providerPoints[0];
     const dropPoint = providerPoints[1];
 
@@ -342,7 +328,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     return {
       order_id: providerOrder.order_id,
       matter: this.editableOrder.matter,
-      vehicle_type_id: Number(this.order.vehicleTypeId),
+      vehicle_type_id: Number(this.order.vehicleTypeId) || 8,
       total_weight_kg: Number(this.editableOrder.weight || 0),
       points,
     };
