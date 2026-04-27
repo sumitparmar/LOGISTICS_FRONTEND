@@ -27,7 +27,7 @@ export class LandingPageComponent implements OnInit {
     this.setSeoTags();
 
     this.quoteForm = this.fb.group({
-      matter: ['', Validators.required],
+      serviceType: ['INSTANT', Validators.required],
       pickupAddress: ['', Validators.required],
       dropAddress: ['', Validators.required],
     });
@@ -49,37 +49,40 @@ export class LandingPageComponent implements OnInit {
       content:
         'logistics company in India, truck booking service, goods transport service, mini truck booking, pickup truck service, logistics services India, MoveKart',
     });
-
-    this.meta.updateTag({
-      property: 'og:title',
-      content:
-        'MoveKart | Fast & Affordable Logistics & Delivery Service in India',
-    });
-
-    this.meta.updateTag({
-      property: 'og:description',
-      content:
-        'Book truck booking, goods transport and delivery solutions with MoveKart.',
-    });
-
-    this.meta.updateTag({
-      property: 'og:type',
-      content: 'website',
-    });
   }
 
-  calculate() {
+  calculate(): void {
     if (this.quoteForm.invalid) return;
 
     this.loading = true;
     this.errorMessage = '';
     this.price = null;
 
-    const payload = {
-      matter: this.quoteForm.value.matter,
+    const service = this.quoteForm.value.serviceType;
+
+    let payload: any = {
+      matter: 'Parcel',
       pickup: { address: this.quoteForm.value.pickupAddress },
       drop: { address: this.quoteForm.value.dropAddress },
+      vehicleTypeId: 8,
+      deliveryType: 'STANDARD',
     };
+
+    if (service === 'SAME_DAY') {
+      payload.deliveryType = 'END_OF_DAY';
+      delete payload.vehicleTypeId;
+    }
+
+    if (service === 'PRIORITY') {
+      payload.deliveryType = 'STANDARD';
+      payload.vehicleTypeId = 8;
+      payload.priority = true;
+    }
+
+    if (service === 'INSTANT') {
+      payload.deliveryType = 'STANDARD';
+      payload.vehicleTypeId = 8;
+    }
 
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {
@@ -93,7 +96,7 @@ export class LandingPageComponent implements OnInit {
     });
   }
 
-  bookDelivery() {
+  bookDelivery(): void {
     this.router.navigate(['/auth/login']);
   }
 }

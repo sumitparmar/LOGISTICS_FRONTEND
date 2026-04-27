@@ -88,13 +88,26 @@ export class HeroComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.price = null;
     this.errorMessage = '';
+    const selected = Number(this.quoteForm.value.vehicleType);
 
-    const payload = {
+    const payload: any = {
       matter: 'delivery',
-      vehicleTypeId: this.quoteForm.value.vehicleType,
       pickup: { address: this.quoteForm.value.pickup },
       drop: { address: this.quoteForm.value.drop },
     };
+
+    if (selected === 8) {
+      payload.vehicleTypeId = 8;
+    }
+
+    if (selected === 1) {
+      payload.deliveryType = 'END_OF_DAY';
+    }
+
+    if (selected === 5) {
+      payload.vehicleTypeId = 8;
+      payload.priority = true;
+    }
 
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {
