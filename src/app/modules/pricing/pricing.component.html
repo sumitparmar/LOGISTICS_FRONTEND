@@ -37,12 +37,12 @@
 
                                 <div class="route-item">
                                     <strong>Distance</strong>
-                                    <span>{{ routeDistance }} km</span>
+                                    <span>{{ routeDistance !== null ? routeDistance + ' km' : '--' }}</span>
                                 </div>
 
                                 <div class="route-item">
                                     <strong>Estimated time</strong>
-                                    <span>{{ routeDuration }}</span>
+                                    <span>{{ routeDuration || '--' }}</span>
                                 </div>
 
                             </div>

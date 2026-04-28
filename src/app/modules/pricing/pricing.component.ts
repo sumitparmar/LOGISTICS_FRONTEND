@@ -183,22 +183,12 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
   watchFormChanges() {
     this.pricingForm.get('pickup')?.valueChanges.subscribe(() => {
       this.priceResult = null;
-      this.routeDistance = null;
-      this.routeDuration = null;
-
-      if (this.directionsRenderer) {
-        this.directionsRenderer.setDirections({ routes: [] });
-      }
+      this.resetRouteState();
     });
 
     this.pricingForm.get('drop')?.valueChanges.subscribe(() => {
       this.priceResult = null;
-      this.routeDistance = null;
-      this.routeDuration = null;
-
-      if (this.directionsRenderer) {
-        this.directionsRenderer.setDirections({ routes: [] });
-      }
+      this.resetRouteState();
     });
 
     this.pricingForm
@@ -228,16 +218,9 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.loading) return;
 
     const form = this.pricingForm.value;
-
     if (form.pickup === form.drop) {
-      this.routeDistance = null;
-      this.routeDuration = null;
       this.priceResult = null;
-
-      if (this.directionsRenderer) {
-        this.directionsRenderer.setDirections({ routes: [] });
-      }
-
+      this.resetRouteState();
       return;
     }
 
@@ -256,7 +239,7 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pricingService.calculatePrice(payload).subscribe({
       next: (res: any) => {
         this.priceResult = {
-          amount: res?.data?.amount || 0,
+          amount: Number(res?.data?.amount || 0),
         };
 
         this.loading = false;
@@ -268,6 +251,15 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
         this.priceResult = null;
       },
     });
+  }
+
+  resetRouteState() {
+    this.routeDistance = null;
+    this.routeDuration = null;
+
+    if (this.directionsRenderer) {
+      this.directionsRenderer.setDirections({ routes: [] });
+    }
   }
 
   ngOnDestroy(): void {
