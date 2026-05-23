@@ -24,6 +24,12 @@ const routes: Routes = [
       },
 
       {
+        path: 'create-order',
+        redirectTo: 'delivery/create',
+        pathMatch: 'full',
+      },
+
+      {
         path: 'orders',
         loadChildren: () =>
           import('../orders/orders.module').then((m) => m.OrdersModule),

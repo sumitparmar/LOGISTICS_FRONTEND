@@ -51,12 +51,12 @@
     background: #ffffff;
     color: #111827;
 
-    font-size: 20px;
-    line-height: 1;
     cursor: pointer;
 
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    gap: 4px;
 
     transition:
       background 0.18s ease,
@@ -67,6 +67,13 @@
   .menu-toggle:hover {
     background: #f8fafc;
     border-color: #d1d5db;
+  }
+
+  .menu-toggle span {
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: #111827;
   }
 
   .menu-toggle:active {

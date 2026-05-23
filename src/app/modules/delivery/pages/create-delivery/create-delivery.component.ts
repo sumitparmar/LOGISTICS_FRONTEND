@@ -202,7 +202,7 @@ export class CreateDeliveryComponent
   }
 
   applyPendingDelivery(data: any): void {
-    // 🔹 Set pickup (ONLY ADDRESS — lat/lng must come from autocomplete)
+    // Set pickup address only; coordinates must come from autocomplete.
     this.deliveryForm.patchValue({
       pickupAddress: data.pickup,
       pickupLat: null,
@@ -211,7 +211,7 @@ export class CreateDeliveryComponent
       vehicleTypeId: data.vehicleType || 8,
     });
 
-    // 🔹 Set first stop (drop)
+    // Set first delivery stop.
     const firstStop = this.stops.at(0);
 
     firstStop.patchValue({
@@ -252,7 +252,7 @@ export class CreateDeliveryComponent
       error: (err) => {
         console.error('Failed to load delivery types', err);
 
-        // ✅ FALLBACK (PRODUCTION SAFE)
+        // Fallback delivery speed options.
         this.deliveryTypesConfig = {
           NOW: {
             label: 'Deliver Now',
@@ -300,7 +300,7 @@ export class CreateDeliveryComponent
 
     const user = this.authService.getUser();
 
-    // 🔹 Pickup behavior based on mode
+    // Pickup behavior based on mode
     if (mode === 'BUSINESS') {
       this.deliveryForm.patchValue({
         pickupName: user?.name || '',
@@ -845,14 +845,14 @@ export class CreateDeliveryComponent
 
     const last = JSON.parse(data);
 
-    // ✅ Fill visible fields
+    // Fill visible fields
     this.deliveryForm.patchValue({
       pickupAddress: last.pickup.address,
       pickupName: last.pickup.name,
       pickupPhone: last.pickup.phone,
       package: last.package,
 
-      // ❗ RESET coordinates (VERY IMPORTANT)
+      // Reset coordinates
       pickupLat: null,
       pickupLng: null,
     });
@@ -873,7 +873,7 @@ export class CreateDeliveryComponent
       'Please select pickup & delivery locations from suggestions',
     );
 
-    // ✅ Focus user to take action
+    // Focus user to take action
     this.pickupInput.nativeElement.focus();
   }
 
@@ -894,7 +894,7 @@ export class CreateDeliveryComponent
       package: {
         ...currentPackage,
         category: category,
-        description: category, // ✅ ALWAYS update
+        description: category,
       },
     });
 

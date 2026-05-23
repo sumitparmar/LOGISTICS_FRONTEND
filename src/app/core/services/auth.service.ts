@@ -63,8 +63,6 @@ export class AuthService {
         if (res?.data?.token) {
           this.setToken(res.data.token);
           this.setUser(res.data.user);
-
-          // ✅ ADD THIS
           this.deliveryModeSubject.next(res.data.user?.deliveryMode || null);
 
           this.isAuthenticatedSubject.next(true);
@@ -147,7 +145,7 @@ export class AuthService {
     try {
       return JSON.parse(user);
     } catch (e) {
-      console.error('Invalid user in localStorage, clearing...');
+      
       localStorage.removeItem(this.userKey);
       return null;
     }

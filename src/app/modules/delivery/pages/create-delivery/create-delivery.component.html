@@ -4,7 +4,7 @@
 
         <div class="custom-toast" *ngIf="showToast">
             <div class="toast-content">
-                <span>ℹ️ {{ toastMessage }}</span>
+                <span>{{ toastMessage }}</span>
             </div>
         </div>
         <div class="delivery-container">
@@ -292,18 +292,18 @@ deliveryForm.get('package.description')?.invalid">
                             <h4>Estimated Fare</h4>
                             <div class="price-row">
                                 <span>Delivery Fee</span>
-                                <span>{{ priceSummary.deliveryFee ? ('₹ ' + priceSummary.deliveryFee) : 'Pending'
+                                <span>{{ priceSummary.deliveryFee ? ('Rs. ' + priceSummary.deliveryFee) : 'Pending'
                                     }}</span>
                             </div>
 
                             <div class="price-row">
                                 <span>Insurance</span>
-                                <span>{{ priceSummary.insurance ? ('₹ ' + priceSummary.insurance) : '—' }}</span>
+                                <span>{{ priceSummary.insurance ? ('Rs. ' + priceSummary.insurance) : '-' }}</span>
                             </div>
 
                             <div class="price-total">
                                 <span>Total</span>
-                                <span>{{ priceSummary.total ? ('₹ ' + priceSummary.total) : 'Calculate fare' }}</span>
+                                <span>{{ priceSummary.total ? ('Rs. ' + priceSummary.total) : 'Calculate fare' }}</span>
                             </div>
 
                             <button type="button" class="btn-price" (click)="calculatePrice()"
@@ -326,11 +326,11 @@ deliveryForm.get('package.description')?.invalid">
 
                         <h3>Delivery Speed</h3>
                         <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
-                            ⚡ Tip: Use “Deliver Now” for faster customer fulfillment
+                            Tip: Use "Deliver Now" for faster customer fulfillment
                         </div>
 
                         <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
-                            💡 Tip: Choose “End of Day” to save delivery cost
+                            Tip: Choose "End of Day" to save delivery cost
                         </div>
 
                         <div class="delivery-card" *ngFor="let speed of deliverySpeedOptions"
@@ -353,7 +353,7 @@ deliveryForm.get('package.description')?.invalid">
 
                                 <!-- PRICE -->
                                 <div class="delivery-price" *ngIf="speed.price">
-                                    from ₹ {{ speed.price }}
+                                    from Rs. {{ speed.price }}
                                 </div>
 
                             </div>
@@ -372,10 +372,10 @@ deliveryForm.get('package.description')?.invalid">
                             <input matInput [ngxMatDatetimePicker]="picker" formControlName="scheduledAt"
                                 placeholder="Choose date & time" readonly (click)="picker.open()" />
 
-                            <!-- ✅ THIS IS MISSING -->
+
                             <ngx-mat-datepicker-toggle matSuffix [for]="picker"></ngx-mat-datepicker-toggle>
 
-                            <!-- ✅ PICKER -->
+
                             <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="5" [touchUi]="true">
                             </ngx-mat-datetime-picker>
@@ -419,17 +419,17 @@ deliveryForm.get('package.description')?.invalid">
                                 formControlName="parcelValue" max="50000" (input)="onParcelValueChange()" />
 
                             <span class="insurance-charge" *ngIf="insuranceCharge > 0">
-                                ₹ {{ insuranceCharge }} : Additional charges for securing parcel
+                                Rs. {{ insuranceCharge }}: Additional charges for securing parcel
                             </span>
 
                         </div>
 
                         <!-- DESCRIPTION -->
                         <p class="insurance-text">
-                            Secure your parcel by entering its real cost (up to ₹50000).
+                            Secure your parcel by entering its real cost (up to Rs. 50000).
                             We'll compensate this sum in verified cases of loss or damage.
-                            The fee is ₹2 + 1% of the declared value.
-                            ⭐ High-value parcels are handled by couriers with extra experience.
+                            The fee is Rs. 2 + 1% of the declared value.
+                            High-value parcels are handled by couriers with extra experience.
                         </p>
 
                     </div>
@@ -440,11 +440,11 @@ deliveryForm.get('package.description')?.invalid">
 
                         <h4>Payment Method</h4>
                         <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
-                            💼 Businesses usually use cash or card for faster processing
+                            Businesses usually use cash or card for faster processing
                         </div>
 
                         <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
-                            💰 Cash on delivery is easiest for personal deliveries
+                            Cash on delivery is easiest for personal deliveries
                         </div>
 
                         <div class="payment-section">
@@ -474,7 +474,7 @@ deliveryForm.get('package.description')?.invalid">
                                         Pay Online
                                         <span class="soon-badge">Soon</span>
                                     </h4>
-                                    <p>Launching soon • Secure online payments</p>
+                                    <p>Launching soon - Secure online payments</p>
                                 </div>
                             </div>
 
@@ -495,7 +495,7 @@ deliveryForm.get('package.description')?.invalid">
 
                         </button>
                         <div class="checkout-note">
-                            Secure booking • Live tracking • Instant confirmation
+                            Secure booking - Live tracking - Instant confirmation
                         </div>
 
                     </div>
@@ -520,7 +520,7 @@ deliveryForm.get('package.description')?.invalid">
             <h3>Rearrange addresses</h3>
 
             <button type="button" class="modal-close" (click)="closeReorderModal()">
-                ✕
+                X
             </button>
 
         </div>
@@ -537,7 +537,7 @@ deliveryForm.get('package.description')?.invalid">
                     {{ stop.value.address || ('Address ' + (i + 1)) }}
                 </span>
 
-                <span class="drag-icon">☰</span>
+                <span class="drag-icon">::</span>
 
             </div>
 

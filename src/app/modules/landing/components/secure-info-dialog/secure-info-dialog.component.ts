@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+
 interface Feature {
-  emoji: string;
+  icon: string;
   iconBg: string;
   title: string;
   description: string;
@@ -21,20 +22,20 @@ export class SecureInfoDialogComponent {
 
   features: Feature[] = [
     {
-      emoji: '📦',
+      icon: 'PKG',
       iconBg: 'rgba(255, 171, 31, 0.15)',
       title: 'Professional Packaging Care',
       description:
         'Every shipment handled carefully by trained delivery partners.',
     },
     {
-      emoji: '📍',
+      icon: 'GPS',
       iconBg: 'rgba(77, 116, 255, 0.15)',
       title: 'Live Tracking',
       description: 'Track your parcel in real time from pickup to delivery.',
     },
     {
-      emoji: '💰',
+      icon: 'INS',
       iconBg: 'rgba(34, 197, 94, 0.12)',
       title: 'Insurance Support',
       description: 'High-value shipments can be protected during transit.',
@@ -58,6 +59,6 @@ export class SecureInfoDialogComponent {
   }
 
   learnMore(): void {
-    console.log('Learn more clicked');
+    this.setTab(2);
   }
 }

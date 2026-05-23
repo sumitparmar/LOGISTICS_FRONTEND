@@ -71,12 +71,12 @@ export class LoginComponent implements OnInit {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (res: any) => {
-          // ✅ STORE TOKEN
+          // Store token
           if (res?.data?.token) {
             this.authService.setToken(res.data.token);
           }
 
-          // ✅ STORE USER (CRITICAL FOR ROLE)
+          // Store user for role-based routing
           if (res?.data?.user) {
             this.authService.setUser(res.data.user);
             this.authService.setDeliveryMode(
@@ -97,7 +97,7 @@ export class LoginComponent implements OnInit {
           if (pending) {
             localStorage.removeItem('PENDING_DELIVERY');
 
-            this.router.navigate(['/app/create-order'], {
+            this.router.navigate(['/app/delivery/create'], {
               state: JSON.parse(pending),
             });
           } else {
@@ -172,7 +172,7 @@ export class LoginComponent implements OnInit {
           if (pending) {
             localStorage.removeItem('PENDING_DELIVERY');
 
-            this.router.navigate(['/app/create-order'], {
+            this.router.navigate(['/app/delivery/create'], {
               state: JSON.parse(pending),
             });
           } else {

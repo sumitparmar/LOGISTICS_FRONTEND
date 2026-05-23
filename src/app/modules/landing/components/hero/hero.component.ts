@@ -51,7 +51,7 @@ export class HeroComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       if (typeof google === 'undefined') {
-        console.error('Google Maps not loaded');
+        this.errorMessage = 'Location search is temporarily unavailable. You can still type the address.';
         return;
       }
 
@@ -145,7 +145,6 @@ export class HeroComponent implements OnInit, AfterViewInit {
       price: this.price,
     };
 
-    // ✅ Save temporarily
     localStorage.setItem('PENDING_DELIVERY', JSON.stringify(data));
 
     this.router.navigate(['/auth/login']);

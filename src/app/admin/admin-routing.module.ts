@@ -17,6 +17,7 @@ import { SupportComponent } from './pages/support/support.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { PendingChangesGuard } from '../core/guards/pending-changes.guard';
+import { OrderDetailsComponent } from '../features/admin/order-details/order-details.component';
 const routes: Routes = [
   {
     path: '',
@@ -47,6 +48,13 @@ const routes: Routes = [
         component: AdminUserEditComponent,
         canActivate: [PermissionGuard],
         data: { permission: 'users.update' },
+      },
+
+      {
+        path: 'orders/:id',
+        component: OrderDetailsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'orders.read' },
       },
 
       {

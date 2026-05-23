@@ -1,49 +1,36 @@
 <header class="main-header">
-
     <div class="container">
-
-        <!-- Logo -->
         <a class="logo" routerLink="/">
             <img src="assets/images/movekart-logo.png" alt="MoveKart Logistics" />
         </a>
 
-        <!-- Mobile Toggle -->
-        <button class="menu-toggle" (click)="toggleMenu()" type="button">
-            ☰
+        <button class="menu-toggle" (click)="toggleMenu()" type="button" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
 
-        <!-- Nav -->
         <nav class="nav-links" [class.open]="isMenuOpen">
-
-            <a routerLink="/app/dashboard" routerLinkActive="active" (click)="closeMenu()">Home</a>
-
+            <a [routerLink]="isLoggedIn ? '/app/dashboard' : '/'" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Home</a>
             <a routerLink="/pricing" routerLinkActive="active" (click)="closeMenu()">Pricing</a>
-
             <a routerLink="/track" routerLinkActive="active" (click)="closeMenu()">Track Order</a>
-
             <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About Us</a>
-
             <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
-
         </nav>
 
-        <!-- Right -->
         <div class="nav-right">
-
             <ng-container *ngIf="isLoggedIn; else guestUser">
-
                 <button *ngIf="isAdmin" class="admin-btn" (click)="openAdminPanel()" type="button">
                     Admin Panel
                 </button>
 
                 <div class="profile-menu">
-
                     <button class="avatar" type="button">
                         {{ userInitial }}
                     </button>
 
                     <div class="dropdown">
-
                         <div class="dropdown-item user-name">
                             {{ userName }}
                         </div>
@@ -57,23 +44,15 @@
                         <div class="dropdown-item logout" (click)="logout()">
                             Logout
                         </div>
-
                     </div>
-
                 </div>
-
             </ng-container>
 
             <ng-template #guestUser>
-
                 <button class="login-btn" (click)="goToLogin()" [disabled]="currentUrl === '/auth/login'" type="button">
                     Login
                 </button>
-
             </ng-template>
-
         </div>
-
     </div>
-
 </header>
