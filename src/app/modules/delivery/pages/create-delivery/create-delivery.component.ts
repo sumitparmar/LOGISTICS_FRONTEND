@@ -43,6 +43,7 @@ export class CreateDeliveryComponent
   toastMessage = '';
   private directionsRenderer: any;
   private stopInputSubscription: any;
+  private formSubscriptions: any[] = [];
   deliveryForm!: FormGroup;
   bankCards: any[] = [];
   private stopAutocompleteInstances: any[] = [];
@@ -88,21 +89,21 @@ export class CreateDeliveryComponent
       id: 2,
       title: 'Tata Ace 8ft',
       description: 'Medium cargo deliveries',
-      limit: 'Up to 500 kg',
+      limit: 'Up to 1000 kg',
       icon: 'airport_shuttle',
     },
     {
       id: 3,
       title: 'Tata Ace 7ft',
       description: 'Heavy shipment transport',
-      limit: 'Up to 1000 kg',
+      limit: 'Up to 750 kg',
       icon: 'airport_shuttle',
     },
     {
       id: 5,
       title: 'Tempo Truck',
       description: 'Large scale cargo delivery',
-      limit: 'Up to 2000 kg',
+      limit: 'Up to 200 kg',
       icon: 'local_shipping',
     },
   ];
@@ -141,6 +142,7 @@ export class CreateDeliveryComponent
     if (this.modeSub) {
       this.modeSub.unsubscribe();
     }
+    this.formSubscriptions.forEach((sub) => sub?.unsubscribe?.());
     this.stopAutocompleteInstances = [];
 
     if (this.toastTimer) {
@@ -163,36 +165,48 @@ export class CreateDeliveryComponent
       }
     });
 
-    this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
-      if (!this.canAutoCalculate()) return;
+    this.formSubscriptions.push(
+      this.deliveryForm.valueChanges.pipe(debounceTime(600)).subscribe(() => {
+        if (!this.canAutoCalculate()) return;
 
-      this.resetPrice();
-      this.calculatePrice();
-    });
+        this.resetPrice();
+        this.calculatePrice();
+      }),
+    );
 
-    this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
-      this.resetPrice();
-    });
+    this.formSubscriptions.push(
+      this.deliveryForm.get('package.weight')?.valueChanges.subscribe(() => {
+        this.resetPrice();
+      }),
+    );
 
-    this.deliveryForm.get('package.description')?.valueChanges.subscribe(() => {
-      this.resetPrice();
-    });
+    this.formSubscriptions.push(
+      this.deliveryForm
+        .get('package.description')
+        ?.valueChanges.subscribe(() => {
+          this.resetPrice();
+        }),
+    );
 
-    this.deliveryForm.get('pickupAddress')?.valueChanges.subscribe(() => {
-      this.deliveryForm.patchValue(
-        {
-          pickupLat: null,
-          pickupLng: null,
-        },
-        { emitEvent: false },
-      );
+    this.formSubscriptions.push(
+      this.deliveryForm.get('pickupAddress')?.valueChanges.subscribe(() => {
+        this.deliveryForm.patchValue(
+          {
+            pickupLat: null,
+            pickupLng: null,
+          },
+          { emitEvent: false },
+        );
 
-      this.resetPrice();
-    });
+        this.resetPrice();
+      }),
+    );
 
-    this.stops.valueChanges.subscribe(() => {
-      this.resetPrice();
-    });
+    this.formSubscriptions.push(
+      this.stops.valueChanges.subscribe(() => {
+        this.resetPrice();
+      }),
+    );
 
     const pending = history.state;
 
@@ -404,9 +418,11 @@ export class CreateDeliveryComponent
 
     if (!form.stops?.length) return false;
 
-    const lastStop = form.stops[form.stops.length - 1];
+    const everyStopHasCoordinates = form.stops.every(
+      (stop: any) => stop?.lat && stop?.lng,
+    );
 
-    if (!lastStop?.lat || !lastStop?.lng) return false;
+    if (!everyStopHasCoordinates) return false;
 
     return true;
   }
@@ -514,6 +530,11 @@ export class CreateDeliveryComponent
   }
 
   addStop(): void {
+    if (this.deliveryForm.get('deliveryType')?.value === 'END_OF_DAY') {
+      this.showToastMessage('End-of-day delivery supports one drop address');
+      return;
+    }
+
     this.stops.push(this.createStop());
 
     this.resetPrice();
@@ -602,6 +623,23 @@ export class CreateDeliveryComponent
           lat: form.stops[form.stops.length - 1].lat,
           lng: form.stops[form.stops.length - 1].lng,
         },
+        stops: [
+          {
+            type: 'PICKUP',
+            address: form.pickupAddress,
+            lat: form.pickupLat,
+            lng: form.pickupLng,
+          },
+          ...form.stops.map((stop: any) => ({
+            type: 'DROP',
+            address: stop.address,
+            lat: stop.lat,
+            lng: stop.lng,
+            phone: stop.phone,
+            name: stop.name,
+            notes: stop.notes || null,
+          })),
+        ],
         package: {
           weight: form.package.weight,
           declaredValue: form.parcelValue || 0,
@@ -912,6 +950,17 @@ export class CreateDeliveryComponent
   }
 
   selectDeliveryType(type: string): void {
+    if (type === 'END_OF_DAY' && this.stops.length > 1) {
+      while (this.stops.length > 1) {
+        this.stops.removeAt(this.stops.length - 1);
+      }
+      this.stopAutocompleteInstances = this.stopAutocompleteInstances.slice(
+        0,
+        1,
+      );
+      this.showToastMessage('End-of-day delivery uses one drop address');
+    }
+
     this.deliveryForm.patchValue({
       deliveryType: type,
     });

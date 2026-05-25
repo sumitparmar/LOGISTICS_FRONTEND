@@ -71,7 +71,7 @@ export class OrdersService {
   }
 
   getBankCards(): Observable<any> {
-    return this.api.get('/borzo/bank-cards');
+    return this.api.get('/orders/provider/bank-cards');
   }
 
   getDeliveryTypes(): Observable<any> {

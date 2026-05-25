@@ -65,7 +65,7 @@ export class LandingPageComponent implements OnInit {
       pickup: { address: this.quoteForm.value.pickupAddress },
       drop: { address: this.quoteForm.value.dropAddress },
       vehicleTypeId: 8,
-      deliveryType: 'STANDARD',
+      deliveryType: 'NOW',
     };
 
     if (service === 'SAME_DAY') {
@@ -74,20 +74,20 @@ export class LandingPageComponent implements OnInit {
     }
 
     if (service === 'PRIORITY') {
-      payload.deliveryType = 'STANDARD';
+      payload.deliveryType = 'NOW';
       payload.vehicleTypeId = 8;
       payload.priority = true;
     }
 
     if (service === 'INSTANT') {
-      payload.deliveryType = 'STANDARD';
+      payload.deliveryType = 'NOW';
       payload.vehicleTypeId = 8;
     }
 
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {
         this.loading = false;
-        this.price = res?.data?.pricing?.amount || null;
+        this.price = res?.data?.amount || null;
       },
       error: (err) => {
         this.loading = false;
