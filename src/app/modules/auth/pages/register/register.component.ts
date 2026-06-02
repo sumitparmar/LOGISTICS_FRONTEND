@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   loading = false;
   errorMessage = '';
+  successMessage = '';
   hasPendingBooking = false;
 
   constructor(
@@ -64,6 +65,7 @@ export class RegisterComponent implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     const payload = {
       name: this.f['name'].value,
@@ -75,13 +77,10 @@ export class RegisterComponent implements OnInit {
     this.authService.register(payload).subscribe({
       next: () => {
         this.loading = false;
+        this.successMessage =
+          'Account created. Please verify your email before logging in.';
 
-        if (this.hasPendingBooking) {
-          this.router.navigate(['/auth/login']);
-          return;
-        }
-
-        this.router.navigate(['/auth/login']);
+        setTimeout(() => this.router.navigate(['/auth/login']), 1800);
       },
       error: (err) => {
         this.loading = false;

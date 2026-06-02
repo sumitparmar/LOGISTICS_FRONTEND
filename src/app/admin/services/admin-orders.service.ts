@@ -33,6 +33,7 @@ export interface OrdersResponse {
     IN_PROGRESS: number;
     DELIVERED: number;
     CANCELLED: number;
+    FAILED: number;
   };
 }
 

@@ -63,7 +63,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       orderId: order._id,
     });
 
-    this.router.navigate(['/track'], {
+    this.router.navigate(['/app/track'], {
       queryParams: { orderId: order._id },
     });
   }

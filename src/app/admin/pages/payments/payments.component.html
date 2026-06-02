@@ -5,7 +5,7 @@
         <div>
             <h1 class="page-title">Payments</h1>
             <p class="page-subtitle">
-                Manage COD collections and prepare for future online gateway integrations.
+                Manage delivery payments, COD collections, refunds and reconciliation.
             </p>
         </div>
 
@@ -26,7 +26,7 @@
 
         <div>
             <strong>Gateway Status:</strong>
-            Online payment gateway not integrated yet. COD mode is active.
+            Cash and COD collection flow is active for customer checkout.
         </div>
     </div>
 
@@ -44,12 +44,12 @@
 
         <div class="kpi-card">
             <span class="kpi-label">Pending Collection</span>
-            <h3>₹{{ summary.pendingCollection }}</h3>
+            <h3>Rs. {{ summary.pendingCollection | number:'1.0-0' }}</h3>
         </div>
 
         <div class="kpi-card">
             <span class="kpi-label">Collected</span>
-            <h3>₹{{ summary.collectedAmount | number:'1.0-0' }}</h3>
+            <h3>Rs. {{ summary.collectedAmount | number:'1.0-0' }}</h3>
         </div>
 
         <div class="kpi-card">
@@ -86,8 +86,7 @@
                 <label>Payment Type</label>
 
                 <select [(ngModel)]="filters.type" (change)="applyFilters()">
-                    <option value="COD">COD</option>
-                    <option value="Online">Online</option>
+                    <option value="COD">Cash/COD</option>
                 </select>
             </div>
 
@@ -175,7 +174,7 @@
                     <tr *ngFor="let item of records">
                         <td>{{ item.orderId }}</td>
                         <td>{{ item.customer }}</td>
-                        <td>₹{{ item.amount | number:'1.0-0' }}</td>
+                        <td>Rs. {{ item.amount | number:'1.0-0' }}</td>
                         <td>{{ item.type }}</td>
                         <td>
                             <span class="status-badge" [ngClass]="{

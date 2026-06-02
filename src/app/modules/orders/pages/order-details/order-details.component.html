@@ -314,6 +314,29 @@
 
                 </div>
 
+                <div class="order-card pricing-card" *ngIf="order.status === 'DELIVERED' && invoice">
+                    <div class="card-header">
+                        <h3>Invoice</h3>
+                    </div>
+
+                    <div class="pricing-breakdown">
+                        <div class="price-row">
+                            <span>Invoice No.</span>
+                            <span>{{ invoice.invoiceNumber }}</span>
+                        </div>
+
+                        <div class="price-row" *ngFor="let item of invoice.lineItems">
+                            <span>{{ item.label }}</span>
+                            <span>{{ invoice.currency }} {{ item.amount | number:'1.2-2' }}</span>
+                        </div>
+
+                        <div class="price-total">
+                            <span>Total</span>
+                            <span>{{ invoice.currency }} {{ invoice.total | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+
 
                 <button *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'" class="edit-order-btn"
                     (click)="onEditOrder()" [disabled]="loading">

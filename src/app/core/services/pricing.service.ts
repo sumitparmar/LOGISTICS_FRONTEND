@@ -9,7 +9,7 @@ export class PricingService {
   constructor(private api: ApiService) {}
 
   getVehicles(): Observable<any> {
-    return this.api.get('/vehicles');
+    return this.api.get('/providers/vehicles');
   }
 
   calculatePrice(payload: any): Observable<any> {

@@ -1,1 +1,55 @@
-<p>wallet works!</p>
+<div class="wallet-page">
+  <div class="wallet-header">
+    <div>
+      <h1>Wallet</h1>
+      <p>Track credits, COD settlements, refunds and wallet movements.</p>
+    </div>
+
+    <button type="button" (click)="loadWallet()" [disabled]="loading">
+      {{ loading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="wallet-summary">
+    <div class="balance-panel">
+      <span>Available Balance</span>
+      <strong>
+        {{ wallet?.currency || 'INR' }}
+        {{ (wallet?.balance || 0) | number:'1.2-2' }}
+      </strong>
+    </div>
+
+    <div class="balance-panel">
+      <span>Ledger Entries</span>
+      <strong>{{ ledger.length }}</strong>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="wallet-message">
+    {{ errorMessage }}
+  </div>
+
+  <div class="ledger-card">
+    <div class="ledger-title">
+      <h2>Recent Transactions</h2>
+    </div>
+
+    <div *ngIf="loading" class="wallet-message">Loading wallet...</div>
+
+    <div *ngIf="!loading && !ledger.length" class="empty-state">
+      No wallet transactions yet.
+    </div>
+
+    <div class="ledger-row" *ngFor="let item of ledger">
+      <div>
+        <strong>{{ item.reason }}</strong>
+        <span>{{ item.createdAt | date:'medium' }}</span>
+      </div>
+
+      <div class="amount" [class.credit]="item.type === 'CREDIT'" [class.debit]="item.type === 'DEBIT'">
+        {{ item.type === 'CREDIT' ? '+' : '-' }}
+        {{ wallet?.currency || 'INR' }} {{ item.amount | number:'1.2-2' }}
+      </div>
+    </div>
+  </div>
+</div>

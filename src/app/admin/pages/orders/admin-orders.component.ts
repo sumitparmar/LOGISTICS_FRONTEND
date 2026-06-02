@@ -58,6 +58,7 @@ export class AdminOrdersComponent implements OnInit {
     DELIVERED: 0,
     CANCELLED: 0,
     IN_PROGRESS: 0,
+    FAILED: 0,
   };
 
   showConfirm = false;
@@ -190,7 +191,8 @@ export class AdminOrdersComponent implements OnInit {
                 (counts.CREATED || 0) +
                 (counts.IN_PROGRESS || 0) +
                 (counts.DELIVERED || 0) +
-                (counts.CANCELLED || 0),
+                (counts.CANCELLED || 0) +
+                (counts.FAILED || 0),
             };
           }
           this.loading = false;
@@ -278,7 +280,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onDelete(order: any): void {
-    if (!this.permissionService.has('orders.delete')) return;
+    if (!this.permissionService.has('orders.cancel')) return;
 
     this.selectedOrder = order;
     this.confirmMode = 'single';
@@ -419,7 +421,7 @@ export class AdminOrdersComponent implements OnInit {
   toggleSelection(order: any): void {
     if (
       !this.permissionService.has('orders.update') &&
-      !this.permissionService.has('orders.delete')
+      !this.permissionService.has('orders.cancel')
     )
       return;
 
@@ -433,7 +435,7 @@ export class AdminOrdersComponent implements OnInit {
   toggleSelectAll(): void {
     if (
       !this.permissionService.has('orders.update') &&
-      !this.permissionService.has('orders.delete')
+      !this.permissionService.has('orders.cancel')
     )
       return;
 
@@ -482,7 +484,7 @@ export class AdminOrdersComponent implements OnInit {
   // }
 
   bulkCancel(): void {
-    if (!this.permissionService.has('orders.delete')) return;
+    if (!this.permissionService.has('orders.cancel')) return;
 
     if (!this.selectedOrders.size || this.isBulkCancelling) {
       this.showToast('Select at least one order', 'warning');

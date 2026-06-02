@@ -34,6 +34,31 @@ export class SocketService {
     });
   }
 
+  connectToOrder(orderId: string): void {
+    if (this.socket?.connected && this.connectedUserId === `order:${orderId}`) {
+      return;
+    }
+
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
+
+    this.connectedUserId = `order:${orderId}`;
+
+    this.socket = io(environment.socketUrl, {
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
+
+    this.socket.on('connect', () => {
+      this.socket?.emit('join-order-room', orderId);
+    });
+  }
+
   onOrderStatusUpdate(callback: (data: any) => void): void {
     if (!this.socket) return;
 

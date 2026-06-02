@@ -43,7 +43,10 @@ export class LoginComponent implements OnInit {
 
     // OTP form
     this.otpForm = this.fb.group({
-      otp: ['', [Validators.required, Validators.minLength(4)]],
+      otp: [
+        '',
+        [Validators.required, Validators.minLength(6), Validators.maxLength(6)],
+      ],
     });
   }
 

@@ -93,7 +93,7 @@
 
     </section>
 
-    <section class="contact-form-section">
+    <section id="contact-form" class="contact-form-section">
 
         <div class="contact-container form-container">
 
@@ -119,6 +119,15 @@
                 </div>
 
                 <textarea formControlName="message" placeholder="Describe your request or issue"></textarea>
+
+                <div *ngIf="successMessage" class="coverage-text">
+                    {{ successMessage }}
+                </div>
+
+                <div *ngIf="errorMessage" class="coverage-text">
+                    {{ errorMessage }}
+                </div>
+
                 <button type="submit" class="primary-btn" [disabled]="isSubmitting"> Send Message
                 </button>
 
@@ -177,8 +186,8 @@
 
             <p>Visit our Help Center to find answers to common delivery questions.</p>
 
-            <a routerLink="/help" class="secondary-btn">
-                Visit Help Center
+            <a routerLink="/contact" fragment="contact-form" class="secondary-btn">
+                Contact Support
             </a>
 
         </div>

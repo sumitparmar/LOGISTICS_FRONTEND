@@ -49,6 +49,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   private dropMarker: any;
   private courierMarker: any;
   private trackingInterval: any;
+  private summaryInterval: any;
   private animationInterval: any;
   private socketListener: any;
   private routeBounds: any;
@@ -79,6 +80,10 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private socket: SocketService,
   ) {}
+
+  private hasAuthToken(): boolean {
+    return !!localStorage.getItem('LOGISTICS_TOKEN');
+  }
 
   ngOnInit(): void {
     this.loadVehicleCatalog();
@@ -116,7 +121,11 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.error = '';
     this.order = null;
 
-    this.api.get(`/orders/${this.orderId}`).subscribe({
+    const endpoint = this.hasAuthToken()
+      ? `/orders/${this.orderId}`
+      : `/orders/track/${this.orderId}`;
+
+    this.api.get(endpoint).subscribe({
       next: (res: any) => {
         this.loading = false;
         this.order = res?.data;
@@ -127,15 +136,25 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.buildTimelineMap();
-        this.loadCourierInfo();
-        this.startTrackingPolling();
+        if (this.hasAuthToken()) {
+          this.loadCourierInfo();
+          this.startTrackingPolling();
+        } else {
+          this.courier = this.normalizeCourier(this.order?.courier);
+        }
 
-        // Socket
-        if (this.order?.user) this.socket.connect(this.order.user);
+        this.connectRealtime();
+        this.startPublicTrackingPolling();
 
         this.socketListener = (data: any) => {
           if (data.orderId !== this.order._id) return;
           this.order.status = data.status;
+          if (data.courier) {
+            this.courier = this.normalizeCourier(data.courier);
+            const lat = this.courier?.latitude;
+            const lng = this.courier?.longitude;
+            if (lat && lng) this.updateCourierLocation(lat, lng);
+          }
           if (
             !this.order.statusHistory.find((s: any) => s.status === data.status)
           ) {
@@ -145,7 +164,8 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
             });
             this.buildTimelineMap();
           }
-          this.startTrackingPolling();
+          if (this.hasAuthToken()) this.startTrackingPolling();
+          this.startPublicTrackingPolling();
         };
         this.socket.onOrderStatusUpdate(this.socketListener);
 
@@ -154,6 +174,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
           const lat = Number(this.order?.pickup?.lat);
           const lng = Number(this.order?.pickup?.lng);
           if (lat && lng && this.mapContainer) this.initMap(lat, lng);
+          if (this.isLiveStatus(this.order.status)) this.viewLiveTracking();
         }, 400);
       },
       error: (err) => {
@@ -168,6 +189,49 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   private getProviderOrder(): any {
     const raw = this.order?.rawProviderResponse;
     return raw?.order || raw?.orders?.[0] || null;
+  }
+
+  private connectRealtime(): void {
+    if (this.hasAuthToken() && this.order?.user) {
+      this.socket.connect(this.order.user);
+      return;
+    }
+
+    if (this.order?._id) {
+      this.socket.connectToOrder(this.order._id);
+    }
+  }
+
+  private normalizeCourier(courier: any): any {
+    if (!courier) return null;
+
+    const latitude =
+      courier.latitude !== undefined && courier.latitude !== null
+        ? Number(courier.latitude)
+        : courier.location?.lat !== undefined && courier.location?.lat !== null
+          ? Number(courier.location.lat)
+          : null;
+    const longitude =
+      courier.longitude !== undefined && courier.longitude !== null
+        ? Number(courier.longitude)
+        : courier.location?.lng !== undefined && courier.location?.lng !== null
+          ? Number(courier.location.lng)
+          : null;
+
+    return {
+      ...courier,
+      photo_url: courier.photo_url || courier.photoUrl || null,
+      latitude,
+      longitude,
+    };
+  }
+
+  private isTerminalStatus(status: string): boolean {
+    return ['DELIVERED', 'CANCELLED', 'FAILED'].includes(status);
+  }
+
+  private isLiveStatus(status: string): boolean {
+    return ['PICKED_UP', 'IN_TRANSIT'].includes(status);
   }
 
   getProviderMatter(): string {
@@ -304,7 +368,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── Live tracking polling ───────────────────────────────────────────────
   // Uses Borzo courier API directly (returns lat/lng for active orders)
   startTrackingPolling(): void {
-    if (this.order?.status === 'DELIVERED') {
+    if (this.isTerminalStatus(this.order?.status)) {
       clearInterval(this.trackingInterval);
       this.trackingInterval = null;
       return;
@@ -338,28 +402,69 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     }, APP_CONFIG.TRACKING_POLL_INTERVAL);
   }
 
+  startPublicTrackingPolling(): void {
+    if (!this.order?._id || this.hasAuthToken()) return;
+
+    if (this.isTerminalStatus(this.order.status)) {
+      clearInterval(this.summaryInterval);
+      this.summaryInterval = null;
+      return;
+    }
+
+    if (this.summaryInterval) return;
+
+    this.summaryInterval = setInterval(() => {
+      this.api.get(`/orders/track/${this.order._id}`).subscribe({
+        next: (res: any) => {
+          const latest = res?.data;
+          if (!latest) return;
+
+          this.order = {
+            ...this.order,
+            ...latest,
+          };
+          this.courier = this.normalizeCourier(latest.courier || this.courier);
+          this.buildTimelineMap();
+
+          if (this.isLiveStatus(this.order.status)) {
+            this.viewLiveTracking();
+          }
+
+          if (this.isTerminalStatus(this.order.status)) {
+            clearInterval(this.summaryInterval);
+            this.summaryInterval = null;
+          }
+        },
+      });
+    }, 15000);
+  }
+
   viewLiveTracking(): void {
     if (!this.order?._id) return;
 
     this.api.get(`/orders/${this.order._id}/tracking`).subscribe({
       next: (res: any) => {
         const points = res?.data?.points;
-        if (!points?.length) return;
+        const courier = this.normalizeCourier(res?.data?.courier);
+        if (courier) {
+          this.courier = courier;
+        }
 
-        const courierPoint = points.find((p: any) => p.delivery);
-
-        if (!courierPoint?.latitude) {
-          const lat = Number(this.order.pickup?.lat);
-          const lng = Number(this.order.pickup?.lng);
-          if (lat && lng) this.initMap(lat, lng);
+        if (courier?.latitude && courier?.longitude) {
+          this.updateCourierLocation(courier.latitude, courier.longitude);
+          if (this.hasAuthToken()) {
+            this.startTrackingPolling();
+          } else {
+            this.startPublicTrackingPolling();
+          }
           return;
         }
 
-        this.updateCourierLocation(
-          Number(courierPoint.latitude),
-          Number(courierPoint.longitude),
-        );
-        this.startTrackingPolling();
+        if (!points?.length) return;
+
+        const lat = Number(this.order.pickup?.lat || points[0]?.latitude);
+        const lng = Number(this.order.pickup?.lng || points[0]?.longitude);
+        if (lat && lng) this.initMap(lat, lng);
       },
       error: () => console.error('Tracking fetch failed'),
     });
@@ -456,7 +561,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
         position: { lat, lng },
         map: this.map,
         icon: {
-          url: '/assets/icons/courier-bike.svg',
+          url: '/assets/icons/vehicles/bike.svg',
           scaledSize: new google.maps.Size(40, 40),
         },
       });
@@ -526,6 +631,8 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
     clearInterval(this.trackingInterval);
     this.trackingInterval = null;
+    clearInterval(this.summaryInterval);
+    this.summaryInterval = null;
     clearInterval(this.animationInterval);
     this.animationInterval = null;
 
@@ -545,6 +652,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.trackingInterval);
+    clearInterval(this.summaryInterval);
     clearInterval(this.animationInterval);
     this.socketListener = null;
     this.socket.disconnect();

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -16,17 +17,17 @@ export class AdminUsersService {
     search: string = '',
     status: string = '',
   ) {
-    let url = `${this.apiUrl}?page=${page}&limit=${limit}`;
+    let params = new HttpParams().set('page', page).set('limit', limit);
 
     if (search) {
-      url += `&search=${search}`;
+      params = params.set('search', search);
     }
 
     if (status) {
-      url += `&status=${status}`;
+      params = params.set('status', status);
     }
 
-    return this.http.get<any>(url);
+    return this.http.get<any>(this.apiUrl, { params });
   }
 
   getUserById(id: string): Observable<any> {
@@ -46,14 +47,20 @@ export class AdminUsersService {
   }
 
   getRoles() {
-    return this.http.get('/api/admin/roles');
+    return this.http.get(`${environment.apiBaseUrl}/admin/roles`);
   }
 
   assignRole(payload: { userId: string; roleId: string }) {
-    return this.http.post('/api/admin/users/assign-role', payload);
+    return this.http.post(
+      `${environment.apiBaseUrl}/admin/users/assign-role`,
+      payload,
+    );
   }
 
   removeRole(userId: string) {
-    return this.http.patch(`/api/admin/users/${userId}/remove-role`, {});
+    return this.http.patch(
+      `${environment.apiBaseUrl}/admin/users/${userId}/remove-role`,
+      {},
+    );
   }
 }

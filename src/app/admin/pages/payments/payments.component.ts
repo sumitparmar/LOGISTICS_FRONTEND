@@ -67,18 +67,17 @@ export class PaymentsComponent implements OnInit {
         const rawOrders = res.data || [];
 
         const mapped = rawOrders.map((item: any) => {
-          const paymentStatus =
-            item.status === 'DELIVERED'
-              ? 'Collected'
-              : item.status === 'CANCELLED'
-                ? 'Failed'
-                : 'Pending';
+          const paymentStatus = item.codSettled
+            ? 'Collected'
+            : item.status === 'CANCELLED' || item.status === 'FAILED'
+              ? 'Failed'
+              : 'Pending';
 
           return {
             orderId: item.borzoOrderId || '-',
             customer: item.customer?.name || '-',
-            amount: item.pricing?.amount || 0,
-            type: 'COD',
+            amount: item.cod?.enabled ? item.cod?.amount || 0 : item.pricing?.amount || 0,
+            type: item.cod?.enabled ? 'COD Collection' : item.payment?.method || 'CASH',
             status: paymentStatus,
             createdAt: this.formatDate(item.createdAt),
           };

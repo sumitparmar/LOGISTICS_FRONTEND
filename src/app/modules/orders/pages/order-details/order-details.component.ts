@@ -20,6 +20,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   courierInfo: any = null;
   providerHistory: any = null;
   documents: any = null;
+  invoice: any = null;
   podData: any = null;
   courierPosition: any = null;
   // pricingBreakdown: any = null;
@@ -392,6 +393,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
         if (this.order.status === 'DELIVERED') {
           this.loadPOD();
+          this.loadInvoice();
         }
 
         setTimeout(() => {
@@ -499,7 +501,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         position: { lat, lng },
         map: this.map,
         icon: {
-          url: '/assets/icons/bike.png',
+          url: '/assets/icons/vehicles/bike.svg',
           scaledSize: new google.maps.Size(36, 36),
         },
       });
@@ -796,6 +798,20 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
+  loadInvoice(): void {
+    if (!this.order?._id) return;
+
+    this.ordersService.getInvoice(this.order._id).subscribe({
+      next: (res: any) => {
+        this.invoice = res.data;
+      },
+      error: (err) => {
+        console.error('Invoice fetch failed', err);
+      },
+    });
+  }
+
   loadDocuments(): void {
     if (!this.order?._id) return;
 

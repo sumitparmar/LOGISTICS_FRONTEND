@@ -66,6 +66,10 @@ export class OrdersService {
     return this.api.get(`/orders/${orderId}/documents`);
   }
 
+  getInvoice(orderId: string): Observable<any> {
+    return this.api.get(`/invoices/${orderId}`);
+  }
+
   getProviderHistory(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/history`);
   }
@@ -76,6 +80,10 @@ export class OrdersService {
 
   getDeliveryTypes(): Observable<any> {
     return this.api.get('/meta/delivery-types');
+  }
+
+  getVehicleCatalog(): Observable<any> {
+    return this.api.get('/providers/vehicles');
   }
 
   editOrder(orderId: string, payload: any): Observable<any> {

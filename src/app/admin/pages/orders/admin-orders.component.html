@@ -11,7 +11,7 @@
     selectedOrders.size > 0 &&
     (
       permissionService.has('orders.update') ||
-      permissionService.has('orders.delete')
+      permissionService.has('orders.cancel')
     )
   ">
             <span>
@@ -38,7 +38,7 @@
             </select>
 
             <!-- CANCEL -->
-            <button *ngIf="permissionService.has('orders.delete')" (click)="bulkCancel()" [disabled]="isBulkCancelling">
+            <button *ngIf="permissionService.has('orders.cancel')" (click)="bulkCancel()" [disabled]="isBulkCancelling">
                 {{ isBulkCancelling ? 'Cancelling...' : 'Cancel Selected' }}
             </button>
 
@@ -131,8 +131,7 @@
 
                         <select [(ngModel)]="selectedProvider" (change)="onFilterChange()">
                             <option value="">All Providers</option>
-                            <option value="borzo">Borzo</option>
-                            <option value="porter">Porter</option>
+                            <option value="BORZO">Borzo</option>
                         </select>
 
                     </div>
@@ -177,6 +176,11 @@
                     Cancelled ({{ statusCounts.CANCELLED }})
                 </button>
 
+                <button class="filter" [class.active]="selectedStatus === 'FAILED'" [disabled]="loading"
+                    (click)="filterByStatus('FAILED')">
+                    Failed ({{ statusCounts.FAILED }})
+                </button>
+
             </div>
 
         </div>
@@ -209,7 +213,7 @@
     isHeader &&
     (
       permissionService.has('orders.update') ||
-      permissionService.has('orders.delete')
+      permissionService.has('orders.cancel')
     )
   " type="checkbox" [checked]="isAllSelectableChecked()" (click)="toggleSelectAll(); $event.stopPropagation()" />
 
@@ -218,7 +222,7 @@
     !isHeader &&
     (
       permissionService.has('orders.update') ||
-      permissionService.has('orders.delete')
+      permissionService.has('orders.cancel')
     )
   " type="checkbox" [checked]="selectedOrders.has(order._id)"
                 [disabled]="order.status === 'DELIVERED' || order.status === 'CANCELLED'"
@@ -241,7 +245,7 @@
                     (click)="onEdit(order); $event.stopPropagation()">
                 </lucide-icon>
 
-                <lucide-icon *ngIf="permissionService.has('orders.delete')" name="trash"
+                <lucide-icon *ngIf="permissionService.has('orders.cancel')" name="trash"
                     [class.disabled]="order.status === 'CANCELLED' || order.status === 'DELIVERED'"
                     (click)="(order.status !== 'CANCELLED' && order.status !== 'DELIVERED') && onDelete(order); $event.stopPropagation()">
                 </lucide-icon>

@@ -108,10 +108,7 @@ export class CreateDeliveryComponent
     },
   ];
 
-  paymentOptions = [
-    { label: 'Cash on Delivery', value: 'CASH' },
-    { label: 'Pay via Card', value: 'BANK_CARD' },
-  ];
+  paymentOptions = [{ label: 'Cash Payment', value: 'CASH' }];
 
   showReorderModal = false;
 
@@ -154,15 +151,13 @@ export class CreateDeliveryComponent
     this.initializeForm();
     this.loadSavedAddresses();
     this.loadDeliveryTypes();
+    this.loadVehicleOptions();
     this.hasLastDelivery = !!localStorage.getItem('LAST_DELIVERY');
     // this.loadLastDelivery();
     this.modeSub = this.authService.deliveryMode$.subscribe((mode) => {
       this.mode = mode;
       this.applyModeDefaults(mode);
 
-      if (mode === 'BUSINESS') {
-        this.loadBankCards();
-      }
     });
 
     this.formSubscriptions.push(
@@ -291,6 +286,53 @@ export class CreateDeliveryComponent
         this.buildDeliveryOptions();
       },
     });
+  }
+
+  loadVehicleOptions(): void {
+    this.ordersService.getVehicleCatalog().subscribe({
+      next: (res: any) => {
+        const vehicles = Array.isArray(res?.data) ? res.data : [];
+
+        if (!vehicles.length) return;
+
+        this.vehicleOptions = vehicles.map((vehicle: any) => ({
+          id: Number(vehicle.id),
+          title: vehicle.name,
+          description: vehicle.description || this.getVehicleDescription(vehicle),
+          limit: vehicle.maxWeightKg ? `Up to ${vehicle.maxWeightKg} kg` : '',
+          icon: this.getVehicleIcon(vehicle.code || vehicle.name),
+        }));
+
+        const selectedVehicle = this.deliveryForm.get('vehicleTypeId')?.value;
+        if (!vehicles.some((vehicle: any) => Number(vehicle.id) === selectedVehicle)) {
+          this.deliveryForm.patchValue({
+            vehicleTypeId: Number(vehicles[0].id),
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Vehicle catalog failed', err);
+      },
+    });
+  }
+
+  getVehicleDescription(vehicle: any): string {
+    const limit = vehicle.maxWeightKg ? `up to ${vehicle.maxWeightKg} kg` : 'cargo';
+    return `Suitable for ${limit}`;
+  }
+
+  getVehicleIcon(value: string): string {
+    const normalized = String(value || '').toLowerCase();
+
+    if (normalized.includes('bike') || normalized.includes('motor')) {
+      return 'two_wheeler';
+    }
+
+    if (normalized.includes('ace') || normalized.includes('van')) {
+      return 'airport_shuttle';
+    }
+
+    return 'local_shipping';
   }
 
   buildDeliveryOptions(): void {
@@ -445,13 +487,6 @@ export class CreateDeliveryComponent
       return;
     }
 
-    if (form.paymentMethod === 'BANK_CARD') {
-      this.showToastMessage(
-        'Online payment launching soon. Please use Cash on Delivery.',
-      );
-      return;
-    }
-
     this.currentStep = 3;
     this.createOrder();
   }
@@ -558,22 +593,7 @@ export class CreateDeliveryComponent
   }
 
   onParcelValueChange(): void {
-    const value = this.deliveryForm.get('parcelValue')?.value || 0;
-
-    if (!value || value <= 0) {
-      this.insuranceCharge = 0;
-
-      this.priceSummary.insurance = 0;
-      this.priceSummary.total = this.priceSummary.deliveryFee;
-
-      return;
-    }
-
-    this.insuranceCharge = Math.round(2 + value * 0.01);
-
-    this.priceSummary.insurance = this.insuranceCharge;
-    this.priceSummary.total =
-      this.priceSummary.deliveryFee + this.insuranceCharge;
+    this.resetPrice();
   }
 
   async calculatePrice(): Promise<void> {
@@ -593,7 +613,8 @@ export class CreateDeliveryComponent
       return;
     }
 
-    const lastStop = form.stops[form.stops.length - 1];
+    const deliveryStops = this.buildDeliveryStops(form);
+    const lastStop = deliveryStops[deliveryStops.length - 1];
 
     if (!lastStop.lat || !lastStop.lng) {
       this.showToastMessage('Please select delivery from suggestions');
@@ -619,9 +640,9 @@ export class CreateDeliveryComponent
           lng: form.pickupLng,
         },
         drop: {
-          address: form.stops[form.stops.length - 1].address,
-          lat: form.stops[form.stops.length - 1].lat,
-          lng: form.stops[form.stops.length - 1].lng,
+          address: lastStop.address,
+          lat: lastStop.lat,
+          lng: lastStop.lng,
         },
         stops: [
           {
@@ -630,15 +651,7 @@ export class CreateDeliveryComponent
             lat: form.pickupLat,
             lng: form.pickupLng,
           },
-          ...form.stops.map((stop: any) => ({
-            type: 'DROP',
-            address: stop.address,
-            lat: stop.lat,
-            lng: stop.lng,
-            phone: stop.phone,
-            name: stop.name,
-            notes: stop.notes || null,
-          })),
+          ...deliveryStops,
         ],
         package: {
           weight: form.package.weight,
@@ -649,10 +662,15 @@ export class CreateDeliveryComponent
       this.ordersService.calculatePrice(payload).subscribe({
         next: (res: any) => {
           const amount = res?.data?.amount || 0;
+          const insurance = res?.data?.insurance || 0;
+          const deliveryFee =
+            res?.data?.deliveryFee ?? Math.max(amount - insurance, 0);
+
           this.enrichDeliveryOptions(amount);
-          this.priceSummary.deliveryFee = amount;
-          this.priceSummary.insurance = this.insuranceCharge;
-          this.priceSummary.total = amount + this.insuranceCharge;
+          this.insuranceCharge = insurance;
+          this.priceSummary.deliveryFee = deliveryFee;
+          this.priceSummary.insurance = insurance;
+          this.priceSummary.total = amount;
 
           this.isCalculatingPrice = false;
         },
@@ -709,7 +727,8 @@ export class CreateDeliveryComponent
 
     this.isCreatingOrder = true;
 
-    const lastStop = form.stops[form.stops.length - 1];
+    const deliveryStops = this.buildDeliveryStops(form);
+    const lastStop = deliveryStops[deliveryStops.length - 1];
 
     const payload = {
       matter: form.package.description,
@@ -748,15 +767,7 @@ export class CreateDeliveryComponent
           name: form.pickupName,
           notes: form.pickupNotes || null,
         },
-        {
-          type: 'DROP',
-          address: lastStop.address,
-          lat: lastStop.lat,
-          lng: lastStop.lng,
-          phone: lastStop.phone,
-          name: lastStop.name,
-          notes: lastStop.notes || null,
-        },
+        ...deliveryStops,
       ],
 
       package: {
@@ -769,6 +780,7 @@ export class CreateDeliveryComponent
       payment: {
         method: form.paymentMethod,
         feePayer: 'DROP',
+        bankCardId: form.paymentMethod === 'BANK_CARD' ? form.bankCardId : null,
       },
     };
 
@@ -826,6 +838,18 @@ export class CreateDeliveryComponent
         this.showToastMessage(message);
       },
     });
+  }
+
+  private buildDeliveryStops(form: any): any[] {
+    return (form.stops || []).map((stop: any) => ({
+      type: 'DROP',
+      address: stop.address,
+      lat: stop.lat,
+      lng: stop.lng,
+      phone: stop.phone,
+      name: stop.name,
+      notes: stop.notes || null,
+    }));
   }
 
   enrichDeliveryOptions(nowPrice: number): void {
@@ -916,8 +940,8 @@ export class CreateDeliveryComponent
   }
 
   selectPayment(type: string): void {
-    if (type === 'BANK_CARD') {
-      this.showToastMessage('Online payment launching soon');
+    if (type !== 'CASH') {
+      this.showToastMessage('Selected payment method is not enabled');
       return;
     }
 
@@ -939,6 +963,7 @@ export class CreateDeliveryComponent
     this.resetPrice();
   }
   resetPrice(): void {
+    this.insuranceCharge = 0;
     this.priceSummary = {
       deliveryFee: 0,
       insurance: 0,
