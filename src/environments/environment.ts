@@ -4,7 +4,7 @@ export const environment = {
   apiBaseUrl: 'http://localhost:5000/api',
   socketUrl: 'http://localhost:5000',
 
-  googleMapsApiKey: 'AIzaSyBUGjt6NN3biO0jQygMcsZmWJNKm-BUrSU',
+  googleMapsApiKey: 'AIzaSyBRsc_zHFMmOXD5QbjCRauwJ6gpRF09eW4',
   currency: 'INR',
   gaEnabled: true,
 };

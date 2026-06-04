@@ -157,7 +157,6 @@ export class CreateDeliveryComponent
     this.modeSub = this.authService.deliveryMode$.subscribe((mode) => {
       this.mode = mode;
       this.applyModeDefaults(mode);
-
     });
 
     this.formSubscriptions.push(
@@ -298,13 +297,18 @@ export class CreateDeliveryComponent
         this.vehicleOptions = vehicles.map((vehicle: any) => ({
           id: Number(vehicle.id),
           title: vehicle.name,
-          description: vehicle.description || this.getVehicleDescription(vehicle),
+          description:
+            vehicle.description || this.getVehicleDescription(vehicle),
           limit: vehicle.maxWeightKg ? `Up to ${vehicle.maxWeightKg} kg` : '',
           icon: this.getVehicleIcon(vehicle.code || vehicle.name),
         }));
 
         const selectedVehicle = this.deliveryForm.get('vehicleTypeId')?.value;
-        if (!vehicles.some((vehicle: any) => Number(vehicle.id) === selectedVehicle)) {
+        if (
+          !vehicles.some(
+            (vehicle: any) => Number(vehicle.id) === selectedVehicle,
+          )
+        ) {
           this.deliveryForm.patchValue({
             vehicleTypeId: Number(vehicles[0].id),
           });
@@ -317,7 +321,9 @@ export class CreateDeliveryComponent
   }
 
   getVehicleDescription(vehicle: any): string {
-    const limit = vehicle.maxWeightKg ? `up to ${vehicle.maxWeightKg} kg` : 'cargo';
+    const limit = vehicle.maxWeightKg
+      ? `up to ${vehicle.maxWeightKg} kg`
+      : 'cargo';
     return `Suitable for ${limit}`;
   }
 
@@ -780,7 +786,11 @@ export class CreateDeliveryComponent
       payment: {
         method: form.paymentMethod,
         feePayer: 'DROP',
-        bankCardId: form.paymentMethod === 'BANK_CARD' ? form.bankCardId : null,
+        ...(form.paymentMethod === 'BANK_CARD' && form.bankCardId
+          ? {
+              bankCardId: Number(form.bankCardId),
+            }
+          : {}),
       },
     };
 

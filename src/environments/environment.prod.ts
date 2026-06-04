@@ -4,7 +4,7 @@ export const environment = {
   apiBaseUrl: 'https://movekart.in/api',
   socketUrl: 'https://movekart.in',
 
-  googleMapsApiKey: 'AIzaSyBUGjt6NN3biO0jQygMcsZmWJNKm-BUrSU',
+  googleMapsApiKey: 'AIzaSyBRsc_zHFMmOXD5QbjCRauwJ6gpRF09eW4',
   currency: 'INR',
   gaEnabled: true,
 };
