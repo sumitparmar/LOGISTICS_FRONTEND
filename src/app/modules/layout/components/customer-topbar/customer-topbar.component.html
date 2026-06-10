@@ -1,0 +1,94 @@
+<div class="customer-topbar">
+
+    <div class="topbar-left">
+
+        <div class="brand-content">
+
+            <div class="brand-header">
+
+                <div class="brand-logo">
+                    🚚
+                </div>
+
+                <div class="brand-text">
+
+                    <h2>MoveKart Logistics</h2>
+
+                    <p>
+                        Deliver Faster. Track Smarter.
+                    </p>
+
+                </div>
+
+                <div class="quick-highlights">
+
+                    <div class="highlight-chip">
+                        📦 Real-Time Tracking
+                    </div>
+
+                    <div class="highlight-chip">
+                        🚛 Fast Delivery
+                    </div>
+
+                    <div class="highlight-chip">
+                        🛡 Secure Logistics
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="topbar-right">
+
+        <app-theme-toggle></app-theme-toggle>
+
+        <button class="notification-btn" type="button" (click)="goNotifications()">
+
+            🔔
+
+            <span class="notification-badge" *ngIf="unreadCount > 0">
+
+                {{ unreadCount }}
+
+            </span>
+
+        </button>
+
+        <div class="profile-wrapper">
+
+            <button type="button" class="avatar" (click)="toggleDropdown($event)">
+
+                {{ userInitial }}
+
+            </button>
+
+            <div class="profile-dropdown" *ngIf="isDropdownOpen">
+
+                <div class="user-info">
+                    {{ userName }}
+                </div>
+
+                <div class="dropdown-item" (click)="goProfile()">
+
+                    My Profile
+
+                </div>
+
+                <div class="dropdown-item logout" (click)="logout()">
+
+                    Logout
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

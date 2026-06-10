@@ -12,7 +12,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class AppComponent implements OnDestroy {
   title = 'Logistics_FrontEnd';
   isAdminRoute = false;
-
+  isCustomerRoute = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -42,7 +42,7 @@ export class AppComponent implements OnDestroy {
         const url = event.urlAfterRedirects;
 
         this.isAdminRoute = url.startsWith('/admin');
-
+        this.isCustomerRoute = url.startsWith('/app');
         try {
           this.analytics.trackPageView(url);
         } catch (error) {}

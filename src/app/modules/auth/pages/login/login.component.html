@@ -85,6 +85,15 @@
                                 <input type="text" placeholder="Enter Phone Number" formControlName="phone" />
                             </div>
 
+                            <div class="input-group">
+                                <input type="email" placeholder="Email for OTP fallback (optional)"
+                                    formControlName="email" />
+                            </div>
+
+                            <p class="otp-help">
+                                If SMS is unavailable, MoveKart can send the same OTP to this email.
+                            </p>
+
                             <button type="submit" [disabled]="loading">
                                 {{ loading ? 'Sending OTP...' : 'Send OTP' }}
                             </button>
@@ -95,7 +104,7 @@
                         <form *ngIf="otpStep === 'OTP'" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
 
                             <div class="otp-status">
-                                OTP sent to {{ phoneNumber }}
+                                OTP sent to {{ phoneNumber }} and your linked email when available.
                             </div>
 
                             <div class="input-group">

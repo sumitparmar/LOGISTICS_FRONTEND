@@ -39,6 +39,7 @@ export class LoginComponent implements OnInit {
     // Phone form
     this.phoneForm = this.fb.group({
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      email: ['', [Validators.email]],
     });
 
     // OTP form
@@ -122,8 +123,13 @@ export class LoginComponent implements OnInit {
 
     this.phoneNumber = this.phoneForm.value.phone;
 
+    const fallbackEmail = this.phoneForm.value.email?.trim();
+
     this.authService
-      .sendOtp({ phone: this.phoneNumber })
+      .sendOtp({
+        phone: this.phoneNumber,
+        ...(fallbackEmail && { email: fallbackEmail }),
+      })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {

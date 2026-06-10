@@ -1,6 +1,37 @@
-<div class="sky-wrapper">
+<!-- <div class="sky-wrapper">
 
     <router-outlet></router-outlet>
+
+    <app-onboarding-modal *ngIf="showOnboarding" (selected)="onModeSelected($event)" (closed)="closeOnboarding()">
+    </app-onboarding-modal>
+
+</div>
+
+
+
+ -->
+
+
+
+
+
+<div class="customer-shell">
+
+    <!-- Sidebar -->
+    <app-customer-sidebar></app-customer-sidebar>
+
+    <!-- Main Area -->
+    <div class="customer-main">
+
+        <!-- Topbar -->
+        <app-customer-topbar></app-customer-topbar>
+
+        <!-- Page Content -->
+        <div class="customer-content">
+            <router-outlet></router-outlet>
+        </div>
+
+    </div>
 
     <app-onboarding-modal *ngIf="showOnboarding" (selected)="onModeSelected($event)" (closed)="closeOnboarding()">
     </app-onboarding-modal>

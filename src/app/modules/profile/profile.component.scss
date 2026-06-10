@@ -102,3 +102,39 @@ input:focus {
     grid-template-columns: 1fr;
   }
 }
+
+:host-context([data-theme="dark"]) {
+  .settings-page {
+    background:
+      radial-gradient(circle at top right, rgba(10, 132, 255, 0.11), transparent 30%),
+      #000;
+    color: var(--color-text-primary);
+  }
+
+  .page-title,
+  .card-header h3,
+  label {
+    color: var(--color-text-primary);
+  }
+
+  .page-subtitle {
+    color: var(--color-text-secondary);
+  }
+
+  .settings-card {
+    background: #1c1c1e;
+    border-color: var(--color-border);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
+  }
+
+  input {
+    background: #2c2c2e;
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+  }
+
+  input:disabled {
+    background: #3a3a3c;
+    color: var(--color-text-muted);
+  }
+}

@@ -1,14 +1,18 @@
 <div class="app-wrapper">
 
     <!-- Show ONLY if NOT admin -->
-    <app-header *ngIf="!isAdminRoute"></app-header>
+    <app-header *ngIf="!isAdminRoute && !isCustomerRoute">
+    </app-header>
+
 
     <main class="content">
         <router-outlet></router-outlet>
     </main>
 
     <!-- Show ONLY if NOT admin -->
-    <app-footer *ngIf="!isAdminRoute"></app-footer>
+    <app-footer *ngIf="!isAdminRoute && !isCustomerRoute">
+    </app-footer>
+
 
 </div>
 

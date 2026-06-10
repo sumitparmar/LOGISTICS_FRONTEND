@@ -1,0 +1,156 @@
+<div class="notifications-page">
+
+    <div class="notifications-hero">
+        <div>
+
+            <div class="hero-label">
+                REAL-TIME ORDER UPDATES
+            </div>
+            <h1>Notifications</h1>
+
+            <p>
+                Stay updated with orders, deliveries and account activity.
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <span class="unread-badge">
+                {{ unreadCount }} Unread
+            </span>
+
+            <button class="mark-read-btn" (click)="markAllAsRead()" [disabled]="notifications.length === 0">
+
+                Mark All Read
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="notification-toolbar" *ngIf="notifications.length > 0">
+
+        <div class="toolbar-count">
+            Activity Feed
+        </div>
+
+        <div class="toolbar-status">
+
+            <span class="status-chip unread-chip">
+
+                {{ unreadCount }} Unread
+
+            </span>
+
+            <span class="status-chip read-chip">
+
+                {{ readCount }} Read
+
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && notifications.length === 0">
+
+        <div class="empty-icon">
+            🔔
+        </div>
+
+        <h3>You're All Caught Up</h3>
+        <p>
+            Order updates, delivery alerts and account activity will appear here. </p>
+
+    </div>
+
+    <div class="notification-list" *ngIf="notifications.length > 0">
+
+        <div class="notification-card" *ngFor="let item of notifications" [class.unread]="!item.isRead"
+            (click)="openNotification(item)">
+
+            <div class="icon">
+
+                <span class="notification-symbol">
+                    {{ getNotificationIcon(item.type) }}
+                </span>
+
+            </div>
+
+            <div class="content">
+
+                <div class="title-row">
+
+                    <div>
+
+                        <div class="notification-type">
+
+                            {{ getNotificationLabel(item.type) }}
+                        </div>
+
+                        <h4>
+                            {{ item.title }}
+                        </h4>
+
+                        <span class="status-pill" *ngIf="!item.isRead">
+
+                            New
+                        </span>
+
+                    </div>
+
+                    <div class="notification-right">
+
+                        <span class="time">
+                            {{ item.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                        </span>
+
+                        <span class="read-status" *ngIf="item.isRead">
+                            Read
+                        </span>
+
+                        <span class="read-status unread-status" *ngIf="!item.isRead">
+                            Unread
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <p>
+
+                    {{ item.message }}
+
+                </p>
+
+
+                <div class="notification-footer">
+
+                    <div class="notification-meta" *ngIf="item.order?.borzoOrderId">
+
+                        Shipment ID:
+                        #{{ item.order?.borzoOrderId }}
+
+                    </div>
+
+
+
+                    <button class="view-order-btn" *ngIf="item.order?._id"
+                        (click)="openNotification(item); $event.stopPropagation()">
+
+
+
+                        View Order →
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

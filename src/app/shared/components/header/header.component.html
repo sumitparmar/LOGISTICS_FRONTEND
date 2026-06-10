@@ -20,6 +20,8 @@
         </nav>
 
         <div class="nav-right">
+            <app-theme-toggle></app-theme-toggle>
+
             <ng-container *ngIf="isLoggedIn; else guestUser">
                 <button *ngIf="isAdmin" class="admin-btn" (click)="openAdminPanel()" type="button">
                     Admin Panel

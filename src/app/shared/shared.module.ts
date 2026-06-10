@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from 'lucide-angular';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
+import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.
     OrderMapComponent,
     ToastComponent,
     ConfirmModalComponent,
+    ThemeToggleComponent,
   ],
   imports: [CommonModule, RouterModule, LucideAngularModule],
   exports: [
@@ -33,6 +35,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.
     PaginationComponent,
     OrderMapComponent,
     ToastComponent,
+    ThemeToggleComponent,
   ],
 })
 export class SharedModule {}

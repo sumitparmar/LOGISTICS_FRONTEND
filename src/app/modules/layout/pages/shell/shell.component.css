@@ -1,7 +1,44 @@
-.sky-wrapper {
+.customer-shell {
+  display: flex;
+
   min-height: 100vh;
-  background-image: url("/assets/images/auth-bg.png");
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+
+  background: #f8fafc;
+}
+
+.customer-main {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-content {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 24px;
+}
+
+/* Tablet */
+
+@media (max-width: 1024px) {
+  .customer-content {
+    padding: 20px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .customer-shell {
+    flex-direction: column;
+  }
+
+  .customer-content {
+    padding: 16px;
+  }
 }

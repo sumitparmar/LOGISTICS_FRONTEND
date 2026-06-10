@@ -1,0 +1,21 @@
+<button
+  class="theme-toggle"
+  type="button"
+  (click)="toggleTheme()"
+  [attr.aria-label]="
+    (theme$ | async) === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+  "
+  [attr.title]="
+    (theme$ | async) === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+  "
+>
+  <span class="toggle-track">
+    <span class="toggle-thumb">
+      <span class="sun">L</span>
+      <span class="moon">D</span>
+    </span>
+  </span>
+  <span class="toggle-label">
+    {{ (theme$ | async) === 'dark' ? 'Dark' : 'Light' }}
+  </span>
+</button>

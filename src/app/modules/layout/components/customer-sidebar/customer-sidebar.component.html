@@ -1,0 +1,29 @@
+<div class="customer-sidebar">
+
+    <div class="sidebar-brand">
+        <img src="assets/images/movekart-logo.png" alt="MoveKart">
+
+        <h2>MoveKart</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <a *ngFor="let item of menuItems" class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+
+            <span class="nav-icon">
+                {{ item.icon }}
+            </span>
+
+            <span class="nav-label">
+                {{ item.label }}
+            </span>
+
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer" (click)="logout()">
+        🚪 Logout
+    </div>
+
+</div>

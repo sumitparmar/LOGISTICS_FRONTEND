@@ -625,3 +625,97 @@
     height: 220px;
   }
 }
+
+:host-context([data-theme="dark"]) {
+  .delivery-page {
+    background:
+      radial-gradient(circle at top right, rgba(255, 154, 61, 0.1), transparent 28%),
+      #000;
+    color: var(--color-text-primary);
+  }
+
+  .page-title,
+  .step.active,
+  .card-section h2,
+  .card-section h3,
+  .card-section h4,
+  .route-title,
+  .delivery-info h4,
+  .payment-info h4,
+  .delivery-price,
+  .vehicle-limit,
+  .price-total {
+    color: var(--color-text-primary);
+  }
+
+  .step,
+  .step-text,
+  .delivery-desc,
+  .payment-info p,
+  .vehicle-card p,
+  .price-row,
+  .checkout-note,
+  .insurance-charge,
+  .insurance-text {
+    color: var(--color-text-secondary);
+  }
+
+  .card-section,
+  .delivery-card,
+  .vehicle-card,
+  .payment-card,
+  .reorder-modal,
+  .reorder-item {
+    background: #1c1c1e;
+    border-color: var(--color-border);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
+  }
+
+  .form-input,
+  .weight-option,
+  .category,
+  .btn-secondary {
+    background: #2c2c2e;
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+  }
+
+  .form-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .form-input.ng-invalid.ng-touched {
+    background: rgba(248, 113, 113, 0.12);
+  }
+
+  .reuse-btn,
+  .btn-add-stop,
+  .btn-reorder,
+  .mode-recommendation,
+  .mode-hint,
+  .delivery-card.active,
+  .vehicle-card.active,
+  .payment-card.active,
+  .weight-option.active,
+  .category.active {
+    background: rgba(255, 154, 61, 0.14);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .circle,
+  .step-line,
+  .route-map,
+  .price-total {
+    border-color: var(--color-border);
+  }
+
+  .circle,
+  .step-line {
+    background: #2c2c2e;
+  }
+
+  .route-grid::before {
+    border-color: rgba(10, 132, 255, 0.35);
+  }
+}

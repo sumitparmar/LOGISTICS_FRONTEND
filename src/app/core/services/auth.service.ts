@@ -53,7 +53,7 @@ export class AuthService {
     return this.api.post('/auth/register', payload);
   }
 
-  sendOtp(payload: { phone: string }) {
+  sendOtp(payload: { phone: string; email?: string }) {
     return this.api.post('/auth/send-otp', payload);
   }
 

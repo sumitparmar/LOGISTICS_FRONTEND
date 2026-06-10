@@ -58,6 +58,14 @@ const routes: Routes = [
         loadChildren: () =>
           import('../profile/profile.module').then((m) => m.ProfileModule),
       },
+
+      {
+        path: 'notifications',
+        loadChildren: () =>
+          import('../notifications/notifications.module').then(
+            (m) => m.NotificationsModule,
+          ),
+      },
     ],
   },
 ];

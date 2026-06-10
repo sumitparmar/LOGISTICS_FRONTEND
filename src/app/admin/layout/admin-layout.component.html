@@ -98,6 +98,8 @@
             <!-- Right Section -->
             <div class="admin-actions">
 
+                <app-theme-toggle></app-theme-toggle>
+
                 <!--  Notification Bell -->
                 <div *ngIf="permissionService.has('notifications.read')" class="notification-wrapper"
                     (click)="toggleDropdown($event)">
