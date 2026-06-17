@@ -15,6 +15,7 @@ export class CustomerTopbarComponent implements OnInit {
   userName = '';
   userInitial = '';
   isDropdownOpen = false;
+  isAdmin = false;
 
   @HostListener('document:click')
   closeDropdown(): void {
@@ -34,6 +35,11 @@ export class CustomerTopbarComponent implements OnInit {
     if (user) {
       this.userName = user.name || '';
       this.userInitial = user.name?.charAt(0)?.toUpperCase() || 'U';
+
+      this.isAdmin = user.role?.toLowerCase() === 'admin';
+
+      console.log('TOPBAR USER:', user);
+      console.log('IS ADMIN:', this.isAdmin);
     }
 
     this.loadUnreadCount();
@@ -75,5 +81,9 @@ export class CustomerTopbarComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  openAdminPanel(): void {
+    window.open('/admin', '_blank');
   }
 }

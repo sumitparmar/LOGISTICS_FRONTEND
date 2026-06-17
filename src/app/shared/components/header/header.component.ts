@@ -50,6 +50,16 @@ export class HeaderComponent implements OnInit {
     this.isMenuOpen = false;
   }
 
+  // loadUser(): void {
+  //   const user = this.authService.getUser();
+
+  //   if (user) {
+  //     this.userName = user.name || '';
+  //     this.userInitial = user.name?.charAt(0)?.toUpperCase() || '';
+  //     this.isAdmin = user.role?.toLowerCase() === 'admin';
+  //   }
+  // }
+
   loadUser(): void {
     const user = this.authService.getUser();
 

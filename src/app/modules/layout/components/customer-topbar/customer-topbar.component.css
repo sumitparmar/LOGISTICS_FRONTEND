@@ -366,6 +366,23 @@
   flex-shrink: 0;
 }
 
+.admin-btn {
+  height: 42px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-btn:hover {
+  opacity: 0.9;
+}
+
 .notification-btn {
   position: relative;
 

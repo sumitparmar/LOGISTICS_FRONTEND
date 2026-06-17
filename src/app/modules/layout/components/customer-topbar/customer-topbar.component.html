@@ -46,6 +46,10 @@
     <div class="topbar-right">
 
         <app-theme-toggle></app-theme-toggle>
+        <button *ngIf="isAdmin" class="admin-btn" type="button" (click)="openAdminPanel()">
+            Admin Panel
+        </button>
+
 
         <button class="notification-btn" type="button" (click)="goNotifications()">
 

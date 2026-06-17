@@ -1,8 +1,13 @@
 <div class="wallet-page">
+
+  <!-- HEADER -->
+
   <div class="wallet-header">
     <div>
-      <h1>Wallet</h1>
-      <p>Track credits, COD settlements, refunds and wallet movements.</p>
+      <h1>Wallet Center</h1>
+      <p>
+        Manage wallet balance, settlements, credits, debits and transaction history.
+      </p>
     </div>
 
     <button type="button" (click)="loadWallet()" [disabled]="loading">
@@ -10,46 +15,235 @@
     </button>
   </div>
 
-  <div class="wallet-summary">
-    <div class="balance-panel">
+  <!-- TOP STATS -->
+
+  <div class="stats-grid">
+
+    <div class="stat-card balance">
       <span>Available Balance</span>
       <strong>
-        {{ wallet?.currency || 'INR' }}
-        {{ (wallet?.balance || 0) | number:'1.2-2' }}
+        {{ summary?.currency || 'INR' }}
+        {{ (summary?.availableBalance || 0) | number:'1.2-2' }}
       </strong>
     </div>
 
-    <div class="balance-panel">
-      <span>Ledger Entries</span>
-      <strong>{{ ledger.length }}</strong>
+    <div class="stat-card withdrawable">
+      <span>Withdrawable</span>
+      <strong>
+        {{ summary?.currency || 'INR' }}
+        {{ (summary?.withdrawableBalance || 0) | number:'1.2-2' }}
+      </strong>
     </div>
+
+    <div class="stat-card credits">
+      <span>Total Credits</span>
+      <strong>
+        {{ summary?.currency || 'INR' }}
+        {{ (summary?.totalCredits || 0) | number:'1.2-2' }}
+      </strong>
+    </div>
+
+    <div class="stat-card debits">
+      <span>Total Debits</span>
+      <strong>
+        {{ summary?.currency || 'INR' }}
+        {{ (summary?.totalDebits || 0) | number:'1.2-2' }}
+      </strong>
+    </div>
+
   </div>
+
+  <!-- SECONDARY STATS -->
+
+  <div class="stats-grid small">
+
+    <div class="mini-card">
+      <span>Transactions</span>
+      <strong>{{ summary?.transactionCount || 0 }}</strong>
+    </div>
+
+    <div class="mini-card">
+      <span>Credit Txns</span>
+      <strong>{{ summary?.creditTransactions || 0 }}</strong>
+    </div>
+
+    <div class="mini-card">
+      <span>Debit Txns</span>
+      <strong>{{ summary?.debitTransactions || 0 }}</strong>
+    </div>
+
+    <div class="mini-card">
+      <span>Status</span>
+      <strong>{{ summary?.status || 'ACTIVE' }}</strong>
+    </div>
+
+  </div>
+
+  <!-- ERROR -->
 
   <div *ngIf="errorMessage" class="wallet-message">
     {{ errorMessage }}
   </div>
 
+
+
+  <div class="wallet-actions">
+
+    <button class="action-btn primary" (click)="openAddMoney()">
+
+      + Add Money
+
+    </button>
+
+    <button class="action-btn" (click)="openWithdrawModal()">
+      Withdraw
+    </button>
+
+    <button class="action-btn">
+      Download Statement
+    </button>
+
+    <button class="action-btn">
+      Support
+    </button>
+
+  </div>
+
+
+  <!-- TRANSACTIONS -->
+
   <div class="ledger-card">
+
     <div class="ledger-title">
-      <h2>Recent Transactions</h2>
+
+      <div class="ledger-header-top">
+        <h2>Transaction History</h2>
+      </div>
+
+      <div class="ledger-filters">
+
+        <input type="text" placeholder="Search reason or reference..." [(ngModel)]="searchTerm"
+          (input)="onFiltersChanged()">
+
+
+        <select [(ngModel)]="selectedType" (change)="onFiltersChanged()">
+          <option value="ALL">All</option>
+          <option value="CREDIT">Credits</option>
+          <option value="DEBIT">Debits</option>
+        </select>
+
+      </div>
+
     </div>
 
-    <div *ngIf="loading" class="wallet-message">Loading wallet...</div>
+    <div *ngIf="loading" class="wallet-message">
+      Loading wallet...
+    </div>
 
     <div *ngIf="!loading && !ledger.length" class="empty-state">
-      No wallet transactions yet.
+      No wallet transactions found.
     </div>
 
     <div class="ledger-row" *ngFor="let item of ledger">
-      <div>
-        <strong>{{ item.reason }}</strong>
-        <span>{{ item.createdAt | date:'medium' }}</span>
+      <div class="txn-left">
+
+        <div class="txn-icon">
+          {{ getTransactionIcon(item.type) }}
+        </div>
+
+        <div>
+          <strong>{{ item.reason }}</strong>
+
+          <span>
+            Ref:
+            {{ item.reference || 'N/A' }}
+          </span>
+
+          <span>
+            {{ item.createdAt | date:'medium' }}
+          </span>
+        </div>
+
       </div>
 
-      <div class="amount" [class.credit]="item.type === 'CREDIT'" [class.debit]="item.type === 'DEBIT'">
-        {{ item.type === 'CREDIT' ? '+' : '-' }}
-        {{ wallet?.currency || 'INR' }} {{ item.amount | number:'1.2-2' }}
+      <div class="txn-right">
+
+        <div class="amount" [class.credit]="item.type === 'CREDIT'" [class.debit]="item.type === 'DEBIT'">
+
+          {{ item.type === 'CREDIT' ? '+' : '-' }}
+          {{ summary?.currency || 'INR' }}
+          {{ item.amount | number:'1.2-2' }}
+
+        </div>
+
+        <div class="status-badge" [ngClass]="getStatusClass(item.status)">
+          {{ item.status }}
+        </div>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <div class="wallet-modal-backdrop" *ngIf="showAddMoneyModal">
+
+    <div class="wallet-modal">
+
+      <h3>Add Money</h3>
+
+      <label>Amount</label>
+
+      <input type="number" [(ngModel)]="addMoneyPayload.amount">
+
+      <div class="modal-actions">
+
+        <button class="action-btn" (click)="closeAddMoney()">
+
+          Cancel
+
+        </button>
+
+        <button class="action-btn primary" (click)="submitAddMoney()" [disabled]="loading">
+
+          {{ loading ? 'Processing...' : 'Add Money' }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="wallet-modal-backdrop" *ngIf="showWithdrawModal">
+
+    <div class="wallet-modal">
+
+      <h3>Withdraw Money</h3>
+
+      <label>Amount</label>
+
+      <input type="number" [(ngModel)]="withdrawPayload.amount">
+
+      <div class="modal-actions">
+
+        <button class="action-btn" (click)="closeWithdrawModal()">
+          Cancel
+        </button>
+
+        <button class="action-btn primary" (click)="submitWithdraw()">
+          Withdraw
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
 </div>
