@@ -6,7 +6,7 @@ import {
 } from '../../core/services/orders.service';
 import { Subscription } from 'rxjs';
 import { AnalyticsService } from 'src/app/core/services/analytics.service';
-
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
@@ -44,6 +44,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private analytics: AnalyticsService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -201,7 +202,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Cancel order failed', err);
         this.closeCancelModal();
-        alert(err?.error?.message || 'Cancel failed. Please try again.');
+        this.toastService.error(
+          err?.error?.message || 'Cancel failed. Please try again.',
+        );
       },
     });
   }
@@ -278,8 +281,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     this.router.navigate(['/app/delivery/create']);
   }
+
   trackByOrder(index: number, order: any) {
-    return order._id;
+    return order?._id || index;
   }
 
   onPageChange(page: number) {

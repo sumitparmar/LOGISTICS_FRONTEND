@@ -199,7 +199,8 @@
                         <div class="tp-courier__meta">
                             <div class="tp-courier__name">{{ courier.name }} {{ courier.surname }}</div>
                             <div class="tp-courier__ph">{{ courier.phone }}</div>
-                            <div class="tp-courier__loc" *ngIf="courier.latitude && courier.longitude">
+                            <div class="tp-courier__loc"
+                                *ngIf="courier.latitude !== null && courier.longitude !== null">
                                 <span class="tp-live-dot tp-live-dot--sm"></span> Location live
                             </div>
                         </div>

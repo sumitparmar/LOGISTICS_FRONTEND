@@ -180,8 +180,6 @@ export class AdminOrdersComponent implements OnInit {
           this.ordersStore.setOrders(res.data || []);
           this._backendTotal = res.pagination?.total || 0;
 
-          this._backendTotal = res.pagination?.total || 0;
-
           if (res.statusCounts) {
             const counts = res.statusCounts;
 
@@ -212,9 +210,19 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   formatStatus(status: string): string {
-    if (status === 'PICKED_UP') return 'Picked Up';
-    if (status === 'IN_TRANSIT') return 'In Transit';
-    return status;
+    switch (status) {
+      case 'PICKED_UP':
+        return 'Picked Up';
+
+      case 'IN_TRANSIT':
+        return 'In Transit';
+
+      case 'ASSIGNED':
+        return 'Assigned';
+
+      default:
+        return status;
+    }
   }
 
   initializeColumns(): void {
@@ -384,6 +392,7 @@ export class AdminOrdersComponent implements OnInit {
     // this.selectedOrders.clear();
     this.loadOrders();
   }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'DELIVERED':
@@ -393,6 +402,7 @@ export class AdminOrdersComponent implements OnInit {
         return 'cancelled';
 
       case 'ASSIGNED':
+      case 'PICKED_UP':
       case 'IN_TRANSIT':
         return 'in-progress';
 

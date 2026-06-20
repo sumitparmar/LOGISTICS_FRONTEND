@@ -1,12 +1,13 @@
 :host {
-  --bg: #f4f7fb;
-  --card: #ffffff;
-  --card-soft: #f8fafc;
-  --line: #e5eaf1;
+  --bg: var(--color-bg);
+  --card: var(--color-surface);
+  --card-soft: var(--color-surface-soft);
 
-  --text: #0f172a;
-  --text-2: #475569;
-  --text-3: #64748b;
+  --line: var(--color-border);
+
+  --text: var(--color-text-primary);
+  --text-2: var(--color-text-secondary);
+  --text-3: var(--color-text-muted);
 
   --blue: #2563eb;
   --blue-2: #1d4ed8;
@@ -200,7 +201,7 @@
 }
 
 .mk-filter-panel {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 18px;
@@ -306,7 +307,7 @@
 }
 
 .mk-orders-card {
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -357,7 +358,7 @@
 }
 
 .mk-table thead tr {
-  background: #f8fafc;
+  background: var(--card-soft);
 }
 
 .mk-table th {
@@ -385,7 +386,7 @@
 }
 
 .mk-row:hover {
-  background: #f8fafc;
+  background: var(--card-soft);
 }
 
 .mk-order-id-box {
@@ -561,7 +562,7 @@
 }
 
 .mk-actions button.details {
-  background: #f8fafc;
+  background: var(--card-soft);
   color: var(--text-2);
   border: 1px solid var(--line);
 }
@@ -622,7 +623,7 @@ app-pagination {
 .mk-modal {
   width: 100%;
   max-width: 430px;
-  background: #fff;
+  background: var(--card);
   border-radius: var(--radius-lg);
   padding: 26px;
   box-shadow: var(--shadow-lg);
@@ -757,6 +758,16 @@ app-pagination {
   }
 
   .mk-modal-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .mk-actions {
+    flex-direction: column;
+  }
+
+  .mk-actions button {
     width: 100%;
   }
 }

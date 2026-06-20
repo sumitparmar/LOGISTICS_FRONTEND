@@ -78,6 +78,10 @@
                     Cancelled
                 </button>
 
+
+                <button (click)="setStatusFilter('FAILED')" [class.active]="statusFilter === 'FAILED'">
+                    Failed
+                </button>
             </div>
 
         </div>
@@ -147,8 +151,8 @@
                             <!-- Vehicle -->
                             <td>
                                 <div class="mk-vehicle-box">
-                                    <span>{{ getVehicleIcon(order.vehicleTypeId) }}</span>
-                                    <span>{{ getVehicleLabel(order.vehicleTypeId) }}</span>
+                                    <span>{{ getVehicleIcon(order.vehicleTypeId || order.vehicleType?.id) }}</span>
+                                    <span>{{ getVehicleLabel(order.vehicleTypeId || order.vehicleType?.id) }}</span>
                                 </div>
                             </td>
 

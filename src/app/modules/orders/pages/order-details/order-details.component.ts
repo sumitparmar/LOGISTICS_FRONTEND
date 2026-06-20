@@ -1,17 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { OrdersService } from '../../../../core/services/orders.service';
 declare const google: any;
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket.service';
-import { ToastService } from '../../../../admin/services/toast.service';
-
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
   styleUrls: ['./order-details.component.scss'],
 })
-export class OrderDetailsComponent implements OnInit, AfterViewInit {
+export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   private socketBound = false;
   isEditMode: boolean = false;
   @ViewChild('pickupInput') pickupInput!: ElementRef;
@@ -122,7 +121,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
             this.providerOrder?.matter ||
             this.order?.package?.description ||
             '',
-          weight: this.order?.package?.weight || 0,
+          weight:
+            this.order?.package?.weight ||
+            this.providerOrder?.total_weight_kg ||
+            0,
           category: this.order?.package?.category || '',
           description: this.order?.package?.description || '',
 
@@ -201,9 +203,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       this.editableOrder.pickupAddress = place.formatted_address;
       this.editableOrder.pickupLat = lat;
       this.editableOrder.pickupLng = lng;
-
-      this.order.pickup.lat = lat;
-      this.order.pickup.lng = lng;
+      if (this.order?.pickup) {
+        this.order.pickup.lat = lat;
+        this.order.pickup.lng = lng;
+      }
 
       this.refreshMap();
     });
@@ -237,9 +240,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       this.editableOrder.dropLat = lat;
       this.editableOrder.dropLng = lng;
 
-      this.order.drop.lat = lat;
-      this.order.drop.lng = lng;
-
+      if (this.order?.drop) {
+        this.order.drop.lat = lat;
+        this.order.drop.lng = lng;
+      }
       this.refreshMap();
     });
   }
@@ -341,14 +345,17 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     this.ordersService.getOrderById(this.orderId).subscribe({
       next: (res: any) => {
         this.order = res?.data || res;
-
+        console.log('PRICING SNAPSHOT', this.order.pricingSnapshot);
         this.editableOrder = {
           matter:
             this.providerOrder?.matter ||
             this.order?.package?.description ||
             '',
 
-          weight: this.order?.package?.weight || 0,
+          weight:
+            this.order?.package?.weight ||
+            this.providerOrder?.total_weight_kg ||
+            0,
           category: this.order?.package?.category || '',
           description: this.order?.package?.description || '',
 
@@ -380,6 +387,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
               this.order.status = data.status;
               this.loadOrderSilently();
 
+              if (
+                ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'].includes(data.status) &&
+                !this.trackingInterval
+              ) {
+                this.startCourierTracking();
+              }
+
               if (data.status === 'DELIVERED') {
                 if (this.trackingInterval) {
                   clearInterval(this.trackingInterval);
@@ -394,6 +408,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         if (this.order.status === 'DELIVERED') {
           this.loadPOD();
           this.loadInvoice();
+        }
+
+        if (
+          ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'].includes(this.order.status)
+        ) {
+          this.startCourierTracking();
         }
 
         setTimeout(() => {
@@ -433,6 +453,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   initializeMap() {
+    if (typeof google === 'undefined' || !google.maps) {
+      return;
+    }
     if (!this.mapContainer?.nativeElement) return;
 
     const points = this.order?.rawProviderResponse?.order?.points;
@@ -506,9 +529,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         },
       });
     }
-
-    // Start tracking
-    this.startCourierTracking();
   }
 
   isStepActive(step: string): boolean {
@@ -540,8 +560,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     );
 
     if (!record) return null;
-
-    const date = new Date(record.timestamp);
 
     return record.timestamp;
   }
@@ -838,5 +856,37 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         console.error('History fetch failed', err);
       },
     });
+  }
+
+  get pricingSnapshot(): any {
+    return this.order?.pricingSnapshot || {};
+  }
+
+  get hasMargin(): boolean {
+    return Number(this.pricingSnapshot.marginAmount || 0) > 0;
+  }
+
+  get hasPlatformFee(): boolean {
+    return Number(this.pricingSnapshot.platformFeeAmount || 0) > 0;
+  }
+
+  get hasHandlingFee(): boolean {
+    return Number(this.pricingSnapshot.handlingFeeAmount || 0) > 0;
+  }
+
+  get hasInsurance(): boolean {
+    return Number(this.pricingSnapshot.insuranceFeeAmount || 0) > 0;
+  }
+
+  get calculatedSubtotal(): number {
+    const p = this.pricingSnapshot;
+
+    return (
+      Number(p.basePrice || 0) +
+      Number(p.marginAmount || 0) +
+      Number(p.platformFeeAmount || 0) +
+      Number(p.handlingFeeAmount || 0) +
+      Number(p.insuranceFeeAmount || 0)
+    );
   }
 }

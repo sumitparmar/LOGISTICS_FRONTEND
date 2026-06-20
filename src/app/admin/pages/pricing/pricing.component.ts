@@ -63,10 +63,6 @@ export class PricingComponent implements OnInit {
       bikeMultiplier: [1],
       carMultiplier: [1],
       vanMultiplier: [1],
-
-      // EXTRAS
-      insurancePercent: [0],
-      codFee: [0],
     });
   }
 
@@ -185,14 +181,9 @@ export class PricingComponent implements OnInit {
     const afterSurge = afterVehicle + surgeImpact;
 
     // Extras
-    const insurance =
-      (afterSurge * Number(this.form.value.insurancePercent || 0)) / 100;
+    const extrasImpact = 0;
 
-    const cod = Number(this.form.value.codFee || 0);
-
-    const extrasImpact = insurance + cod;
-
-    price = afterSurge + extrasImpact;
+    price = afterSurge;
 
     this.simulatedResult = Math.round(price);
 
@@ -340,13 +331,9 @@ export class PricingComponent implements OnInit {
           surgeEnd: res.surge?.endTime || '',
 
           // VEHICLES
-          bikeMultiplier: this.getVehicle(res, 'bike'),
-          carMultiplier: this.getVehicle(res, 'car'),
-          vanMultiplier: this.getVehicle(res, 'van'),
-
-          // EXTRAS
-          insurancePercent: res.extras?.insurancePercent || 0,
-          codFee: res.extras?.codFee || 0,
+          bikeMultiplier: this.getVehicle(res, '1'),
+          carMultiplier: this.getVehicle(res, '2'),
+          vanMultiplier: this.getVehicle(res, '3'),
         });
 
         // IMPORTANT
@@ -386,16 +373,10 @@ export class PricingComponent implements OnInit {
 
       // VEHICLES
       vehicleOverrides: [
-        { type: 'bike', multiplier: this.form.value.bikeMultiplier },
-        { type: 'car', multiplier: this.form.value.carMultiplier },
-        { type: 'van', multiplier: this.form.value.vanMultiplier },
+        { type: '1', multiplier: this.form.value.bikeMultiplier },
+        { type: '2', multiplier: this.form.value.carMultiplier },
+        { type: '3', multiplier: this.form.value.vanMultiplier },
       ],
-
-      // EXTRAS
-      extras: {
-        insurancePercent: this.form.value.insurancePercent,
-        codFee: this.form.value.codFee,
-      },
     };
 
     if (this.form.value.surgeEnabled) {

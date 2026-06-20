@@ -59,8 +59,7 @@ export class CreateDeliveryComponent
   };
   currentStep = 1;
 
-  weightOptions = [1, 5, 10, 15, 20];
-
+  weightOptions = [1, 5, 10, 20, 50, 100, 250, 500, 750, 1000];
   packageCategories = [
     'Documents',
     'Clothes',
@@ -72,26 +71,21 @@ export class CreateDeliveryComponent
 
   vehicleOptions = [
     {
-      id: 8,
-      title: 'Motorbike',
-      description: 'Fast delivery via bike',
-      limit: 'Up to 20 kg',
-      icon: 'two_wheeler',
-    },
-    {
       id: 1,
       title: 'Mini 3-Wheeler',
       description: 'Small vehicle for medium parcels',
       limit: 'Up to 100 kg',
       icon: 'local_shipping',
     },
+
     {
       id: 2,
-      title: 'Tata Ace 8ft',
-      description: 'Medium cargo deliveries',
-      limit: 'Up to 1000 kg',
-      icon: 'airport_shuttle',
+      title: 'Tempo Truck',
+      description: 'Large scale cargo delivery',
+      limit: 'Up to 200 kg',
+      icon: 'local_shipping',
     },
+
     {
       id: 3,
       title: 'Tata Ace 7ft',
@@ -99,12 +93,21 @@ export class CreateDeliveryComponent
       limit: 'Up to 750 kg',
       icon: 'airport_shuttle',
     },
+
     {
       id: 5,
-      title: 'Tempo Truck',
-      description: 'Large scale cargo delivery',
-      limit: 'Up to 200 kg',
-      icon: 'local_shipping',
+      title: 'Tata Ace 8ft',
+      description: 'Medium cargo deliveries',
+      limit: 'Up to 1000 kg',
+      icon: 'airport_shuttle',
+    },
+
+    {
+      id: 8,
+      title: 'Motorbike',
+      description: 'Fast delivery via bike',
+      limit: 'Up to 20 kg',
+      icon: 'two_wheeler',
     },
   ];
 
@@ -518,9 +521,9 @@ export class CreateDeliveryComponent
 
     this.resetPrice();
 
-    if (this.canAutoCalculate()) {
-      this.calculatePrice();
-    }
+    // if (this.canAutoCalculate()) {
+    //   this.calculatePrice();
+    // }
   }
 
   initializeForm(): void {
@@ -552,7 +555,7 @@ export class CreateDeliveryComponent
 
       vehicleTypeId: [8, Validators.required],
 
-      parcelValue: [null],
+      parcelValue: [null, [Validators.min(0), Validators.max(50000)]],
     });
   }
   get stops(): FormArray {
@@ -650,15 +653,18 @@ export class CreateDeliveryComponent
           lat: lastStop.lat,
           lng: lastStop.lng,
         },
-        stops: [
-          {
-            type: 'PICKUP',
-            address: form.pickupAddress,
-            lat: form.pickupLat,
-            lng: form.pickupLng,
-          },
-          ...deliveryStops,
-        ],
+
+        // stops: [
+        //   {
+        //     type: 'PICKUP',
+        //     address: form.pickupAddress,
+        //     lat: form.pickupLat,
+        //     lng: form.pickupLng,
+        //   },
+        //   ...deliveryStops,
+        // ],
+        stops: deliveryStops,
+
         package: {
           weight: form.package.weight,
           declaredValue: form.parcelValue || 0,
@@ -763,18 +769,20 @@ export class CreateDeliveryComponent
         lng: lastStop.lng,
       },
 
-      stops: [
-        {
-          type: 'PICKUP',
-          address: form.pickupAddress,
-          lat: form.pickupLat,
-          lng: form.pickupLng,
-          phone: form.pickupPhone,
-          name: form.pickupName,
-          notes: form.pickupNotes || null,
-        },
-        ...deliveryStops,
-      ],
+      // stops: [
+      //   {
+      //     type: 'PICKUP',
+      //     address: form.pickupAddress,
+      //     lat: form.pickupLat,
+      //     lng: form.pickupLng,
+      //     phone: form.pickupPhone,
+      //     name: form.pickupName,
+      //     notes: form.pickupNotes || null,
+      //   },
+      //   ...deliveryStops,
+      // ],
+
+      stops: deliveryStops,
 
       package: {
         weight: form.package.weight,
@@ -1008,9 +1016,9 @@ export class CreateDeliveryComponent
 
     this.resetPrice();
 
-    if (this.canAutoCalculate()) {
-      this.calculatePrice();
-    }
+    // if (this.canAutoCalculate()) {
+    //   this.calculatePrice();
+    // }
   }
 
   isScheduleValid(): boolean {

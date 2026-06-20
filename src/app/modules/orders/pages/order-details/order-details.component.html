@@ -204,8 +204,7 @@
 
                             <!-- VIEW MODE -->
                             <div class="summary-value" *ngIf="!isEditMode">
-                                {{ editableOrder.weight }} kg
-                            </div>
+                                {{ order.package?.weight || editableOrder.weight || 0 }} kg </div>
 
                             <!-- EDIT MODE -->
                             <input *ngIf="isEditMode" type="number" [(ngModel)]="editableOrder.weight"
@@ -263,22 +262,44 @@
                     <div class="pricing-breakdown">
 
                         <div class="price-row">
-                            <span>Delivery Fee</span>
+                            <span>Base Delivery Charge</span>
                             <span>
                                 {{ order.pricing?.currency }}
-                                {{ order.pricing?.adjustedAmount | number:'1.2-2' }}
+                                {{ order.pricingSnapshot?.basePrice | number:'1.2-2' }}
                             </span>
                         </div>
 
+                        <div class="price-row" *ngIf="order.pricingSnapshot?.marginAmount > 0">
+                            <span>Margin</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricingSnapshot?.marginAmount | number:'1.2-2' }}
+                            </span>
+                        </div>
 
+                        <div class="price-row" *ngIf="order.pricingSnapshot?.platformFeeAmount > 0">
+                            <span>Platform Fee</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricingSnapshot?.platformFeeAmount | number:'1.2-2' }}
+                            </span>
+                        </div>
 
-                        <div class="price-row" *ngIf="order.pricing?.insurance > 0">
+                        <div class="price-row" *ngIf="order.pricingSnapshot?.handlingFeeAmount > 0">
+                            <span>Handling Fee</span>
+                            <span>
+                                {{ order.pricing?.currency }}
+                                {{ order.pricingSnapshot?.handlingFeeAmount | number:'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <!-- <div class="price-row" *ngIf="order.pricingSnapshot?.insuranceFeeAmount > 0">
                             <span>Insurance</span>
                             <span>
                                 {{ order.pricing?.currency }}
-                                {{ order.pricing?.insurance | number:'1.2-2' }}
+                                {{ order.pricingSnapshot?.insuranceFeeAmount | number:'1.2-2' }}
                             </span>
-                        </div>
+                        </div> -->
 
                         <div class="price-total">
                             <span>Total</span>
@@ -288,8 +309,24 @@
                             </span>
                         </div>
 
-                    </div>
 
+                        <div class="insurance-info" *ngIf="order.rawProviderResponse?.order?.insurance_amount > 0">
+                            <div class="insurance-title">
+                                ✓ Parcel Insurance Active
+                            </div>
+
+                            <div class="insurance-coverage">
+                                Coverage:
+                                {{ order.pricing?.currency }}
+                                {{ order.rawProviderResponse?.order?.insurance_amount | number:'1.2-2' }}
+                            </div>
+
+                            <div class="insurance-note">
+                                Insurance fee is already included in carrier charges.
+                            </div>
+                        </div>
+
+                    </div>
                     <ng-template #basicPrice>
                         <div class="price-block">
                             <div class="price-label">Total Price</div>

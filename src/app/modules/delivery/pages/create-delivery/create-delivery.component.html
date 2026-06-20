@@ -344,9 +344,14 @@ deliveryForm.get('package.description')?.invalid">
                             <div class="delivery-info">
 
                                 <!-- TITLE -->
-                                <h4>{{ speed.title }}</h4>
+                                <h4>
+                                    {{ speed.title }}
 
-                                <!-- DESCRIPTION -->
+                                    <span class="selected-badge"
+                                        *ngIf="deliveryForm.get('deliveryType')?.value === speed.code">
+                                        Selected
+                                    </span>
+                                </h4> <!-- DESCRIPTION -->
                                 <p class="delivery-desc">
                                     {{ speed.description }}
                                 </p>
@@ -397,7 +402,15 @@ deliveryForm.get('package.description')?.invalid">
                             </span>
 
                             <div>
-                                <h4>{{ vehicle.title }}</h4>
+                                <h4>
+                                    {{ vehicle.title }}
+
+                                    <span class="selected-badge"
+                                        *ngIf="deliveryForm.get('vehicleTypeId')?.value === vehicle.id">
+                                        Selected
+                                    </span>
+
+                                </h4>
                                 <p>{{ vehicle.description }}</p>
                                 <span class="vehicle-limit">{{ vehicle.limit }}</span>
                             </div>

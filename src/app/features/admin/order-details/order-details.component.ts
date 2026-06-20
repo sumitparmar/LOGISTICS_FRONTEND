@@ -51,26 +51,39 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   prepareTimeline(): void {
+    const history = this.order?.statusHistory || [];
+
+    const getTime = (status: string): Date | null => {
+      const entry = history.find((h: any) => h.status === status);
+
+      return entry?.timestamp ? new Date(entry.timestamp) : null;
+    };
+
     this.timelineSteps = [
       {
         key: 'CREATED',
         label: 'Order Created',
-        time: this.order?.createdAt ? new Date(this.order.createdAt) : null,
+        time: getTime('CREATED'),
       },
       {
         key: 'ASSIGNED',
         label: 'Assigned to Courier',
-        time: this.order?.assignedAt ? new Date(this.order.assignedAt) : null,
+        time: getTime('ASSIGNED'),
       },
       {
         key: 'PICKED_UP',
         label: 'Picked Up',
-        time: this.order?.pickedAt ? new Date(this.order.pickedAt) : null,
+        time: getTime('PICKED_UP'),
+      },
+      {
+        key: 'IN_TRANSIT',
+        label: 'In Transit',
+        time: getTime('IN_TRANSIT'),
       },
       {
         key: 'DELIVERED',
         label: 'Delivered',
-        time: this.order?.deliveredAt ? new Date(this.order.deliveredAt) : null,
+        time: getTime('DELIVERED'),
       },
     ];
   }
@@ -103,8 +116,13 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   isStepActive(stepKey: string): boolean {
-    const flow = ['CREATED', 'ASSIGNED', 'PICKED_UP', 'DELIVERED'];
-
+    const flow = [
+      'CREATED',
+      'ASSIGNED',
+      'PICKED_UP',
+      'IN_TRANSIT',
+      'DELIVERED',
+    ];
     const current = (this.order?.status || '').toUpperCase();
 
     const currentIndex = flow.indexOf(current);
@@ -142,7 +160,13 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   canMoveTo(nextStatus: string): boolean {
-    const flow = ['CREATED', 'ASSIGNED', 'PICKED_UP', 'DELIVERED'];
+    const flow = [
+      'CREATED',
+      'ASSIGNED',
+      'PICKED_UP',
+      'IN_TRANSIT',
+      'DELIVERED',
+    ];
     const current = (this.order?.status || '').toUpperCase();
 
     const currentIndex = flow.indexOf(current);

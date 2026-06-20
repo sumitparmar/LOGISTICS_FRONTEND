@@ -12,6 +12,7 @@ import { SocketService } from '../../../../core/services/socket.service';
 import { APP_CONFIG } from 'src/environments/app.config';
 import { getCurrencySymbol } from '../../../../core/utils/currency.util';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { Subscription } from 'rxjs';
 declare const google: any;
 
 @Component({
@@ -53,7 +54,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   private animationInterval: any;
   private socketListener: any;
   private routeBounds: any;
-
+  private routeSub: Subscription | null = null;
   private previousLat: number | null = null;
   private previousLng: number | null = null;
 
@@ -87,10 +88,12 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadVehicleCatalog();
-
-    this.route.queryParams.subscribe((p) => {
+    this.routeSub = this.route.queryParams.subscribe((p) => {
       this.orderId = p['orderId'] || p['id'] || '';
-      if (this.orderId) this.trackOrder();
+
+      if (this.orderId) {
+        this.trackOrder();
+      }
     });
   }
 
@@ -278,13 +281,12 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ─── Vehicle label ───────────────────────────────────────────────────────
   getVehicleLabel(): string {
-    const t = this.order?.vehicle?.type;
-    return t ? this.vehicleMap[t] || 'Courier Vehicle' : 'Courier Vehicle';
+    const vehicleId = Number(this.order?.vehicleTypeId);
+
+    return this.vehicleMap[vehicleId] || 'Courier Vehicle';
   }
 
-  // ─── Estimated distance & duration (fallback haversine) ─────────────────
   getEstimatedDistance(order: any): string {
     const raw = order?.rawProviderResponse;
     const pts = raw?.order?.points || raw?.orders?.[0]?.points;
@@ -348,9 +350,8 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.api.get(`/orders/${this.order._id}/courier`).subscribe({
       next: (res: any) => {
-        this.courier = res?.data || null;
-
-        // ✅ If Borzo returned live location — update map immediately
+        this.courier = this.normalizeCourier(res?.data);
+        //  If Borzo returned live location — update map immediately
         const lat = this.courier?.latitude
           ? Number(this.courier.latitude)
           : null;
@@ -635,6 +636,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.summaryInterval = null;
     clearInterval(this.animationInterval);
     this.animationInterval = null;
+    this.socket.disconnect();
 
     [this.courierMarker, this.pickupMarker, this.dropMarker].forEach((m) => {
       if (m) m.setMap(null);
@@ -649,11 +651,13 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.map = null;
   }
-
   ngOnDestroy(): void {
     clearInterval(this.trackingInterval);
     clearInterval(this.summaryInterval);
     clearInterval(this.animationInterval);
+
+    this.routeSub?.unsubscribe();
+
     this.socketListener = null;
     this.socket.disconnect();
   }
