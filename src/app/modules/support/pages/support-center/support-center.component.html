@@ -1,0 +1,270 @@
+<div class="support-center">
+    <section class="support-create">
+        <div class="section-heading">
+            <h2>Support Center</h2>
+            <p>Raise a query and continue the conversation with MoveKart support.</p>
+        </div>
+
+        <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <form class="ticket-form" (ngSubmit)="createTicket()">
+            <div class="field full">
+                <label>Subject</label>
+                <input type="text" name="subject" [(ngModel)]="form.subject" maxlength="120"
+                    placeholder="Example: Delivery partner has not arrived" required />
+            </div>
+
+            <div class="field">
+                <label>Category</label>
+                <select name="category" [(ngModel)]="form.category">
+                    <option *ngFor="let category of categories" [value]="category.value">{{ category.label }}</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Priority</label>
+                <select name="priority" [(ngModel)]="form.priority">
+                    <option *ngFor="let priority of priorities" [value]="priority.value">{{ priority.label }}</option>
+                </select>
+            </div>
+
+            <div class="field full">
+                <label>Message</label>
+                <textarea name="message" [(ngModel)]="form.message" rows="4" maxlength="2000"
+                    placeholder="Share order ID, payment reference, or any details our team should know."
+                    required></textarea>
+            </div>
+
+            <button class="primary-action" type="submit" [disabled]="isCreating">
+                {{ isCreating ? 'Creating...' : 'Raise Ticket' }}
+            </button>
+        </form>
+    </section>
+
+    <section class="support-workspace">
+        <div class="ticket-column">
+            <div class="ticket-tools">
+                <div class="tabs">
+                    <button type="button" [class.active]="activeTab === 'active'"
+                        (click)="changeTab('active')">Active</button>
+                    <button type="button" [class.active]="activeTab === 'resolved'"
+                        (click)="changeTab('resolved')">Resolved</button>
+                    <button type="button" [class.active]="activeTab === 'all'" (click)="changeTab('all')">All</button>
+                </div>
+
+                <div class="search-wrapper">
+
+                    <input type="search" placeholder="Search tickets..." (input)="onSearch(searchInput.value)"
+                        #searchInput>
+
+                </div>
+            </div>
+
+            <div class="ticket-list">
+                <div class="state" *ngIf="isLoading">
+                    <div class="state-icon">
+
+                        ⏳
+
+                    </div>
+
+                    <h3>Loading Tickets</h3>
+                </div>
+
+
+                <div class="state" *ngIf="!isLoading && !tickets.length">
+
+                    <div class="state-icon">
+
+                        📭
+
+                    </div>
+
+                    <h3>No Tickets</h3>
+
+                    <p>
+
+                        You haven't created any support tickets yet.
+
+                    </p>
+
+                </div>
+                <button type="button" class="ticket-row" *ngFor="let ticket of tickets"
+                    [class.active]="selectedTicket?._id === ticket._id" (click)="selectTicket(ticket)">
+
+                    <!-- Avatar -->
+
+                    <div class="ticket-avatar">
+
+                        {{ ticket.subject?.charAt(0) || '?' }}
+                    </div>
+
+                    <!-- Content -->
+
+                    <div class="ticket-content">
+
+                        <div class="ticket-main">
+
+                            <strong>
+
+                                {{ ticket.subject }}
+
+                            </strong>
+
+                            <small>
+
+                                {{ ticket.ticketNumber || ticket._id }}
+
+                            </small>
+
+                        </div>
+
+                        <div class="ticket-bottom">
+
+                            <span class="status" [ngClass]="ticket.status">
+
+                                {{ statusLabel(ticket.status) }}
+
+                            </span>
+
+                            <span class="unread" *ngIf="ticket.unreadForUser">
+
+                                {{ ticket.unreadForUser }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </button>
+            </div>
+        </div>
+
+        <div class="conversation-column">
+            <div class="state" *ngIf="!selectedTicket && !isLoading">
+
+                <div class="state-icon">
+
+                    💬
+
+                </div>
+
+                <h3>
+
+                    No Ticket Selected
+
+                </h3>
+
+                <p>
+
+                    Choose a support ticket from the left panel to view the complete conversation and reply to our
+                    support team.
+
+                </p>
+
+            </div>
+            <ng-container *ngIf="selectedTicket">
+                <header class="conversation-header">
+
+                    <div class="conversation-left">
+
+                        <div class="conversation-avatar">
+
+                            {{ selectedTicket.subject?.charAt(0) || '?' }}
+                        </div>
+
+                        <div class="conversation-info">
+
+                            <h3>
+
+                                {{ selectedTicket.subject }}
+
+                            </h3>
+
+                            <p>
+
+                                Ticket :
+
+                                {{ selectedTicket.ticketNumber }}
+
+                            </p>
+
+                            <small>
+
+                                Created
+
+                                {{ selectedTicket.createdAt | date:'medium' }}
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="conversation-right">
+
+                        <span class="status" [ngClass]="selectedTicket.status">
+
+                            {{ statusLabel(selectedTicket.status) }}
+
+                        </span>
+
+                    </div>
+
+                </header>
+
+                <div class="detail-loader" *ngIf="isDetailLoading">Loading conversation...</div>
+
+                <div class="support-thread">
+                    <div class="message" *ngFor="let msg of selectedTicket.messages"
+                        [class.user]="msg.sender === 'user'" [class.admin]="msg.sender === 'admin'">
+
+                        <div class="message-header">
+
+                            <strong>
+
+                                {{ msg.sender==='admin' ? 'MoveKart Support' : 'You' }}
+
+                            </strong>
+
+                            <span>
+
+                                {{ msg.createdAt | date:'short' }}
+
+                            </span>
+
+                        </div>
+
+                        <div class="message-body">
+
+                            {{ msg.message }}
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="reply-panel">
+
+                    <div class="reply-box">
+
+                        <textarea [(ngModel)]="replyText" name="replyText" rows="3" [placeholder]="isTicketClosed(selectedTicket)
+                          ? 'Replying will reopen this ticket.'
+                          : 'Type your reply...'" maxlength="2000"></textarea>
+
+                    </div>
+
+                    <button type="button" class="primary-action" (click)="sendReply()"
+                        [disabled]="isSubmittingReply || !replyText.trim()">
+
+                        {{ isSubmittingReply ? 'Sending...' : 'Send Reply' }}
+
+                    </button>
+
+                </div>
+            </ng-container>
+        </div>
+    </section>
+</div>

@@ -19,6 +19,7 @@ export class SupportComponent implements OnInit {
   private searchSub!: Subscription;
   private routeSub!: Subscription;
   private ticketsStreamSub!: Subscription;
+  private ticketUpdatedSub!: Subscription;
   socket: any;
   tickets: any[] = [];
   selectedTicket: any = null;
@@ -27,7 +28,7 @@ export class SupportComponent implements OnInit {
   // searchSubject = new Subject<string>();
   private searchTerm$ = new Subject<string>();
   // private page$ = new Subject<number>();
-  currentTab: 'open' | 'in-progress' | 'resolved' = 'open';
+  currentTab: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' = 'OPEN';
   page = 1;
   limit = 10;
   total = 0;
@@ -52,13 +53,32 @@ export class SupportComponent implements OnInit {
     this.ticketSub = this.socketService.newTicket$.subscribe((ticket: any) => {
       const exists = this.tickets.find((t) => t._id === ticket._id);
 
-      if (!exists && ticket.status === this.currentTab && !this.isSearching) {
+      if (
+        !exists &&
+        this.statusBelongsToCurrentTab(ticket.status) &&
+        !this.isSearching
+      ) {
         this.tickets = [ticket, ...this.tickets];
       }
 
       this.selectTicket(ticket);
       this.fetchCounts();
     });
+
+    this.ticketUpdatedSub = this.socketService.ticketUpdated$.subscribe(
+      (ticket: any) => {
+        this.tickets = this.tickets.map((item) =>
+          item._id === ticket._id ? { ...item, ...ticket } : item,
+        );
+
+        if (this.selectedTicket?._id === ticket._id) {
+          this.selectedTicket = ticket;
+          this.scrollToBottom();
+        }
+
+        this.fetchCounts();
+      },
+    );
 
     this.searchSub = this.searchTerm$
       .pipe(
@@ -75,7 +95,7 @@ export class SupportComponent implements OnInit {
           };
 
           if (!this.isSearching) {
-            params.status = this.currentTab;
+            params.status = this.statusFilterForCurrentTab();
           }
 
           if (this.isSearching) {
@@ -182,7 +202,7 @@ export class SupportComponent implements OnInit {
     if (this.searchTerm && this.searchTerm.length >= 2) {
       params.search = this.searchTerm;
     } else {
-      params.status = this.currentTab;
+      params.status = this.statusFilterForCurrentTab();
     }
 
     this.adminSupportService.fetchTicketsReactive(params).subscribe({
@@ -225,7 +245,7 @@ export class SupportComponent implements OnInit {
     });
   }
 
-  changeTab(tab: 'open' | 'in-progress' | 'resolved') {
+  changeTab(tab: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED') {
     if (this.currentTab === tab) return;
 
     this.currentTab = tab;
@@ -307,7 +327,12 @@ export class SupportComponent implements OnInit {
           const updatedStatus = res.data.status;
 
           //  tab sync
-          this.currentTab = updatedStatus;
+          this.currentTab =
+            updatedStatus === 'RESOLVED'
+              ? 'RESOLVED'
+              : updatedStatus === 'OPEN'
+                ? 'OPEN'
+                : 'IN_PROGRESS';
 
           //  reset state
           this.selectedTicket = null;
@@ -328,11 +353,11 @@ export class SupportComponent implements OnInit {
     if (!this.selectedTicket?._id) return;
 
     this.adminSupportService
-      .updateStatus(this.selectedTicket._id, 'in-progress')
+      .updateStatus(this.selectedTicket._id, 'REOPENED')
       .subscribe({
         next: () => {
           // switch tab
-          this.currentTab = 'in-progress';
+          this.currentTab = 'IN_PROGRESS';
 
           //  reset state
           this.selectedTicket = null;
@@ -364,5 +389,19 @@ export class SupportComponent implements OnInit {
     this.searchSub?.unsubscribe();
     this.routeSub?.unsubscribe();
     this.ticketsStreamSub?.unsubscribe();
+    this.ticketUpdatedSub?.unsubscribe();
+  }
+
+  statusFilterForCurrentTab(): string | string[] {
+    if (this.currentTab === 'IN_PROGRESS') {
+      return ['IN_PROGRESS', 'WAITING_CUSTOMER', 'REOPENED'];
+    }
+
+    return this.currentTab;
+  }
+
+  statusBelongsToCurrentTab(status: string): boolean {
+    const filter = this.statusFilterForCurrentTab();
+    return Array.isArray(filter) ? filter.includes(status) : filter === status;
   }
 }

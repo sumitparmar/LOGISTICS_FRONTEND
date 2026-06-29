@@ -1,0 +1,2632 @@
+// .support-center {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 18px;
+//   padding: 24px;
+//   min-height: calc(100vh - 90px);
+//   background: #f7fafc;
+//   color: #111827;
+// }
+
+// .support-create,
+// .support-workspace {
+//   background: #ffffff;
+//   border: 1px solid #e5e7eb;
+//   border-radius: 8px;
+//   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+// }
+
+// .support-create {
+//   padding: 18px;
+// }
+
+// .section-heading {
+//   margin-bottom: 14px;
+// }
+
+// .section-heading h2 {
+//   margin: 0;
+//   font-size: 24px;
+//   line-height: 1.25;
+//   font-weight: 800;
+//   color: #0f172a;
+// }
+
+// .section-heading p {
+//   margin: 4px 0 0;
+//   font-size: 13px;
+//   color: #64748b;
+// }
+
+// .ticket-form {
+//   display: grid;
+//   grid-template-columns: repeat(2, minmax(0, 1fr));
+//   gap: 14px;
+// }
+
+// .field {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 6px;
+// }
+
+// .field.full {
+//   grid-column: 1 / -1;
+// }
+
+// label {
+//   font-size: 12px;
+//   font-weight: 800;
+//   color: #334155;
+// }
+
+// input,
+// select,
+// textarea {
+//   width: 100%;
+//   border: 1px solid #dbe3ec;
+//   border-radius: 8px;
+//   background: #ffffff;
+//   color: #111827;
+//   font: inherit;
+//   font-size: 13px;
+//   outline: none;
+//   transition:
+//     border-color 0.18s ease,
+//     box-shadow 0.18s ease;
+// }
+
+// input,
+// select {
+//   height: 42px;
+//   padding: 0 12px;
+// }
+
+// textarea {
+//   resize: vertical;
+//   min-height: 88px;
+//   padding: 10px 12px;
+//   line-height: 1.45;
+// }
+
+// input:focus,
+// select:focus,
+// textarea:focus {
+//   border-color: #2563eb;
+//   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+// }
+
+// .primary-action {
+//   justify-self: start;
+//   min-height: 42px;
+//   padding: 0 16px;
+//   border: 0;
+//   border-radius: 8px;
+//   background: #2563eb;
+//   color: #ffffff;
+//   font-size: 13px;
+//   font-weight: 800;
+//   cursor: pointer;
+// }
+
+// .primary-action:disabled {
+//   opacity: 0.6;
+//   cursor: not-allowed;
+// }
+
+// .alert {
+//   margin-bottom: 12px;
+//   padding: 10px 12px;
+//   border-radius: 8px;
+//   font-size: 13px;
+//   font-weight: 700;
+// }
+
+// .alert.success {
+//   background: #ecfdf5;
+//   color: #047857;
+//   border: 1px solid #a7f3d0;
+// }
+
+// .alert.error {
+//   background: #fef2f2;
+//   color: #b91c1c;
+//   border: 1px solid #fecaca;
+// }
+
+// .support-workspace {
+//   display: grid;
+//   grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+//   min-height: 520px;
+//   overflow: hidden;
+// }
+
+// .ticket-column {
+//   border-right: 1px solid #e5e7eb;
+//   min-width: 0;
+//   background: #fbfdff;
+// }
+
+// .ticket-tools {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 10px;
+//   padding: 14px;
+//   border-bottom: 1px solid #e5e7eb;
+// }
+
+// .tabs {
+//   display: grid;
+//   grid-template-columns: repeat(3, 1fr);
+//   gap: 6px;
+// }
+
+// .tabs button {
+//   height: 34px;
+//   border: 1px solid #dbe3ec;
+//   border-radius: 8px;
+//   background: #ffffff;
+//   color: #475569;
+//   font-size: 12px;
+//   font-weight: 800;
+//   cursor: pointer;
+// }
+
+// .tabs button.active {
+//   border-color: #2563eb;
+//   background: #eff6ff;
+//   color: #1d4ed8;
+// }
+
+// .ticket-list {
+//   height: 430px;
+//   overflow-y: auto;
+// }
+
+// .ticket-row {
+//   width: 100%;
+//   display: flex;
+//   align-items: flex-start;
+//   justify-content: space-between;
+//   gap: 10px;
+//   padding: 14px;
+//   border: 0;
+//   border-bottom: 1px solid #edf2f7;
+//   border-left: 3px solid transparent;
+//   background: transparent;
+//   text-align: left;
+//   cursor: pointer;
+// }
+
+// .ticket-row:hover,
+// .ticket-row.active {
+//   background: #eff6ff;
+// }
+
+// .ticket-row.active {
+//   border-left-color: #2563eb;
+// }
+
+// .ticket-main {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 5px;
+//   min-width: 0;
+// }
+
+// .ticket-main strong {
+//   font-size: 13px;
+//   line-height: 1.35;
+//   color: #0f172a;
+//   word-break: break-word;
+// }
+
+// .ticket-main small,
+// .conversation-header p,
+// .message small {
+//   font-size: 11px;
+//   color: #64748b;
+// }
+
+// .ticket-meta {
+//   display: flex;
+//   align-items: center;
+//   gap: 6px;
+//   flex-shrink: 0;
+// }
+
+// .status {
+//   display: inline-flex;
+//   align-items: center;
+//   min-height: 22px;
+//   padding: 0 8px;
+//   border-radius: 999px;
+//   font-size: 10px;
+//   font-weight: 900;
+//   text-transform: capitalize;
+// }
+
+// .status.OPEN {
+//   background: #dbeafe;
+//   color: #1d4ed8;
+// }
+
+// .status.IN_PROGRESS,
+// .status.WAITING_CUSTOMER,
+// .status.REOPENED {
+//   background: #fef3c7;
+//   color: #b45309;
+// }
+
+// .status.RESOLVED,
+// .status.CLOSED {
+//   background: #dcfce7;
+//   color: #15803d;
+// }
+
+// .unread {
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+//   min-width: 20px;
+//   height: 20px;
+//   padding: 0 6px;
+//   border-radius: 999px;
+//   background: #dc2626;
+//   color: #ffffff;
+//   font-size: 11px;
+//   font-weight: 900;
+// }
+
+// .conversation-column {
+//   position: relative;
+//   display: flex;
+//   flex-direction: column;
+//   min-width: 0;
+//   min-height: 520px;
+// }
+
+// .conversation-header {
+//   display: flex;
+//   align-items: flex-start;
+//   justify-content: space-between;
+//   gap: 12px;
+//   padding: 16px;
+//   border-bottom: 1px solid #e5e7eb;
+// }
+
+// .conversation-header h3 {
+//   margin: 0;
+//   font-size: 17px;
+//   line-height: 1.35;
+//   color: #0f172a;
+//   word-break: break-word;
+// }
+
+// .conversation-header p {
+//   margin: 4px 0 0;
+// }
+
+// .support-thread {
+//   flex: 1;
+//   min-height: 0;
+//   max-height: 360px;
+//   overflow-y: auto;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 12px;
+//   padding: 16px;
+//   background: #f8fafc;
+// }
+
+// .message {
+//   max-width: 74%;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 5px;
+// }
+
+// .message p {
+//   margin: 0;
+//   padding: 11px 13px;
+//   border-radius: 8px;
+//   background: #ffffff;
+//   color: #111827;
+//   font-size: 13px;
+//   line-height: 1.5;
+//   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+//   word-break: break-word;
+// }
+
+// .message.user {
+//   align-self: flex-end;
+// }
+
+// .message.user p {
+//   background: #2563eb;
+//   color: #ffffff;
+// }
+
+// .message.admin {
+//   align-self: flex-start;
+// }
+
+// .reply-panel {
+//   display: grid;
+//   grid-template-columns: minmax(0, 1fr) auto;
+//   gap: 12px;
+//   padding: 14px;
+//   border-top: 1px solid #e5e7eb;
+//   background: #ffffff;
+// }
+
+// .reply-panel textarea {
+//   min-height: 68px;
+// }
+
+// .state,
+// .detail-loader {
+//   padding: 24px;
+//   text-align: center;
+//   color: #64748b;
+//   font-size: 13px;
+// }
+
+// .detail-loader {
+//   position: absolute;
+//   inset: 57px 0 82px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background: rgba(255, 255, 255, 0.72);
+//   z-index: 2;
+// }
+
+// @media (max-width: 900px) {
+//   .support-center {
+//     padding: 16px;
+//   }
+
+//   .support-workspace {
+//     grid-template-columns: 1fr;
+//   }
+
+//   .ticket-column {
+//     border-right: 0;
+//     border-bottom: 1px solid #e5e7eb;
+//   }
+
+//   .ticket-list {
+//     height: 280px;
+//   }
+// }
+
+// @media (max-width: 640px) {
+//   .ticket-form,
+//   .reply-panel {
+//     grid-template-columns: 1fr;
+//   }
+
+//   .primary-action {
+//     width: 100%;
+//   }
+
+//   .conversation-header {
+//     flex-direction: column;
+//   }
+
+//   .message {
+//     max-width: 92%;
+//   }
+// }
+
+/* ===========================================================
+   MoveKart Support Center
+   Premium Figma Style UI
+   PART 1 / 6
+=========================================================== */
+
+.support-center {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+
+  padding: 32px;
+
+  min-height: calc(100vh - 90px);
+
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+}
+
+/* ===========================================================
+   Main Cards
+=========================================================== */
+
+.support-create,
+.support-workspace {
+  position: relative;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  backdrop-filter: blur(20px);
+
+  border: 1px solid var(--border);
+
+  border-radius: 24px;
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow-lg);
+
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.support-create:hover,
+.support-workspace:hover {
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.1);
+}
+
+/* ===========================================================
+   Create Ticket Section
+=========================================================== */
+
+.support-create {
+  flex-shrink: 0;
+
+  padding: 36px;
+}
+
+/* ===========================================================
+   Section Heading
+=========================================================== */
+
+.section-heading {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-bottom: 32px;
+}
+
+.section-heading h2 {
+  margin: 0;
+
+  font-size: 34px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+
+  color: var(--text);
+
+  line-height: 1.2;
+}
+
+.section-heading p {
+  margin: 0;
+
+  max-width: 720px;
+
+  color: var(--text-light);
+
+  font-size: 15px;
+
+  line-height: 26px;
+}
+
+/* ===========================================================
+   Form Layout
+=========================================================== */
+
+.ticket-form {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.field.full {
+  grid-column: 1/-1;
+}
+
+/* ===========================================================
+   Labels
+=========================================================== */
+
+.field label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  color: #334155;
+
+  letter-spacing: 0.2px;
+}
+
+/* ===========================================================
+   Inputs
+=========================================================== */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  border: 1px solid #dbe4ef;
+
+  background: #fff;
+
+  color: var(--text);
+
+  font-family: inherit;
+
+  font-size: 15px;
+
+  outline: none;
+
+  border-radius: 16px;
+
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input,
+select {
+  height: 54px;
+
+  padding: 0 18px;
+}
+
+textarea {
+  min-height: 140px;
+
+  resize: vertical;
+
+  padding: 16px 18px;
+
+  line-height: 1.7;
+}
+
+/* ===========================================================
+   Placeholder
+=========================================================== */
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* ===========================================================
+   Focus
+=========================================================== */
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.12);
+}
+
+/* ===========================================================
+   Disabled
+=========================================================== */
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.65;
+
+  background: #f8fafc;
+
+  cursor: not-allowed;
+}
+
+/* ===========================================================
+   Premium Action Button
+=========================================================== */
+
+.primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  height: 54px;
+
+  padding: 0 28px;
+
+  border: 0;
+  border-radius: 16px;
+
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+}
+
+.primary-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow: 0 20px 36px rgba(37, 99, 235, 0.25);
+}
+
+.primary-action:active {
+  transform: scale(0.98);
+}
+
+.primary-action:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+/* ===========================================================
+   Alerts
+=========================================================== */
+
+.alert {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 18px 22px;
+
+  border-radius: 18px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  border: 1px solid transparent;
+
+  animation: fadeIn 0.35s ease;
+}
+
+.alert.success {
+  background: #ecfdf5;
+
+  color: #047857;
+
+  border-color: #a7f3d0;
+}
+
+.alert.error {
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  border-color: #fecaca;
+}
+
+/* ===========================================================
+   Workspace
+=========================================================== */
+
+.support-workspace {
+  display: grid;
+
+  grid-template-columns: 360px minmax(0, 1fr);
+
+  height: 700px;
+
+  margin-top: 24px;
+
+  overflow: hidden;
+}
+
+/* ===========================================================
+   Left Sidebar
+=========================================================== */
+
+.ticket-column {
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100%;
+
+  overflow: hidden;
+
+  border-right: 1px solid #e5e7eb;
+
+  background: #fbfdff;
+}
+
+/* ===========================================================
+   Ticket Toolbar
+=========================================================== */
+
+.ticket-tools {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+  flex-shrink: 0;
+  padding: 22px;
+
+  border-bottom: 1px solid var(--border);
+
+  background: white;
+}
+
+/* ===========================================================
+   Search
+=========================================================== */
+
+.ticket-tools input {
+  height: 50px;
+
+  border-radius: 14px;
+}
+
+/* ===========================================================
+   Tabs
+=========================================================== */
+
+.tabs {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.tabs button {
+  height: 46px;
+
+  border-radius: 14px;
+
+  border: 1px solid #dbe4ef;
+
+  background: white;
+
+  color: #475569;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tabs button:hover {
+  border-color: #bfdbfe;
+
+  background: #f8fbff;
+}
+
+.tabs button.active {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+
+  color: #1d4ed8;
+
+  border-color: #60a5fa;
+
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+/* ===========================================================
+   Ticket List
+=========================================================== */
+
+.ticket-list {
+  flex: 1;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  padding: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+/* ===========================================================
+   Ticket Card
+=========================================================== */
+
+.ticket-row {
+  width: 100%;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+  gap: 16px;
+
+  padding: 18px;
+
+  background: white;
+
+  border: 1px solid #edf2f7;
+
+  border-radius: 18px;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ticket-row:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+
+  border-color: #dbeafe;
+}
+
+.ticket-row.active {
+  background: #eff6ff;
+
+  border: 2px solid #3b82f6;
+
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.14);
+}
+
+/* ===========================================================
+   Ticket Info
+=========================================================== */
+
+.ticket-main {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  flex: 1;
+
+  min-width: 0;
+}
+
+.ticket-main strong {
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+  line-height: 1.45;
+
+  word-break: break-word;
+}
+
+.ticket-main small {
+  font-size: 12px;
+
+  color: #64748b;
+
+  line-height: 1.5;
+}
+
+/* ===========================================================
+   Right Meta
+=========================================================== */
+
+.ticket-meta {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 10px;
+}
+
+/* ===========================================================
+   Status Badge
+=========================================================== */
+
+.status {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  height: 30px;
+
+  padding: 0 16px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+
+  text-transform: uppercase;
+}
+
+.status.OPEN {
+  background: #dbeafe;
+
+  color: #2563eb;
+}
+
+.status.IN_PROGRESS,
+.status.WAITING_CUSTOMER,
+.status.REOPENED {
+  background: #fef3c7;
+
+  color: #b45309;
+}
+
+.status.RESOLVED,
+.status.CLOSED {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+/* ===========================================================
+   Unread Badge
+=========================================================== */
+
+.unread {
+  min-width: 26px;
+
+  height: 26px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dc2626;
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  box-shadow: 0 10px 18px rgba(220, 38, 38, 0.3);
+}
+
+/* ===========================================================
+   Animation
+=========================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================
+   PART 3 / 6
+   Conversation Panel
+=========================================================== */
+
+.conversation-column {
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100%;
+
+  overflow: hidden;
+}
+
+/* ===========================================================
+   Conversation Header
+=========================================================== */
+
+.conversation-header {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+
+  align-items: flex-start;
+  gap: 24px;
+
+  padding: 26px 30px;
+
+  border-bottom: 1px solid var(--border);
+
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+
+.conversation-header h3 {
+  margin: 0;
+
+  font-size: 24px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+  line-height: 1.4;
+
+  letter-spacing: -0.4px;
+
+  word-break: break-word;
+}
+
+.conversation-header p {
+  margin-top: 8px;
+
+  font-size: 13px;
+
+  color: #64748b;
+
+  line-height: 22px;
+}
+
+/* ===========================================================
+   Thread
+=========================================================== */
+
+.support-thread {
+  flex: 1;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+  padding: 30px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+/* ===========================================================
+   Messages
+=========================================================== */
+
+.message {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  max-width: 72%;
+
+  animation: messageIn 0.25s ease;
+}
+
+.message.user {
+  align-self: flex-end;
+}
+
+.message.admin {
+  align-self: flex-start;
+}
+
+.message small {
+  font-size: 11px;
+
+  color: #64748b;
+
+  padding: 0 8px;
+}
+
+.message.user .message-body {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+  color: white;
+}
+
+.message.admin .message-body {
+  background: white;
+
+  color: #111827;
+}
+
+.reply-panel {
+  flex-shrink: 0;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  gap: 18px;
+
+  padding: 24px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #fff;
+}
+
+.reply-panel textarea {
+  min-height: 110px;
+  width: 100%;
+  border-radius: 18px;
+
+  font-size: 15px;
+
+  padding: 18px;
+}
+
+.reply-panel button {
+  align-self: flex-end;
+
+  min-width: 170px;
+
+  height: 54px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.reply-panel button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 22px 40px rgba(37, 99, 235, 0.28);
+}
+
+.state {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 18px;
+
+  height: 100%;
+
+  padding: 80px;
+
+  text-align: center;
+
+  color: #64748b;
+
+  font-size: 15px;
+}
+
+.state h3 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 28px;
+
+  font-weight: 700;
+}
+
+.state p {
+  margin: 0;
+
+  max-width: 500px;
+
+  line-height: 28px;
+}
+
+/* ===========================================================
+   Loading Overlay
+=========================================================== */
+
+.detail-loader {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  backdrop-filter: blur(8px);
+
+  background: rgba(255, 255, 255, 0.75);
+
+  z-index: 100;
+}
+
+.detail-loader::after {
+  content: "";
+
+  width: 46px;
+
+  height: 46px;
+
+  border-radius: 50%;
+
+  border: 4px solid #dbeafe;
+
+  border-top-color: #2563eb;
+
+  animation: spinner 0.8s linear infinite;
+}
+
+/* ===========================================================
+   Conversation Scrollbar
+=========================================================== */
+
+.support-thread::-webkit-scrollbar {
+  width: 8px;
+}
+
+.support-thread::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.support-thread::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 999px;
+}
+
+.support-thread::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===========================================================
+   Animations
+=========================================================== */
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================
+   PART 4 / 6
+   Premium Polish & Micro Interactions
+=========================================================== */
+
+/* ===========================================================
+   Global Smooth Transition
+=========================================================== */
+
+*,
+*::before,
+*::after {
+  transition:
+    background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===========================================================
+   Premium Scrollbars
+=========================================================== */
+
+.ticket-list::-webkit-scrollbar,
+.support-thread::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ticket-list::-webkit-scrollbar-track,
+.support-thread::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ticket-list::-webkit-scrollbar-thumb,
+.support-thread::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 999px;
+}
+
+.ticket-list::-webkit-scrollbar-thumb:hover,
+.support-thread::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ===========================================================
+   Workspace Glass Highlight
+=========================================================== */
+
+.support-workspace::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+/* ===========================================================
+   Create Card Highlight
+=========================================================== */
+
+.support-create::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 0;
+
+  width: 100%;
+
+  height: 5px;
+
+  background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
+}
+
+/* ===========================================================
+   Workspace Highlight
+=========================================================== */
+
+.support-workspace::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 5px;
+
+  background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa);
+}
+
+/* ===========================================================
+   Ticket Card Hover
+=========================================================== */
+
+.ticket-row:hover {
+  transform: translateY(-4px);
+
+  border-color: #bfdbfe;
+}
+
+/* ===========================================================
+   Ticket Subject
+=========================================================== */
+
+.ticket-main strong {
+  transition: color 0.25s;
+}
+
+.ticket-row:hover .ticket-main strong {
+  color: #2563eb;
+}
+
+.reply-panel {
+  position: relative;
+
+  flex-shrink: 0;
+
+  z-index: 2;
+
+  box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.05);
+}
+
+/* ===========================================================
+   Textarea Hover
+=========================================================== */
+
+.reply-panel textarea:hover {
+  border-color: #bfdbfe;
+}
+
+/* ===========================================================
+   Input Hover
+=========================================================== */
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: #93c5fd;
+}
+
+/* ===========================================================
+   Section Heading Accent
+=========================================================== */
+
+.section-heading h2 {
+  position: relative;
+}
+
+.section-heading h2::after {
+  content: "";
+
+  display: block;
+
+  margin-top: 14px;
+
+  width: 70px;
+
+  height: 5px;
+
+  border-radius: 999px;
+
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+/* ===========================================================
+   Ticket Column Background
+=========================================================== */
+
+.ticket-column {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+
+/* ===========================================================
+   Active Status Glow
+=========================================================== */
+
+.ticket-row.active {
+  position: relative;
+}
+
+.ticket-row.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: -2px;
+
+  top: 18px;
+
+  bottom: 18px;
+
+  width: 5px;
+
+  border-radius: 999px;
+
+  background: #2563eb;
+}
+
+/* ===========================================================
+   Status Badges Glow
+=========================================================== */
+
+.status.OPEN {
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.15);
+}
+
+.status.IN_PROGRESS,
+.status.WAITING_CUSTOMER,
+.status.REOPENED {
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.18);
+}
+
+.status.RESOLVED,
+.status.CLOSED {
+  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.16);
+}
+
+/* ===========================================================
+   Unread Badge Pulse
+=========================================================== */
+
+.unread {
+  animation: unreadPulse 2.5s infinite;
+}
+
+@keyframes unreadPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===========================================================
+   Better Selection
+=========================================================== */
+
+::selection {
+  background: #2563eb;
+
+  color: white;
+}
+
+/* ===========================================================
+   Keyboard Focus Accessibility
+=========================================================== */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.18);
+}
+
+/* ===========================================================
+   Slight Card Animation
+=========================================================== */
+
+.support-create,
+.support-workspace {
+  animation: fadeCard 0.45s ease;
+}
+
+@keyframes fadeCard {
+  from {
+    opacity: 0;
+
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================
+   PART 5 / 6
+   Responsive Layout
+=========================================================== */
+
+/* ===========================================================
+   Large Desktop (1600px)
+=========================================================== */
+
+@media (min-width: 1600px) {
+  .support-center {
+    max-width: 1800px;
+
+    margin: auto;
+
+    padding: 40px;
+  }
+
+  .support-workspace {
+    grid-template-columns: 420px 1fr;
+  }
+
+  .ticket-tools {
+    padding: 28px;
+  }
+
+  .support-thread {
+    padding: 36px;
+  }
+}
+
+/* ===========================================================
+   Desktop (1440px)
+=========================================================== */
+
+@media (max-width: 1440px) {
+  .support-center {
+    padding: 28px;
+  }
+
+  .support-workspace {
+    grid-template-columns: 360px 1fr;
+  }
+
+  .section-heading h2 {
+    font-size: 32px;
+  }
+}
+
+/* ===========================================================
+   Laptop (1280px)
+=========================================================== */
+
+@media (max-width: 1280px) {
+  .support-center {
+    padding: 24px;
+  }
+
+  .support-workspace {
+    grid-template-columns: 330px 1fr;
+  }
+
+  .ticket-form {
+    gap: 20px;
+  }
+
+  .section-heading h2 {
+    font-size: 30px;
+  }
+
+  .support-thread {
+    padding: 24px;
+  }
+
+  .reply-panel {
+    padding: 20px;
+  }
+}
+
+/* ===========================================================
+   Small Laptop (1100px)
+=========================================================== */
+
+@media (max-width: 1100px) {
+  .support-workspace {
+    grid-template-columns: 300px 1fr;
+  }
+
+  .ticket-row {
+    padding: 16px;
+  }
+
+  .ticket-main strong {
+    font-size: 14px;
+  }
+
+  .status {
+    font-size: 10px;
+
+    padding: 0 12px;
+  }
+}
+
+/* ===========================================================
+   Tablet Landscape (992px)
+=========================================================== */
+
+@media (max-width: 992px) {
+  .support-center {
+    padding: 18px;
+
+    gap: 20px;
+  }
+
+  .support-workspace {
+    display: flex;
+
+    flex-direction: column;
+
+    flex: 1;
+
+    min-height: 0;
+
+    overflow: hidden;
+  }
+
+  .ticket-column {
+    border-right: none;
+
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ticket-list {
+    max-height: 340px;
+  }
+
+  .reply-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .reply-panel button {
+    width: 100%;
+  }
+
+  .message {
+    max-width: 88%;
+  }
+}
+
+/* ===========================================================
+   Tablet Portrait (768px)
+=========================================================== */
+
+@media (max-width: 768px) {
+  .support-center {
+    padding: 16px;
+  }
+
+  .support-create {
+    padding: 22px;
+  }
+
+  .ticket-form {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: auto;
+  }
+
+  .section-heading {
+    margin-bottom: 24px;
+  }
+
+  .section-heading h2 {
+    font-size: 28px;
+  }
+
+  .section-heading p {
+    font-size: 14px;
+
+    line-height: 24px;
+  }
+
+  .ticket-tools {
+    padding: 16px;
+  }
+
+  .tabs {
+    gap: 8px;
+  }
+
+  .tabs button {
+    height: 42px;
+  }
+
+  .conversation-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px;
+  }
+
+  .conversation-left {
+    width: 100%;
+  }
+
+  .conversation-right {
+    width: 100%;
+
+    justify-content: flex-start;
+  }
+
+  .support-thread {
+    padding: 18px;
+  }
+
+  .message {
+    max-width: 92%;
+  }
+
+  .reply-panel {
+    padding: 18px;
+  }
+
+  .reply-panel textarea {
+    min-height: 90px;
+  }
+}
+
+/* ===========================================================
+   Mobile Large (576px)
+=========================================================== */
+
+@media (max-width: 576px) {
+  .support-center {
+    padding: 12px;
+  }
+
+  .support-create {
+    border-radius: 18px;
+  }
+
+  .support-workspace {
+    border-radius: 18px;
+  }
+
+  .section-heading h2 {
+    font-size: 24px;
+  }
+
+  .section-heading p {
+    font-size: 13px;
+  }
+
+  .ticket-row {
+    flex-direction: row;
+
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ticket-meta {
+    width: 100%;
+
+    flex-direction: row;
+
+    justify-content: space-between;
+  }
+
+  .message {
+    max-width: 100%;
+  }
+
+  .message p {
+    padding: 16px;
+
+    font-size: 13px;
+  }
+
+  .reply-panel textarea {
+    min-height: 80px;
+  }
+
+  .primary-action {
+    width: 100%;
+  }
+}
+
+/* ===========================================================
+   Mobile (480px)
+=========================================================== */
+
+@media (max-width: 480px) {
+  .support-center {
+    padding: 10px;
+  }
+
+  .support-create {
+    padding: 18px;
+  }
+
+  .ticket-tools {
+    padding: 14px;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs button {
+    width: 100%;
+  }
+
+  .ticket-list {
+    padding: 12px;
+  }
+
+  .ticket-row {
+    padding: 14px;
+  }
+
+  .ticket-main strong {
+    font-size: 13px;
+  }
+
+  .ticket-main small {
+    font-size: 11px;
+  }
+
+  .conversation-header {
+    padding: 16px;
+  }
+
+  .conversation-header h3 {
+    font-size: 20px;
+  }
+
+  .support-thread {
+    padding: 14px;
+
+    gap: 16px;
+  }
+
+  .reply-panel {
+    padding: 14px;
+  }
+
+  .reply-panel button {
+    height: 48px;
+  }
+
+  .primary-action {
+    height: 48px;
+  }
+
+  input,
+  select {
+    height: 48px;
+  }
+
+  textarea {
+    min-height: 72px;
+  }
+}
+
+/* ===========================================================
+   iPhone (390px)
+=========================================================== */
+
+@media (max-width: 390px) {
+  .section-heading h2 {
+    font-size: 22px;
+  }
+
+  .section-heading p {
+    font-size: 12px;
+  }
+
+  .ticket-row {
+    padding: 12px;
+  }
+
+  .status {
+    font-size: 9px;
+  }
+
+  .unread {
+    width: 22px;
+
+    height: 22px;
+  }
+
+  .message p {
+    font-size: 12px;
+
+    padding: 14px;
+  }
+
+  .reply-panel textarea {
+    font-size: 13px;
+  }
+}
+
+/* ===========================================================
+   Small Phones (360px)
+=========================================================== */
+
+@media (max-width: 360px) {
+  .support-center {
+    padding: 8px;
+  }
+
+  .support-create {
+    padding: 16px;
+  }
+
+  .ticket-tools {
+    padding: 12px;
+  }
+
+  .section-heading h2 {
+    font-size: 20px;
+  }
+
+  .section-heading p {
+    font-size: 12px;
+
+    line-height: 20px;
+  }
+
+  .ticket-main strong {
+    font-size: 12px;
+  }
+
+  .message p {
+    padding: 12px;
+  }
+
+  .primary-action {
+    font-size: 13px;
+  }
+
+  .reply-panel button {
+    font-size: 13px;
+  }
+}
+
+/* ===========================================================
+   PART 6 / 6
+   Production Polish
+=========================================================== */
+
+/* ===========================================================
+   Better Font Rendering
+=========================================================== */
+
+html {
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+  text-rendering: optimizeLegibility;
+}
+
+/* ===========================================================
+   Box Sizing
+=========================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ===========================================================
+   Image Behaviour
+=========================================================== */
+
+img {
+  display: block;
+
+  max-width: 100%;
+
+  height: auto;
+}
+
+/* ===========================================================
+   Better Button Behaviour
+=========================================================== */
+
+button {
+  font-family: inherit;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+
+  touch-action: manipulation;
+}
+
+button:disabled {
+  pointer-events: none;
+}
+
+/* ===========================================================
+   Anchor
+=========================================================== */
+
+a {
+  text-decoration: none;
+
+  color: inherit;
+}
+
+/* ===========================================================
+   Remove Number Input Arrows
+=========================================================== */
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+/* ===========================================================
+   Better Selection
+=========================================================== */
+
+::selection {
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+/* ===========================================================
+   Better Focus Ring
+=========================================================== */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.18);
+}
+
+/* ===========================================================
+   Utility Classes
+=========================================================== */
+
+.shadow-sm {
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.shadow-md {
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.shadow-lg {
+  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.12);
+}
+
+.radius-lg {
+  border-radius: 24px;
+}
+
+.radius-md {
+  border-radius: 18px;
+}
+
+.radius-sm {
+  border-radius: 12px;
+}
+
+/* ===========================================================
+   Glass Utility
+=========================================================== */
+
+.glass {
+  background: rgba(255, 255, 255, 0.78);
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ===========================================================
+   Loading State
+=========================================================== */
+
+.loading {
+  pointer-events: none;
+
+  opacity: 0.72;
+
+  filter: grayscale(0.1);
+}
+
+/* ===========================================================
+   Smooth Fade
+=========================================================== */
+
+.fade-in {
+  animation: fadeInAnimation 0.35s ease;
+}
+
+@keyframes fadeInAnimation {
+  from {
+    opacity: 0;
+
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================
+   Card Entrance
+=========================================================== */
+
+.ticket-row {
+  animation: cardAppear 0.25s ease;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================
+   Dark Mode Ready
+=========================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .support-center {
+    transition: 0.25s;
+  }
+}
+
+/* ===========================================================
+   Reduced Motion
+=========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+
+    transition: none !important;
+
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===========================================================
+   Print Support
+=========================================================== */
+
+@media print {
+  .support-center {
+    background: white;
+
+    padding: 0;
+  }
+
+  .support-create {
+    display: none;
+  }
+
+  .support-workspace {
+    box-shadow: none;
+
+    border: none;
+  }
+
+  .reply-panel {
+    display: none;
+  }
+
+  .ticket-tools {
+    display: none;
+  }
+}
+
+/* ===========================================================
+   Final Hover Polish
+=========================================================== */
+
+.support-create:hover,
+.support-workspace:hover {
+  transform: translateY(-2px);
+}
+
+.ticket-row:hover {
+  cursor: pointer;
+}
+
+.primary-action:hover {
+  filter: brightness(1.03);
+}
+
+.reply-panel button:hover {
+  filter: brightness(1.03);
+}
+
+/* ===========================================================
+   Final Scroll Behaviour
+=========================================================== */
+
+.support-thread,
+.ticket-list {
+  scroll-behavior: smooth;
+
+  overscroll-behavior: contain;
+}
+
+/* ===========================================================
+   Final Typography
+=========================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.4px;
+}
+
+p {
+  line-height: 1.65;
+}
+
+/*=====================================================
+NEW PREMIUM COMPONENTS
+======================================================*/
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper::before {
+  content: "";
+
+  position: absolute;
+
+  left: 16px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 18px;
+
+  height: 18px;
+
+  opacity: 0.55;
+
+  pointer-events: none;
+
+  background: url("/assets/icons/search.svg") center center / contain no-repeat;
+}
+
+.search-wrapper input {
+  padding-left: 46px;
+}
+
+.ticket-avatar {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  border-radius: 16px;
+
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
+}
+
+.ticket-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.ticket-bottom {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-top: 6px;
+}
+
+.conversation-left {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 20px;
+}
+
+.conversation-right {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: flex-end;
+
+  flex-shrink: 0;
+}
+
+.conversation-avatar {
+  width: 64px;
+  height: 64px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.conversation-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.conversation-info h3 {
+  margin: 0;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.conversation-info p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+.conversation-info small {
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+.message-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 8px;
+}
+
+.message-header strong {
+  font-size: 13px;
+
+  color: #0f172a;
+}
+
+.message-header span {
+  font-size: 11px;
+
+  color: #64748b;
+}
+
+.message-body {
+  padding: 18px 22px;
+
+  border-radius: 18px;
+
+  background: white;
+
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+
+  line-height: 1.7;
+
+  font-size: 14px;
+}
+
+.message.user .message-body {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+  color: white;
+}
+
+.state-icon {
+  width: 90px;
+
+  height: 90px;
+
+  border-radius: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #eff6ff;
+
+  font-size: 42px;
+
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.12);
+}
+
+.reply-box {
+  width: 100%;
+
+  display: flex;
+}

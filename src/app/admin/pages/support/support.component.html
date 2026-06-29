@@ -16,17 +16,17 @@
 
 
     <!-- TABS -->
-    <div class="support-tabs"> <button [class.active]="!isSearching && currentTab === 'open'"
-            (click)="changeTab('open')">
-            Open ({{ counts.open || 0 }})
+    <div class="support-tabs"> <button [class.active]="!isSearching && currentTab === 'OPEN'"
+            (click)="changeTab('OPEN')">
+            Open ({{ counts.OPEN || 0 }})
         </button>
 
-        <button [class.active]="!isSearching && currentTab === 'in-progress'" (click)="changeTab('in-progress')">
-            In Progress ({{ counts['in-progress'] || 0 }})
+        <button [class.active]="!isSearching && currentTab === 'IN_PROGRESS'" (click)="changeTab('IN_PROGRESS')">
+            In Progress ({{ (counts.IN_PROGRESS || 0) + (counts.WAITING_CUSTOMER || 0) + (counts.REOPENED || 0) }})
         </button>
 
-        <button [class.active]="!isSearching && currentTab === 'resolved'" (click)="changeTab('resolved')">
-            Resolved ({{ counts.resolved || 0 }})
+        <button [class.active]="!isSearching && currentTab === 'RESOLVED'" (click)="changeTab('RESOLVED')">
+            Resolved ({{ counts.RESOLVED || 0 }})
         </button>
     </div>
 
@@ -48,9 +48,9 @@
                     No results found for "{{ searchTerm }}"
                 </p>
 
-                <p *ngIf="!isSearching && currentTab === 'open'">No open tickets</p>
-                <p *ngIf="!isSearching && currentTab === 'in-progress'">No tickets in progress</p>
-                <p *ngIf="!isSearching && currentTab === 'resolved'">No resolved tickets</p>
+                <p *ngIf="!isSearching && currentTab === 'OPEN'">No open tickets</p>
+                <p *ngIf="!isSearching && currentTab === 'IN_PROGRESS'">No tickets in progress</p>
+                <p *ngIf="!isSearching && currentTab === 'RESOLVED'">No resolved tickets</p>
 
             </div>
 
@@ -105,16 +105,17 @@
                     </div>
 
                     <select *ngIf="permissionService.has('support.update')" [(ngModel)]="selectedTicket.status"
-                        (ngModelChange)="updateStatus($event)" [disabled]="selectedTicket.status === 'resolved'">
+                        (ngModelChange)="updateStatus($event)" [disabled]="selectedTicket.status === 'RESOLVED'">
 
-                        <option value="open">Open</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="WAITING_CUSTOMER">Waiting Customer</option>
+                        <option value="RESOLVED">Resolved</option>
 
                     </select>
 
                     <button *ngIf="
-                    selectedTicket.status === 'resolved' &&
+                    selectedTicket.status === 'RESOLVED' &&
                     permissionService.has('support.update')
                   " class="reopen-btn" (click)="reopenTicket()">
                         Reopen Ticket
@@ -146,7 +147,7 @@
 
                 <!-- REPLY -->
                 <div class="reply-box" *ngIf="
-    selectedTicket?.status !== 'resolved' &&
+    selectedTicket?.status !== 'RESOLVED' &&
     permissionService.has('support.reply')
   "> <input type="text" placeholder="Type your reply..." [(ngModel)]="replyText" />
 

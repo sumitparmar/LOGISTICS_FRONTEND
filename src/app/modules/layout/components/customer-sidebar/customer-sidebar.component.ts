@@ -48,7 +48,7 @@ export class CustomerSidebarComponent {
     {
       label: 'Support Center',
       icon: '🎫',
-      route: '',
+      route: '/app/support',
     },
     {
       label: 'Notifications',

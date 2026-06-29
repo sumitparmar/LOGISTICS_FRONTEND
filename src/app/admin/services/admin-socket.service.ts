@@ -13,6 +13,9 @@ export class AdminSocketService {
   private newTicketSubject = new Subject<any>();
   newTicket$ = this.newTicketSubject.asObservable();
 
+  private ticketUpdatedSubject = new Subject<any>();
+  ticketUpdated$ = this.ticketUpdatedSubject.asObservable();
+
   private orderUpdateSubject = new Subject<any>();
   orderUpdate$ = this.orderUpdateSubject.asObservable();
 
@@ -66,6 +69,10 @@ export class AdminSocketService {
         message: data.subject,
         priority: 'HIGH',
       });
+    });
+
+    this.socket.on('ticket_updated', (data: any) => {
+      this.ticketUpdatedSubject.next(data);
     });
   }
 
