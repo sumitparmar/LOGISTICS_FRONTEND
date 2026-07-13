@@ -42,4 +42,10 @@ export class ApiService {
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(this.buildUrl(endpoint));
   }
+
+  download(endpoint: string) {
+    return this.http.get(this.buildUrl(endpoint), {
+      responseType: 'blob',
+    });
+  }
 }
