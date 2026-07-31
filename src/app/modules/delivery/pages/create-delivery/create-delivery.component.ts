@@ -504,6 +504,10 @@ export class CreateDeliveryComponent
 
   ngAfterViewInit(): void {
     setTimeout(() => {
+      if (typeof google === 'undefined' || !google.maps) {
+        return;
+      }
+
       this.initMap();
       this.initPickupAutocomplete();
       this.attachStopAutocompletes();
@@ -1220,9 +1224,11 @@ export class CreateDeliveryComponent
 
   scrollToFirstInvalidField(): void {
     setTimeout(() => {
-      const invalid = document.querySelector(
-        'input.ng-invalid, textarea.ng-invalid, select.ng-invalid',
-      ) as HTMLElement;
+      const invalid = this.routeMap?.nativeElement
+        ?.closest('body')
+        ?.querySelector(
+          'input.ng-invalid, textarea.ng-invalid, select.ng-invalid',
+        ) as HTMLElement;
 
       if (!invalid) return;
 

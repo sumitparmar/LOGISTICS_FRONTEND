@@ -21,8 +21,8 @@
         </div>
 
         <div class="mk-header-right">
-            <button class="mk-new-btn" (click)="goToBookDelivery()" aria-label="Book new delivery">
-                New Delivery
+            <button type="button" class="mk-new-btn" (click)="goToBookDelivery()" aria-label="Book new delivery"> New
+                Delivery
             </button>
         </div>
     </div>
@@ -42,7 +42,8 @@
         <div class="mk-error-icon">⚠️</div>
         <p class="mk-error-title">Failed to load dashboard</p>
         <p class="mk-error-sub">Please check your connection and try again.</p>
-        <button class="mk-retry-btn" (click)="reloadDashboard()">Retry</button>
+        <button type="button" class="mk-retry-btn" (click)="reloadDashboard()">
+            Retry</button>
     </div>
 
     <!-- ── MAIN CONTENT ───────────────────── -->
@@ -119,17 +120,17 @@
 
         <!-- ── QUICK ACTIONS ──────────────────── -->
         <div class="mk-quick-actions">
-            <button class="mk-quick-btn" (click)="goToBookDelivery()">
-                <span class="mk-qa-icon">🚚</span><span>Book Delivery</span>
+            <button type="button" class="mk-quick-btn" (click)="goToBookDelivery()"> <span
+                    class="mk-qa-icon">🚚</span><span>Book Delivery</span>
             </button>
-            <button class="mk-quick-btn" (click)="goToAllOrders()">
-                <span class="mk-qa-icon">📦</span><span>All Orders</span>
+            <button type="button" class="mk-quick-btn" (click)="goToAllOrders()"> <span
+                    class="mk-qa-icon">📦</span><span>All Orders</span>
             </button>
-            <button class="mk-quick-btn" (click)="goToWallet()">
-                <span class="mk-qa-icon">💳</span><span>Add Money</span>
+            <button type="button" class="mk-quick-btn" (click)="goToWallet()"> <span
+                    class="mk-qa-icon">💳</span><span>Add Money</span>
             </button>
-            <button class="mk-quick-btn" (click)="goToActiveOrders()">
-                <span class="mk-qa-icon">📍</span><span>Track Order</span>
+            <button type="button" class="mk-quick-btn" (click)="goToActiveOrders()"> <span
+                    class="mk-qa-icon">📍</span><span>Track Order</span>
             </button>
         </div>
 
@@ -200,8 +201,7 @@
                         <h2 class="mk-orders-title">Recent Orders</h2>
                         <span class="mk-orders-badge">{{ allRecentOrders.length }}</span>
                     </div>
-                    <button class="mk-view-all-btn" (click)="goToAllOrders()">
-                        View all
+                    <button type="button" class="mk-view-all-btn" (click)="goToAllOrders()"> View all
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
                             <path d="M5 12h14M12 5l7 7-7 7" />
@@ -269,8 +269,8 @@
                                         <p class="mk-empty-sub">
                                             Book your first goods transport or mini truck delivery
                                         </p>
-                                        <button class="mk-empty-cta" (click)="goToBookDelivery()">
-                                            + Book Delivery
+                                        <button type="button" class="mk-empty-cta" (click)="goToBookDelivery()"> + Book
+                                            Delivery
                                         </button>
                                     </div>
                                 </td>
@@ -281,8 +281,11 @@
 
                 <!-- Mobile Cards -->
                 <div class="mk-mobile-orders">
+
                     <div class="mk-mobile-order-card" *ngFor="let order of recentOrders; trackBy: trackByOrder"
-                        (click)="goToOrder(order.id)">
+                        (click)="goToOrder(order.id)" role="button" tabindex="0" (keydown.enter)="goToOrder(order.id)">
+
+
                         <div class="mk-mob-top">
                             <span class="mk-order-id">{{ truncateId(order.id) }}</span>
                             <span class="mk-status-badge" [ngClass]="getStatusConfig(order.status).class">
@@ -311,8 +314,7 @@
                     <div class="mk-empty-state" *ngIf="recentOrders.length === 0">
                         <div class="mk-empty-icon">📭</div>
                         <p class="mk-empty-title">No orders yet</p>
-                        <button class="mk-empty-cta" (click)="goToBookDelivery()">
-                            + Book Delivery
+                        <button type="button" class="mk-empty-cta" (click)="goToBookDelivery()"> + Book Delivery
                         </button>
                     </div>
                 </div>

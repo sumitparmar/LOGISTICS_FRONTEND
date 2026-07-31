@@ -128,8 +128,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.loadOrders();
   }
 
-  searchTimeout: any;
-
+  private searchTimeout?: ReturnType<typeof setTimeout>;
   applyStatusFilter(): void {
     if (!this.statusFilter) {
       this.filteredOrders = this.orders;
@@ -276,23 +275,23 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     this.router.navigate(['/app/orders', id]);
   }
-  createDeliveryClick() {
+  createDeliveryClick(): void {
     this.analytics.trackEvent('create_order_clicked');
 
     this.router.navigate(['/app/delivery/create']);
   }
 
-  trackByOrder(index: number, order: any) {
-    return order?._id || index;
+  trackByOrder(index: number, order: any): string | number {
+    return order?._id ?? index;
   }
 
-  onPageChange(page: number) {
-    if (page === this.page) return; // 🔥 prevent loop
+  onPageChange(page: number): void {
+    if (page === this.page) return;
     this.page = page;
     this.loadOrders();
   }
 
-  onLimitChange(limit: number) {
+  onLimitChange(limit: number): void {
     if (limit === this.limit) return;
     this.limit = limit;
     this.page = 1;

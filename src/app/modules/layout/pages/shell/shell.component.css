@@ -2,6 +2,7 @@
   display: flex;
 
   min-height: 100vh;
+  min-height: 100dvh;
 
   background: #f8fafc;
 }
@@ -41,4 +42,12 @@
   .customer-content {
     padding: 16px;
   }
+}
+
+.customer-main {
+  overflow-x: hidden;
+}
+
+.customer-content {
+  overflow-x: hidden;
 }

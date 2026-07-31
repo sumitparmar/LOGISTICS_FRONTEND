@@ -47,7 +47,9 @@
 
 .mk-orders-page {
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 28px 22px 60px;
+  overflow-x: hidden;
   background:
     radial-gradient(
       circle at top right,
@@ -68,6 +70,8 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
+
+  overflow-x: hidden;
 }
 
 .mk-orders-header {
@@ -215,8 +219,8 @@
 }
 
 .mk-search-wrap {
-  flex: 1;
-  min-width: 260px;
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
 .mk-search-wrap input {
@@ -259,6 +263,7 @@
   font-size: 13px;
   font-weight: 700;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .mk-status-tabs button:hover {
@@ -515,6 +520,7 @@
   font-size: 14px;
   font-weight: 800;
   flex-shrink: 0;
+  user-select: none;
 }
 
 .mk-courier-name {

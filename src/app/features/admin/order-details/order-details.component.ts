@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminOrdersService } from '../../../admin/services/admin-orders.service';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
@@ -20,6 +22,7 @@ export class OrderDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private ordersService: AdminOrdersService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -89,7 +92,7 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    window.history.back();
+    this.router.navigate(['/app/orders']);
   }
 
   onRouteInfo(data: any): void {
@@ -112,7 +115,7 @@ export class OrderDetailsComponent implements OnInit {
       'https://www.google.com/maps/search/?api=1&query=' +
       encodeURIComponent(address);
 
-    window.open(url, '_blank');
+    window.location.href = url;
   }
 
   isStepActive(stepKey: string): boolean {

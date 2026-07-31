@@ -132,10 +132,18 @@ export class DashboardComponent implements OnInit {
   }
 
   reloadDashboard(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.loadDashboard();
   }
 
   private loadDashboard(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.isLoading = true;
     this.hasError = false;
     this.page = 1;
@@ -164,7 +172,7 @@ export class DashboardComponent implements OnInit {
           ? Math.max(...this.spendingChart.map((s) => s.total), 1)
           : 1;
 
-        this.allRecentOrders = data.recentOrders.map((order) => ({
+        this.allRecentOrders = (data.recentOrders ?? []).map((order) => ({
           id: order.id,
           borzoOrderId: order.borzoOrderId,
           pickup: order.pickup,
@@ -199,7 +207,7 @@ export class DashboardComponent implements OnInit {
   private formatDate(date: string): string {
     const value = new Date(date);
 
-    return value.toLocaleString('en-IN', {
+    return value.toLocaleString(undefined, {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
@@ -266,7 +274,7 @@ export class DashboardComponent implements OnInit {
     this.updatePaginatedOrders();
   }
 
-  trackByOrder(index: number, order: RecentOrder): string {
+  trackByOrder(_: number, order: RecentOrder): string {
     return order.id;
   }
 }

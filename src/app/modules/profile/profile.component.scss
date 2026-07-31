@@ -1,6 +1,7 @@
 .settings-page {
   background: #f5f7fb;
   min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
   padding: 60px 20px;
 }
 
@@ -62,6 +63,7 @@ label {
 }
 
 input {
+  box-sizing: border-box;
   width: 100%;
   height: 42px;
   padding: 0 12px;
@@ -88,6 +90,10 @@ input:focus {
   cursor: pointer;
 }
 
+.btn-primary {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .btn-primary:hover {
   background: #e56d00;
 }
@@ -98,6 +104,10 @@ input:focus {
 }
 
 @media (max-width: 900px) {
+  .settings-page {
+    padding: 24px 16px;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
   }
@@ -106,7 +116,11 @@ input:focus {
 :host-context([data-theme="dark"]) {
   .settings-page {
     background:
-      radial-gradient(circle at top right, rgba(10, 132, 255, 0.11), transparent 30%),
+      radial-gradient(
+        circle at top right,
+        rgba(10, 132, 255, 0.11),
+        transparent 30%
+      ),
       #000;
     color: var(--color-text-primary);
   }
@@ -137,4 +151,13 @@ input:focus {
     background: #3a3a3c;
     color: var(--color-text-muted);
   }
+}
+
+.settings-page {
+  -webkit-overflow-scrolling: touch;
+}
+
+.btn-primary {
+  user-select: none;
+  -webkit-user-select: none;
 }

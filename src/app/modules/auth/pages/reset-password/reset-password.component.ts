@@ -1,15 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { finalize } from 'rxjs/operators';
+
+function passwordMatchValidator(group: FormGroup) {
+  const password = group.get('password')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+
+  return password === confirmPassword ? null : { mismatch: true };
+}
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss'],
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, OnDestroy {
+  private redirectTimer?: ReturnType<typeof setTimeout>;
   form!: FormGroup;
 
   token = '';
@@ -30,9 +38,16 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
-
     if (!this.token) {
       this.errorMessage = 'Invalid or expired reset link.';
+
+      this.form = this.fb.group({
+        password: [''],
+        confirmPassword: [''],
+      });
+
+      this.form.disable();
+
       return;
     }
 
@@ -41,16 +56,16 @@ export class ResetPasswordComponent implements OnInit {
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', Validators.required],
       },
-      { validators: this.passwordMatchValidator },
+      { validators: passwordMatchValidator },
     );
   }
 
-  passwordMatchValidator(group: FormGroup) {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
+  // passwordMatchValidator(group: FormGroup) {
+  //   const password = group.get('password')?.value;
+  //   const confirmPassword = group.get('confirmPassword')?.value;
 
-    return password === confirmPassword ? null : { mismatch: true };
-  }
+  //   return password === confirmPassword ? null : { mismatch: true };
+  // }
 
   get passwordControl() {
     return this.form.get('password');
@@ -59,8 +74,14 @@ export class ResetPasswordComponent implements OnInit {
   get confirmPasswordControl() {
     return this.form.get('confirmPassword');
   }
-
   onSubmit(): void {
+    if (this.loading) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
     if (this.form.invalid || !this.token) {
       this.errorMessage = 'Please complete the form correctly.';
       this.successMessage = '';
@@ -68,6 +89,7 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     this.loading = true;
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -83,11 +105,13 @@ export class ResetPasswordComponent implements OnInit {
             'Password updated successfully. Redirecting to login...';
 
           this.form.reset();
+          this.form.disable();
 
-          setTimeout(() => {
+          this.redirectTimer = setTimeout(() => {
             this.router.navigate(['/auth/login']);
           }, 1800);
         },
+
         error: (err) => {
           const message = err?.error?.message?.toLowerCase() || '';
 
@@ -103,5 +127,11 @@ export class ResetPasswordComponent implements OnInit {
           }
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+    }
   }
 }

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { HostListener } from '@angular/core';
-import { interval } from 'rxjs';
+import { Subject, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { NotificationStateService } from 'src/app/shared/services/notification-state.service';
 import { CustomerNotificationService } from 'src/app/modules/notifications/services/customer-notification.service';
 @Component({
@@ -10,12 +11,13 @@ import { CustomerNotificationService } from 'src/app/modules/notifications/servi
   templateUrl: './customer-topbar.component.html',
   styleUrls: ['./customer-topbar.component.css'],
 })
-export class CustomerTopbarComponent implements OnInit {
+export class CustomerTopbarComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   userName = '';
   userInitial = '';
   isDropdownOpen = false;
   isAdmin = false;
+  private destroy$ = new Subject<void>();
 
   @HostListener('document:click')
   closeDropdown(): void {
@@ -37,20 +39,21 @@ export class CustomerTopbarComponent implements OnInit {
       this.userInitial = user.name?.charAt(0)?.toUpperCase() || 'U';
 
       this.isAdmin = user.role?.toLowerCase() === 'admin';
-
-      console.log('TOPBAR USER:', user);
-      console.log('IS ADMIN:', this.isAdmin);
     }
 
     this.loadUnreadCount();
 
-    this.notificationState.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
-    });
+    this.notificationState.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((count) => {
+        this.unreadCount = count;
+      });
 
-    interval(30000).subscribe(() => {
-      this.loadUnreadCount();
-    });
+    interval(30000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadUnreadCount();
+      });
   }
 
   toggleDropdown(event: Event): void {
@@ -84,6 +87,11 @@ export class CustomerTopbarComponent implements OnInit {
   }
 
   openAdminPanel(): void {
-    window.open('/admin', '_blank');
+    this.router.navigate(['/admin']);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

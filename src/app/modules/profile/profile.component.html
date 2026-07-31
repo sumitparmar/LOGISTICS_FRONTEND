@@ -18,25 +18,24 @@
                     <h3>Profile Information</h3>
                 </div>
 
-                <form [formGroup]="profileForm">
-
+                <form [formGroup]="profileForm" (submit)="$event.preventDefault()">
                     <div class="field">
                         <label>Name</label>
-                        <input formControlName="name">
+                        <input formControlName="name" autocomplete="name">
                     </div>
 
                     <div class="field">
                         <label>Email</label>
-                        <input formControlName="email">
+                        <input formControlName="email" autocomplete="email">
                     </div>
 
                     <div class="field">
                         <label>Phone</label>
-                        <input formControlName="phone">
+                        <input formControlName="phone" inputmode="tel" autocomplete="tel">
                     </div>
 
-                    <button class="btn-primary" (click)="updateProfile()" [disabled]="profileForm.invalid || loading">
-                        Update Profile
+                    <button type="button" class="btn-primary" (click)="updateProfile()"
+                        [disabled]="profileForm.invalid || loading"> Update Profile
                     </button>
 
                 </form>
@@ -50,20 +49,19 @@
                     <h3>Security</h3>
                 </div>
 
-                <form [formGroup]="passwordForm">
-
+                <form [formGroup]="passwordForm" (submit)="$event.preventDefault()">
                     <div class="field">
                         <label>Current Password</label>
-                        <input type="password" formControlName="currentPassword">
+                        <input type="password" formControlName="currentPassword" autocomplete="current-password">
                     </div>
 
                     <div class="field">
                         <label>New Password</label>
-                        <input type="password" formControlName="newPassword">
+                        <input type="password" formControlName="newPassword" autocomplete="new-password">
                     </div>
 
-                    <button class="btn-primary" (click)="changePassword()" [disabled]="passwordForm.invalid">
-                        Change Password
+                    <button type="button" class="btn-primary" (click)="changePassword()"
+                        [disabled]="passwordForm.invalid || loading"> Change Password
                     </button>
 
                 </form>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -43,7 +43,7 @@ export class ApiService {
     return this.http.delete<T>(this.buildUrl(endpoint));
   }
 
-  download(endpoint: string) {
+  download(endpoint: string): Observable<Blob> {
     return this.http.get(this.buildUrl(endpoint), {
       responseType: 'blob',
     });

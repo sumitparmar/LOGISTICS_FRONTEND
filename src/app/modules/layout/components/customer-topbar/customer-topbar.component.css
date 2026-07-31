@@ -247,6 +247,8 @@
   border-bottom: 1px solid #e5e7eb;
 
   backdrop-filter: blur(12px);
+
+  overflow-x: hidden;
 }
 
 /* ==========================================
@@ -364,6 +366,7 @@
   gap: 14px;
 
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .admin-btn {
@@ -469,6 +472,8 @@
   cursor: pointer;
 
   box-shadow: 0 10px 20px rgba(255, 122, 0, 0.18);
+
+  user-select: none;
 }
 
 /* ==========================================
@@ -503,6 +508,10 @@
   color: #0f172a;
 
   border-bottom: 1px solid #f1f5f9;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dropdown-item {

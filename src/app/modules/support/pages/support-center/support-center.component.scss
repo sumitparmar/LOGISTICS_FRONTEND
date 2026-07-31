@@ -439,6 +439,7 @@
   padding: 32px;
 
   min-height: calc(100vh - 90px);
+  min-height: calc(100dvh - 90px);
 
   background: linear-gradient(180deg, #f8fafc, #f1f5f9);
 }
@@ -2392,8 +2393,8 @@ select:focus-visible {
 .support-thread,
 .ticket-list {
   scroll-behavior: smooth;
-
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===========================================================
@@ -2627,6 +2628,14 @@ NEW PREMIUM COMPONENTS
 
 .reply-box {
   width: 100%;
+  min-width: 0;
 
   display: flex;
+}
+
+.ticket-row,
+.tabs button,
+.primary-action,
+.reply-panel button {
+  -webkit-tap-highlight-color: transparent;
 }

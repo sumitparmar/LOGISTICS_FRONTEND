@@ -28,26 +28,34 @@ export class ThemeService {
   }
 
   setTheme(theme: AppTheme): void {
-    localStorage.setItem(this.storageKey, theme);
+    try {
+      localStorage.setItem(this.storageKey, theme);
+    } catch {}
     this.themeSubject.next(theme);
     this.applyTheme(theme);
   }
 
   private getInitialTheme(): AppTheme {
-    const savedTheme = localStorage.getItem(this.storageKey);
+    let savedTheme: string | null = null;
 
+    try {
+      savedTheme = localStorage.getItem(this.storageKey);
+    } catch {}
     if (savedTheme === 'dark' || savedTheme === 'light') {
       return savedTheme;
     }
 
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches
+    return (window.matchMedia?.('(prefers-color-scheme: dark)').matches ??
+      false)
       ? 'dark'
       : 'light';
   }
-
   private applyTheme(theme: AppTheme): void {
     const root = this.document.documentElement;
+
     root.setAttribute('data-theme', theme);
     root.style.colorScheme = theme;
+
+    this.document.body.setAttribute('data-theme', theme);
   }
 }

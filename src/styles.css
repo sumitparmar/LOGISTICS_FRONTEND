@@ -122,11 +122,12 @@
 html,
 body {
   height: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
   margin: 0;
-
+  -webkit-text-size-adjust: 100%;
   font-family:
     "Inter",
     -apple-system,
@@ -158,6 +159,8 @@ textarea,
 select,
 button {
   font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Images */

@@ -68,7 +68,7 @@
     <div class="notification-list" *ngIf="notifications.length > 0">
 
         <div class="notification-card" *ngFor="let item of notifications" [class.unread]="!item.isRead"
-            (click)="openNotification(item)">
+            (click)="openNotification(item)" role="button" tabindex="0" (keydown.enter)="openNotification(item)">
 
             <div class="icon">
 

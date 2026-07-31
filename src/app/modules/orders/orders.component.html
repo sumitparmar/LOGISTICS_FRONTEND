@@ -16,8 +16,7 @@
             </div>
 
             <div class="mk-orders-header-right">
-                <button class="mk-create-btn" (click)="createDeliveryClick()">
-                    + New Delivery
+                <button type="button" class="mk-create-btn" (click)="createDeliveryClick()"> + New Delivery
                 </button>
             </div>
 
@@ -62,24 +61,23 @@
 
             <div class="mk-status-tabs">
 
-                <button (click)="setStatusFilter(null)" [class.active]="statusFilter === null">
-                    All
+                <button type="button" (click)="setStatusFilter(null)" [class.active]="statusFilter === null"> All
                 </button>
 
-                <button (click)="setStatusFilter('ACTIVE')" [class.active]="statusFilter === 'ACTIVE'">
+                <button type="button" (click)="setStatusFilter('ACTIVE')" [class.active]="statusFilter === 'ACTIVE'">
                     Active
                 </button>
 
-                <button (click)="setStatusFilter('DELIVERED')" [class.active]="statusFilter === 'DELIVERED'">
-                    Delivered
+                <button type="button" (click)="setStatusFilter('DELIVERED')"
+                    [class.active]="statusFilter === 'DELIVERED'"> Delivered
                 </button>
 
-                <button (click)="setStatusFilter('CANCELLED')" [class.active]="statusFilter === 'CANCELLED'">
-                    Cancelled
+                <button type="button" (click)="setStatusFilter('CANCELLED')"
+                    [class.active]="statusFilter === 'CANCELLED'"> Cancelled
                 </button>
 
 
-                <button (click)="setStatusFilter('FAILED')" [class.active]="statusFilter === 'FAILED'">
+                <button type="button" (click)="setStatusFilter('FAILED')" [class.active]="statusFilter === 'FAILED'">
                     Failed
                 </button>
             </div>
@@ -103,8 +101,7 @@
             <!-- DESKTOP TABLE -->
             <div class="mk-table-wrap">
 
-                <table *ngIf="filteredOrders.length" class="mk-table">
-
+                <table *ngIf="filteredOrders.length" class="mk-table" role="table">
                     <thead>
                         <tr>
                             <th>Order</th>
@@ -231,16 +228,15 @@
 
                                 <div class="mk-actions">
 
-                                    <button *ngIf="ACTIVE_STATUSES.includes(order.status)" class="track"
+                                    <button type="button" *ngIf="ACTIVE_STATUSES.includes(order.status)" class="track"
                                         (click)="trackOrderEvent(order)">
                                         Track
                                     </button>
 
-                                    <button class="details" (click)="openOrder(order._id)">
-                                        Details
+                                    <button type="button" class="details" (click)="openOrder(order._id)"> Details
                                     </button>
 
-                                    <button class="cancel" (click)="openCancelModal(order._id)"
+                                    <button type="button" class="cancel" (click)="openCancelModal(order._id)"
                                         *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
                                         Cancel
                                     </button>
@@ -271,8 +267,7 @@
                     Start your first booking and manage deliveries from one place.
                 </p>
 
-                <button class="mk-create-btn" (click)="createDeliveryClick()">
-                    Create Delivery
+                <button type="button" class="mk-create-btn" (click)="createDeliveryClick()"> Create Delivery
                 </button>
 
             </div>
@@ -297,12 +292,10 @@
 
         <div class="mk-modal-actions">
 
-            <button class="secondary" (click)="closeCancelModal()">
-                Keep Order
+            <button type="button" class="secondary" (click)="closeCancelModal()"> Keep Order
             </button>
 
-            <button class="danger" (click)="confirmCancel()">
-                Cancel Delivery
+            <button type="button" class="danger" (click)="confirmCancel()"> Cancel Delivery
             </button>
 
         </div>

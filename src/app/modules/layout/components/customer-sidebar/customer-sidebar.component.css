@@ -1,26 +1,29 @@
 .customer-sidebar {
   width: 260px;
-
   position: sticky;
   top: 0;
 
   height: 100vh;
+  height: 100dvh;
+
+  max-height: 100vh;
+  max-height: 100dvh;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  flex-shrink: 0;
 
   background: #ffffff;
-
   border-right: 1px solid #e5e7eb;
 
   display: flex;
   flex-direction: column;
 
-  overflow-y: auto;
-
   scrollbar-width: thin;
   scrollbar-color: #d1d5db transparent;
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-
-  flex-shrink: 0;
 }
 
 .sidebar-brand {
@@ -42,7 +45,7 @@
 .sidebar-brand h2 {
   margin: 0;
 
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
 
   color: #111827;
@@ -60,6 +63,7 @@
 
 .nav-item {
   display: flex;
+  white-space: nowrap;
   align-items: center;
   gap: 12px;
 
@@ -105,7 +109,7 @@
 
 .sidebar-footer {
   margin-top: auto;
-
+  user-select: none;
   padding: 20px;
 
   border-top: 1px solid #f1f5f9;

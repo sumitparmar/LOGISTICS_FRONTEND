@@ -67,8 +67,12 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
 
     if (user?._id) {
       this.socketService.connect(user._id);
-      this.socketService.onTicketReply((ticket) => this.applyRealtimeTicket(ticket));
-      this.socketService.onTicketUpdated((ticket) => this.applyRealtimeTicket(ticket));
+      this.socketService.onTicketReply((ticket) =>
+        this.applyRealtimeTicket(ticket),
+      );
+      this.socketService.onTicketUpdated((ticket) =>
+        this.applyRealtimeTicket(ticket),
+      );
     }
 
     this.searchSub = this.search$.pipe(debounceTime(300)).subscribe((value) => {
@@ -159,6 +163,9 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
   }
 
   createTicket(): void {
+    if (this.isCreating) {
+      return;
+    }
     this.clearMessages();
 
     if (!this.form.subject.trim() || !this.form.message.trim()) {
@@ -200,6 +207,9 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
   }
 
   sendReply(): void {
+    if (this.isSubmittingReply) {
+      return;
+    }
     if (!this.replyText.trim() || !this.selectedTicket?._id) return;
 
     this.clearMessages();
@@ -280,12 +290,15 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
 
   private scrollToBottom(): void {
     setTimeout(() => {
-      const el = document.querySelector('.support-thread');
+      const el = document.querySelector(
+        '.support-thread',
+      ) as HTMLElement | null;
       if (el) el.scrollTop = el.scrollHeight;
     }, 50);
   }
 
   ngOnDestroy(): void {
     this.searchSub?.unsubscribe();
+    this.socketService.disconnect();
   }
 }

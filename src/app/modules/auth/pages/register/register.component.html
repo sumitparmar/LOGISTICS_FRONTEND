@@ -39,35 +39,39 @@
                     <form [formGroup]="registerForm" (ngSubmit)="submit()">
 
                         <div class="input-group">
-                            <input type="text" placeholder="Full Name" formControlName="name" />
+                            <input type="text" autocomplete="name" placeholder="Full Name" formControlName="name" />
                             <small *ngIf="f['name'].touched && f['name'].invalid">
                                 Enter your full name
                             </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="email" placeholder="Email Address" formControlName="email" />
+                            <input type="email" autocomplete="email" placeholder="Email Address"
+                                formControlName="email" />
                             <small *ngIf="f['email'].touched && f['email'].invalid">
                                 Enter valid email
                             </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="text" placeholder="Phone Number" formControlName="phone" />
+                            <input type="tel" inputmode="numeric" autocomplete="tel" maxlength="10"
+                                placeholder="Phone Number" formControlName="phone" />
                             <small *ngIf="f['phone'].touched && f['phone'].invalid">
                                 Enter valid 10 digit phone number
                             </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" placeholder="Password" formControlName="password" />
+                            <input type="password" autocomplete="new-password" placeholder="Password"
+                                formControlName="password" />
                             <small *ngIf="f['password'].touched && f['password'].invalid">
                                 Minimum 6 characters required
                             </small>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
+                            <input type="password" autocomplete="new-password" placeholder="Confirm Password"
+                                formControlName="confirmPassword" />
                             <small *ngIf="registerForm.errors?.['passwordMismatch'] && f['confirmPassword'].touched">
                                 Passwords do not match
                             </small>

@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  switchMode(mode: LoginMode) {
+  switchMode(mode: LoginMode): void {
     this.loginMode = mode;
 
     this.errorMessage = '';
@@ -64,9 +64,8 @@ export class LoginComponent implements OnInit {
     this.otpForm.reset();
   }
 
-  submitBusiness() {
-    if (this.businessForm.invalid) return;
-
+  submitBusiness(): void {
+    if (this.loading || this.businessForm.invalid) return;
     this.loading = true;
     this.errorMessage = '';
 
@@ -95,14 +94,21 @@ export class LoginComponent implements OnInit {
           }
 
           sessionStorage.setItem('show_onboarding', 'true');
-
           const pending = localStorage.getItem('PENDING_DELIVERY');
 
           if (pending) {
             localStorage.removeItem('PENDING_DELIVERY');
 
+            let pendingState = null;
+
+            try {
+              pendingState = JSON.parse(pending);
+            } catch {
+              pendingState = null;
+            }
+
             this.router.navigate(['/app/delivery/create'], {
-              state: JSON.parse(pending),
+              state: pendingState,
             });
           } else {
             this.router.navigate(['/app/dashboard']);
@@ -115,9 +121,8 @@ export class LoginComponent implements OnInit {
       });
   }
 
-  sendOtp() {
-    if (this.phoneForm.invalid) return;
-
+  sendOtp(): void {
+    if (this.loading || this.phoneForm.invalid) return;
     this.loading = true;
     this.errorMessage = '';
 
@@ -141,9 +146,8 @@ export class LoginComponent implements OnInit {
       });
   }
 
-  verifyOtp() {
-    if (this.otpForm.invalid) return;
-
+  verifyOtp(): void {
+    if (this.loading || this.otpForm.invalid) return;
     this.loading = true;
     this.errorMessage = '';
 
@@ -176,13 +180,22 @@ export class LoginComponent implements OnInit {
           }
 
           sessionStorage.setItem('show_onboarding', 'true');
+
           const pending = localStorage.getItem('PENDING_DELIVERY');
 
           if (pending) {
             localStorage.removeItem('PENDING_DELIVERY');
 
+            let pendingState = null;
+
+            try {
+              pendingState = JSON.parse(pending);
+            } catch {
+              pendingState = null;
+            }
+
             this.router.navigate(['/app/delivery/create'], {
-              state: JSON.parse(pending),
+              state: pendingState,
             });
           } else {
             this.router.navigate(['/app/dashboard']);

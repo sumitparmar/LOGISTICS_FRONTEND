@@ -49,18 +49,34 @@ export class ProfileComponent implements OnInit {
   }
 
   updateProfile() {
-    if (this.profileForm.invalid) return;
+    if (this.loading || this.profileForm.invalid) return;
+
+    this.loading = true;
 
     const payload = this.profileForm.getRawValue();
 
-    this.profileService.updateProfile(payload).subscribe();
+    this.profileService.updateProfile(payload).subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
   }
-
   changePassword() {
-    if (this.passwordForm.invalid) return;
+    if (this.loading || this.passwordForm.invalid) return;
 
-    this.profileService
-      .changePassword(this.passwordForm.value)
-      .subscribe(() => this.passwordForm.reset());
+    this.loading = true;
+
+    this.profileService.changePassword(this.passwordForm.value).subscribe({
+      next: () => {
+        this.passwordForm.reset();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
   }
 }

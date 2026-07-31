@@ -345,7 +345,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ordersService.getOrderById(this.orderId).subscribe({
       next: (res: any) => {
         this.order = res?.data || res;
-        console.log('PRICING SNAPSHOT', this.order.pricingSnapshot);
         this.editableOrder = {
           matter:
             this.providerOrder?.matter ||

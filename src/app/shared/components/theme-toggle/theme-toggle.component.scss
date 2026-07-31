@@ -12,6 +12,8 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+
+  user-select: none;
 }
 
 .theme-toggle:hover {
@@ -34,7 +36,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-hover)
+  );
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -42,6 +48,8 @@
   font-size: 11px;
   line-height: 1;
   transition: transform 0.2s ease;
+
+  flex-shrink: 0;
 }
 
 .moon {
@@ -53,15 +61,15 @@
   font-weight: 800;
 }
 
-:host-context([data-theme='dark']) .toggle-thumb {
+:host-context([data-theme="dark"]) .toggle-thumb {
   transform: translateX(14px);
 }
 
-:host-context([data-theme='dark']) .sun {
+:host-context([data-theme="dark"]) .sun {
   display: none;
 }
 
-:host-context([data-theme='dark']) .moon {
+:host-context([data-theme="dark"]) .moon {
   display: inline;
 }
 

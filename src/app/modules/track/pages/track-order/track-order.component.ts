@@ -471,9 +471,14 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ─── Map ─────────────────────────────────────────────────────────────────
   initMap(lat: number, lng: number): void {
-    if (!this.mapContainer?.nativeElement) return;
+    if (
+      typeof google === 'undefined' ||
+      !google.maps ||
+      !this.mapContainer?.nativeElement
+    ) {
+      return;
+    }
 
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 13,

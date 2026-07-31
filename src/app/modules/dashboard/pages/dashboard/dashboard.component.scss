@@ -40,6 +40,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   min-width: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
   padding: 28px 24px 52px;
   display: flex;
   flex-direction: column;
@@ -136,6 +138,7 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 20px;
   border: none;
   border-radius: $radius-md;
+  box-sizing: border-box;
   cursor: pointer;
   color: #fff;
   font-size: 14px;
@@ -143,6 +146,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, #ff9a3d, #ff6a00);
   box-shadow: 0 10px 24px rgba(249, 115, 22, 0.28);
   transition: $transition;
+  touch-action: manipulation;
+  user-select: none;
 
   &:hover {
     transform: translateY(-2px);
@@ -224,6 +229,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 /* ───────── KPI GRID ───────── */
@@ -366,6 +373,7 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 58px;
   border-radius: $radius-md;
   border: 1px solid $border;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.88);
   display: flex;
   align-items: center;
@@ -379,6 +387,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: $shadow-sm;
   transition: $transition;
   backdrop-filter: blur(8px);
+  touch-action: manipulation;
+  user-select: none;
 
   &:hover {
     transform: translateY(-2px);
@@ -633,6 +643,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   gap: 6px;
   align-items: center;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 /* ───────── TABLE ───────── */
@@ -813,6 +825,8 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   color: #fff;
   font-weight: 700;
   background: linear-gradient(135deg, #ff9a3d, #ff6a00);
+  touch-action: manipulation;
+  user-select: none;
 }
 
 /* ───────── PAGINATION ───────── */
@@ -970,8 +984,16 @@ $transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
 :host-context([data-theme="dark"]) {
   .mk-dash-wrapper {
     background:
-      radial-gradient(circle at top right, rgba(255, 154, 61, 0.12), transparent 30%),
-      radial-gradient(circle at bottom left, rgba(10, 132, 255, 0.1), transparent 26%),
+      radial-gradient(
+        circle at top right,
+        rgba(255, 154, 61, 0.12),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at bottom left,
+        rgba(10, 132, 255, 0.1),
+        transparent 26%
+      ),
       #000;
   }
 

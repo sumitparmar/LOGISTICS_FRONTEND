@@ -45,7 +45,9 @@ export class AppComponent implements OnDestroy {
         this.isCustomerRoute = url.startsWith('/app');
         try {
           this.analytics.trackPageView(url);
-        } catch (error) {}
+        } catch (error) {
+          console.error('Analytics tracking failed:', error);
+        }
       });
   }
 

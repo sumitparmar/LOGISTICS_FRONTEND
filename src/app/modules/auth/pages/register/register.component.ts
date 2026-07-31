@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import {
   AbstractControl,
   FormBuilder,
@@ -57,8 +58,8 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.controls;
   }
 
-  submit() {
-    if (this.registerForm.invalid) {
+  submit(): void {
+    if (this.loading || this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
@@ -74,18 +75,23 @@ export class RegisterComponent implements OnInit {
       password: this.f['password'].value,
     };
 
-    this.authService.register(payload).subscribe({
-      next: () => {
-        this.loading = false;
-        this.successMessage =
-          'Account created. Please verify your email before logging in.';
+    this.authService
+      .register(payload)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: () => {
+          this.successMessage =
+            'Account created. Please verify your email before logging in.';
 
-        setTimeout(() => this.router.navigate(['/auth/login']), 1800);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMessage = err?.error?.message || 'Registration failed';
-      },
-    });
+          setTimeout(() => {
+            if (this.router.url !== '/auth/login') {
+              this.router.navigate(['/auth/login']);
+            }
+          }, 1800);
+        },
+        error: (err) => {
+          this.errorMessage = err?.error?.message || 'Registration failed';
+        },
+      });
   }
 }

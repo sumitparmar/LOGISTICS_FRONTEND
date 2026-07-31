@@ -11,8 +11,9 @@
         <form class="ticket-form" (ngSubmit)="createTicket()">
             <div class="field full">
                 <label>Subject</label>
-                <input type="text" name="subject" [(ngModel)]="form.subject" maxlength="120"
-                    placeholder="Example: Delivery partner has not arrived" required />
+                <input type="text" name="subject" autocomplete="off" autocapitalize="sentences" spellcheck="true"
+                    [(ngModel)]="form.subject" maxlength="120" placeholder="Example: Delivery partner has not arrived"
+                    required />
             </div>
 
             <div class="field">
@@ -31,13 +32,15 @@
 
             <div class="field full">
                 <label>Message</label>
-                <textarea name="message" [(ngModel)]="form.message" rows="4" maxlength="2000"
+                <textarea name="message" autocapitalize="sentences" spellcheck="true" [(ngModel)]="form.message"
+                    rows="4" maxlength="2000"
                     placeholder="Share order ID, payment reference, or any details our team should know."
                     required></textarea>
             </div>
 
-            <button class="primary-action" type="submit" [disabled]="isCreating">
-                {{ isCreating ? 'Creating...' : 'Raise Ticket' }}
+            <button class="primary-action" type="submit"
+                [disabled]="isCreating || !form.subject.trim() || !form.message.trim()"> {{ isCreating ? 'Creating...' :
+                'Raise Ticket' }}
             </button>
         </form>
     </section>
@@ -90,7 +93,7 @@
                     </p>
 
                 </div>
-                <button type="button" class="ticket-row" *ngFor="let ticket of tickets"
+                <button type="button" class="ticket-row" aria-label="Open support ticket" *ngFor="let ticket of tickets"
                     [class.active]="selectedTicket?._id === ticket._id" (click)="selectTicket(ticket)">
 
                     <!-- Avatar -->
@@ -250,7 +253,8 @@
 
                     <div class="reply-box">
 
-                        <textarea [(ngModel)]="replyText" name="replyText" rows="3" [placeholder]="isTicketClosed(selectedTicket)
+                        <textarea [(ngModel)]="replyText" autocapitalize="sentences" spellcheck="true" name="replyText"
+                            rows="3" [placeholder]="isTicketClosed(selectedTicket)
                           ? 'Replying will reopen this ticket.'
                           : 'Type your reply...'" maxlength="2000"></textarea>
 

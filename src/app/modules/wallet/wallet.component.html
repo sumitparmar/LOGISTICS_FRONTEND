@@ -20,15 +20,12 @@
 
     <div class="wallet-header-actions">
 
-      <button class="action-btn" (click)="loadWallet()" [disabled]="loading">
-
+      <button type="button" class="action-btn" (click)="loadWallet()" [disabled]="loading">
         {{ loading ? 'Refreshing...' : 'Refresh' }}
 
       </button>
 
-      <button class="action-btn primary" (click)="openAddMoney()">
-
-        + Add Money
+      <button type="button" class="action-btn primary" (click)="openAddMoney()" [disabled]="loading"> + Add Money
 
       </button>
 
@@ -149,14 +146,11 @@
 
   <div class="wallet-actions">
 
-    <button class="action-btn" (click)="openWithdrawModal()">
-
-      Withdraw
+    <button type="button" class="action-btn" (click)="openWithdrawModal()" [disabled]="loading"> Withdraw
 
     </button>
 
-    <button class="action-btn" (click)="downloadStatement()" [disabled]="loading">
-
+    <button type="button" class="action-btn" (click)="downloadStatement()" [disabled]="loading">
       {{ loading ? 'Preparing...' : 'Download Statement' }}
 
     </button>
@@ -274,7 +268,7 @@
       No wallet transactions found.
     </div>
 
-    <div class="ledger-row" *ngFor="let item of ledger">
+    <div class="ledger-row" *ngFor="let item of ledger" role="group">
       <div class="txn-left">
 
         <div class="txn-icon">
@@ -400,8 +394,8 @@
 
     <div class="pagination-buttons">
 
-      <button class="action-btn" [disabled]="currentPage===1" (click)="currentPage=currentPage-1;loadWallet()">
-
+      <button type="button" class="action-btn" [disabled]="currentPage===1"
+        (click)="currentPage=currentPage-1;loadWallet()">
         Previous
 
       </button>
@@ -417,8 +411,7 @@
         {{ pagination.pages }}
 
       </span>
-
-      <button class="action-btn" [disabled]="currentPage===pagination.pages"
+      <button type="button" class="action-btn" [disabled]="currentPage===pagination.pages"
         (click)="currentPage=currentPage+1;loadWallet()">
 
         Next
@@ -431,24 +424,20 @@
 
   <div class="wallet-modal-backdrop" *ngIf="showAddMoneyModal">
 
-    <div class="wallet-modal">
-
+    <div class="wallet-modal" role="dialog" aria-modal="true">
       <h3>Add Money</h3>
 
       <label>Amount</label>
 
-      <input type="number" [(ngModel)]="addMoneyPayload.amount">
-
+      <input type="number" min="1" step="0.01" inputmode="decimal" [(ngModel)]="addMoneyPayload.amount">
       <div class="modal-actions">
 
-        <button class="action-btn" (click)="closeAddMoney()">
-
+        <button type="button" class="action-btn" (click)="closeAddMoney()">
           Cancel
 
         </button>
 
-        <button class="action-btn primary" (click)="submitAddMoney()" [disabled]="loading">
-
+        <button type="button" class="action-btn primary" (click)="submitAddMoney()" [disabled]="loading">
           {{ loading ? 'Processing...' : 'Add Money' }}
 
         </button>
@@ -462,21 +451,18 @@
 
   <div class="wallet-modal-backdrop" *ngIf="showWithdrawModal">
 
-    <div class="wallet-modal">
-
+    <div class="wallet-modal" role="dialog" aria-modal="true">
       <h3>Withdraw Money</h3>
 
       <label>Amount</label>
 
-      <input type="number" [(ngModel)]="withdrawPayload.amount">
-
+      <input type="number" min="1" step="0.01" inputmode="decimal" [(ngModel)]="withdrawPayload.amount">
       <div class="modal-actions">
 
-        <button class="action-btn" (click)="closeWithdrawModal()">
-          Cancel
+        <button type="button" class="action-btn" (click)="closeWithdrawModal()"> Cancel
         </button>
 
-        <button class="action-btn primary" (click)="submitWithdraw()">
+        <button type="button" class="action-btn primary" (click)="submitWithdraw()" [disabled]="loading">
           Withdraw
         </button>
 

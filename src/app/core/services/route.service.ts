@@ -17,7 +17,12 @@ export class RouteService {
   /**
    * Simple route (used by Pricing page)
    */
+
   calculateRoute(origin: string, destination: string): Promise<any> {
+    if (typeof google === 'undefined' || !google.maps) {
+      return Promise.reject(new Error('Google Maps not loaded'));
+    }
+
     const request = {
       origin,
       destination,
@@ -30,11 +35,16 @@ export class RouteService {
   /**
    * Advanced route (Create Delivery page with waypoints)
    */
+
   calculateRouteWithWaypoints(
     origin: any,
     destination: any,
     waypoints: any[] = [],
   ): Promise<any> {
+    if (typeof google === 'undefined' || !google.maps) {
+      return Promise.reject(new Error('Google Maps not loaded'));
+    }
+
     const request = {
       origin,
       destination,
@@ -51,7 +61,7 @@ export class RouteService {
         if (typeof google !== 'undefined' && google.maps) {
           this.directionsService = new google.maps.DirectionsService();
         } else {
-          reject('Google Maps not loaded');
+          reject(new Error('Google Maps not loaded'));
           return;
         }
       }

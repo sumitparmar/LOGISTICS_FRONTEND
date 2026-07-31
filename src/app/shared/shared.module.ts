@@ -35,6 +35,7 @@ import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.com
     PaginationComponent,
     OrderMapComponent,
     ToastComponent,
+    ConfirmModalComponent,
     ThemeToggleComponent,
   ],
 })

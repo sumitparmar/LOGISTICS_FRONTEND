@@ -105,8 +105,6 @@ export class AuthService {
 
   logout() {
     this.removeToken();
-    this.deliveryModeSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
   }
 
   refreshProfileState() {
@@ -144,8 +142,7 @@ export class AuthService {
 
     try {
       return JSON.parse(user);
-    } catch (e) {
-      
+    } catch {
       localStorage.removeItem(this.userKey);
       return null;
     }

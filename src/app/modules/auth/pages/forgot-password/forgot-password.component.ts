@@ -22,22 +22,27 @@ export class ForgotPasswordComponent {
     private authService: AuthService,
   ) {}
 
-  onSubmit() {
-    if (this.form.invalid) return;
+  onSubmit(): void {
+    if (this.form.invalid || this.loading) return;
 
     this.loading = true;
     this.error = '';
     this.message = '';
-
     this.authService
-      .forgotPassword({ email: this.form.value.email! })
+      .forgotPassword({
+        email: this.form.value.email!.trim(),
+      })
+
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
           this.message = 'Reset link sent to your email';
+          this.form.disable();
         },
         error: (err) => {
-          this.error = err?.error?.message || 'Something went wrong';
+          this.error =
+            err?.error?.message ||
+            'Unable to process password reset request. Please try again.';
         },
       });
   }

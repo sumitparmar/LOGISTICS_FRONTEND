@@ -184,8 +184,17 @@ export class WalletComponent implements OnInit {
   }
 
   submitAddMoney(): void {
+    if (this.loading) {
+      return;
+    }
+
     if (!this.addMoneyPayload.amount || this.addMoneyPayload.amount <= 0) {
       alert('Enter valid amount');
+      return;
+    }
+
+    if (this.addMoneyPayload.amount > 100000) {
+      alert('Maximum allowed amount is ₹100000');
       return;
     }
 
@@ -210,8 +219,19 @@ export class WalletComponent implements OnInit {
   }
 
   submitWithdraw(): void {
+    if (this.loading) {
+      return;
+    }
+
     if (!this.withdrawPayload.amount || this.withdrawPayload.amount <= 0) {
       alert('Enter valid amount');
+      return;
+    }
+
+    if (
+      this.withdrawPayload.amount > (this.summary?.withdrawableBalance || 0)
+    ) {
+      alert('Amount exceeds withdrawable balance');
       return;
     }
 
@@ -241,7 +261,6 @@ export class WalletComponent implements OnInit {
     this.api.download('/payments/statement').subscribe({
       next: (blob: any) => {
         const url = window.URL.createObjectURL(blob);
-
         const link = document.createElement('a');
 
         link.href = url;
@@ -250,10 +269,18 @@ export class WalletComponent implements OnInit {
           .substring(0, 10)}.xlsx`;
 
         document.body.appendChild(link);
-        link.click();
+
+        if (typeof link.click === 'function') {
+          link.click();
+        } else {
+          window.location.href = url;
+        }
+
         document.body.removeChild(link);
 
-        window.URL.revokeObjectURL(url);
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+        }, 1000);
 
         this.loading = false;
       },
