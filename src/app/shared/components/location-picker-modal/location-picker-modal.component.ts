@@ -39,6 +39,7 @@ export class LocationPickerModalComponent implements AfterViewInit {
   map: any;
   marker: any;
   geocoder: any;
+  private autocomplete: any;
   private reverseGeocodeTimer: any;
   selectedAddress = '';
   isResolvingAddress = false;
@@ -132,85 +133,71 @@ export class LocationPickerModalComponent implements AfterViewInit {
     this.reverseGeocode(this.selectedLocation.lat, this.selectedLocation.lng);
   }
 
-  // private initializeAutocomplete(): void {
-  //   const autocomplete = new google.maps.places.Autocomplete(
-  //     this.searchInput.nativeElement,
-  //     {
-  //       fields: ['formatted_address', 'geometry'],
-  //     },
-  //   );
-
-  //   autocomplete.addListener('place_changed', () => {
-  //     const place = autocomplete.getPlace();
-
-  //     if (!place.geometry?.location) {
-  //       return;
-  //     }
-
-  //     const lat = place.geometry.location.lat();
-  //     const lng = place.geometry.location.lng();
-
-  //     this.selectedAddress =
-  //       place.formatted_address || this.searchInput.nativeElement.value;
-  //     this.selectedLocation = { lat, lng };
-
-  //     this.map.panTo(this.selectedLocation);
-  //     this.map.setZoom(17);
-
-  //     this.updateLocation(lat, lng);
-  //   });
-  // }
-
   private initializeAutocomplete(): void {
-    console.log('initializeAutocomplete called');
-    console.log('Search Input:', this.searchInput.nativeElement);
-    console.log('Google Places:', google.maps.places);
+    if (!google.maps.places?.Autocomplete || !this.searchInput?.nativeElement) {
+      return;
+    }
 
-    setTimeout(() => {
-      const autocomplete = new google.maps.places.Autocomplete(
-        this.searchInput.nativeElement,
-        {
-          fields: ['formatted_address', 'geometry'],
-        },
-      );
+    this.autocomplete = new google.maps.places.Autocomplete(
+      this.searchInput.nativeElement,
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['geocode'],
+      },
+    );
 
-      console.log('Autocomplete instance created:', autocomplete);
+    this.autocomplete.addListener('place_changed', () => {
+      const place = this.autocomplete.getPlace();
+      const typedAddress = this.searchInput.nativeElement.value;
 
-      autocomplete.addListener('place_changed', () => {
-        console.log('place_changed fired');
+      if (!place.geometry?.location) {
+        this.resolveTypedAddress(typedAddress);
+        return;
+      }
 
-        const place = autocomplete.getPlace();
-        console.log('geometry', place.geometry);
-        console.log('location', place.geometry?.location);
-        console.log('formatted_address', place.formatted_address);
-        console.log('place_id', place.place_id);
-        console.log('FULL PLACE OBJECT', place);
-        console.log('Selected Place:', place);
+      this.applyPlaceLocation(place, typedAddress);
+    });
+  }
 
-        if (!place.geometry || !place.geometry.location) {
-          console.warn('No geometry returned');
+  private applyPlaceLocation(place: any, fallbackAddress: string): void {
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+
+    this.selectedLocation = {
+      lat,
+      lng,
+    };
+
+    this.selectedAddress = place.formatted_address || fallbackAddress;
+    this.searchInput.nativeElement.value = this.selectedAddress;
+
+    this.map.panTo(this.selectedLocation);
+    this.map.setZoom(17);
+
+    this.updateLocation(lat, lng);
+  }
+
+  private resolveTypedAddress(address: string): void {
+    const query = address.trim();
+
+    if (!query) {
+      return;
+    }
+
+    this.geocoder.geocode(
+      {
+        address: query,
+        componentRestrictions: { country: 'IN' },
+      },
+      (results: any, status: any) => {
+        if (status !== 'OK' || !results.length) {
           return;
         }
 
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-
-        this.selectedLocation = {
-          lat,
-          lng,
-        };
-
-        this.selectedAddress =
-          place.formatted_address || this.searchInput.nativeElement.value;
-
-        this.searchInput.nativeElement.value = this.selectedAddress;
-
-        this.map.panTo(this.selectedLocation);
-        this.map.setZoom(17);
-
-        this.updateLocation(lat, lng);
-      });
-    }, 300);
+        this.applyPlaceLocation(results[0], query);
+      },
+    );
   }
 
   private updateLocation(lat: number, lng: number): void {

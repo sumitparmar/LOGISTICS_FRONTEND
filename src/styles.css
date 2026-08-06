@@ -424,6 +424,10 @@ img {
   -webkit-backdrop-filter: blur(4px);
 }
 
+.pac-container {
+  z-index: 4000 !important;
+}
+
 /* App-wide theme surfaces */
 [data-theme="dark"] body,
 [data-theme="dark"] .app-wrapper,
