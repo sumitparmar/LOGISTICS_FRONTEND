@@ -97,6 +97,49 @@
 
                                     <input #pickupInput class="form-input" placeholder="Street name & locality *"
                                         formControlName="pickupAddress" />
+
+
+                                    <div class="location-actions">
+
+                                        <button type="button" class="location-action-btn"
+                                            [class.success]="currentLocationSuccess"
+                                            (click)="useCurrentPickupLocation()" [disabled]="isFetchingCurrentLocation">
+
+                                            <span *ngIf="isFetchingCurrentLocation" class="location-spinner">
+                                            </span>
+
+                                            <span *ngIf="!isFetchingCurrentLocation" class="material-icons"
+                                                [class.success-icon]="currentLocationSuccess">
+
+                                                {{
+                                                currentLocationSuccess
+                                                ? 'check_circle'
+                                                : 'my_location'
+                                                }}
+
+                                            </span>
+
+                                            {{
+                                            isFetchingCurrentLocation
+                                            ? 'Detecting location...'
+                                            : currentLocationSuccess
+                                            ? 'Location Detected'
+                                            : 'Use Current Location'
+                                            }}
+
+                                        </button>
+
+                                        <button type="button" class="location-action-btn"
+                                            (click)="openPickupLocationPicker()">
+
+                                            <span class="material-icons">map</span>
+
+                                            Choose on Map
+
+                                        </button>
+
+
+                                    </div>
                                     <div class="form-error" *ngIf="deliveryForm.get('pickupAddress')?.touched &&
 deliveryForm.get('pickupAddress')?.invalid">
                                         Pickup address is required
@@ -172,6 +215,23 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                                         <input #stopInput class="form-input" placeholder="Street name & locality *"
                                             formControlName="address" />
+
+
+                                        <div class="location-actions">
+
+                                            <button type="button" class="location-action-btn"
+                                                (click)="openDeliveryLocationPicker(i)">
+
+                                                <span class="material-icons">
+                                                    map
+                                                </span>
+
+                                                Choose on Map
+
+                                            </button>
+
+                                        </div>
+
 
                                         <div class="form-error"
                                             *ngIf="stop.get('address')?.touched && stop.get('address')?.invalid">
@@ -546,3 +606,18 @@ deliveryForm.get('package.description')?.invalid">
     </div>
 
 </div>
+
+<app-location-picker-modal *ngIf="showPickupLocationPicker" [lat]="deliveryForm.get('pickupLat')?.value"
+    [lng]="deliveryForm.get('pickupLng')?.value" title="Choose Pickup Location"
+    subtitle="Drag the map until the pin is over your exact pickup location" placeholder="Search pickup location"
+    addressLabel="Selected Pickup Address" (closed)="closePickupLocationPicker()"
+    (confirmLocation)="onPickupLocationSelected($event)">
+</app-location-picker-modal>
+
+
+<app-location-picker-modal *ngIf="showDeliveryLocationPicker" [lat]="stops.at(deliveryStopIndex).get('lat')?.value"
+    [lng]="stops.at(deliveryStopIndex).get('lng')?.value" title="Choose Delivery Location"
+    subtitle="Drag the map until the pin is over your exact delivery location" placeholder="Search delivery location"
+    addressLabel="Selected Delivery Address" (closed)="closeDeliveryLocationPicker()"
+    (confirmLocation)="onDeliveryLocationSelected($event)">
+</app-location-picker-modal>

@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NgxMatDatetimePickerModule } from '@angular-material-components/datetime-picker';
 import { NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
+import { SharedModule } from '../../shared/shared.module';
 @NgModule({
   declarations: [CreateDeliveryComponent],
   imports: [
@@ -19,6 +20,7 @@ import { NgxMatNativeDateModule } from '@angular-material-components/datetime-pi
     MatInputModule,
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
+    SharedModule,
   ],
 })
 export class DeliveryModule {}

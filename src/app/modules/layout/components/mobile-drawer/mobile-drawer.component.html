@@ -1,0 +1,42 @@
+<div class="drawer-backdrop" (click)="closeDrawer()"></div>
+
+<div class="mobile-drawer">
+
+    <div class="drawer-header">
+
+        <img src="assets/images/movekart-logo.png" alt="MoveKart">
+
+        <div>
+            <h3>MoveKart</h3>
+            <span>Logistics</span>
+        </div>
+
+        <button class="close-btn" (click)="closeDrawer()">
+            ✕
+        </button>
+
+    </div>
+
+
+    <nav class="drawer-nav">
+
+        <a *ngFor="let item of menuItems" class="drawer-item" [routerLink]="item.route" routerLinkActive="active"
+            (click)="closeDrawer()">
+            <span class="drawer-icon">
+                {{ item.icon }}
+            </span>
+
+            <span>
+                {{ item.label }}
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <div class="drawer-footer" (click)="logout()">
+        🚪 Logout
+    </div>
+
+</div>

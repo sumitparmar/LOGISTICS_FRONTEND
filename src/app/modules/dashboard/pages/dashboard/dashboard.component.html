@@ -109,10 +109,11 @@
                     <span class="mk-stat-badge">{{ dashboardStats.walletCurrency }}</span>
                 </div>
                 <div class="mk-stat-value">
-                    {{ dashboardStats.walletCurrency }} {{ dashboardStats.walletBalance | number:'1.2-2' }} </div>
+                    {{ formatCurrency(dashboardStats.walletBalance, dashboardStats.walletCurrency) }}
+                </div>
                 <div class="mk-stat-label">Wallet Balance</div>
                 <div class="mk-stat-sub">Prepaid logistics &amp; transport balance</div>
-                <div class="mk-stat-cta">Add money →</div>
+                <div class="mk-stat-cta">Manage wallet →</div>
             </div>
 
         </div>
@@ -126,8 +127,9 @@
             <button type="button" class="mk-quick-btn" (click)="goToAllOrders()"> <span
                     class="mk-qa-icon">📦</span><span>All Orders</span>
             </button>
-            <button type="button" class="mk-quick-btn" (click)="goToWallet()"> <span
-                    class="mk-qa-icon">💳</span><span>Add Money</span>
+            <button type="button" class="mk-quick-btn" (click)="goToWallet()">
+                <span class="mk-qa-icon">💳</span>
+                <span>Manage Wallet</span>
             </button>
             <button type="button" class="mk-quick-btn" (click)="goToActiveOrders()"> <span
                     class="mk-qa-icon">📍</span><span>Track Order</span>
@@ -172,8 +174,9 @@
                 <div class="mk-bar-chart" *ngIf="spendingChart.length > 0; else noChart">
                     <div class="mk-bar-wrap" *ngFor="let point of spendingChart">
                         <div class="mk-bar-col">
-                            <span class="mk-bar-amount">{{ dashboardStats.walletCurrency }} {{ point.total |
-                                number:'1.0-0' }}</span>
+                            <span class="mk-bar-amount">
+                                {{ formatCurrency(point.total, dashboardStats.walletCurrency) }}
+                            </span>
                             <div class="mk-bar-outer">
                                 <div class="mk-bar-fill" [style.height.%]="getBarHeight(point.total)"></div>
                             </div>
@@ -252,8 +255,8 @@
                                 </td>
                                 <td>
                                     <span class="mk-amount">
-                                        {{ order.currency || dashboardStats.walletCurrency }} {{ order.amount |
-                                        number:'1.0-0' }}
+                                        {{ formatCurrency(order.amount, order.currency || dashboardStats.walletCurrency)
+                                        }}
                                     </span>
                                 </td>
                                 <td>
@@ -305,9 +308,10 @@
                         </div>
                         <div class="mk-mob-footer">
                             <span class="mk-amount">
-                                {{ order.currency || dashboardStats.walletCurrency }} {{ order.amount | number:'1.0-0'
-                                }}
-                            </span> <span class="mk-time">{{ order.time }}</span>
+                                {{ formatCurrency(order.amount, order.currency || dashboardStats.walletCurrency) }}
+                            </span>
+
+                            <span class="mk-time">{{ order.time }}</span>
                         </div>
                     </div>
 

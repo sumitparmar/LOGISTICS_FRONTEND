@@ -127,7 +127,14 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.getUser();
-    this.userName = user?.name || user?.phone || 'there';
+
+    if (!user) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.userName = user.name || user.phone || 'there';
+
     this.loadDashboard();
   }
 
@@ -179,7 +186,7 @@ export class DashboardComponent implements OnInit {
           drop: order.drop,
           status: order.status,
           amount: order.amount,
-          currency: order.currency,
+          currency: order.currency ?? data.walletCurrency ?? 'INR',
           vehicleTypeId: order.vehicleTypeId,
           time: this.formatDate(order.createdAt),
         }));
@@ -191,8 +198,7 @@ export class DashboardComponent implements OnInit {
         this.updatePaginatedOrders();
         this.isLoading = false;
       },
-      error: (error: unknown) => {
-        console.error('Dashboard load failed', error);
+      error: () => {
         this.hasError = true;
         this.isLoading = false;
       },
@@ -205,7 +211,13 @@ export class DashboardComponent implements OnInit {
   }
 
   private formatDate(date: string): string {
+    if (!date) return '—';
+
     const value = new Date(date);
+
+    if (isNaN(value.getTime())) {
+      return '—';
+    }
 
     return value.toLocaleString(undefined, {
       day: '2-digit',
@@ -213,6 +225,18 @@ export class DashboardComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  formatCurrency(amount: number, currency: string = 'INR'): string {
+    if (amount === null || amount === undefined) {
+      return `${currency} 0`;
+    }
+
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
   }
 
   getStatusCount(key: string): number {

@@ -1,30 +1,31 @@
-<!-- <div class="sky-wrapper">
-
-    <router-outlet></router-outlet>
-
-    <app-onboarding-modal *ngIf="showOnboarding" (selected)="onModeSelected($event)" (closed)="closeOnboarding()">
-    </app-onboarding-modal>
-
-</div>
-
-
-
- -->
-
-
-
-
-
 <div class="customer-shell">
 
-    <!-- Sidebar -->
-    <app-customer-sidebar></app-customer-sidebar>
+    <!-- Mobile Header -->
+    <div class="mobile-only">
+        <app-mobile-header (menuClicked)="toggleMobileMenu()">
+        </app-mobile-header>
+    </div>
 
-    <!-- Main Area -->
+
+    <!-- Mobile Drawer Overlay -->
+    <app-mobile-drawer *ngIf="isMobileMenuOpen" (closed)="closeMobileMenu()">
+    </app-mobile-drawer>
+
+
+    <!-- Desktop Sidebar -->
+    <div class="desktop-only">
+        <app-customer-sidebar></app-customer-sidebar>
+    </div>
+
+
+    <!-- Main Content Area -->
     <div class="customer-main">
 
-        <!-- Topbar -->
-        <app-customer-topbar></app-customer-topbar>
+        <!-- Desktop Topbar -->
+        <div class="desktop-only">
+            <app-customer-topbar></app-customer-topbar>
+        </div>
+
 
         <!-- Page Content -->
         <div class="customer-content">
@@ -33,7 +34,10 @@
 
     </div>
 
+
+    <!-- Onboarding Modal -->
     <app-onboarding-modal *ngIf="showOnboarding" (selected)="onModeSelected($event)" (closed)="closeOnboarding()">
     </app-onboarding-modal>
+
 
 </div>

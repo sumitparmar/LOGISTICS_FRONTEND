@@ -7,6 +7,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { RouterModule } from '@angular/router';
 import { OrderMapComponent } from './components/order-map/order-map.component';
 import { ToastComponent } from './components/toast/toast.component';
+import { MatDialogModule } from '@angular/material/dialog';
 import {
   LucideAngularModule,
   CheckCircle,
@@ -15,6 +16,9 @@ import {
 } from 'lucide-angular';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.component';
+import { LocationPickerComponent } from './components/location-picker/location-picker.component';
+import { LocationPickerDialogComponent } from './components/location-picker-dialog/location-picker-dialog.component';
+import { LocationPickerModalComponent } from './components/location-picker-modal/location-picker-modal.component';
 
 @NgModule({
   declarations: [
@@ -26,8 +30,11 @@ import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.com
     ToastComponent,
     ConfirmModalComponent,
     ThemeToggleComponent,
+    LocationPickerComponent,
+    LocationPickerDialogComponent,
+    LocationPickerModalComponent,
   ],
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, MatDialogModule],
   exports: [
     HeaderComponent,
     FooterComponent,
@@ -37,6 +44,7 @@ import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.com
     ToastComponent,
     ConfirmModalComponent,
     ThemeToggleComponent,
+    LocationPickerModalComponent,
   ],
 })
 export class SharedModule {}

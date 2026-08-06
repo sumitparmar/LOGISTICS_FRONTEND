@@ -229,10 +229,11 @@
     display: none;
   }
 } */
+
 .customer-topbar {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
 
   min-height: 84px;
 
@@ -248,7 +249,7 @@
 
   backdrop-filter: blur(12px);
 
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 /* ==========================================
@@ -448,6 +449,7 @@
 
 .profile-wrapper {
   position: relative;
+  z-index: 2000;
 }
 
 .avatar {
@@ -476,15 +478,13 @@
   user-select: none;
 }
 
-/* ==========================================
-   DROPDOWN
-========================================== */
-
 .profile-dropdown {
   position: absolute;
 
   top: 56px;
   right: 0;
+
+  z-index: 9999;
 
   width: 240px;
 

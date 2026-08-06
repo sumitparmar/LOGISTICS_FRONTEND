@@ -1,0 +1,13 @@
+<div class="location-dialog">
+
+    <div class="location-dialog__header">
+
+        <h2>{{ data.title || 'Select Exact Location' }}</h2>
+
+    </div>
+
+    <app-location-picker [latitude]="data.latitude" [longitude]="data.longitude"
+        (locationSelected)="onLocationSelected($event)">
+    </app-location-picker>
+
+</div>

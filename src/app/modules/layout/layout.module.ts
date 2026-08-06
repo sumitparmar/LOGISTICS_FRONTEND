@@ -7,9 +7,11 @@ import { ShellComponent } from './pages/shell/shell.component';
 import { SharedModule } from '../../shared/shared.module';
 import { CustomerSidebarComponent } from './components/customer-sidebar/customer-sidebar.component';
 import { CustomerTopbarComponent } from './components/customer-topbar/customer-topbar.component';
+import { MobileHeaderComponent } from './components/mobile-header/mobile-header.component';
+import { MobileDrawerComponent } from './components/mobile-drawer/mobile-drawer.component';
 
 @NgModule({
-  declarations: [ShellComponent, CustomerSidebarComponent, CustomerTopbarComponent],
+  declarations: [ShellComponent, CustomerSidebarComponent, CustomerTopbarComponent, MobileHeaderComponent, MobileDrawerComponent],
   imports: [CommonModule, LayoutRoutingModule, SharedModule],
 })
 export class LayoutModule {}

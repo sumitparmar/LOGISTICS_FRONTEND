@@ -1,0 +1,83 @@
+<div class="location-modal">
+
+    <div class="location-header">
+
+        <button type="button" class="back-btn" (click)="close()">
+
+            <span class="material-icons">
+                arrow_back
+            </span>
+
+        </button>
+
+        <div class="header-title">
+
+            <h2>{{ title }}</h2>
+
+            <p>{{ subtitle }}</p>
+        </div>
+
+    </div>
+
+    <div class="search-wrapper">
+
+        <span class="material-icons search-icon">
+            search
+        </span>
+
+        <input #searchInput type="text" [placeholder]="placeholder" />
+        <button type="button" class="current-location-btn" (click)="useCurrentLocation()">
+
+            <span class="material-icons">
+                my_location
+            </span>
+
+        </button>
+
+    </div>
+
+    <div class="map-wrapper">
+
+        <div #map class="map-container"></div>
+
+        <div class="center-pin">
+
+            <span class="material-icons">
+                location_on
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="address-card">
+
+        <div class="address-label">
+            {{ addressLabel }}
+        </div>
+
+        <div class="address-value">
+
+            {{ isResolvingAddress ? 'Detecting address...' : selectedAddress }}
+
+        </div>
+
+    </div>
+
+    <div class="bottom-actions">
+
+        <button type="button" class="btn-secondary" (click)="close()">
+
+            Cancel
+
+        </button>
+
+        <button type="button" class="btn-primary" (click)="confirm()">
+
+            Confirm Location
+
+        </button>
+
+    </div>
+
+</div>

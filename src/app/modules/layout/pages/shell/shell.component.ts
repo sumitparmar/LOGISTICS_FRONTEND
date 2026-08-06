@@ -7,6 +7,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 })
 export class ShellComponent implements OnInit {
   showOnboarding = false;
+
+  isMobileMenuOpen = false;
+
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
@@ -34,5 +37,17 @@ export class ShellComponent implements OnInit {
 
   closeOnboarding(): void {
     this.showOnboarding = false;
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+
+    document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : '';
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+
+    document.body.style.overflow = '';
   }
 }

@@ -1,0 +1,66 @@
+<div class="location-picker">
+
+    <div class="location-picker__header">
+
+        <div class="location-picker__title">
+            <h2>Select Exact Location</h2>
+            <p>
+                Search an address, use your current location or drag the pin to the
+                exact pickup point.
+            </p>
+        </div>
+
+        <button type="button" class="current-location-btn" (click)="useCurrentLocation()">
+
+            <span class="material-icons">my_location</span>
+
+            <span>Use Current Location</span>
+
+        </button>
+
+    </div>
+
+    <div class="location-picker__search">
+
+        <input #searchInput type="text" class="location-search" placeholder="Search address" />
+
+    </div>
+
+    <div #map class="map">
+    </div>
+
+    <div class="location-picker__footer">
+
+        <div class="selected-location">
+
+            <span class="material-icons">place</span>
+
+            <div class="selected-location__content">
+
+                <label>Selected Location</label>
+
+                <p>{{ selectedAddress || 'Move the pin or search an address' }}</p>
+
+            </div>
+
+        </div>
+
+        <div class="actions">
+
+            <button type="button" class="btn-secondary">
+
+                Cancel
+
+            </button>
+
+            <button type="button" class="btn-primary" [disabled]="!selectedAddress">
+
+                Confirm Location
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

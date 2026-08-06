@@ -261,6 +261,111 @@
   flex-wrap: wrap;
 }
 
+.location-actions {
+  display: flex;
+  gap: 12px;
+  margin: 14px 0 18px;
+  flex-wrap: wrap;
+}
+
+.location-action-btn {
+  flex: 1;
+  min-width: 180px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+  color: #111827;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.location-action-btn.success {
+  background: linear-gradient(135deg, #ecfdf5, #dcfce7);
+  border-color: #22c55e;
+  color: #15803d;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.18);
+}
+
+.location-action-btn.success .material-icons {
+  color: #16a34a !important;
+}
+.location-action-btn:hover {
+  border-color: #ff7a00;
+  background: #fff7f0;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(255, 122, 0, 0.12);
+}
+
+.location-action-btn:active {
+  transform: scale(0.98);
+}
+
+.location-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
+}
+
+.location-action-btn .material-icons {
+  font-size: 20px;
+  color: #ff7a00;
+}
+
+.location-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 122, 0, 0.25);
+  border-top-color: #ff7a00;
+  border-radius: 50%;
+  animation: pickupSpinner 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.success-icon {
+  color: #22c55e !important;
+  animation: successPop 0.35s ease;
+}
+
+@keyframes pickupSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .btn-add-stop,
 .btn-reorder {
   border: 1px dashed #ff7a00;
@@ -621,6 +726,14 @@
     flex-direction: column;
   }
 
+  .location-actions {
+    flex-direction: column;
+  }
+
+  .location-action-btn {
+    width: 100%;
+  }
+
   .insurance-input {
     width: 100%;
   }
@@ -748,6 +861,21 @@
 
   .route-grid::before {
     border-color: rgba(10, 132, 255, 0.35);
+  }
+
+  .location-action-btn {
+    background: #2c2c2e;
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+  }
+
+  .location-action-btn:hover {
+    background: rgba(255, 154, 61, 0.12);
+    border-color: var(--color-primary);
+  }
+
+  .location-action-btn .material-icons {
+    color: var(--color-primary);
   }
 }
 

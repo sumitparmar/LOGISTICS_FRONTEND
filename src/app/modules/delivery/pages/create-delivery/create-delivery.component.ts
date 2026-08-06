@@ -42,6 +42,12 @@ export class CreateDeliveryComponent
   showToast = false;
   toastMessage = '';
   private directionsRenderer: any;
+  private pickupMarker: any = null;
+  private dropMarker: any = null;
+  isFetchingCurrentLocation = false;
+  currentLocationSuccess = false;
+  private currentLocationRetryCount = 0;
+  private geocoder: any;
   private stopInputSubscription: any;
   private formSubscriptions: any[] = [];
   deliveryForm!: FormGroup;
@@ -114,7 +120,9 @@ export class CreateDeliveryComponent
   paymentOptions = [{ label: 'Cash Payment', value: 'CASH' }];
 
   showReorderModal = false;
-
+  showPickupLocationPicker = false;
+  showDeliveryLocationPicker = false;
+  deliveryStopIndex = 0;
   constructor(
     private fb: FormBuilder,
     private ordersService: OrdersService,
@@ -148,6 +156,189 @@ export class CreateDeliveryComponent
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
     }
+  }
+
+  private getCurrentPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      });
+    });
+  }
+
+  useCurrentPickupLocation(): void {
+    this.isFetchingCurrentLocation = true;
+    this.currentLocationRetryCount = 0;
+
+    if (!navigator.geolocation) {
+      this.isFetchingCurrentLocation = false;
+
+      this.showToastMessage('Geolocation is not supported on this device.');
+
+      return;
+    }
+
+    (async () => {
+      try {
+        let position = await this.getCurrentPosition();
+
+        console.log('Location accuracy:', position.coords.accuracy);
+
+        if (
+          position.coords.accuracy > 75 &&
+          this.currentLocationRetryCount < 1
+        ) {
+          this.currentLocationRetryCount++;
+
+          this.showToastMessage('Improving location accuracy...');
+
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          position = await this.getCurrentPosition();
+
+          console.log('Retry accuracy:', position.coords.accuracy);
+        }
+
+        const accuracy = position.coords.accuracy;
+
+        console.log(
+          'Latitude:',
+          position.coords.latitude,
+          'Longitude:',
+          position.coords.longitude,
+          'Accuracy:',
+          accuracy,
+        );
+
+        if (accuracy > 250) {
+          this.isFetchingCurrentLocation = false;
+
+          this.showToastMessage(
+            `Couldn't get an accurate GPS location (${Math.round(accuracy)}m). Please try again from an open area.`,
+          );
+
+          return;
+        }
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        this.deliveryForm.patchValue({
+          pickupLat: lat,
+          pickupLng: lng,
+        });
+
+        const location = new google.maps.LatLng(lat, lng);
+
+        this.map.panTo(location);
+        this.map.setZoom(17);
+
+        this.geocoder.geocode(
+          {
+            location: {
+              lat,
+              lng,
+            },
+          },
+          (results: any, status: any) => {
+            this.isFetchingCurrentLocation = false;
+
+            if (status === 'OK' && results.length) {
+              this.deliveryForm.patchValue({
+                pickupAddress: results[0].formatted_address,
+              });
+
+              this.renderRoute();
+              this.resetPrice();
+              this.currentLocationSuccess = true;
+              this.showToastMessage('Current location detected successfully.');
+
+              setTimeout(() => {
+                this.currentLocationSuccess = false;
+              }, 1800);
+            } else {
+              this.showToastMessage('Unable to determine address.');
+            }
+          },
+        );
+      } catch (error) {
+        this.isFetchingCurrentLocation = false;
+
+        this.showToastMessage('Unable to determine your current location.');
+
+        console.error(error);
+      }
+    })();
+  }
+
+  // openPickupLocationPicker(): void {
+  //   this.showPickupLocationPicker = true;
+  // }
+
+  openPickupLocationPicker(): void {
+    if (
+      !this.deliveryForm.get('pickupLat')?.value ||
+      !this.deliveryForm.get('pickupLng')?.value
+    ) {
+      this.showToastMessage(
+        'Please detect current location or select a pickup address first.',
+      );
+      return;
+    }
+
+    this.showPickupLocationPicker = true;
+  }
+
+  openDeliveryLocationPicker(index: number): void {
+    this.deliveryStopIndex = index;
+    this.showDeliveryLocationPicker = true;
+  }
+
+  closePickupLocationPicker(): void {
+    this.showPickupLocationPicker = false;
+  }
+
+  closeDeliveryLocationPicker(): void {
+    this.showDeliveryLocationPicker = false;
+  }
+
+  onPickupLocationSelected(event: {
+    lat: number;
+    lng: number;
+    address: string;
+  }): void {
+    this.deliveryForm.patchValue({
+      pickupAddress: event.address,
+      pickupLat: event.lat,
+      pickupLng: event.lng,
+    });
+
+    this.showPickupLocationPicker = false;
+
+    this.resetPrice();
+    this.renderRoute();
+  }
+
+  onDeliveryLocationSelected(event: {
+    lat: number;
+    lng: number;
+    address: string;
+  }): void {
+    const stop = this.stops.at(this.deliveryStopIndex);
+
+    stop.patchValue({
+      address: event.address,
+      lat: event.lat,
+      lng: event.lng,
+    });
+
+    this.stopInputs.toArray()[this.deliveryStopIndex].nativeElement.value =
+      event.address;
+    this.showDeliveryLocationPicker = false;
+
+    this.resetPrice();
+    this.renderRoute();
   }
 
   ngOnInit(): void {
@@ -184,21 +375,27 @@ export class CreateDeliveryComponent
           this.resetPrice();
         }),
     );
-
     this.formSubscriptions.push(
-      this.deliveryForm.get('pickupAddress')?.valueChanges.subscribe(() => {
-        this.deliveryForm.patchValue(
-          {
-            pickupLat: null,
-            pickupLng: null,
-          },
-          { emitEvent: false },
-        );
+      this.deliveryForm
+        .get('pickupAddress')
+        ?.valueChanges.subscribe((value) => {
+          // Sirf manually typing par coordinates clear karo
+          if (
+            value &&
+            value !== this.deliveryForm.get('pickupAddress')?.value
+          ) {
+            this.deliveryForm.patchValue(
+              {
+                pickupLat: null,
+                pickupLng: null,
+              },
+              { emitEvent: false },
+            );
+          }
 
-        this.resetPrice();
-      }),
+          this.resetPrice();
+        }),
     );
-
     this.formSubscriptions.push(
       this.stops.valueChanges.subscribe(() => {
         this.resetPrice();
@@ -1175,7 +1372,7 @@ export class CreateDeliveryComponent
     });
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
-      suppressMarkers: false,
+      suppressMarkers: true,
       polylineOptions: {
         strokeColor: '#ff7a00',
         strokeWeight: 4,
@@ -1183,6 +1380,7 @@ export class CreateDeliveryComponent
     });
 
     this.directionsRenderer.setMap(this.map);
+    this.geocoder = new google.maps.Geocoder();
   }
 
   renderRoute(): void {
@@ -1216,6 +1414,39 @@ export class CreateDeliveryComponent
 
         const bounds = result.routes[0].bounds;
         this.map.fitBounds(bounds);
+
+        if (!this.pickupMarker) {
+          this.pickupMarker = new google.maps.Marker({
+            map: this.map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#22c55e',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 3,
+            },
+            zIndex: 100,
+          });
+        }
+
+        if (!this.dropMarker) {
+          this.dropMarker = new google.maps.Marker({
+            map: this.map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#ef4444',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 3,
+            },
+            zIndex: 100,
+          });
+        }
+
+        this.pickupMarker.setPosition(origin);
+        this.dropMarker.setPosition(destination);
       })
       .catch((err: any) => {
         console.error('Route error', err);

@@ -95,7 +95,15 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  // openAdminPanel(): void {
+  //   window.open('/admin', '_blank');
+  // }
+
   openAdminPanel(): void {
-    window.open('/admin', '_blank');
+    window.open(
+      `${window.location.origin}/admin`,
+      '_blank',
+      'noopener,noreferrer',
+    );
   }
 }

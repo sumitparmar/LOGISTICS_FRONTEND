@@ -86,8 +86,14 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/auth/login']);
   }
 
+  // openAdminPanel(): void {
+  //   this.router.navigate(['/admin']);
+  // }
+
   openAdminPanel(): void {
-    this.router.navigate(['/admin']);
+    const adminUrl = `${window.location.origin}/admin`;
+
+    window.open(adminUrl, '_blank', 'noopener,noreferrer');
   }
 
   ngOnDestroy(): void {
