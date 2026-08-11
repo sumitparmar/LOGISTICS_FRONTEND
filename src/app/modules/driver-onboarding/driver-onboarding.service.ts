@@ -12,6 +12,10 @@ export class DriverOnboardingService {
     return this.api.get('/driver-onboarding/me');
   }
 
+  getOptions(): Observable<any> {
+    return this.api.get('/driver-onboarding/options');
+  }
+
   saveMine(payload: any): Observable<any> {
     return this.api.post('/driver-onboarding/me', payload);
   }

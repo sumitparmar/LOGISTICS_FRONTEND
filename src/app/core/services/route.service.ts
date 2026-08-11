@@ -9,9 +9,17 @@ export class RouteService {
   private directionsService: any;
 
   constructor() {
-    if (typeof google !== 'undefined' && google.maps) {
+    if (this.isReady()) {
       this.directionsService = new google.maps.DirectionsService();
     }
+  }
+
+  isReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
+  hasPlaces(): boolean {
+    return this.isReady() && !!google.maps.places?.Autocomplete;
   }
 
   /**
@@ -19,7 +27,7 @@ export class RouteService {
    */
 
   calculateRoute(origin: string, destination: string): Promise<any> {
-    if (typeof google === 'undefined' || !google.maps) {
+    if (!this.isReady()) {
       return Promise.reject(new Error('Google Maps not loaded'));
     }
 
@@ -41,7 +49,7 @@ export class RouteService {
     destination: any,
     waypoints: any[] = [],
   ): Promise<any> {
-    if (typeof google === 'undefined' || !google.maps) {
+    if (!this.isReady()) {
       return Promise.reject(new Error('Google Maps not loaded'));
     }
 
@@ -58,7 +66,7 @@ export class RouteService {
   private runRoute(request: any): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!this.directionsService) {
-        if (typeof google !== 'undefined' && google.maps) {
+        if (this.isReady()) {
           this.directionsService = new google.maps.DirectionsService();
         } else {
           reject(new Error('Google Maps not loaded'));

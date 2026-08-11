@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -18,7 +19,7 @@ declare var google: any;
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.scss'],
 })
-export class HeroComponent implements OnInit, AfterViewInit {
+export class HeroComponent implements OnInit, AfterViewInit, OnDestroy {
   currency = 'INR';
   quoteForm!: FormGroup;
   loading = false;
@@ -26,6 +27,7 @@ export class HeroComponent implements OnInit, AfterViewInit {
   errorMessage = '';
   @ViewChild('pickupInput') pickupInput!: ElementRef;
   @ViewChild('dropInput') dropInput!: ElementRef;
+  private autocompleteInstances: any[] = [];
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
@@ -50,33 +52,61 @@ export class HeroComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      if (typeof google === 'undefined') {
+      if (
+        typeof google === 'undefined' ||
+        !google.maps ||
+        !google.maps.places?.Autocomplete
+      ) {
         this.errorMessage = 'Location search is temporarily unavailable. You can still type the address.';
         return;
       }
 
       const pickupAutocomplete = new google.maps.places.Autocomplete(
         this.pickupInput.nativeElement,
+        {
+          componentRestrictions: { country: 'in' },
+          fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+          types: ['geocode'],
+        },
       );
+      this.autocompleteInstances.push(pickupAutocomplete);
 
       pickupAutocomplete.addListener('place_changed', () => {
         const place = pickupAutocomplete.getPlace();
+        if (!place?.formatted_address && !place?.name) return;
+
         this.quoteForm.patchValue({
-          pickup: place.formatted_address,
+          pickup: place.formatted_address || place.name,
         });
       });
 
       const dropAutocomplete = new google.maps.places.Autocomplete(
         this.dropInput.nativeElement,
+        {
+          componentRestrictions: { country: 'in' },
+          fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+          types: ['geocode'],
+        },
       );
+      this.autocompleteInstances.push(dropAutocomplete);
 
       dropAutocomplete.addListener('place_changed', () => {
         const place = dropAutocomplete.getPlace();
+        if (!place?.formatted_address && !place?.name) return;
+
         this.quoteForm.patchValue({
-          drop: place.formatted_address,
+          drop: place.formatted_address || place.name,
         });
       });
     }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (typeof google === 'undefined' || !google.maps?.event) return;
+
+    this.autocompleteInstances.forEach((instance) => {
+      google.maps.event.clearInstanceListeners(instance);
+    });
   }
 
   getQuote() {

@@ -1,40 +1,75 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { OrdersService } from 'src/app/core/services/orders.service';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { DriverOnboardingService } from './driver-onboarding.service';
+
+declare const google: any;
 
 @Component({
   selector: 'app-driver-onboarding',
   templateUrl: './driver-onboarding.component.html',
   styleUrls: ['./driver-onboarding.component.scss'],
 })
-export class DriverOnboardingComponent implements OnInit {
+export class DriverOnboardingComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
+  @ViewChildren('areaInput') areaInputs!: QueryList<ElementRef>;
   form!: FormGroup;
   vehicles: any[] = [];
+  requiredConsents: any[] = [];
+  serviceAreaCountry = 'in';
+  requireGooglePlaceSelection = false;
+  mapsReady = false;
+  mapsUnavailable = false;
   application: any = null;
   isLoading = false;
   isSaving = false;
   isSubmitting = false;
 
-  availabilityOptions = [
-    { value: 'FLEXIBLE', label: 'Flexible' },
-    { value: 'FULL_TIME', label: 'Full time' },
-    { value: 'PART_TIME', label: 'Part time' },
-    { value: 'WEEKENDS', label: 'Weekends' },
-  ];
+  availabilityOptions: any[] = [];
+  private areaAutocompleteInstances: any[] = [];
+  private areaInputSub: any;
+  private mapsRetryTimer: any;
+  private mapsRetryAttempts = 0;
 
   constructor(
     private fb: FormBuilder,
-    private ordersService: OrdersService,
     private onboardingService: DriverOnboardingService,
     private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
     this.initForm();
-    this.loadVehicles();
+    this.loadOptions();
     this.loadApplication();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.attachAreaAutocompletes(), 250);
+    this.areaInputSub = this.areaInputs.changes.subscribe(() => {
+      setTimeout(() => this.attachAreaAutocompletes(), 250);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.areaInputSub?.unsubscribe?.();
+    if (this.mapsRetryTimer) {
+      clearTimeout(this.mapsRetryTimer);
+    }
+    this.areaAutocompleteInstances.forEach((instance) => {
+      if (instance && typeof google !== 'undefined' && google.maps?.event) {
+        google.maps.event.clearInstanceListeners(instance);
+      }
+    });
+    this.areaAutocompleteInstances = [];
   }
 
   initForm(): void {
@@ -67,7 +102,7 @@ export class DriverOnboardingComponent implements OnInit {
         ifsc: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
       }),
       servicePreferences: this.fb.group({
-        preferredAreas: this.fb.array([this.fb.control('')]),
+        preferredAreas: this.fb.array([this.createAreaGroup()]),
         availability: ['FLEXIBLE', Validators.required],
       }),
       consent: this.fb.group({
@@ -81,13 +116,37 @@ export class DriverOnboardingComponent implements OnInit {
     return this.form.get('servicePreferences.preferredAreas') as FormArray;
   }
 
-  loadVehicles(): void {
-    this.ordersService.getVehicleCatalog().subscribe({
+  createAreaGroup(value: any = null): FormGroup {
+    const normalized =
+      typeof value === 'string'
+        ? { address: value }
+        : value || {};
+
+    return this.fb.group({
+      address: [normalized.address || '', Validators.required],
+      placeId: [normalized.placeId || null],
+      city: [normalized.city || null],
+      lat: [normalized.lat ?? null],
+      lng: [normalized.lng ?? null],
+      source: [normalized.source || (normalized.placeId ? 'GOOGLE_PLACES' : 'MANUAL')],
+    });
+  }
+
+  loadOptions(): void {
+    this.onboardingService.getOptions().subscribe({
       next: (res: any) => {
-        this.vehicles = res?.data || [];
+        const data = res?.data || {};
+        this.vehicles = data.vehicles || [];
+        this.availabilityOptions = data.availabilityOptions || [];
+        this.requiredConsents = data.requiredConsents || [];
+        this.serviceAreaCountry = data.serviceAreaCountry || 'in';
+        this.requireGooglePlaceSelection = Boolean(
+          data.requireGooglePlaceSelection,
+        );
+        setTimeout(() => this.attachAreaAutocompletes(), 100);
       },
       error: () => {
-        this.toastService.error('Unable to load vehicle types');
+        this.toastService.error('Unable to load onboarding options');
       },
     });
   }
@@ -111,7 +170,9 @@ export class DriverOnboardingComponent implements OnInit {
   patchApplication(application: any): void {
     const areas = application.servicePreferences?.preferredAreas || [''];
     this.preferredAreas.clear();
-    areas.forEach((area: string) => this.preferredAreas.push(this.fb.control(area)));
+    (areas.length ? areas : [null]).forEach((area: any) =>
+      this.preferredAreas.push(this.createAreaGroup(area)),
+    );
 
     this.form.patchValue({
       personal: application.personal || {},
@@ -127,15 +188,28 @@ export class DriverOnboardingComponent implements OnInit {
   }
 
   addArea(): void {
-    this.preferredAreas.push(this.fb.control(''));
+    this.preferredAreas.push(this.createAreaGroup());
+    setTimeout(() => this.attachAreaAutocompletes(), 100);
   }
 
   removeArea(index: number): void {
     if (this.preferredAreas.length === 1) {
-      this.preferredAreas.at(0).setValue('');
+      this.preferredAreas.at(0).reset({
+        address: '',
+        placeId: null,
+        city: null,
+        lat: null,
+        lng: null,
+        source: 'MANUAL',
+      });
       return;
     }
     this.preferredAreas.removeAt(index);
+    this.areaAutocompleteInstances.splice(index, 1);
+  }
+
+  consentControl(key: string) {
+    return this.form.get(`consent.${key}`);
   }
 
   saveDraft(): void {
@@ -164,6 +238,11 @@ export class DriverOnboardingComponent implements OnInit {
       return;
     }
 
+    if (!this.hasValidPreferredAreas()) {
+      this.toastService.warning('Please select at least one preferred service area');
+      return;
+    }
+
     this.isSubmitting = true;
     this.onboardingService.submitMine(this.payload).subscribe({
       next: (res: any) => {
@@ -185,10 +264,22 @@ export class DriverOnboardingComponent implements OnInit {
       servicePreferences: {
         ...value.servicePreferences,
         preferredAreas: (value.servicePreferences.preferredAreas || [])
-          .map((area: string) => String(area || '').trim())
-          .filter(Boolean),
+          .map((area: any) => ({
+            ...area,
+            address: String(area?.address || '').trim(),
+          }))
+          .filter((area: any) => area.address),
       },
     };
+  }
+
+  hasValidPreferredAreas(): boolean {
+    const areas = this.payload.servicePreferences.preferredAreas || [];
+    if (!areas.length) return false;
+
+    if (!this.requireGooglePlaceSelection) return true;
+
+    return areas.every((area: any) => !!area.placeId);
   }
 
   get isLocked(): boolean {
@@ -199,5 +290,70 @@ export class DriverOnboardingComponent implements OnInit {
 
   statusLabel(status?: string): string {
     return String(status || 'DRAFT').replace(/_/g, ' ');
+  }
+
+  private attachAreaAutocompletes(): void {
+    if (
+      typeof google === 'undefined' ||
+      !google.maps ||
+      !google.maps.places
+    ) {
+      if (this.mapsRetryAttempts < 20) {
+        this.mapsRetryAttempts += 1;
+        this.mapsRetryTimer = setTimeout(
+          () => this.attachAreaAutocompletes(),
+          250,
+        );
+        return;
+      }
+      this.mapsReady = false;
+      this.mapsUnavailable = true;
+      return;
+    }
+
+    this.mapsRetryAttempts = 0;
+    this.mapsReady = true;
+    this.mapsUnavailable = false;
+
+    this.areaInputs?.forEach((inputRef, index) => {
+      if (this.areaAutocompleteInstances[index] || this.isLocked) return;
+
+      const autocomplete = new google.maps.places.Autocomplete(
+        inputRef.nativeElement,
+        {
+          componentRestrictions: { country: this.serviceAreaCountry },
+          fields: ['address_components', 'formatted_address', 'geometry', 'name', 'place_id'],
+          types: ['geocode'],
+        },
+      );
+
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place?.formatted_address && !place?.name) return;
+
+        const area = this.preferredAreas.at(index);
+        area.patchValue({
+          address: place.formatted_address || place.name,
+          placeId: place.place_id || null,
+          city: this.extractCity(place),
+          lat: place.geometry?.location?.lat?.() ?? null,
+          lng: place.geometry?.location?.lng?.() ?? null,
+          source: place.place_id ? 'GOOGLE_PLACES' : 'MANUAL',
+        });
+      });
+
+      this.areaAutocompleteInstances[index] = autocomplete;
+    });
+  }
+
+  private extractCity(place: any): string | null {
+    const components = place?.address_components || [];
+    const cityComponent = components.find((component: any) =>
+      component.types?.some((type: string) =>
+        ['locality', 'administrative_area_level_2', 'sublocality'].includes(type),
+      ),
+    );
+
+    return cityComponent?.long_name || null;
   }
 }

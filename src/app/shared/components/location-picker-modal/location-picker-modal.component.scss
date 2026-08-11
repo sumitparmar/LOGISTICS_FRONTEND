@@ -106,6 +106,34 @@
   overflow: hidden;
 }
 
+.map-unavailable {
+  flex: 1;
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-secondary);
+}
+
+.map-unavailable .material-icons {
+  color: var(--mk-primary);
+  font-size: 40px;
+}
+
+.map-unavailable strong {
+  color: var(--mk-text-primary);
+}
+
+.map-unavailable p {
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.5;
+}
+
 .center-pin {
   position: absolute;
 
@@ -180,6 +208,11 @@
   border: none;
   background: var(--mk-primary);
   color: var(--mk-text-inverse);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .btn-primary:hover {

@@ -9,16 +9,12 @@ export class PrivacyPolicyComponent implements AfterViewInit {
   activeSection: string = 'intro';
 
   navItems = [
-    { id: 'intro', label: 'Introduction' },
-    { id: 'definitions', label: 'Definitions' },
-    { id: 'services', label: 'Services' },
+    { id: 'intro', label: 'Overview' },
     { id: 'collection', label: 'Information Collection' },
     { id: 'usage', label: 'Use of Information' },
-    { id: 'sharing', label: 'Sharing' },
-    { id: 'thirdparty', label: 'Third Party Policies' },
-    { id: 'security', label: 'Security' },
-    { id: 'updates', label: 'Updates' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'sharing', label: 'Data Sharing' },
+    { id: 'security', label: 'Security & Retention' },
+    { id: 'rights', label: 'Your Rights' },
   ];
 
   ngAfterViewInit(): void {

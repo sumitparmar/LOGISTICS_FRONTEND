@@ -112,15 +112,28 @@
                                 *ngIf="order.status === 'IN_TRANSIT' || order.status === 'PICKED_UP'"></span>
                             Live Route
                         </div>
-                        <button type="button" class="tp-livebtn"
-                            *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'"
-                            (click)="viewLiveTracking()">
-                            <span class="tp-live-dot tp-live-dot--sm"></span>
-                            Live View
-                        </button>
+                        <div class="tp-map-actions">
+                            <button type="button" class="tp-map-action" *ngIf="hasCourierMarker"
+                                (click)="recenterCourier()">
+                                Recenter
+                            </button>
+                            <button type="button" class="tp-map-action" (click)="fitFullRoute()">
+                                Full route
+                            </button>
+                            <button type="button" class="tp-livebtn"
+                                *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'"
+                                (click)="viewLiveTracking()">
+                                <span class="tp-live-dot tp-live-dot--sm"></span>
+                                Refresh live
+                            </button>
+                        </div>
                     </div>
 
                     <div class="tp-map-card__body">
+                        <div class="tp-map-unavailable" *ngIf="mapsUnavailable">
+                            <strong>Map is unavailable</strong>
+                            <p>Google Maps could not load. Your order status and route details are still shown below.</p>
+                        </div>
                         <div class="tp-map-wait" *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="1.5">
@@ -129,7 +142,16 @@
                             </svg>
                             <p>Live tracking begins once courier picks up the parcel</p>
                         </div>
-                        <div #mapContainer class="tp-map"></div>
+                        <div #mapContainer class="tp-map" *ngIf="!mapsUnavailable"></div>
+                        <div class="tp-map-livebar" *ngIf="!mapsUnavailable">
+                            <span class="tp-live-dot tp-live-dot--sm"
+                                *ngIf="order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT'"></span>
+                            <span>{{ liveTrackingMessage }}</span>
+                            <strong *ngIf="trackingLastUpdated">
+                                Updated {{ trackingLastUpdated | date:'hh:mm:ss a' }}
+                            </strong>
+                            <em *ngIf="autoFollowCourier && hasCourierMarker">Auto-follow on</em>
+                        </div>
                     </div>
 
                     <div class="tp-map-card__foot"

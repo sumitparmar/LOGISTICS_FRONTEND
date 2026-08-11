@@ -57,6 +57,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private ordersService: OrdersService,
@@ -181,6 +185,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initAutocomplete() {
     if (!this.isEditMode) return;
+    if (!this.isGoogleMapsReady() || !google.maps.places?.Autocomplete) {
+      this.toastService.warning(
+        'Location search is unavailable. Google Maps is not configured.',
+      );
+      return;
+    }
 
     // PICKUP
     const pickupAutocomplete = new google.maps.places.Autocomplete(
@@ -459,7 +469,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   initializeMap() {
-    if (typeof google === 'undefined' || !google.maps) {
+    if (!this.isGoogleMapsReady()) {
       return;
     }
     if (!this.mapContainer?.nativeElement) return;
@@ -600,6 +610,8 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     dropLat: number,
     dropLng: number,
   ) {
+    if (!this.map || !this.isGoogleMapsReady()) return;
+
     new google.maps.Marker({
       position: { lat: pickupLat, lng: pickupLng },
       map: this.map,
@@ -621,6 +633,10 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     dropLat: number,
     dropLng: number,
   ) {
+    if (!this.directionsService || !this.directionsRenderer || !this.isGoogleMapsReady()) {
+      return;
+    }
+
     this.directionsService.route(
       {
         origin: { lat: pickupLat, lng: pickupLng },
@@ -658,6 +674,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
           const lng = order?.courier?.location?.lng;
 
           if (!lat || !lng) return;
+          if (!this.map || !this.isGoogleMapsReady()) return;
 
           if (!this.courierMarker) {
             this.courierPosition = { lat, lng };
@@ -700,6 +717,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   animateCourierMove(target: any) {
     if (!this.courierMarker || !this.courierPosition) return;
+    if (!this.isGoogleMapsReady()) return;
 
     const start = this.courierPosition;
     const end = target;
@@ -736,6 +754,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   drawCourierToDropRoute() {
     if (!this.courierPosition || !this.order?.drop) return;
+    if (!this.directionsService || !this.isGoogleMapsReady()) return;
 
     this.directionsService.route(
       {

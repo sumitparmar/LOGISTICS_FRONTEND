@@ -38,6 +38,7 @@ export class LocationPickerComponent implements AfterViewInit {
   };
 
   isLoadingLocation = false;
+  mapsUnavailable = false;
 
   map: any;
   marker: any;
@@ -46,10 +47,12 @@ export class LocationPickerComponent implements AfterViewInit {
   constructor(private toast: ToastService) {}
 
   ngAfterViewInit(): void {
-    if (typeof google === 'undefined') {
+    if (!this.isGoogleMapsReady()) {
+      this.mapsUnavailable = true;
       return;
     }
 
+    this.mapsUnavailable = false;
     this.geocoder = new google.maps.Geocoder();
 
     const center = {
@@ -57,33 +60,7 @@ export class LocationPickerComponent implements AfterViewInit {
       lng: this.longitude || 77.209,
     };
 
-    const autocomplete = new google.maps.places.Autocomplete(
-      this.searchInput.nativeElement,
-      {
-        fields: ['formatted_address', 'geometry'],
-      },
-    );
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-
-      if (!place.geometry?.location) {
-        return;
-      }
-
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-
-      const address =
-        place.formatted_address || this.searchInput.nativeElement.value;
-
-      const location = { lat, lng };
-
-      this.map.setCenter(location);
-      this.marker.setPosition(location);
-
-      this.updateSelectedLocation(lat, lng, address);
-    });
+    this.initializeAutocomplete();
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, {
       center,
@@ -108,7 +85,55 @@ export class LocationPickerComponent implements AfterViewInit {
     });
   }
 
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
+  private initializeAutocomplete(): void {
+    if (
+      !this.isGoogleMapsReady() ||
+      !google.maps.places?.Autocomplete ||
+      !this.searchInput?.nativeElement
+    ) {
+      return;
+    }
+
+    const autocomplete = new google.maps.places.Autocomplete(
+      this.searchInput.nativeElement,
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['geocode'],
+      },
+    );
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+
+      if (!place.geometry?.location) {
+        return;
+      }
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+
+      const address =
+        place.formatted_address ||
+        place.name ||
+        this.searchInput.nativeElement.value;
+
+      const location = { lat, lng };
+
+      this.map?.setCenter(location);
+      this.marker?.setPosition(location);
+
+      this.updateSelectedLocation(lat, lng, address);
+    });
+  }
+
   reverseGeocode(lat: number, lng: number): void {
+    if (!this.geocoder) return;
+
     this.geocoder.geocode(
       {
         location: { lat, lng },
@@ -146,6 +171,11 @@ export class LocationPickerComponent implements AfterViewInit {
   }
 
   useCurrentLocation(): void {
+    if (!this.isGoogleMapsReady() || !this.map || !this.marker) {
+      this.toast.warning('Google Maps is not configured. Please enter the address manually.');
+      return;
+    }
+
     if (!navigator.geolocation) {
       this.toast.warning('Geolocation is not supported by your browser.');
       return;

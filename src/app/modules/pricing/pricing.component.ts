@@ -60,6 +60,7 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
   priceResult: PriceResult | null = null;
 
   loading = false;
+  mapsUnavailable = false;
 
   constructor(
     private fb: FormBuilder,
@@ -68,6 +69,12 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngAfterViewInit(): void {
+    if (!this.routeService.isReady()) {
+      this.mapsUnavailable = true;
+      return;
+    }
+
+    this.mapsUnavailable = false;
     this.initAutocomplete();
     this.initMap();
   }
@@ -91,6 +98,10 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initMap() {
     if (!this.mapContainer) return;
+    if (!this.routeService.isReady()) {
+      this.mapsUnavailable = true;
+      return;
+    }
 
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 12,
@@ -115,6 +126,8 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.map) {
       this.initMap();
     }
+
+    if (!this.map || !this.directionsRenderer) return;
 
     try {
       const result = await this.routeService.calculateRoute(
@@ -143,9 +156,18 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   initAutocomplete(): void {
+    if (!this.routeService.hasPlaces()) {
+      this.mapsUnavailable = true;
+      return;
+    }
+
     this.pickupAutocomplete = new google.maps.places.Autocomplete(
       this.pickupInput.nativeElement,
-      { types: ['geocode'] },
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['geocode'],
+      },
     );
 
     this.pickupAutocomplete.addListener('place_changed', () => {
@@ -153,7 +175,10 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!place.geometry) return;
 
       this.pricingForm.patchValue({
-        pickup: place.formatted_address,
+        pickup:
+          place.formatted_address ||
+          place.name ||
+          this.pickupInput.nativeElement.value,
       });
 
       this.renderRoute();
@@ -161,7 +186,11 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.dropAutocomplete = new google.maps.places.Autocomplete(
       this.dropInput.nativeElement,
-      { types: ['geocode'] },
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['geocode'],
+      },
     );
 
     this.dropAutocomplete.addListener('place_changed', () => {
@@ -170,7 +199,10 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!place.geometry) return;
 
       this.pricingForm.patchValue({
-        drop: place.formatted_address,
+        drop:
+          place.formatted_address ||
+          place.name ||
+          this.dropInput.nativeElement.value,
       });
 
       this.renderRoute();
@@ -276,11 +308,15 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.pickupAutocomplete) {
-      google.maps.event.clearInstanceListeners(this.pickupAutocomplete);
+      if (this.routeService.isReady() && google.maps?.event) {
+        google.maps.event.clearInstanceListeners(this.pickupAutocomplete);
+      }
     }
 
     if (this.dropAutocomplete) {
-      google.maps.event.clearInstanceListeners(this.dropAutocomplete);
+      if (this.routeService.isReady() && google.maps?.event) {
+        google.maps.event.clearInstanceListeners(this.dropAutocomplete);
+      }
     }
   }
 }

@@ -359,6 +359,18 @@ select {
   margin-top: 22px;
 }
 
+.map-fallback {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .route-info {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

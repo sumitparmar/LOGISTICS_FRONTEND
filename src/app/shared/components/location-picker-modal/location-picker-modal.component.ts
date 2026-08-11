@@ -46,6 +46,7 @@ export class LocationPickerModalComponent implements AfterViewInit {
   private reverseGeocodeTimer: any;
   selectedAddress = '';
   isResolvingAddress = false;
+  mapsUnavailable = false;
   selectedLocation = {
     lat: 28.6139,
     lng: 77.209,
@@ -53,6 +54,11 @@ export class LocationPickerModalComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
+      if (!this.isGoogleMapsReady()) {
+        this.mapsUnavailable = true;
+        return;
+      }
+
       // Existing coordinates available
       if (this.lat != null && this.lng != null) {
         this.selectedLocation = {
@@ -60,6 +66,11 @@ export class LocationPickerModalComponent implements AfterViewInit {
           lng: this.lng,
         };
 
+        this.initializeMap();
+        return;
+      }
+
+      if (!navigator.geolocation) {
         this.initializeMap();
         return;
       }
@@ -88,11 +99,18 @@ export class LocationPickerModalComponent implements AfterViewInit {
       );
     }, 100);
   }
+
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
   private initializeMap(): void {
-    if (typeof google === 'undefined') {
+    if (!this.isGoogleMapsReady()) {
+      this.mapsUnavailable = true;
       return;
     }
 
+    this.mapsUnavailable = false;
     this.geocoder = new google.maps.Geocoder();
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, {
@@ -137,7 +155,11 @@ export class LocationPickerModalComponent implements AfterViewInit {
   }
 
   private initializeAutocomplete(): void {
-    if (!google.maps.places?.Autocomplete || !this.searchInput?.nativeElement) {
+    if (
+      !this.isGoogleMapsReady() ||
+      !google.maps.places?.Autocomplete ||
+      !this.searchInput?.nativeElement
+    ) {
       return;
     }
 
@@ -218,6 +240,11 @@ export class LocationPickerModalComponent implements AfterViewInit {
   }
 
   private reverseGeocode(lat: number, lng: number): void {
+    if (!this.geocoder) {
+      this.isResolvingAddress = false;
+      return;
+    }
+
     this.geocoder.geocode(
       {
         location: {
@@ -244,6 +271,18 @@ export class LocationPickerModalComponent implements AfterViewInit {
   }
 
   useCurrentLocation(): void {
+    if (!this.isGoogleMapsReady() || !this.map) {
+      this.toast.warning(
+        'Google Maps is not configured. Please enter the address manually.',
+      );
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      this.toast.warning('Geolocation is not supported on this device.');
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude;
@@ -269,6 +308,11 @@ export class LocationPickerModalComponent implements AfterViewInit {
   }
 
   confirm(): void {
+    if (!this.selectedAddress) {
+      this.toast.warning('Please select a valid address before confirming.');
+      return;
+    }
+
     this.confirmLocation.emit({
       lat: this.selectedLocation.lat,
       lng: this.selectedLocation.lng,

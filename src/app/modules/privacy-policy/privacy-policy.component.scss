@@ -69,6 +69,14 @@
     color: var(--mk-text-secondary);
   }
 
+  .policy-lead {
+    padding: 18px;
+    border: 1px solid var(--mk-border);
+    border-radius: 14px;
+    background: var(--mk-surface-muted);
+    color: var(--mk-text-primary);
+  }
+
   ul {
     padding-left: 20px;
 

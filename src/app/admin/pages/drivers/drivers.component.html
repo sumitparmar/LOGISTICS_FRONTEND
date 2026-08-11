@@ -25,6 +25,11 @@
                     <strong>{{ application.personal?.fullName || application.user?.name || 'Applicant' }}</strong>
                     <span>{{ application.personal?.city || '-' }} - {{ application.vehicle?.vehicleName || '-' }}</span>
                 </div>
+                <div class="application-areas" *ngIf="application.servicePreferences?.preferredAreas?.length">
+                    <span *ngFor="let area of application.servicePreferences.preferredAreas">
+                        {{ area.address || area }}
+                    </span>
+                </div>
                 <div class="application-meta">
                     <span class="status-badge idle">{{ application.status }}</span>
                     <span>{{ application.personal?.phone || application.user?.phone || '-' }}</span>

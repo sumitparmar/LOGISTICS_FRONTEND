@@ -1,0 +1,74 @@
+<div class="city-page" *ngIf="city">
+    <section class="city-hero">
+        <div>
+            <span>MoveKart City Network</span>
+            <h1>Fast & Affordable Goods Transport Services in {{ city.name }}</h1>
+            <p>
+                Book motorbikes, mini 3-wheelers, tempo trucks and Tata Ace vehicles on-demand across {{ city.region }}.
+            </p>
+            <div class="hero-actions">
+                <a routerLink="/pricing">Get Instant Price</a>
+                <a routerLink="/auth/login" class="secondary">Book Now</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="section-title">
+            <span>Fleet</span>
+            <h2>Fleet Options & Base Pricing in {{ city.name }}</h2>
+        </div>
+
+        <div class="fleet-table">
+            <div class="fleet-row header">
+                <span>Vehicle Type</span>
+                <span>Capacity</span>
+                <span>Ideal For</span>
+                <span>Base Price Starting From</span>
+            </div>
+            <div class="fleet-row" *ngFor="let vehicle of vehicles">
+                <span>{{ vehicle.type }}</span>
+                <span>{{ vehicle.capacity }}</span>
+                <span>{{ vehicle.idealFor }}</span>
+                <span>{{ vehicle.price }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="section-title">
+            <span>Coverage</span>
+            <h2>Popular Localities Covered in {{ city.name }}</h2>
+            <p>MoveKart provides hyperlocal goods transport across major hubs in {{ city.name }}, including:</p>
+        </div>
+        <div class="locality-grid">
+            <span *ngFor="let locality of city.localities">{{ locality }}</span>
+        </div>
+    </section>
+
+    <section class="content-section reason-grid">
+        <article>
+            <h3>On-Demand Availability</h3>
+            <p>Get matched with a nearby driver partner quickly based on vehicle and location availability.</p>
+        </article>
+        <article>
+            <h3>Transparent Pricing</h3>
+            <p>No hidden charges; view the exact price upfront before confirming your booking.</p>
+        </article>
+        <article>
+            <h3>Real-Time Live GPS Tracking</h3>
+            <p>Track shipments and share live location links with your customer or receiver when available.</p>
+        </article>
+    </section>
+
+    <section class="content-section">
+        <div class="section-title">
+            <span>FAQs</span>
+            <h2>{{ city.name }} Delivery FAQs</h2>
+        </div>
+        <div class="city-faq" *ngFor="let faq of city.faqs">
+            <h3>{{ faq.q }}</h3>
+            <p>{{ faq.a }}</p>
+        </div>
+    </section>
+</div>

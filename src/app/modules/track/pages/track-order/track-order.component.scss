@@ -615,8 +615,67 @@
   }
 }
 
+.tp-map-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tp-map-action {
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.1s;
+
+  &:hover {
+    background: var(--surface-3);
+    border-color: var(--brand);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
 .tp-map-card__body {
   position: relative;
+}
+
+.tp-map-unavailable {
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-align: center;
+
+  strong {
+    color: var(--ink);
+    font-family: var(--f-head);
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    max-width: 360px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
 }
 
 .tp-map-wait {
@@ -648,6 +707,39 @@
   width: 100%;
   height: 380px;
   background: var(--surface-3);
+}
+
+.tp-map-livebar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--ink-2);
+  box-shadow: var(--sh-sm);
+  backdrop-filter: blur(14px);
+  z-index: 8;
+  font-size: 12px;
+  font-weight: 700;
+
+  strong {
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  em {
+    margin-left: auto;
+    color: var(--green);
+    font-style: normal;
+  }
 }
 
 .tp-map-card__foot {
@@ -1062,6 +1154,29 @@
 
   .tp-map {
     height: 300px;
+  }
+
+  .tp-map-card__head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tp-map-actions {
+    justify-content: flex-start;
+  }
+
+  .tp-map-livebar {
+    position: static;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    box-shadow: none;
+
+    em {
+      margin-left: 0;
+    }
   }
 
   .tp-journey__inner {

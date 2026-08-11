@@ -143,38 +143,46 @@
   z-index: 1;
 }
 
+.pickup-row::after,
+.has-extra-stops .stop-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  left: 17px;
+  height: calc(100% + 22px - 34px);
+  border-left: 2px dashed color-mix(in srgb, var(--mk-secondary) 72%, transparent);
+  z-index: 0;
+  pointer-events: none;
+}
+
 .route-step {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   min-height: 34px;
+  isolation: isolate;
 }
 
-.pickup-row .route-step::after,
-.has-extra-stops .stop-row:not(:last-child) .route-step::after {
-  content: "";
-  position: absolute;
-  top: 34px;
-  left: 50%;
-  height: calc(100% + 22px - 34px);
-  transform: translateX(-50%);
-  border-left: 2px dashed var(--mk-info-soft);
-  z-index: -1;
+.stop-row.last-stop::after {
+  display: none;
 }
 
 .step-circle {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--mk-info-soft);
+  background: var(--mk-card-bg);
   border: 2px solid var(--mk-secondary);
-  color: var(--mk-info);
+  color: var(--mk-secondary);
   font-size: 14px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 0 4px var(--mk-card-bg);
 }
 
 .step-text {
@@ -722,6 +730,13 @@
     gap: 12px;
   }
 
+  .pickup-row::after,
+  .has-extra-stops .stop-row:not(:last-child)::after {
+    top: 28px;
+    left: 14px;
+    height: calc(100% + 22px - 28px);
+  }
+
   .step-circle {
     width: 28px;
     height: 28px;
@@ -729,12 +744,6 @@
 
   .route-step {
     min-height: 28px;
-  }
-
-  .pickup-row .route-step::after,
-  .has-extra-stops .stop-row:not(:last-child) .route-step::after {
-    top: 28px;
-    height: calc(100% + 22px - 28px);
   }
 
   .card-section {
@@ -880,9 +889,15 @@
     background: var(--mk-surface-active);
   }
 
-  .pickup-row .route-step::after,
-  .has-extra-stops .stop-row:not(:last-child) .route-step::after {
-    border-color: rgba(10, 132, 255, 0.35);
+  .pickup-row::after,
+  .has-extra-stops .stop-row:not(:last-child)::after {
+    border-color: rgba(96, 165, 250, 0.62);
+  }
+
+  .step-circle {
+    background: var(--mk-surface-elevated);
+    color: var(--mk-secondary);
+    box-shadow: 0 0 0 4px var(--mk-surface-elevated);
   }
 
   .location-action-btn {

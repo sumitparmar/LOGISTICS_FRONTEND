@@ -51,6 +51,10 @@ export class DriversComponent implements OnInit {
     );
   }
 
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   constructor(
     private api: ApiService,
@@ -318,6 +322,7 @@ export class DriversComponent implements OnInit {
 
   initMap(lat: number, lng: number) {
     if (!this.mapContainer) return;
+    if (!this.isGoogleMapsReady()) return;
 
     if (!this.map) {
       this.map = new google.maps.Map(this.mapContainer.nativeElement, {
@@ -373,6 +378,7 @@ export class DriversComponent implements OnInit {
 
   drawRoute(pickup: any, drop: any) {
     if (!this.directionsService || !this.directionsRenderer) return;
+    if (!this.isGoogleMapsReady()) return;
 
     this.directionsService.route(
       {
@@ -395,6 +401,10 @@ export class DriversComponent implements OnInit {
   }
 
   getHeading(start: any, end: any): number {
+    if (!this.isGoogleMapsReady() || !google.maps.geometry?.spherical) {
+      return 0;
+    }
+
     return google.maps.geometry.spherical.computeHeading(start, end);
   }
 
@@ -446,6 +456,8 @@ export class DriversComponent implements OnInit {
   }
 
   updateDriverLocation(lat: number, lng: number) {
+    if (!this.isGoogleMapsReady()) return;
+
     // map not ready → initialize
     if (!this.map) {
       this.initMap(lat, lng);
@@ -494,6 +506,8 @@ export class DriversComponent implements OnInit {
   }
 
   startContinuousMovement() {
+    if (!this.isGoogleMapsReady()) return;
+
     const speed = 0.00005; // tweak if needed
 
     const move = () => {
@@ -505,6 +519,11 @@ export class DriversComponent implements OnInit {
       const current = this.courierMarker.getPosition();
 
       if (!current) {
+        this.liveAnimationFrame = null;
+        return;
+      }
+
+      if (!this.isGoogleMapsReady()) {
         this.liveAnimationFrame = null;
         return;
       }
@@ -544,6 +563,7 @@ export class DriversComponent implements OnInit {
 
   updateLiveRoute(driverLat: number, driverLng: number, drop: any) {
     if (!this.directionsService || !this.directionsRenderer) return;
+    if (!this.isGoogleMapsReady()) return;
 
     const origin = { lat: driverLat, lng: driverLng };
     const destination = drop;
@@ -565,6 +585,8 @@ export class DriversComponent implements OnInit {
   }
 
   animateMarker(start: any, end: any) {
+    if (!this.courierMarker || !this.isGoogleMapsReady()) return;
+
     const duration = 1000;
     const frames = 60;
     let frame = 0;
@@ -638,6 +660,7 @@ export class DriversComponent implements OnInit {
 
   findNearestRouteIndex(position: any): number {
     if (!this.routePath?.length) return 0;
+    if (!this.isGoogleMapsReady() || !google.maps.geometry?.spherical) return 0;
 
     let minDist = Infinity;
     let nearestIndex = 0;

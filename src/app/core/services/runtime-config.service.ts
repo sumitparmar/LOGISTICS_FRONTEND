@@ -21,7 +21,11 @@ export class RuntimeConfigService {
 
   async load(): Promise<void> {
     await this.loadRuntimeConfig();
-    await this.loadGoogleMaps();
+    try {
+      await this.loadGoogleMaps();
+    } catch {
+      // Maps-dependent screens keep a manual fallback, so config failure must not block app boot.
+    }
   }
 
   private async loadRuntimeConfig(): Promise<void> {

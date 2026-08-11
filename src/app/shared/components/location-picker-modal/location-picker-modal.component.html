@@ -36,7 +36,13 @@
 
     </div>
 
-    <div class="map-wrapper">
+    <div class="map-unavailable" *ngIf="mapsUnavailable">
+        <span class="material-icons">map</span>
+        <strong>Google Maps is not configured</strong>
+        <p>Please add the runtime Google Maps key or enter the address manually in the form.</p>
+    </div>
+
+    <div class="map-wrapper" *ngIf="!mapsUnavailable">
 
         <div #map class="map-container"></div>
 
@@ -72,7 +78,7 @@
 
         </button>
 
-        <button type="button" class="btn-primary" (click)="confirm()">
+        <button type="button" class="btn-primary" (click)="confirm()" [disabled]="!selectedAddress">
 
             Confirm Location
 

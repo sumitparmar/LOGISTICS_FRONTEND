@@ -150,7 +150,7 @@ export class CreateDeliveryComponent
     }
 
     this.stopAutocompleteInstances.forEach((instance) => {
-      if (instance) {
+      if (instance && this.isGoogleMapsReady() && google.maps?.event) {
         google.maps.event.clearInstanceListeners(instance);
       }
     });
@@ -177,6 +177,30 @@ export class CreateDeliveryComponent
         maximumAge: 0,
       });
     });
+  }
+
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
+  }
+
+  private getGeolocationErrorMessage(error: any): string {
+    if (!error || typeof error.code !== 'number') {
+      return 'Unable to determine your current location. Please check browser location access.';
+    }
+
+    if (error.code === error.PERMISSION_DENIED) {
+      return 'Location permission is blocked. Allow location access in your browser and try again.';
+    }
+
+    if (error.code === error.POSITION_UNAVAILABLE) {
+      return 'Current location is unavailable on this device. Please select the pickup on map.';
+    }
+
+    if (error.code === error.TIMEOUT) {
+      return 'Location request timed out. Please try again or choose pickup on map.';
+    }
+
+    return 'Unable to determine your current location. Please try again or choose pickup on map.';
   }
 
   useCurrentPickupLocation(): void {
@@ -240,47 +264,71 @@ export class CreateDeliveryComponent
           pickupLng: lng,
         });
 
-        const location = new google.maps.LatLng(lat, lng);
+        if (this.isGoogleMapsReady() && !this.map) {
+          this.initMap();
+        }
 
-        this.map.panTo(location);
-        this.map.setZoom(17);
+        if (this.map && google.maps?.LatLng) {
+          const location = new google.maps.LatLng(lat, lng);
+          this.map.panTo(location);
+          this.map.setZoom(17);
+        }
 
-        this.geocoder.geocode(
-          {
-            location: {
-              lat,
-              lng,
-            },
-          },
-          (results: any, status: any) => {
-            this.isFetchingCurrentLocation = false;
+        if (!this.geocoder) {
+          this.isFetchingCurrentLocation = false;
+          this.resetPrice();
+          this.currentLocationSuccess = true;
+          this.showToastMessage(
+            'Location detected. Google Maps is not configured, so please enter or choose the pickup address.',
+          );
+          setTimeout(() => {
+            this.currentLocationSuccess = false;
+          }, 1800);
+          return;
+        }
 
-            if (status === 'OK' && results.length) {
-              this.deliveryForm.patchValue({
-                pickupAddress: results[0].formatted_address,
-              });
-
-              this.renderRoute();
-              this.resetPrice();
-              this.currentLocationSuccess = true;
-              this.showToastMessage('Current location detected successfully.');
-
-              setTimeout(() => {
-                this.currentLocationSuccess = false;
-              }, 1800);
-            } else {
-              this.showToastMessage('Unable to determine address.');
-            }
-          },
-        );
+        this.resolvePickupAddressFromCoordinates(lat, lng);
       } catch (error) {
         this.isFetchingCurrentLocation = false;
-
-        this.showToastMessage('Unable to determine your current location.');
-
+        this.showToastMessage(this.getGeolocationErrorMessage(error));
         console.error(error);
       }
     })();
+  }
+
+  private resolvePickupAddressFromCoordinates(lat: number, lng: number): void {
+    this.geocoder.geocode(
+      {
+        location: {
+          lat,
+          lng,
+        },
+      },
+      (results: any, status: any) => {
+        this.isFetchingCurrentLocation = false;
+
+        if (status === 'OK' && results.length) {
+          this.deliveryForm.patchValue({
+            pickupAddress: results[0].formatted_address,
+          });
+
+          this.renderRoute();
+          this.resetPrice();
+          this.currentLocationSuccess = true;
+          this.showToastMessage('Current location detected successfully.');
+
+          setTimeout(() => {
+            this.currentLocationSuccess = false;
+          }, 1800);
+          return;
+        }
+
+        this.resetPrice();
+        this.showToastMessage(
+          'Location detected, but address lookup failed. Please confirm pickup on map.',
+        );
+      },
+    );
   }
 
   // openPickupLocationPicker(): void {
@@ -288,12 +336,9 @@ export class CreateDeliveryComponent
   // }
 
   openPickupLocationPicker(): void {
-    if (
-      !this.deliveryForm.get('pickupLat')?.value ||
-      !this.deliveryForm.get('pickupLng')?.value
-    ) {
+    if (!this.isGoogleMapsReady()) {
       this.showToastMessage(
-        'Please detect current location or select a pickup address first.',
+        'Google Maps is not configured. Please enter the pickup address manually.',
       );
       return;
     }
@@ -302,6 +347,13 @@ export class CreateDeliveryComponent
   }
 
   openDeliveryLocationPicker(index: number): void {
+    if (!this.isGoogleMapsReady()) {
+      this.showToastMessage(
+        'Google Maps is not configured. Please enter the delivery address manually.',
+      );
+      return;
+    }
+
     this.deliveryStopIndex = index;
     this.showDeliveryLocationPicker = true;
   }
@@ -754,7 +806,7 @@ export class CreateDeliveryComponent
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      if (typeof google === 'undefined' || !google.maps) {
+      if (!this.isGoogleMapsReady()) {
         return;
       }
 
@@ -1309,9 +1361,17 @@ export class CreateDeliveryComponent
   -------------------------------- */
 
   initPickupAutocomplete(): void {
+    if (!this.isGoogleMapsReady() || !google.maps.places?.Autocomplete) {
+      return;
+    }
+
     const autocomplete = new google.maps.places.Autocomplete(
       this.pickupInput.nativeElement,
-      { types: ['geocode'] },
+      {
+        componentRestrictions: { country: 'in' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['geocode'],
+      },
     );
 
     autocomplete.addListener('place_changed', () => {
@@ -1325,7 +1385,10 @@ export class CreateDeliveryComponent
         this.map.setZoom(14);
       }
       this.deliveryForm.patchValue({
-        pickupAddress: place.formatted_address,
+        pickupAddress:
+          place.formatted_address ||
+          place.name ||
+          this.pickupInput.nativeElement.value,
         pickupLat: lat,
         pickupLng: lng,
       });
@@ -1335,13 +1398,21 @@ export class CreateDeliveryComponent
   }
 
   attachStopAutocompletes(): void {
+    if (!this.isGoogleMapsReady() || !google.maps.places?.Autocomplete) {
+      return;
+    }
+
     this.stopInputs.forEach((input, index) => {
       if (this.stopAutocompleteInstances[index]) {
         return;
       }
       const autocomplete = new google.maps.places.Autocomplete(
         input.nativeElement,
-        { types: ['geocode'] },
+        {
+          componentRestrictions: { country: 'in' },
+          fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+          types: ['geocode'],
+        },
       );
 
       this.stopAutocompleteInstances[index] = autocomplete;
@@ -1356,7 +1427,10 @@ export class CreateDeliveryComponent
         const stopGroup = this.stops.at(index);
 
         stopGroup.patchValue({
-          address: place.formatted_address,
+          address:
+            place.formatted_address ||
+            place.name ||
+            input.nativeElement.value,
           lat,
           lng,
         });
@@ -1429,6 +1503,8 @@ export class CreateDeliveryComponent
 
   initMap(): void {
     if (this.map) return;
+    if (!this.isGoogleMapsReady() || !this.routeMap?.nativeElement) return;
+
     this.map = new google.maps.Map(this.routeMap.nativeElement, {
       zoom: 12,
       center: { lat: 20.5937, lng: 78.9629 },
@@ -1447,6 +1523,8 @@ export class CreateDeliveryComponent
   }
 
   renderRoute(): void {
+    if (!this.map || !this.directionsRenderer) return;
+
     const form = this.deliveryForm.value;
 
     if (!form.pickupLat || !form.pickupLng) return;

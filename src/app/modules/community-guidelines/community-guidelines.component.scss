@@ -57,6 +57,25 @@
   font-size: 14px;
 }
 
+.policy__content ul {
+  padding-left: 20px;
+}
+
+.policy__content li {
+  margin-bottom: 10px;
+  line-height: 1.8;
+  color: var(--mk-text-secondary);
+  font-size: 14px;
+}
+
+.policy-lead {
+  padding: 18px;
+  border: 1px solid var(--mk-border);
+  border-radius: 14px;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-primary) !important;
+}
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
   .policy__container {

@@ -71,6 +71,14 @@ const routes: Routes = [
       },
 
       {
+        path: 'zero-tolerance-policy',
+        loadChildren: () =>
+          import('./modules/zero-tolerance/zero-tolerance.module').then(
+            (m) => m.ZeroToleranceModule,
+          ),
+      },
+
+      {
         path: 'privacy-policy',
         loadChildren: () =>
           import('./modules/privacy-policy/privacy-policy.module').then(
@@ -90,6 +98,18 @@ const routes: Routes = [
           import('./modules/pricing/pricing.module').then(
             (m) => m.PricingModule,
           ),
+      },
+
+      {
+        path: 'faq',
+        loadChildren: () =>
+          import('./modules/faq/faq.module').then((m) => m.FaqModule),
+      },
+
+      {
+        path: 'city',
+        loadChildren: () =>
+          import('./modules/city/city.module').then((m) => m.CityModule),
       },
 
       {

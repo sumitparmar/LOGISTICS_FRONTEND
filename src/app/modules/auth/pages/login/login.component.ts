@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 type LoginMode = 'BUSINESS' | 'INDIVIDUAL';
 type OtpStep = 'PHONE' | 'OTP';
@@ -21,14 +21,18 @@ export class LoginComponent implements OnInit {
   phoneNumber = '';
   loading = false;
   errorMessage = '';
+  private returnUrl = '/app/dashboard';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private route: ActivatedRoute,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
+    this.returnUrl =
+      this.route.snapshot.queryParamMap.get('returnUrl') || '/app/dashboard';
     // Business login form
     this.hasPendingBooking = !!localStorage.getItem('PENDING_DELIVERY');
     this.businessForm = this.fb.group({
@@ -111,7 +115,7 @@ export class LoginComponent implements OnInit {
               state: pendingState,
             });
           } else {
-            this.router.navigate(['/app/dashboard']);
+            this.router.navigateByUrl(this.returnUrl);
           }
         },
 
@@ -198,7 +202,7 @@ export class LoginComponent implements OnInit {
               state: pendingState,
             });
           } else {
-            this.router.navigate(['/app/dashboard']);
+            this.router.navigateByUrl(this.returnUrl);
           }
         },
         error: (err) => {

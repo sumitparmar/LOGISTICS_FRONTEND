@@ -188,6 +188,7 @@ deliveryForm.get('pickupAddress')?.invalid">
                             <ng-container formArrayName="stops">
 
                                 <div class="route-row stop-row" *ngFor="let stop of stops.controls; let i=index"
+                                    [class.last-stop]="i === stops.length - 1"
                                     [formGroupName]="i">
 
                                     <div class="route-step">

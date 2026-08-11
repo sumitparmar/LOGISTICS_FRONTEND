@@ -3,13 +3,14 @@
         <div>
             <span class="eyebrow">Driver onboarding</span>
             <h1>Start delivering with MoveKart</h1>
-            <p>Complete your profile, vehicle, document and payout details for admin review.</p>
+            <p>Complete your verified partner profile, vehicle details, documents, payout information and service preferences for operations review.</p>
         </div>
 
         <div class="status-card">
             <span>Application status</span>
             <strong>{{ statusLabel(application?.status) }}</strong>
             <small *ngIf="application?.review?.remarks">{{ application.review.remarks }}</small>
+            <small *ngIf="isLocked && !application?.review?.remarks">Your application is locked while operations reviews it.</small>
         </div>
     </section>
 
@@ -58,7 +59,7 @@
                 <span>02</span>
                 <div>
                     <h2>Vehicle details</h2>
-                    <p>Vehicle type is pulled from the active provider catalog.</p>
+                    <p>Vehicle types are loaded from the active provider catalog.</p>
                 </div>
             </div>
 
@@ -154,7 +155,7 @@
                 <span>05</span>
                 <div>
                     <h2>Service preferences</h2>
-                    <p>Tell operations where and when you prefer to deliver.</p>
+                    <p>Select service areas using Google Places so operations can review city coverage accurately.</p>
                 </div>
             </div>
 
@@ -170,11 +171,26 @@
             </div>
 
             <div class="area-list" formArrayName="preferredAreas">
-                <label *ngFor="let area of preferredAreas.controls; let i = index">
+                <div class="maps-status" *ngIf="mapsReady">
+                    Google Places is active for service area selection.
+                </div>
+                <div class="maps-status warning" *ngIf="mapsUnavailable">
+                    Google Maps is not configured. Manual area entry is available as fallback.
+                </div>
+
+                <label *ngFor="let area of preferredAreas.controls; let i = index" [formGroupName]="i">
                     Preferred area {{ i + 1 }}
                     <div class="area-row">
-                        <input type="text" [formControlName]="i" [readonly]="isLocked">
+                        <input #areaInput type="text" formControlName="address"
+                            placeholder="Search locality, city or operating zone" [readonly]="isLocked">
                         <button type="button" (click)="removeArea(i)" [disabled]="isLocked">Remove</button>
+                    </div>
+                    <div class="area-meta" *ngIf="area.value?.placeId">
+                        <span>{{ area.value.city || 'Selected area' }}</span>
+                        <span>{{ area.value.lat | number:'1.4-4' }}, {{ area.value.lng | number:'1.4-4' }}</span>
+                    </div>
+                    <div class="area-meta warning" *ngIf="requireGooglePlaceSelection && area.value?.address && !area.value?.placeId">
+                        Select this area from Google suggestions before submitting.
                     </div>
                 </label>
                 <button type="button" class="btn-outline" (click)="addArea()" [disabled]="isLocked">Add area</button>
@@ -182,13 +198,9 @@
         </section>
 
         <section class="form-section consent-section" formGroupName="consent">
-            <label>
-                <input type="checkbox" formControlName="termsAccepted" [disabled]="isLocked">
-                I confirm that the information provided is accurate.
-            </label>
-            <label>
-                <input type="checkbox" formControlName="backgroundCheckAccepted" [disabled]="isLocked">
-                I consent to document and background verification for onboarding.
+            <label *ngFor="let consent of requiredConsents">
+                <input type="checkbox" [formControlName]="consent.key" [disabled]="isLocked">
+                {{ consent.label }}
             </label>
         </section>
 

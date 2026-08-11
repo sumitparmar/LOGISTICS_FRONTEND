@@ -42,13 +42,20 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   etaText = '';
   distanceText = '';
   currencySymbol = getCurrencySymbol();
+  mapsUnavailable = false;
+  trackingLastUpdated: Date | null = null;
+  liveTrackingMessage = 'Waiting for courier location';
 
   private map: any;
   private directionsService: any;
   private directionsRenderer: any;
+  private liveDirectionsRenderer: any;
   private pickupMarker: any;
   private dropMarker: any;
   private courierMarker: any;
+  private courierInfoWindow: any;
+  private pickupInfoWindow: any;
+  private dropInfoWindow: any;
   private trackingInterval: any;
   private summaryInterval: any;
   private animationInterval: any;
@@ -63,6 +70,10 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
       getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
       fallback
     );
+  }
+
+  private isGoogleMapsReady(): boolean {
+    return typeof google !== 'undefined' && !!google.maps;
   }
 
   autoFollowCourier = true;
@@ -294,6 +305,10 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.vehicleMap[vehicleId] || 'Courier Vehicle';
   }
 
+  get hasCourierMarker(): boolean {
+    return !!this.courierMarker;
+  }
+
   getEstimatedDistance(order: any): string {
     const raw = order?.rawProviderResponse;
     const pts = raw?.order?.points || raw?.orders?.[0]?.points;
@@ -449,6 +464,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   viewLiveTracking(): void {
     if (!this.order?._id) return;
+    this.liveTrackingMessage = 'Refreshing live location...';
 
     this.api.get(`/orders/${this.order._id}/tracking`).subscribe({
       next: (res: any) => {
@@ -460,6 +476,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (courier?.latitude && courier?.longitude) {
           this.updateCourierLocation(courier.latitude, courier.longitude);
+          this.liveTrackingMessage = 'Courier location is live';
           if (this.hasAuthToken()) {
             this.startTrackingPolling();
           } else {
@@ -474,19 +491,23 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
         const lng = Number(this.order.pickup?.lng || points[0]?.longitude);
         if (lat && lng) this.initMap(lat, lng);
       },
-      error: () => console.error('Tracking fetch failed'),
+      error: () => {
+        this.liveTrackingMessage = 'Unable to refresh live location';
+        console.error('Tracking fetch failed');
+      },
     });
   }
 
   initMap(lat: number, lng: number): void {
     if (
-      typeof google === 'undefined' ||
-      !google.maps ||
+      !this.isGoogleMapsReady() ||
       !this.mapContainer?.nativeElement
     ) {
+      this.mapsUnavailable = true;
       return;
     }
 
+    this.mapsUnavailable = false;
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 13,
       center: { lat, lng },
@@ -516,10 +537,22 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.directionsRenderer.setMap(this.map);
 
+    this.liveDirectionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      preserveViewport: true,
+      polylineOptions: {
+        strokeColor: this.themeColor('--mk-secondary', '#2563eb'),
+        strokeWeight: 5,
+        strokeOpacity: 0.9,
+      },
+    });
+    this.liveDirectionsRenderer.setMap(this.map);
+
     this.addPickupDropMarkers();
   }
 
   addPickupDropMarkers(): void {
+    if (!this.map || !this.isGoogleMapsReady()) return;
     if (!this.order) return;
     const pLat = Number(this.order.pickup?.lat);
     const pLng = Number(this.order.pickup?.lng);
@@ -530,19 +563,39 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pickupMarker = new google.maps.Marker({
       position: { lat: pLat, lng: pLng },
       map: this.map,
+      title: 'Pickup location',
       icon: '/assets/icons/pickup-marker.svg',
     });
 
     this.dropMarker = new google.maps.Marker({
       position: { lat: dLat, lng: dLng },
       map: this.map,
+      title: 'Drop location',
       icon: '/assets/icons/drop-marker.svg',
+    });
+
+    this.pickupInfoWindow = new google.maps.InfoWindow({
+      content: this.markerInfoContent('Pickup', this.order.pickup?.address),
+    });
+    this.dropInfoWindow = new google.maps.InfoWindow({
+      content: this.markerInfoContent('Drop', this.order.drop?.address),
+    });
+
+    this.pickupMarker.addListener('click', () => {
+      this.pickupInfoWindow.open(this.map, this.pickupMarker);
+    });
+    this.dropMarker.addListener('click', () => {
+      this.dropInfoWindow.open(this.map, this.dropMarker);
     });
 
     this.drawRoute(pLat, pLng, dLat, dLng);
   }
 
   drawRoute(pLat: number, pLng: number, dLat: number, dLng: number): void {
+    if (!this.directionsService || !this.directionsRenderer || !this.isGoogleMapsReady()) {
+      return;
+    }
+
     this.directionsService.route(
       {
         origin: { lat: pLat, lng: pLng },
@@ -568,19 +621,34 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   updateCourierLocation(lat: number, lng: number): void {
     if (!this.map) this.initMap(lat, lng);
+    if (!this.map || !this.isGoogleMapsReady()) return;
+
+    this.trackingLastUpdated = new Date();
+    this.liveTrackingMessage = 'Courier location is live';
 
     if (!this.courierMarker) {
       this.courierMarker = new google.maps.Marker({
         position: { lat, lng },
         map: this.map,
+        title: 'Courier live location',
         icon: {
           url: '/assets/icons/vehicles/bike.svg',
           scaledSize: new google.maps.Size(40, 40),
         },
       });
+      this.courierInfoWindow = new google.maps.InfoWindow({
+        content: this.markerInfoContent(
+          'Courier',
+          `${this.courier?.name || 'Delivery partner'} ${this.courier?.phone || ''}`.trim(),
+        ),
+      });
+      this.courierMarker.addListener('click', () => {
+        this.courierInfoWindow.open(this.map, this.courierMarker);
+      });
       this.previousLat = lat;
       this.previousLng = lng;
       if (this.autoFollowCourier) this.map.panTo({ lat, lng });
+      this.drawCourierToDropRoute(lat, lng);
       return;
     }
 
@@ -588,11 +656,13 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.animateMarker(this.previousLat!, this.previousLng!, lat, lng);
     this.calculateETA(lat, lng);
+    this.drawCourierToDropRoute(lat, lng);
     this.previousLat = lat;
     this.previousLng = lng;
   }
 
   animateMarker(sLat: number, sLng: number, eLat: number, eLng: number): void {
+    if (!this.courierMarker || !this.map || !this.isGoogleMapsReady()) return;
     if (this.animationInterval) clearInterval(this.animationInterval);
     const steps = 60;
     let step = 0;
@@ -613,6 +683,8 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   calculateETA(cLat: number, cLng: number): void {
     if (!this.directionsService || !this.order?.drop?.lat) return;
+    if (!this.isGoogleMapsReady()) return;
+
     this.directionsService.route(
       {
         origin: { lat: cLat, lng: cLng },
@@ -629,6 +701,80 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.distanceText = leg.distance.text;
       },
     );
+  }
+
+  recenterCourier(): void {
+    const position = this.courierMarker?.getPosition?.();
+    if (!this.map || !position) return;
+
+    this.autoFollowCourier = true;
+    this.map.panTo(position);
+    this.map.setZoom(Math.max(this.map.getZoom() || 15, 15));
+  }
+
+  fitFullRoute(): void {
+    if (!this.map) return;
+
+    if (this.routeBounds) {
+      this.autoFollowCourier = false;
+      this.map.fitBounds(this.routeBounds, 72);
+      return;
+    }
+
+    const bounds = new google.maps.LatLngBounds();
+    const markers = [this.pickupMarker, this.dropMarker, this.courierMarker];
+    let hasMarker = false;
+
+    markers.forEach((marker) => {
+      const position = marker?.getPosition?.();
+      if (position) {
+        bounds.extend(position);
+        hasMarker = true;
+      }
+    });
+
+    if (hasMarker) {
+      this.autoFollowCourier = false;
+      this.map.fitBounds(bounds, 72);
+    }
+  }
+
+  private drawCourierToDropRoute(cLat: number, cLng: number): void {
+    if (
+      !this.liveDirectionsRenderer ||
+      !this.directionsService ||
+      !this.order?.drop?.lat ||
+      !this.isGoogleMapsReady()
+    ) {
+      return;
+    }
+
+    this.directionsService.route(
+      {
+        origin: { lat: cLat, lng: cLng },
+        destination: {
+          lat: Number(this.order.drop.lat),
+          lng: Number(this.order.drop.lng),
+        },
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result: any, status: any) => {
+        if (status !== 'OK') return;
+        this.liveDirectionsRenderer.setDirections(result);
+      },
+    );
+  }
+
+  private markerInfoContent(title: string, value: string = ''): string {
+    const safeTitle = String(title || '').replace(/[<>]/g, '');
+    const safeValue = String(value || '').replace(/[<>]/g, '');
+
+    return `
+      <div style="font-family: Arial, sans-serif; min-width: 160px;">
+        <strong style="display:block;margin-bottom:4px;">${safeTitle}</strong>
+        <span style="font-size:12px;line-height:1.35;color:#475569;">${safeValue}</span>
+      </div>
+    `;
   }
 
   // ─── Reset ───────────────────────────────────────────────────────────────
@@ -661,7 +807,16 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.directionsRenderer.setMap(null);
       this.directionsRenderer = null;
     }
+    if (this.liveDirectionsRenderer) {
+      this.liveDirectionsRenderer.setMap(null);
+      this.liveDirectionsRenderer = null;
+    }
+    this.courierInfoWindow = null;
+    this.pickupInfoWindow = null;
+    this.dropInfoWindow = null;
     this.map = null;
+    this.trackingLastUpdated = null;
+    this.liveTrackingMessage = 'Waiting for courier location';
   }
   ngOnDestroy(): void {
     clearInterval(this.trackingInterval);

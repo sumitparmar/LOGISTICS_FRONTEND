@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-courier',
@@ -10,6 +12,11 @@ export class CourierComponent {
   days: number = 15;
 
   private readonly BASE_RATE = 70;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   cities: string[] = [
     'Delhi/NCR',
@@ -81,5 +88,18 @@ export class CourierComponent {
 
   toggleFaq(index: number): void {
     this.faqs[index].open = !this.faqs[index].open;
+  }
+
+  startOnboarding(): void {
+    const destination = '/app/driver-onboarding';
+
+    if (this.authService.hasToken()) {
+      this.router.navigateByUrl(destination);
+      return;
+    }
+
+    this.router.navigate(['/auth/login'], {
+      queryParams: { returnUrl: destination },
+    });
   }
 }

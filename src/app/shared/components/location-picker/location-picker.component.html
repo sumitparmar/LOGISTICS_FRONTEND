@@ -26,7 +26,11 @@
 
     </div>
 
-    <div #map class="map">
+    <div class="map-fallback" *ngIf="mapsUnavailable">
+        Google Maps is not configured. Enter the address manually or add the runtime Maps key.
+    </div>
+
+    <div #map class="map" *ngIf="!mapsUnavailable">
     </div>
 
     <div class="location-picker__footer">

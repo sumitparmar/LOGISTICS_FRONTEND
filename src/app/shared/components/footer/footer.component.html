@@ -12,7 +12,7 @@
 
             <ul class="city-list">
                 <li *ngFor="let city of footer.cities">
-                    <span>{{ city }}</span>
+                    <a [routerLink]="city.route">{{ city.label }}</a>
                 </li>
             </ul>
         </div>

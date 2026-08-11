@@ -65,7 +65,7 @@
 }
 
 .footer-col a,
-.city-list span {
+.city-list a {
   font-size: 14px;
   line-height: 1.5;
   color: var(--mk-text-primary);
@@ -90,9 +90,13 @@
   margin-bottom: 0;
 }
 
-.city-list span {
+.city-list a {
   color: var(--mk-info);
   font-weight: 500;
+}
+
+.city-list a:hover {
+  color: var(--mk-primary);
 }
 
 /* Apps */

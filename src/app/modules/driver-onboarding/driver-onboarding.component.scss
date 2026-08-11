@@ -180,6 +180,30 @@ select:disabled {
   gap: 10px;
 }
 
+.maps-status,
+.area-meta {
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--mk-success);
+  background: var(--mk-success-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.maps-status.warning,
+.area-meta.warning {
+  color: var(--mk-warning);
+  background: var(--mk-warning-soft);
+}
+
+.area-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  justify-content: space-between;
+}
+
 .consent-section {
   gap: 12px;
 }

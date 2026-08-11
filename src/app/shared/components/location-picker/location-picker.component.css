@@ -33,6 +33,21 @@
   border: 1px solid var(--mk-border);
 }
 
+.map-fallback {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-secondary);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .hint {
   color: var(--mk-text-secondary);
   font-size: 13px;

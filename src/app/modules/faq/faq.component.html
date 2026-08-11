@@ -1,0 +1,17 @@
+<div class="faq-page">
+    <section class="faq-hero">
+        <span>MoveKart Help</span>
+        <h1>Frequently Asked Questions</h1>
+        <p>Clear answers about booking, vehicles, payments, tracking, protection, refunds and business accounts.</p>
+    </section>
+
+    <section class="faq-groups">
+        <article class="faq-group" *ngFor="let group of groups">
+            <h2>{{ group.title }}</h2>
+            <div class="faq-card" *ngFor="let item of group.items">
+                <h3>{{ item.question }}</h3>
+                <p>{{ item.answer }}</p>
+            </div>
+        </article>
+    </section>
+</div>

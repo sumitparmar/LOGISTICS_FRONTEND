@@ -12,7 +12,12 @@ declare const google: any;
 
 @Component({
   selector: 'app-order-map',
-  template: `<div #mapContainer class="map-container"></div>`,
+  template: `
+    <div class="map-fallback" *ngIf="mapsUnavailable">
+      Map preview is unavailable. Route details remain available in the order timeline.
+    </div>
+    <div #mapContainer class="map-container" *ngIf="!mapsUnavailable"></div>
+  `,
   styleUrls: ['./order-map.component.scss'],
 })
 export class OrderMapComponent implements AfterViewInit {
@@ -27,6 +32,7 @@ export class OrderMapComponent implements AfterViewInit {
 
   distance: string = '';
   duration: string = '';
+  mapsUnavailable = false;
   private map: any;
   private directionsRenderer: any;
 
@@ -40,7 +46,11 @@ export class OrderMapComponent implements AfterViewInit {
   async ngAfterViewInit(): Promise<void> {
     if (!this.pickup || !this.drop) return;
 
-    await this.loadGoogleMaps();
+    const isReady = await this.waitForGoogleMaps();
+    if (!isReady) {
+      this.mapsUnavailable = true;
+      return;
+    }
 
     this.initMap();
     this.renderRoute();
@@ -48,6 +58,11 @@ export class OrderMapComponent implements AfterViewInit {
   }
 
   initMap(): void {
+    if (!this.isGoogleMapsReady() || !this.mapContainer?.nativeElement) {
+      this.mapsUnavailable = true;
+      return;
+    }
+
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       zoom: 12,
       center: this.pickup,
@@ -71,6 +86,8 @@ export class OrderMapComponent implements AfterViewInit {
   }
 
   addMarkers(): void {
+    if (!this.map || !this.isGoogleMapsReady()) return;
+
     new google.maps.Marker({
       position: this.pickup,
       map: this.map,
@@ -131,6 +148,10 @@ export class OrderMapComponent implements AfterViewInit {
   //   }
 
   renderRoute(): void {
+    if (!this.map || !this.directionsRenderer || !this.isGoogleMapsReady()) {
+      return;
+    }
+
     const directionsService = new google.maps.DirectionsService();
 
     directionsService.route(
@@ -162,15 +183,27 @@ export class OrderMapComponent implements AfterViewInit {
     );
   }
 
-  loadGoogleMaps(): Promise<void> {
+  private isGoogleMapsReady(): boolean {
+    return !!(window as any).google?.maps;
+  }
+
+  waitForGoogleMaps(): Promise<boolean> {
     return new Promise((resolve) => {
-      if ((window as any).google && (window as any).google.maps) {
-        resolve();
+      if (this.isGoogleMapsReady()) {
+        resolve(true);
       } else {
+        let attempts = 0;
         const check = setInterval(() => {
-          if ((window as any).google && (window as any).google.maps) {
+          attempts += 1;
+          if (this.isGoogleMapsReady()) {
             clearInterval(check);
-            resolve();
+            resolve(true);
+            return;
+          }
+
+          if (attempts >= 30) {
+            clearInterval(check);
+            resolve(false);
           }
         }, 100);
       }
