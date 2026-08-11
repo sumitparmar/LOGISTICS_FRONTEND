@@ -13,7 +13,7 @@
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  color: #111827;
+  color: var(--mk-text-primary);
   margin-bottom: 20px;
 }
 
@@ -30,11 +30,11 @@
 =============================== */
 
 .users-card {
-  background: #ffffff;
+  background: var(--mk-card-bg);
   border-radius: 16px;
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--mk-surface-muted);
   box-shadow:
-    0 10px 24px rgba(15, 23, 42, 0.05),
+    0 10px 24px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.05)),
     0 2px 8px rgba(15, 23, 42, 0.03);
   padding: 20px;
   transition:
@@ -45,7 +45,7 @@
 .users-card:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 16px 34px rgba(15, 23, 42, 0.08),
+    0 16px 34px var(--mk-shadow-color, rgba(15, 23, 42, 0.08)),
     0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
@@ -73,11 +73,11 @@
   height: 36px;
   padding: 0 12px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+  border: 1px solid var(--mk-border);
+  background: var(--mk-card-bg);
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: var(--mk-text-secondary);
   cursor: pointer;
   outline: none;
   transition:
@@ -90,14 +90,14 @@
 .users-card table select:hover,
 .users-card tbody select:hover,
 .users-card td select:hover {
-  border-color: #d1d5db;
+  border-color: var(--mk-border);
 }
 
 .users-controls select:focus,
 .users-card table select:focus,
 .users-card tbody select:focus,
 .users-card td select:focus {
-  border-color: #6366f1;
+  border-color: var(--mk-secondary);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
 }
 
@@ -110,10 +110,10 @@
   padding: 0 14px;
   border-radius: 10px;
   border: 1px solid transparent;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: linear-gradient(135deg, var(--mk-secondary), var(--mk-secondary));
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--mk-text-inverse);
   cursor: pointer;
   transition:
     transform 0.18s ease,
@@ -158,7 +158,7 @@ app-data-table {
   height: 34px;
   border-radius: 50%;
   background: rgba(79, 70, 229, 0.12);
-  color: #4f46e5;
+  color: var(--mk-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,13 +184,13 @@ app-data-table {
 }
 
 .status.active {
-  background: #ecfdf5;
-  color: #16a34a;
+  background: var(--mk-success-soft);
+  color: var(--mk-success);
 }
 
 .status.inactive {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--mk-danger-soft);
+  color: var(--mk-danger);
 }
 
 /* ===============================
@@ -207,14 +207,14 @@ app-data-table {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
   transition:
     color 0.18s ease,
     transform 0.18s ease;
 }
 
 .actions lucide-icon:hover {
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .action-icon {
@@ -234,7 +234,7 @@ app-data-table {
 .empty-state {
   text-align: center;
   padding: 32px;
-  color: #9ca3af;
+  color: var(--mk-text-muted);
   font-size: 14px;
   font-weight: 500;
 }

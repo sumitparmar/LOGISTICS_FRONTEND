@@ -50,6 +50,13 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   private viewInitialized = false;
   private orderLoaded = false;
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
+      fallback
+    );
+  }
+
   constructor(
     private route: ActivatedRoute,
     private ordersService: OrdersService,
@@ -501,7 +508,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#ff7a00',
+        strokeColor: this.themeColor('--mk-primary', '#ff7a00'),
         strokeWeight: 4,
       },
     });

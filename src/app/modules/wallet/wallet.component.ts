@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-wallet',
@@ -58,6 +59,7 @@ export class WalletComponent implements OnInit {
     private api: ApiService,
     private router: Router,
     private http: HttpClient,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -189,12 +191,12 @@ export class WalletComponent implements OnInit {
     }
 
     if (!this.addMoneyPayload.amount || this.addMoneyPayload.amount <= 0) {
-      alert('Enter valid amount');
+      this.toast.warning('Enter a valid amount');
       return;
     }
 
     if (this.addMoneyPayload.amount > 100000) {
-      alert('Maximum allowed amount is ₹100000');
+      this.toast.warning('Maximum allowed amount is INR 100000');
       return;
     }
 
@@ -213,7 +215,7 @@ export class WalletComponent implements OnInit {
         error: (err) => {
           this.loading = false;
 
-          alert(err?.error?.message || 'Unable to add money');
+          this.toast.error(err?.error?.message || 'Unable to add money');
         },
       });
   }
@@ -224,14 +226,14 @@ export class WalletComponent implements OnInit {
     }
 
     if (!this.withdrawPayload.amount || this.withdrawPayload.amount <= 0) {
-      alert('Enter valid amount');
+      this.toast.warning('Enter a valid amount');
       return;
     }
 
     if (
       this.withdrawPayload.amount > (this.summary?.withdrawableBalance || 0)
     ) {
-      alert('Amount exceeds withdrawable balance');
+      this.toast.warning('Amount exceeds withdrawable balance');
       return;
     }
 
@@ -250,7 +252,7 @@ export class WalletComponent implements OnInit {
         error: (err) => {
           this.loading = false;
 
-          alert(err?.error?.message || 'Unable to withdraw money');
+          this.toast.error(err?.error?.message || 'Unable to withdraw money');
         },
       });
   }
@@ -286,7 +288,7 @@ export class WalletComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        alert(err?.error?.message || 'Unable to download statement.');
+        this.toast.error(err?.error?.message || 'Unable to download statement.');
       },
     });
   }

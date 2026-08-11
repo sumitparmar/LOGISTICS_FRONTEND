@@ -42,6 +42,13 @@ export class DriversComponent implements OnInit {
   private targetPosition: any = null;
   private liveAnimationFrame: any = null;
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
+      fallback
+    );
+  }
+
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   constructor(
     private api: ApiService,
@@ -285,7 +292,7 @@ export class DriversComponent implements OnInit {
       this.directionsRenderer = new google.maps.DirectionsRenderer({
         suppressMarkers: true,
         polylineOptions: {
-          strokeColor: '#2563eb',
+          strokeColor: this.themeColor('--mk-secondary', '#2563eb'),
           strokeWeight: 4,
         },
       });
@@ -299,7 +306,7 @@ export class DriversComponent implements OnInit {
         map: this.map,
         icon: {
           path: 'M12 2C8 2 4 6 4 10c0 3 2 6 5 7l-1 3h2l1-2h2l1 2h2l-1-3c3-1 5-4 5-7 0-4-4-8-8-8zm0 2c3 0 6 3 6 6 0 2-1 4-3 5l-1-2h-4l-1 2c-2-1-3-3-3-5 0-3 3-6 6-6z',
-          fillColor: '#2563eb',
+          fillColor: this.themeColor('--mk-secondary', '#2563eb'),
           fillOpacity: 1,
           strokeWeight: 0,
           scale: 1.5,

@@ -10,13 +10,15 @@
             <h1 class="mk-greeting-title">Dashboard Overview</h1>
 
             <p class="mk-greeting-desc">
-                Manage truck bookings, deliveries, active shipments and wallet balance.
+                Manage truck bookings, deliveries and active shipments.
             </p>
 
             <div class="mk-mini-stats">
                 <span>{{ dashboardStats.totalOrders }} Total Orders</span>
                 <span>{{ dashboardStats.activeOrders }} Active</span>
+                <!-- TEMP WALLET DISABLED:
                 <span>{{ dashboardStats.walletCurrency }} Ready Wallet</span>
+                -->
             </div>
         </div>
 
@@ -30,7 +32,7 @@
     <!-- ── LOADING ────────────────────────── -->
     <ng-container *ngIf="isLoading">
         <div class="mk-skeleton-grid">
-            <div class="mk-skeleton-card" *ngFor="let i of [1,2,3]"></div>
+            <div class="mk-skeleton-card" *ngFor="let i of [1,2]"></div>
         </div>
         <div class="mk-skeleton-table">
             <div class="mk-skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
@@ -94,7 +96,9 @@
                 <div class="mk-stat-cta">Track orders →</div>
             </div>
 
-            <!-- Wallet Balance -->
+            <!-- TEMP WALLET DISABLED:
+            Wallet Balance card retained for later re-enable.
+            Wallet Balance
             <div class="mk-stat-card mk-stat-purple" (click)="goToWallet()" role="button" tabindex="0"
                 (keydown.enter)="goToWallet()" aria-label="View wallet balance">
                 <div class="mk-stat-top">
@@ -115,6 +119,7 @@
                 <div class="mk-stat-sub">Prepaid logistics &amp; transport balance</div>
                 <div class="mk-stat-cta">Manage wallet →</div>
             </div>
+            -->
 
         </div>
         <!-- /stats -->
@@ -127,10 +132,12 @@
             <button type="button" class="mk-quick-btn" (click)="goToAllOrders()"> <span
                     class="mk-qa-icon">📦</span><span>All Orders</span>
             </button>
+            <!-- TEMP WALLET DISABLED:
             <button type="button" class="mk-quick-btn" (click)="goToWallet()">
                 <span class="mk-qa-icon">💳</span>
                 <span>Manage Wallet</span>
             </button>
+            -->
             <button type="button" class="mk-quick-btn" (click)="goToActiveOrders()"> <span
                     class="mk-qa-icon">📍</span><span>Track Order</span>
             </button>

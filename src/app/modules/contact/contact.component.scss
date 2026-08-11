@@ -16,8 +16,8 @@ $ink-300: #8499b8;
 $ink-100: #c8d6ea;
 
 $surface-0: #f4f7fd;
-$surface-card: #ffffff;
-$surface-hover: #f9fafb;
+$surface-card: var(--mk-card-bg);
+$surface-hover: var(--mk-surface-muted);
 
 $dark-900: #060a12;
 $dark-800: #0d1526;
@@ -105,7 +105,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
       rgba(255, 154, 61, 0.08) 0%,
       transparent 70%
     ),
-    linear-gradient(160deg, #fff9f4 0%, #ffffff 60%, #f4f7fd 100%);
+    linear-gradient(160deg, var(--mk-primary-soft) 0%, var(--mk-card-bg) 60%, var(--mk-surface-muted) 100%);
   border-bottom: 1px solid rgba($ink-100, 0.6);
   position: relative;
   overflow: hidden;
@@ -268,7 +268,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow:
       0 4px 16px rgba(11, 15, 26, 0.06),
       0 16px 40px rgba(11, 15, 26, 0.09);
-    border-color: rgba($brand, 0.25);
+    border-color: var(--mk-primary-soft);
 
     &::before {
       opacity: 1;
@@ -344,7 +344,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow:
       0 4px 16px rgba(11, 15, 26, 0.06),
       0 16px 40px rgba(11, 15, 26, 0.09);
-    border-color: rgba($brand, 0.25);
+    border-color: var(--mk-primary-soft);
 
     &::after {
       opacity: 1;
@@ -357,7 +357,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   height: 48px;
   border-radius: 50%;
   background: $brand-tint;
-  border: 1.5px solid rgba($brand, 0.2);
+  border: 1.5px solid var(--mk-primary-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -451,12 +451,12 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   &:focus {
     outline: none;
     border-color: $brand;
-    background: #fff;
+    background: var(--mk-card-bg);
     box-shadow: 0 0 0 3.5px $brand-glow;
   }
 
   &.ng-invalid.ng-touched {
-    border-color: #ef4444;
+    border-color: var(--mk-danger);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
   }
 }
@@ -486,7 +486,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, $brand-light 0%, $brand 60%);
   border: none;
   border-radius: $radius-sm;
-  color: #fff;
+  color: var(--mk-text-inverse);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -567,12 +567,12 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  background: #f0fdf4;
-  border: 1.5px solid #86efac;
+  background: var(--mk-success-soft);
+  border: 1.5px solid var(--mk-success-soft);
   border-radius: $radius-sm;
   font-size: 14px;
   font-weight: 600;
-  color: #15803d;
+  color: var(--mk-success);
   margin-bottom: 20px;
   animation: fadeSlideUp 0.3s ease both;
 
@@ -592,7 +592,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
       rgba(255, 122, 0, 0.06) 0%,
       transparent 70%
     ),
-    linear-gradient(160deg, #f4f7fd 0%, $surface-card 100%);
+    linear-gradient(160deg, var(--mk-surface-muted) 0%, $surface-card 100%);
   border-top: 1px solid $ink-100;
   border-bottom: 1px solid $ink-100;
 }
@@ -685,7 +685,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
       transparent 70%
     ),
     linear-gradient(160deg, $dark-800 0%, $dark-900 100%);
-  color: #fff;
+  color: var(--mk-text-inverse);
   position: relative;
   overflow: hidden;
 
@@ -718,7 +718,7 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .secondary-btn {
-    color: #fff;
+    color: var(--mk-text-inverse);
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(8px);
@@ -726,6 +726,91 @@ $transition-base: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
     &:hover {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.35);
+    }
+  }
+}
+
+:host-context([data-theme="dark"]) {
+  .contact-page,
+  .contact-methods,
+  .coverage-section {
+    background: var(--mk-bg);
+    color: var(--mk-text-primary);
+  }
+
+  .contact-hero,
+  .contact-form-section,
+  .support-section,
+  .contact-business {
+    background:
+      radial-gradient(
+        ellipse 900px 500px at 0% 50%,
+        var(--mk-primary-soft) 0%,
+        transparent 70%
+      ),
+      linear-gradient(
+        160deg,
+        var(--mk-bg) 0%,
+        var(--mk-surface) 58%,
+        var(--mk-surface-elevated) 100%
+      );
+    border-color: var(--mk-border);
+  }
+
+  .section-title,
+  .hero-text h1,
+  .support-card h3,
+  .method-card h3,
+  .business-text h2 {
+    color: var(--mk-text-primary);
+  }
+
+  .hero-text p,
+  .support-card p,
+  .business-text p,
+  .coverage-text,
+  .badge {
+    color: var(--mk-text-secondary);
+  }
+
+  .badge,
+  .support-card,
+  .method-card,
+  .contact-form {
+    background: var(--mk-card-bg);
+    border-color: var(--mk-card-border);
+    box-shadow: var(--mk-shadow);
+  }
+
+  .method-icon {
+    background: var(--mk-primary-soft);
+  }
+
+  .contact-form input,
+  .contact-form select,
+  .contact-form textarea {
+    background: var(--mk-input-bg);
+    border-color: var(--mk-input-border);
+    color: var(--mk-text-primary);
+
+    &::placeholder {
+      color: var(--mk-input-placeholder);
+    }
+
+    &:focus {
+      background: var(--mk-surface-elevated);
+      border-color: var(--mk-primary);
+      box-shadow: 0 0 0 3.5px var(--mk-primary-soft);
+    }
+  }
+
+  .secondary-btn {
+    color: var(--mk-text-primary);
+    border-color: var(--mk-border);
+
+    &:hover {
+      background: var(--mk-surface-hover);
+      border-color: var(--mk-border-strong);
     }
   }
 }

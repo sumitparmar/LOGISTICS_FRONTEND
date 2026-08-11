@@ -2,28 +2,35 @@
 
 // ── TOKENS ──────────────────────────────────────────────────────────────
 :host {
-  --brand: #ff6b00;
-  --brand-2: #ff9500;
-  --brand-dim: rgba(255, 107, 0, 0.12);
+  --brand: var(--mk-primary);
+  --brand-2: var(--mk-primary-hover);
+  --brand-dim: var(--mk-primary-soft);
 
-  --ink: #0d0f14;
-  --ink-2: #3d4354;
-  --ink-3: #8a93a8;
+  --ink: var(--mk-text-primary);
+  --ink-2: var(--mk-text-secondary);
+  --ink-3: var(--mk-text-muted);
 
-  --surface: #ffffff;
-  --surface-2: #f4f5f9;
-  --surface-3: #eceef5;
+  --surface: var(--mk-card-bg);
+  --surface-2: var(--mk-surface-muted);
+  --surface-3: var(--mk-surface-hover);
+  --track-hero-bg: linear-gradient(180deg, var(--mk-card-bg) 0%, var(--mk-surface-muted) 100%);
+  --track-hero-text: var(--mk-text-primary);
+  --track-hero-muted: var(--mk-text-secondary);
+  --track-hero-grid: rgba(15, 23, 42, 0.05);
+  --track-search-bg: var(--mk-card-bg);
+  --track-search-border: var(--mk-border);
+  --track-search-placeholder: var(--mk-text-muted);
 
-  --line: #e3e6ef;
+  --line: var(--mk-border);
 
-  --green: #00b96b;
-  --green-dim: rgba(0, 185, 107, 0.12);
-  --blue: #2563eb;
-  --blue-dim: rgba(37, 99, 235, 0.1);
-  --amber: #f59e0b;
-  --amber-dim: rgba(245, 158, 11, 0.12);
-  --red: #ef4444;
-  --red-dim: rgba(239, 68, 68, 0.1);
+  --green: var(--mk-success);
+  --green-dim: var(--mk-success-soft);
+  --blue: var(--mk-secondary);
+  --blue-dim: var(--mk-info-soft);
+  --amber: var(--mk-warning);
+  --amber-dim: var(--mk-warning-soft);
+  --red: var(--mk-danger);
+  --red-dim: var(--mk-danger-soft);
 
   --r-sm: 8px;
   --r-md: 14px;
@@ -42,6 +49,16 @@
   -webkit-font-smoothing: antialiased;
 }
 
+:host-context([data-theme="dark"]) {
+  --track-hero-bg: linear-gradient(180deg, var(--mk-bg) 0%, var(--mk-surface) 100%);
+  --track-hero-text: var(--mk-text-primary);
+  --track-hero-muted: var(--mk-text-secondary);
+  --track-hero-grid: rgba(255, 255, 255, 0.04);
+  --track-search-bg: var(--mk-surface-elevated);
+  --track-search-border: var(--mk-border);
+  --track-search-placeholder: var(--mk-text-muted);
+}
+
 // ── PAGE ────────────────────────────────────────────────────────────────
 .tp {
   min-height: 100vh;
@@ -53,7 +70,7 @@
 // ── HERO ────────────────────────────────────────────────────────────────
 .tp-hero {
   position: relative;
-  background: var(--ink);
+  background: var(--track-hero-bg);
   padding: 52px 24px 120px;
   overflow: hidden;
 }
@@ -78,8 +95,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--track-hero-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--track-hero-grid) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -127,7 +144,7 @@
   font-family: var(--f-head);
   font-size: clamp(36px, 6vw, 60px);
   font-weight: 800;
-  color: #fff;
+  color: var(--track-hero-text);
   line-height: 1.05;
   letter-spacing: -1.5px;
   margin: 0;
@@ -152,15 +169,15 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--track-hero-muted);
   margin-bottom: 8px;
 }
 
 .tp-search__bar {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--track-search-bg);
+  border: 1px solid var(--track-search-border);
   border-radius: var(--r-xl);
   padding: 6px 6px 6px 18px;
   gap: 10px;
@@ -169,12 +186,12 @@
 
   &:focus-within {
     border-color: var(--brand);
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--track-search-bg);
   }
 }
 
 .tp-search__ico {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--track-search-placeholder);
   flex-shrink: 0;
 }
 
@@ -185,12 +202,12 @@
   outline: none;
   font-family: var(--f-body);
   font-size: 15px;
-  color: #fff;
+  color: var(--track-hero-text);
   min-width: 0;
   box-sizing: border-box;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--track-search-placeholder);
   }
 }
 
@@ -200,7 +217,7 @@
   touch-action: manipulation;
   user-select: none;
   background: var(--brand);
-  color: #fff;
+  color: var(--mk-text-inverse);
   border: none;
   border-radius: 999px;
   font-family: var(--f-head);
@@ -217,7 +234,7 @@
     transform 0.1s;
 
   &:hover {
-    background: #e55f00;
+    background: var(--mk-primary-strong);
   }
   &:active {
     transform: scale(0.97);
@@ -231,8 +248,8 @@
 .tp-spinner {
   width: 17px;
   height: 17px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border: 2px solid var(--mk-border-strong);
+  border-top-color: var(--mk-text-inverse);
   border-radius: 50%;
   animation: spin 0.65s linear infinite;
 }
@@ -246,7 +263,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #fca5a5;
+  color: var(--mk-danger);
   font-size: 13px;
   margin-top: 10px;
 }
@@ -463,12 +480,12 @@
   .tp-journey__step.is-done & {
     background: var(--blue);
     border-color: var(--blue);
-    color: #fff;
+    color: var(--mk-text-inverse);
   }
   .tp-journey__step.is-active & {
     background: var(--brand);
     border-color: var(--brand);
-    color: #fff;
+    color: var(--mk-text-inverse);
     box-shadow: 0 0 0 4px var(--brand-dim);
   }
 }
@@ -583,7 +600,7 @@
   touch-action: manipulation;
   user-select: none;
   background: var(--brand);
-  color: #fff;
+  color: var(--mk-text-inverse);
   border: none;
   border-radius: 999px;
   padding: 7px 16px;
@@ -594,7 +611,7 @@
   transition: background 0.15s;
 
   &:hover {
-    background: #e55f00;
+    background: var(--mk-primary-strong);
   }
 }
 
@@ -610,7 +627,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(244, 245, 249, 0.96);
+  background: var(--mk-surface-glass);
   z-index: 5;
 
   svg {
@@ -775,8 +792,8 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand), #ff9500);
-  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--mk-primary-hover));
+  color: var(--mk-text-inverse);
   font-family: var(--f-head);
   font-size: 20px;
   font-weight: 800;
@@ -924,7 +941,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 11px 14px;
-    background: linear-gradient(135deg, #fff7f0, #fff);
+    background: linear-gradient(135deg, var(--mk-warning-soft), var(--mk-card-bg));
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: var(--r-sm);
 

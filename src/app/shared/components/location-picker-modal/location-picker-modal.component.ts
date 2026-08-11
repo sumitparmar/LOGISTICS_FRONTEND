@@ -7,6 +7,7 @@ import {
   ElementRef,
   AfterViewInit,
 } from '@angular/core';
+import { ToastService } from '../toast/toast.service';
 
 declare const google: any;
 
@@ -33,6 +34,8 @@ export class LocationPickerModalComponent implements AfterViewInit {
   @Input() title = 'Choose Pickup Location';
 
   @Input() subtitle = 'Drag the map until the pin is over your exact location';
+
+  constructor(private toast: ToastService) {}
 
   @Input() placeholder = 'Search location';
   @Input() addressLabel = 'Selected Pickup Address';
@@ -257,7 +260,7 @@ export class LocationPickerModalComponent implements AfterViewInit {
         this.updateLocation(lat, lng);
       },
       () => {
-        alert('Unable to access current location.');
+        this.toast.warning('Unable to access current location.');
       },
       {
         enableHighAccuracy: true,

@@ -41,11 +41,20 @@ const routes: Routes = [
           import('../track/track.module').then((m) => m.TrackModule),
       },
 
+      // TEMP WALLET DISABLED:
+      // Keep direct wallet URLs safe while the user wallet feature is paused.
       {
         path: 'wallet',
-        loadChildren: () =>
-          import('../wallet/wallet.module').then((m) => m.WalletModule),
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
       },
+      // Keep the wallet module source intact for later use. Replace the
+      // redirect above with this lazy route when wallet is ready again.
+      // {
+      //   path: 'wallet',
+      //   loadChildren: () =>
+      //     import('../wallet/wallet.module').then((m) => m.WalletModule),
+      // },
 
       {
         path: 'support',
@@ -63,6 +72,12 @@ const routes: Routes = [
         path: 'profile',
         loadChildren: () =>
           import('../profile/profile.module').then((m) => m.ProfileModule),
+      },
+
+      {
+        path: 'settings',
+        loadChildren: () =>
+          import('../settings/settings.module').then((m) => m.SettingsModule),
       },
 
       {

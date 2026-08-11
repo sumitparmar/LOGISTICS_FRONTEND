@@ -23,20 +23,20 @@ export class SecureInfoDialogComponent {
   features: Feature[] = [
     {
       icon: 'PKG',
-      iconBg: 'rgba(255, 171, 31, 0.15)',
+      iconBg: 'var(--mk-primary-soft)',
       title: 'Professional Packaging Care',
       description:
         'Every shipment handled carefully by trained delivery partners.',
     },
     {
       icon: 'GPS',
-      iconBg: 'rgba(77, 116, 255, 0.15)',
+      iconBg: 'var(--mk-info-soft)',
       title: 'Live Tracking',
       description: 'Track your parcel in real time from pickup to delivery.',
     },
     {
       icon: 'INS',
-      iconBg: 'rgba(34, 197, 94, 0.12)',
+      iconBg: 'var(--mk-success-soft)',
       title: 'Insurance Support',
       description: 'High-value shipments can be protected during transit.',
     },

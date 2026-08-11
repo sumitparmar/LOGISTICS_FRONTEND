@@ -10,11 +10,11 @@
 }
 
 .form-card {
-  background: #fff;
+  background: var(--mk-card-bg);
   border-radius: 14px;
   padding: 20px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--mk-border);
+  box-shadow: 0 8px 20px var(--mk-shadow-color-soft, rgba(0, 0, 0, 0.05));
   max-width: 500px;
 }
 
@@ -27,18 +27,18 @@
 .form-group label {
   font-size: 13px;
   margin-bottom: 6px;
-  color: #374151;
+  color: var(--mk-text-secondary);
 }
 
 .form-group input {
   height: 36px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   padding: 0 10px;
 }
 
 .form-group small {
-  color: #dc2626;
+  color: var(--mk-danger);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -57,8 +57,8 @@ button {
   padding: 0 16px;
   border-radius: 8px;
   border: none;
-  background: #6366f1;
-  color: #fff;
+  background: var(--mk-secondary);
+  color: var(--mk-text-inverse);
   cursor: pointer;
 }
 
@@ -68,5 +68,5 @@ button:disabled {
 }
 
 .loading {
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }

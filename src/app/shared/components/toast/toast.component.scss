@@ -53,21 +53,21 @@
 /* TYPES */
 
 .toast.success {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
+  background: var(--mk-success-soft);
+  color: var(--mk-success);
+  border: 1px solid var(--mk-success-soft);
 }
 
 .toast.error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: var(--mk-danger-soft);
+  color: var(--mk-danger);
+  border: 1px solid var(--mk-danger-soft);
 }
 
 .toast.warning {
-  background: #fffbeb;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
+  border: 1px solid var(--mk-warning-soft);
 }
 
 /* ANIMATION */

@@ -1,7 +1,7 @@
 .onboarding-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--mk-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,9 @@
 
 .onboarding-card {
   width: 420px;
-  background: white;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  border: 1px solid var(--mk-border);
   border-radius: 16px;
   padding: 36px;
   text-align: center;
@@ -24,6 +26,7 @@
   top: 10px;
   border: none;
   background: transparent;
+  color: var(--mk-text-primary);
   font-size: 20px;
   cursor: pointer;
 }
@@ -39,7 +42,7 @@
 }
 
 .onboarding-card p {
-  color: #6b7280;
+  color: var(--mk-text-secondary);
   margin-bottom: 26px;
 }
 
@@ -50,18 +53,19 @@
 }
 
 .option {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   padding: 16px;
   border-radius: 10px;
-  background: white;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
   cursor: pointer;
   text-align: left;
   transition: 0.2s;
 }
 
 .option:hover {
-  border-color: #ff7a00;
-  background: #fff7ed;
+  border-color: var(--mk-primary);
+  background: var(--mk-primary-soft);
 }
 
 .option .title {
@@ -71,5 +75,5 @@
 
 .option .desc {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }

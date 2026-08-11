@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45); // softer dark overlay
+  background: var(--mk-overlay); // softer dark overlay
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,10 +12,10 @@
 .dialog {
   width: 100%;
   max-width: 360px;
-  background: #ffffff;
+  background: var(--mk-card-bg);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 20px 40px var(--mk-shadow-color, rgba(0, 0, 0, 0.12));
   text-align: center;
   animation: fadeIn 0.2s ease;
 }
@@ -23,13 +23,13 @@
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--mk-text-primary);
   margin-bottom: 8px;
 }
 
 .message {
   font-size: 14px;
-  color: #64748b;
+  color: var(--mk-text-secondary);
   margin-bottom: 16px;
   line-height: 1.5;
 }
@@ -42,8 +42,8 @@
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #2563eb;
+  border: 3px solid var(--mk-border);
+  border-top-color: var(--mk-info);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   margin: 0 auto 8px;
@@ -51,7 +51,7 @@
 
 .loader-text {
   font-size: 13px;
-  color: #475569;
+  color: var(--mk-text-secondary);
 }
 
 /* ===== ACTIONS ===== */
@@ -72,21 +72,21 @@
 }
 
 .btn.cancel {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-secondary);
 }
 
 .btn.cancel:hover:not(:disabled) {
-  background: #e2e8f0;
+  background: var(--mk-border);
 }
 
 .btn.confirm {
-  background: #ef4444;
-  color: #fff;
+  background: var(--mk-danger);
+  color: var(--mk-text-inverse);
 }
 
 .btn.confirm:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--mk-danger);
 }
 
 .btn:disabled {

@@ -1,15 +1,115 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: var(--mk-overlay);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: min(420px, 100%);
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  border: 1px solid var(--mk-border);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 60px var(--mk-shadow-color-strong, rgba(15, 23, 42, 0.18)),
+    0 8px 22px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.08));
+  overflow: hidden;
+  animation: fadeIn 0.18s ease;
+}
+
+.modal-header {
+  padding: 22px 22px 8px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--mk-text-primary);
+}
+
+.modal-body {
+  padding: 0 22px 20px;
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mk-text-secondary);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px 22px;
+}
+
+.modal-actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    opacity 0.18s ease;
+}
+
 .cancel {
-  background: #f1f5f9;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-primary);
+  border-color: var(--mk-border);
+}
+
+.cancel:hover:not(:disabled) {
+  background: var(--mk-surface-hover);
 }
 
 .confirm {
-  background: #dc2626;
-  color: #fff;
+  background: var(--mk-danger);
+  color: var(--mk-text-inverse);
+}
+
+.confirm:hover:not(:disabled) {
+  background: var(--mk-danger);
+  transform: translateY(-1px);
 }
 
 .confirm:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .modal {
+    border-radius: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
 }
 
 @keyframes fadeIn {

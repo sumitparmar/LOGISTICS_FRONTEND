@@ -22,7 +22,7 @@
 .form-group label {
   font-size: 13px;
   margin-bottom: 6px;
-  color: #374151;
+  color: var(--mk-text-secondary);
   font-weight: 500;
 }
 
@@ -34,24 +34,24 @@
 .form-group input[type="email"] {
   height: 38px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   padding: 0 12px;
   font-size: 14px;
-  background: #f9fafb;
+  background: var(--mk-surface-muted);
   transition: all 0.2s ease;
 }
 
 /* Focus State */
 .form-group input:focus {
-  border-color: #6366f1;
-  background: #ffffff;
+  border-color: var(--mk-secondary);
+  background: var(--mk-card-bg);
   outline: none;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.08);
 }
 
 /* Error */
 .form-group small {
-  color: #dc2626;
+  color: var(--mk-danger);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -70,7 +70,7 @@
   gap: 8px;
   cursor: pointer;
   font-size: 13px;
-  color: #374151;
+  color: var(--mk-text-secondary);
 }
 
 .checkbox input {
@@ -97,8 +97,8 @@
   border-radius: 10px;
   border: none;
 
-  background: #6366f1;
-  color: #ffffff;
+  background: var(--mk-secondary);
+  color: var(--mk-text-inverse);
 
   font-size: 14px;
   font-weight: 500;
@@ -108,7 +108,7 @@
 }
 
 .primary-btn:hover {
-  background: #4f46e5;
+  background: var(--mk-secondary);
 }
 
 .primary-btn:disabled {
@@ -118,15 +118,15 @@
 .form-group select {
   height: 36px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   padding: 0 10px;
   font-size: 14px;
-  background: #f9fafb;
+  background: var(--mk-surface-muted);
   transition: all 0.2s ease;
 }
 
 .form-group select:focus {
-  border-color: #6366f1;
-  background: #fff;
+  border-color: var(--mk-secondary);
+  background: var(--mk-card-bg);
   outline: none;
 }

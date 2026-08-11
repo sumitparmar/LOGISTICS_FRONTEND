@@ -25,9 +25,9 @@
   --radius-xl: 28px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 24px 50px rgba(15, 23, 42, 0.12);
+  --shadow-sm: 0 4px 14px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.05));
+  --shadow-md: 0 12px 30px var(--mk-shadow-color, rgba(15, 23, 42, 0.08));
+  --shadow-lg: 0 24px 50px var(--mk-shadow-color-strong, rgba(15, 23, 42, 0.12));
 
   --transition: 0.2s ease;
 
@@ -115,31 +115,31 @@
 
 .status-badge.created,
 .status-badge.assigned {
-  background: #eaf3ff;
-  color: #1d4ed8;
+  background: var(--mk-info-soft);
+  color: var(--mk-info);
 }
 
 .status-badge.picked_up,
 .status-badge.in_transit {
-  background: #fff7ed;
-  color: #c2410c;
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
 }
 
 .status-badge.delivered {
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--mk-success-soft);
+  color: var(--mk-success);
 }
 
 .status-badge.cancelled,
 .status-badge.failed {
-  background: #fef2f2;
+  background: var(--mk-danger-soft);
   color: var(--red);
 }
 
 /* GLOBAL CARDS */
 
 .order-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--mk-surface-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -196,7 +196,7 @@
 .progress-step.active {
   background: linear-gradient(135deg, var(--brand), var(--brand-hover));
   border-color: var(--brand);
-  color: #fff;
+  color: var(--mk-text-inverse);
 }
 
 /* LAYOUT */
@@ -294,8 +294,8 @@
   margin: 6px 0 6px 6px;
   background: repeating-linear-gradient(
     to bottom,
-    #cbd5e1 0px,
-    #cbd5e1 4px,
+    var(--mk-border-strong) 0px,
+    var(--mk-border-strong) 4px,
     transparent 4px,
     transparent 8px
   );
@@ -369,7 +369,7 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  background: #fff;
+  background: var(--mk-card-bg);
   outline: none;
   transition: var(--transition);
 }
@@ -393,7 +393,7 @@
   height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--brand), var(--brand-hover));
-  color: #fff;
+  color: var(--mk-text-inverse);
   font-size: 18px;
   font-weight: 800;
   display: flex;
@@ -432,7 +432,7 @@
 
 .courier-call:hover {
   background: var(--brand);
-  color: #fff;
+  color: var(--mk-text-inverse);
 }
 
 .empty-state {
@@ -539,7 +539,7 @@
 .live-track-btn {
   border: none;
   background: linear-gradient(135deg, var(--brand), var(--brand-hover));
-  color: #fff;
+  color: var(--mk-text-inverse);
 }
 
 .live-track-btn:hover {
@@ -548,7 +548,7 @@
 
 .edit-order-btn {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--mk-card-bg);
   color: var(--text-primary);
 }
 
@@ -558,13 +558,13 @@
 }
 
 .cancel-order-btn {
-  border: 1px solid #fecaca;
-  background: #fff;
+  border: 1px solid var(--mk-danger-soft);
+  background: var(--mk-card-bg);
   color: var(--red);
 }
 
 .cancel-order-btn:hover:not(:disabled) {
-  background: #fef2f2;
+  background: var(--mk-danger-soft);
 }
 
 .edit-order-btn,
@@ -594,7 +594,7 @@ button:disabled {
 .cancel-modal {
   width: 100%;
   max-width: 430px;
-  background: #fff;
+  background: var(--mk-card-bg);
   border-radius: var(--radius-lg);
   padding: 28px;
   text-align: center;
@@ -633,13 +633,13 @@ button:disabled {
 
 .cancel-no-btn {
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--mk-card-bg);
 }
 
 .cancel-yes-btn {
   border: none;
   background: var(--red);
-  color: #fff;
+  color: var(--mk-text-inverse);
 }
 
 /* LOADING */

@@ -27,7 +27,7 @@
 /* SIDEBAR ITEM */
 .sidebar-item {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
   cursor: pointer;
   padding: 8px 10px;
   border-radius: 8px;
@@ -41,14 +41,14 @@
 
 /* HOVER */
 .sidebar-item:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-primary);
 }
 
 /* ACTIVE */
 .sidebar-item.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--mk-info-soft);
+  color: var(--mk-info);
   font-weight: 600;
 }
 /* ================= MAIN CONTENT ================= */
@@ -66,13 +66,13 @@
   h1 {
     font-size: 34px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--mk-text-primary);
     letter-spacing: -0.4px;
   }
 
   p {
     font-size: 15px;
-    color: #6b7280;
+    color: var(--mk-text-secondary);
     margin-top: 10px;
     line-height: 1.6;
   }
@@ -89,10 +89,10 @@
 /* ================= ACCORDION ================= */
 
 .accordion-item {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   border-radius: 14px;
   padding: 18px 20px;
-  background: #ffffff;
+  background: var(--mk-card-bg);
 
   transition: all 0.25s ease;
 }
@@ -104,7 +104,7 @@
 
 /* ACTIVE STATE */
 .accordion-item.active {
-  border-color: #2563eb;
+  border-color: var(--mk-info);
   box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
 }
 
@@ -119,14 +119,14 @@
   h3 {
     font-size: 16px;
     font-weight: 600;
-    color: #111827;
+    color: var(--mk-text-primary);
     line-height: 1.5;
   }
 
   span {
     font-size: 20px;
     font-weight: 500;
-    color: #374151;
+    color: var(--mk-text-secondary);
 
     transition: transform 0.25s ease;
   }
@@ -137,7 +137,7 @@
 .accordion-content {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--mk-border);
 
   display: flex;
   flex-direction: column;
@@ -146,7 +146,7 @@
   h4 {
     font-size: 14px;
     font-weight: 600;
-    color: #111827;
+    color: var(--mk-text-primary);
     margin-top: 6px;
   }
 
@@ -156,14 +156,14 @@
 
   li {
     font-size: 14px;
-    color: #374151;
+    color: var(--mk-text-secondary);
     line-height: 1.6;
     margin-bottom: 6px;
   }
 
   p {
     font-size: 14px;
-    color: #374151;
+    color: var(--mk-text-secondary);
     line-height: 1.6;
   }
 }

@@ -1,6 +1,6 @@
 .maintenance-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #111827);
+  background: linear-gradient(135deg, var(--mk-bg), var(--mk-surface-muted));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,7 @@
 .maintenance-card {
   width: 100%;
   max-width: 560px;
-  background: #ffffff;
+  background: var(--mk-card-bg);
   border-radius: 24px;
   padding: 48px 32px;
   text-align: center;
@@ -25,20 +25,20 @@
 h1 {
   margin: 0 0 14px;
   font-size: 34px;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 p {
   margin: 0;
   font-size: 16px;
   line-height: 1.7;
-  color: #4b5563;
+  color: var(--mk-text-secondary);
 }
 
 .sub {
   margin-top: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 @media (max-width: 768px) {

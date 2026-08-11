@@ -15,7 +15,7 @@
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 /* ===============================
@@ -32,12 +32,12 @@
 =============================== */
 
 .form-card {
-  background: #ffffff;
+  background: var(--mk-card-bg);
   border-radius: 14px;
   padding: 22px;
 
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--mk-border);
+  box-shadow: 0 8px 20px var(--mk-shadow-color-soft, rgba(0, 0, 0, 0.05));
 
   width: 100%;
   max-width: 520px;
@@ -46,5 +46,5 @@
 }
 
 .form-card:hover {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 28px var(--mk-shadow-color, rgba(0, 0, 0, 0.08));
 }

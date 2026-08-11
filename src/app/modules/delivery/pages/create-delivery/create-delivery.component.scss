@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  background: linear-gradient(180deg, var(--mk-surface-muted) 0%, var(--mk-surface-muted) 100%);
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -24,14 +24,14 @@
   font-size: 32px;
   font-weight: 700;
   line-height: 1.2;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .reuse-btn {
   align-self: flex-start;
-  border: 1px solid #ff7a00;
-  background: #fff;
-  color: #ff7a00;
+  border: 1px solid var(--mk-primary);
+  background: var(--mk-card-bg);
+  color: var(--mk-primary);
   border-radius: 999px;
   padding: 9px 16px;
   font-size: 13px;
@@ -41,8 +41,8 @@
 }
 
 .reuse-btn:hover {
-  background: #ff7a00;
-  color: #fff;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
 }
 
 .delivery-steps {
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
   font-size: 14px;
   font-weight: 600;
 }
@@ -64,25 +64,25 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #e5e7eb;
+  background: var(--mk-border);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .step.active {
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .step.active .circle {
-  background: #ff7a00;
-  color: #fff;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
 }
 
 .step-line {
   flex: 1;
   height: 2px;
-  background: #e5e7eb;
+  background: var(--mk-border);
 }
 
 .delivery-layout {
@@ -105,8 +105,8 @@
 }
 
 .card-section {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #edf1f5;
+  background: var(--mk-surface-glass);
+  border: 1px solid var(--mk-border);
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
@@ -119,7 +119,7 @@
 .card-section h3,
 .card-section h4 {
   margin: 0;
-  color: #111827;
+  color: var(--mk-text-primary);
   font-weight: 700;
 }
 
@@ -135,7 +135,7 @@
   left: 16px;
   top: 34px;
   bottom: 34px;
-  border-left: 2px dashed #dbeafe;
+  border-left: 2px dashed var(--mk-info-soft);
 }
 
 .route-row {
@@ -157,9 +157,9 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #eff6ff;
-  border: 2px solid #2563eb;
-  color: #2563eb;
+  background: var(--mk-info-soft);
+  border: 2px solid var(--mk-secondary);
+  color: var(--mk-info);
   font-size: 14px;
   font-weight: 700;
   display: flex;
@@ -170,7 +170,7 @@
 .step-text {
   margin-top: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }
 
 .route-form {
@@ -186,7 +186,7 @@
 .route-title {
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .close-stop {
@@ -201,8 +201,8 @@
   margin-bottom: 12px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--mk-border);
+  background: var(--mk-card-bg);
   box-sizing: border-box;
   font-size: 14px;
   transition: 0.2s ease;
@@ -210,18 +210,18 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #ff7a00;
+  border-color: var(--mk-primary);
   box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.08);
 }
 
 .form-input.ng-invalid.ng-touched {
-  border-color: #ef4444;
-  background: #fff7f7;
+  border-color: var(--mk-danger);
+  background: var(--mk-danger-soft);
 }
 
 .form-error {
   margin: -6px 0 10px;
-  color: #ef4444;
+  color: var(--mk-danger);
   font-size: 12px;
 }
 
@@ -243,9 +243,9 @@
 }
 
 .btn-secondary {
-  border: 1px solid #ff7a00;
-  background: #fff;
-  color: #ff7a00;
+  border: 1px solid var(--mk-primary);
+  background: var(--mk-card-bg);
+  color: var(--mk-primary);
   width: fit-content;
 }
 
@@ -278,11 +278,11 @@
   justify-content: center;
   gap: 10px;
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   border-radius: 14px;
 
-  background: #ffffff;
-  color: #111827;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
 
   font-size: 14px;
   font-weight: 600;
@@ -297,18 +297,18 @@
 }
 
 .location-action-btn.success {
-  background: linear-gradient(135deg, #ecfdf5, #dcfce7);
-  border-color: #22c55e;
-  color: #15803d;
+  background: linear-gradient(135deg, var(--mk-success-soft), var(--mk-success-soft));
+  border-color: var(--mk-success);
+  color: var(--mk-success);
   box-shadow: 0 8px 20px rgba(34, 197, 94, 0.18);
 }
 
 .location-action-btn.success .material-icons {
-  color: #16a34a !important;
+  color: var(--mk-success) !important;
 }
 .location-action-btn:hover {
-  border-color: #ff7a00;
-  background: #fff7f0;
+  border-color: var(--mk-primary);
+  background: var(--mk-warning-soft);
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(255, 122, 0, 0.12);
 }
@@ -326,21 +326,21 @@
 
 .location-action-btn .material-icons {
   font-size: 20px;
-  color: #ff7a00;
+  color: var(--mk-primary);
 }
 
 .location-spinner {
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 122, 0, 0.25);
-  border-top-color: #ff7a00;
+  border-top-color: var(--mk-primary);
   border-radius: 50%;
   animation: pickupSpinner 0.8s linear infinite;
   flex-shrink: 0;
 }
 
 .success-icon {
-  color: #22c55e !important;
+  color: var(--mk-success) !important;
   animation: successPop 0.35s ease;
 }
 
@@ -368,9 +368,9 @@
 
 .btn-add-stop,
 .btn-reorder {
-  border: 1px dashed #ff7a00;
-  background: #fff8f1;
-  color: #ff7a00;
+  border: 1px dashed var(--mk-primary);
+  background: var(--mk-primary-soft);
+  color: var(--mk-primary);
 }
 
 .weight-selector,
@@ -382,8 +382,8 @@
 
 .weight-option,
 .category {
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--mk-border);
+  background: var(--mk-card-bg);
   border-radius: 999px;
   padding: 9px 14px;
   font-size: 13px;
@@ -394,15 +394,15 @@
 
 .weight-option.active,
 .category.active {
-  border-color: #ff7a00;
-  background: #fff7f0;
-  color: #ff7a00;
+  border-color: var(--mk-primary);
+  background: var(--mk-warning-soft);
+  color: var(--mk-primary);
 }
 
 .mode-recommendation,
 .mode-hint {
-  background: #fff7ed;
-  color: #c2410c;
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
@@ -413,7 +413,7 @@
   height: 260px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--mk-surface-muted);
 }
 
 .price-row,
@@ -425,16 +425,16 @@
 
 .price-row {
   font-size: 14px;
-  color: #4b5563;
+  color: var(--mk-text-secondary);
 }
 
 .price-total {
   margin-top: 6px;
   padding-top: 14px;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid var(--mk-surface-muted);
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .btn-price,
@@ -444,7 +444,7 @@
   border: none;
   border-radius: 14px;
   padding: 14px 16px;
-  color: #fff;
+  color: var(--mk-text-inverse);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -452,15 +452,15 @@
 }
 
 .btn-price {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, var(--mk-secondary), var(--mk-secondary));
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #ff9a3d, #ff7a00);
+  background: linear-gradient(135deg, var(--mk-primary), var(--mk-primary));
 }
 
 .confirm-btn {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, var(--mk-secondary), var(--mk-secondary));
 }
 
 .btn-price:hover,
@@ -480,20 +480,20 @@
 .checkout-note {
   text-align: center;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }
 
 .delivery-card,
 .vehicle-card,
 .payment-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   border-radius: 16px;
   padding: 14px;
   display: flex;
   gap: 12px;
   cursor: pointer;
   transition: 0.2s ease;
-  background: #fff;
+  background: var(--mk-card-bg);
 
   position: relative;
   overflow: hidden;
@@ -502,15 +502,15 @@
 .delivery-card:hover,
 .vehicle-card:hover,
 .payment-card:hover {
-  border-color: #ff7a00;
+  border-color: var(--mk-primary);
   transform: translateY(-1px);
 }
 
 .delivery-card.active,
 .vehicle-card.active,
 .payment-card.active {
-  border: 2px solid #ff7a00;
-  background: #fff7f0;
+  border: 2px solid var(--mk-primary);
+  background: var(--mk-warning-soft);
   box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.15);
   transform: translateY(-2px);
 }
@@ -519,7 +519,7 @@
 .vehicle-icon,
 .payment-icon {
   font-size: 24px;
-  color: #ff7a00;
+  color: var(--mk-primary);
 }
 
 .delivery-info h4,
@@ -534,7 +534,7 @@
 .vehicle-card p {
   margin: 2px 0 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }
 
 .delivery-price,
@@ -542,13 +542,13 @@
   margin-top: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .selected-badge {
   margin-left: 8px;
-  background: #ff7a00;
-  color: #fff;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
   font-size: 11px;
   font-weight: 700;
   padding: 3px 8px;
@@ -562,8 +562,8 @@
 
 .soon-badge {
   margin-left: 8px;
-  background: #fff3cd;
-  color: #92400e;
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
   font-size: 11px;
   padding: 3px 8px;
   border-radius: 999px;
@@ -584,14 +584,14 @@
 
 .insurance-charge {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }
 
 .insurance-text {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
-  color: #4b5563;
+  color: var(--mk-text-secondary);
 }
 
 .custom-toast {
@@ -602,12 +602,13 @@
 }
 
 .toast-content {
-  background: #111827;
-  color: #fff;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  border: 1px solid var(--mk-border);
   padding: 12px 16px;
   border-radius: 14px;
   font-size: 14px;
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 18px 34px var(--mk-shadow-color, rgba(0, 0, 0, 0.2));
 }
 
 .reorder-overlay {
@@ -624,7 +625,7 @@
 .reorder-modal {
   width: 100%;
   max-width: 460px;
-  background: #fff;
+  background: var(--mk-card-bg);
   border-radius: 22px;
   padding: 24px;
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18);
@@ -658,12 +659,12 @@
   gap: 12px;
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid #eef2f7;
-  background: #fff;
+  border: 1px solid var(--mk-surface-muted);
+  background: var(--mk-card-bg);
 }
 
 .drag-icon {
-  color: #9ca3af;
+  color: var(--mk-text-muted);
 }
 
 .full-width {
@@ -764,7 +765,7 @@
         rgba(255, 154, 61, 0.1),
         transparent 28%
       ),
-      #000;
+      var(--mk-bg);
     color: var(--color-text-primary);
   }
 
@@ -800,15 +801,15 @@
   .payment-card,
   .reorder-modal,
   .reorder-item {
-    background: #1c1c1e;
+    background: var(--mk-surface-elevated);
     border-color: var(--color-border);
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
   }
 
   .selected-badge {
     margin-left: 8px;
-    background: #ff7a00;
-    color: #fff;
+    background: var(--mk-primary);
+    color: var(--mk-text-inverse);
     font-size: 11px;
     font-weight: 700;
     padding: 3px 8px;
@@ -819,7 +820,7 @@
   .weight-option,
   .category,
   .btn-secondary {
-    background: #2c2c2e;
+    background: var(--mk-surface-active);
     border-color: var(--color-border);
     color: var(--color-text-primary);
   }
@@ -856,7 +857,7 @@
 
   .circle,
   .step-line {
-    background: #2c2c2e;
+    background: var(--mk-surface-active);
   }
 
   .route-grid::before {
@@ -864,7 +865,7 @@
   }
 
   .location-action-btn {
-    background: #2c2c2e;
+    background: var(--mk-surface-active);
     border-color: var(--color-border);
     color: var(--color-text-primary);
   }

@@ -41,7 +41,7 @@
     var(--color-primary),
     var(--color-primary-hover)
   );
-  color: #ffffff;
+  color: var(--mk-text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;

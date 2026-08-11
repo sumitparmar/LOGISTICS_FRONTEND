@@ -30,6 +30,13 @@ export class OrderMapComponent implements AfterViewInit {
   private map: any;
   private directionsRenderer: any;
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
+      fallback
+    );
+  }
+
   async ngAfterViewInit(): Promise<void> {
     if (!this.pickup || !this.drop) return;
 
@@ -39,23 +46,6 @@ export class OrderMapComponent implements AfterViewInit {
     this.renderRoute();
     this.addMarkers();
   }
-
-  //   initMap(): void {
-  //     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-  //       zoom: 12,
-  //       center: this.pickup,
-  //     });
-
-  //     this.directionsRenderer = new google.maps.DirectionsRenderer({
-  //       suppressMarkers: true,
-  //       polylineOptions: {
-  //         strokeColor: '#4f46e5',
-  //         strokeWeight: 4,
-  //       },
-  //     });
-
-  //     this.directionsRenderer.setMap(this.map);
-  //   }
 
   initMap(): void {
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
@@ -72,7 +62,7 @@ export class OrderMapComponent implements AfterViewInit {
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#4f46e5',
+        strokeColor: this.themeColor('--mk-primary', '#ff7a00'),
         strokeWeight: 4,
       },
     });
@@ -86,15 +76,15 @@ export class OrderMapComponent implements AfterViewInit {
       map: this.map,
       label: {
         text: 'P',
-        color: '#fff',
+        color: this.themeColor('--mk-text-inverse', '#ffffff'),
       },
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 8,
-        fillColor: '#16a34a', // green
+        fillColor: this.themeColor('--mk-success', '#16a34a'),
         fillOpacity: 1,
         strokeWeight: 2,
-        strokeColor: '#fff',
+        strokeColor: this.themeColor('--mk-card-bg', '#ffffff'),
       },
     });
 
@@ -103,15 +93,15 @@ export class OrderMapComponent implements AfterViewInit {
       map: this.map,
       label: {
         text: 'D',
-        color: '#fff',
+        color: this.themeColor('--mk-text-inverse', '#ffffff'),
       },
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 8,
-        fillColor: '#dc2626', // red
+        fillColor: this.themeColor('--mk-danger', '#dc2626'),
         fillOpacity: 1,
         strokeWeight: 2,
-        strokeColor: '#fff',
+        strokeColor: this.themeColor('--mk-card-bg', '#ffffff'),
       },
     });
   }

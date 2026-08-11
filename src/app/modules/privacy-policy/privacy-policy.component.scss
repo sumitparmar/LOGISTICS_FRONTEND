@@ -1,7 +1,7 @@
 /* ROOT */
 .privacy {
   padding: 100px 0;
-  background: #fff;
+  background: var(--mk-card-bg);
 }
 
 /* LAYOUT */
@@ -30,17 +30,17 @@
 
   a {
     font-size: 14px;
-    color: #888;
+    color: var(--mk-text-muted);
     cursor: pointer;
     text-decoration: none;
     transition: 0.2s;
 
     &:hover {
-      color: #111;
+      color: var(--mk-text-primary);
     }
 
     &.active {
-      color: #111;
+      color: var(--mk-text-primary);
       font-weight: 600;
     }
   }
@@ -66,7 +66,7 @@
   p {
     font-size: 15px;
     line-height: 1.9;
-    color: #444;
+    color: var(--mk-text-secondary);
   }
 
   ul {

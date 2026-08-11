@@ -65,6 +65,13 @@ export class CreateDeliveryComponent
   };
   currentStep = 1;
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
+      fallback
+    );
+  }
+
   weightOptions = [1, 5, 10, 20, 50, 100, 250, 500, 750, 1000];
   packageCategories = [
     'Documents',
@@ -1374,7 +1381,7 @@ export class CreateDeliveryComponent
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#ff7a00',
+        strokeColor: this.themeColor('--mk-primary', '#ff7a00'),
         strokeWeight: 4,
       },
     });
@@ -1421,9 +1428,9 @@ export class CreateDeliveryComponent
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               scale: 10,
-              fillColor: '#22c55e',
+              fillColor: this.themeColor('--mk-success', '#22c55e'),
               fillOpacity: 1,
-              strokeColor: '#ffffff',
+              strokeColor: this.themeColor('--mk-card-bg', '#ffffff'),
               strokeWeight: 3,
             },
             zIndex: 100,
@@ -1436,9 +1443,9 @@ export class CreateDeliveryComponent
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               scale: 10,
-              fillColor: '#ef4444',
+              fillColor: this.themeColor('--mk-danger', '#ef4444'),
               fillOpacity: 1,
-              strokeColor: '#ffffff',
+              strokeColor: this.themeColor('--mk-card-bg', '#ffffff'),
               strokeWeight: 3,
             },
             zIndex: 100,

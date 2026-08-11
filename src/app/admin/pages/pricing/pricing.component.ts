@@ -7,7 +7,8 @@ import { ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { ViewChild } from '@angular/core';
 import { AdminOrdersService } from '../../services/admin-orders.service';
-import { ToastService } from 'src/app/shared/components/toast/toast.service';
+import { ToastService } from '../../services/toast.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 @Component({
   selector: 'app-pricing',
   templateUrl: './pricing.component.html',
@@ -36,6 +37,7 @@ export class PricingComponent implements OnInit {
     private pricingService: AdminPricingService,
     private ordersService: AdminOrdersService,
     private toastService: ToastService,
+    private themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +46,9 @@ export class PricingComponent implements OnInit {
     this.loadAdminAnalytics();
     this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.calculatePreview();
+    });
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => this.applyChartTheme());
     });
   }
 
@@ -88,6 +93,7 @@ export class PricingComponent implements OnInit {
   prepareCharts(data: any) {
     const vehicles = data?.vehicleBreakdown || [];
     const trend = data?.revenueTrend || [];
+    const theme = this.chartTheme;
 
     if (!trend.length) {
       this.revenueChartData = null;
@@ -121,8 +127,8 @@ export class PricingComponent implements OnInit {
             : trend.map((r: any) => r.revenue),
 
           label: 'Revenue (₹)',
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          borderColor: theme.danger,
+          backgroundColor: theme.dangerSoft,
           fill: true,
           tension: 0.4,
           pointRadius: 4,
@@ -203,8 +209,8 @@ export class PricingComponent implements OnInit {
             extrasImpact,
             this.simulatedResult,
           ],
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          borderColor: this.chartTheme.danger,
+          backgroundColor: this.chartTheme.dangerSoft,
           tension: 0.4,
           fill: true,
         },
@@ -234,6 +240,7 @@ export class PricingComponent implements OnInit {
             size: 12,
             weight: '500',
           },
+          color: this.chartTheme.textSecondary,
         },
       },
 
@@ -264,11 +271,84 @@ export class PricingComponent implements OnInit {
           callback: (value) => this.formatCurrency(Number(value)),
         },
         grid: {
-          color: 'rgba(0,0,0,0.05)',
+          color: this.chartTheme.border,
         },
       },
     },
   };
+
+  private get chartTheme() {
+    const css = getComputedStyle(document.documentElement);
+    const token = (name: string, fallback: string) =>
+      css.getPropertyValue(name).trim() || fallback;
+
+    return {
+      danger: token('--mk-danger', '#dc2626'),
+      dangerSoft: token('--mk-danger-soft', 'rgba(220, 38, 38, 0.14)'),
+      textSecondary: token('--mk-text-secondary', '#64748b'),
+      border: token('--mk-border', 'rgba(148, 163, 184, 0.22)'),
+    };
+  }
+
+  private applyChartTheme(): void {
+    const theme = this.chartTheme;
+    const rethemeDataset = (dataset: any) => ({
+      ...dataset,
+      borderColor: theme.danger,
+      backgroundColor: theme.dangerSoft,
+    });
+
+    if (this.chartData?.datasets?.length) {
+      this.chartData = {
+        ...this.chartData,
+        datasets: this.chartData.datasets.map(rethemeDataset),
+      };
+    }
+
+    if (this.revenueChartData?.datasets?.length) {
+      this.revenueChartData = {
+        ...this.revenueChartData,
+        datasets: this.revenueChartData.datasets.map(rethemeDataset),
+      };
+    }
+
+    this.chartOptions = {
+      ...this.chartOptions,
+      plugins: {
+        ...this.chartOptions.plugins,
+        legend: {
+          ...this.chartOptions.plugins?.legend,
+          labels: {
+            ...this.chartOptions.plugins?.legend?.labels,
+            color: theme.textSecondary,
+          },
+        },
+      },
+      scales: {
+        ...this.chartOptions.scales,
+        x: {
+          ...this.chartOptions.scales?.['x'],
+          ticks: {
+            ...this.chartOptions.scales?.['x']?.ticks,
+            color: theme.textSecondary,
+          },
+        },
+        y: {
+          ...this.chartOptions.scales?.['y'],
+          grid: {
+            ...this.chartOptions.scales?.['y']?.grid,
+            color: theme.border,
+          },
+          ticks: {
+            ...this.chartOptions.scales?.['y']?.ticks,
+            color: theme.textSecondary,
+          },
+        },
+      },
+    };
+
+    setTimeout(() => this.chart?.update(), 0);
+  }
 
   exportPricingCSV(): void {
     if (this.isExporting) return;
@@ -381,13 +461,13 @@ export class PricingComponent implements OnInit {
 
     if (this.form.value.surgeEnabled) {
       if (!this.form.value.surgeStart || !this.form.value.surgeEnd) {
-        alert('Please set surge time range');
+        this.toastService.warning('Please set surge time range');
         this.isSaving = false;
         return;
       }
 
       if (this.form.value.surgeMultiplier <= 1) {
-        alert('Surge multiplier must be greater than 1');
+        this.toastService.warning('Surge multiplier must be greater than 1');
         this.isSaving = false;
         return;
       }

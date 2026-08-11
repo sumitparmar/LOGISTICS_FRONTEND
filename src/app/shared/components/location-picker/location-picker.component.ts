@@ -7,6 +7,7 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
+import { ToastService } from '../toast/toast.service';
 
 declare const google: any;
 
@@ -41,6 +42,8 @@ export class LocationPickerComponent implements AfterViewInit {
   map: any;
   marker: any;
   geocoder: any;
+
+  constructor(private toast: ToastService) {}
 
   ngAfterViewInit(): void {
     if (typeof google === 'undefined') {
@@ -144,7 +147,7 @@ export class LocationPickerComponent implements AfterViewInit {
 
   useCurrentLocation(): void {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      this.toast.warning('Geolocation is not supported by your browser.');
       return;
     }
 
@@ -163,7 +166,7 @@ export class LocationPickerComponent implements AfterViewInit {
       (error) => {
         console.error('Unable to fetch current location', error);
 
-        alert(
+        this.toast.warning(
           'Unable to access your current location. Please allow location permission.',
         );
       },

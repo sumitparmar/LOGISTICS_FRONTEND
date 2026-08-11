@@ -42,11 +42,14 @@ export class MobileDrawerComponent {
       icon: '📍',
       route: '/app/track',
     },
-    {
-      label: 'Wallet',
+    // TEMP WALLET DISABLED:
+    // {
+    //   label: 'Wallet',
+    /*
       icon: '💳',
-      route: '/app/wallet',
-    },
+    */
+    //   route: '/app/wallet',
+    // },
     {
       label: 'Support Center',
       icon: '🎫',
@@ -65,7 +68,7 @@ export class MobileDrawerComponent {
     {
       label: 'Settings',
       icon: '⚙️',
-      route: '',
+      route: '/app/settings',
     },
   ];
 

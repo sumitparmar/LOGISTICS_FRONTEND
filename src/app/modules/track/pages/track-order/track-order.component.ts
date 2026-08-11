@@ -58,6 +58,13 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
   private previousLat: number | null = null;
   private previousLng: number | null = null;
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim() ||
+      fallback
+    );
+  }
+
   autoFollowCourier = true;
   timelineMap: Record<string, Date> = {};
   vehicleMap: Record<number, string> = {};
@@ -502,7 +509,7 @@ export class TrackOrderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#ff6b00',
+        strokeColor: this.themeColor('--mk-primary', '#ff7a00'),
         strokeWeight: 4,
         strokeOpacity: 0.85,
       },

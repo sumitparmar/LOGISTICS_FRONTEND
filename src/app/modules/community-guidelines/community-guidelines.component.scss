@@ -21,14 +21,14 @@
   display: block;
   margin-bottom: 12px;
   font-size: 14px;
-  color: #888;
+  color: var(--mk-text-muted);
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .policy__sidebar a:hover {
-  color: #111;
+  color: var(--mk-text-primary);
 }
 
 /* ================= CONTENT ================= */
@@ -41,19 +41,19 @@
   font-size: 40px;
   margin-bottom: 32px;
   font-weight: 600;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .policy__content h2 {
   margin-top: 40px;
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .policy__content p {
   line-height: 1.9;
-  color: #444;
+  color: var(--mk-text-secondary);
   font-size: 14px;
 }
 

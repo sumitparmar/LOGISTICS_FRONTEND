@@ -116,13 +116,48 @@ export class DashboardComponent implements OnInit {
 
   // Status strip config
   readonly statusStrip = [
-    { key: 'DELIVERED', label: 'Delivered', color: '#22c55e', bg: '#f0fdf4' },
-    { key: 'IN_TRANSIT', label: 'In Transit', color: '#eab308', bg: '#fefce8' },
-    { key: 'ASSIGNED', label: 'Assigned', color: '#3b82f6', bg: '#eff6ff' },
-    { key: 'PICKED_UP', label: 'Picked Up', color: '#f97316', bg: '#fff7ed' },
-    { key: 'CANCELLED', label: 'Cancelled', color: '#ef4444', bg: '#fef2f2' },
-    { key: 'FAILED', label: 'Failed', color: '#991b1b', bg: '#fef2f2' },
-    { key: 'CREATED', label: 'Created', color: '#64748b', bg: '#f1f5f9' },
+    {
+      key: 'DELIVERED',
+      label: 'Delivered',
+      color: 'var(--mk-success)',
+      bg: 'var(--mk-success-soft)',
+    },
+    {
+      key: 'IN_TRANSIT',
+      label: 'In Transit',
+      color: 'var(--mk-warning)',
+      bg: 'var(--mk-warning-soft)',
+    },
+    {
+      key: 'ASSIGNED',
+      label: 'Assigned',
+      color: 'var(--mk-info)',
+      bg: 'var(--mk-info-soft)',
+    },
+    {
+      key: 'PICKED_UP',
+      label: 'Picked Up',
+      color: 'var(--mk-primary)',
+      bg: 'var(--mk-primary-soft)',
+    },
+    {
+      key: 'CANCELLED',
+      label: 'Cancelled',
+      color: 'var(--mk-danger)',
+      bg: 'var(--mk-danger-soft)',
+    },
+    {
+      key: 'FAILED',
+      label: 'Failed',
+      color: 'var(--mk-danger)',
+      bg: 'var(--mk-danger-soft)',
+    },
+    {
+      key: 'CREATED',
+      label: 'Created',
+      color: 'var(--mk-text-secondary)',
+      bg: 'var(--mk-surface-muted)',
+    },
   ];
 
   ngOnInit(): void {
@@ -272,9 +307,12 @@ export class DashboardComponent implements OnInit {
       queryParams: { status: 'ACTIVE' },
     });
   }
-  goToWallet(): void {
-    this.router.navigate(['/app/wallet']);
-  }
+  // TEMP WALLET DISABLED:
+  // Re-enable with the dashboard wallet card/quick action when the wallet
+  // feature is ready for users again.
+  // goToWallet(): void {
+  //   this.router.navigate(['/app/wallet']);
+  // }
   goToOrder(id: string): void {
     this.router.navigate(['/app/orders', id]);
   }

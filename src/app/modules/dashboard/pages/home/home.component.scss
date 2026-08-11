@@ -1,4 +1,4 @@
-:root {
+:host {
   --container-max-width: 1200px;
 
   --spacing-xs: 12px;
@@ -12,7 +12,7 @@
   --font-xl: 24px;
   --font-xxl: 32px;
 
-  --text-muted: #666;
+  --text-muted: var(--mk-text-secondary);
 }
 
 .title {

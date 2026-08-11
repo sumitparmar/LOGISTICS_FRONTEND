@@ -47,6 +47,14 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
   private dropAutocomplete: any;
   vehicles: Vehicle[] = [];
 
+  private themeColor(token: string, fallback: string): string {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(token)
+        .trim() || fallback
+    );
+  }
+
   selectedVehicle: Vehicle | null = null;
 
   priceResult: PriceResult | null = null;
@@ -91,7 +99,7 @@ export class PricingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       polylineOptions: {
-        strokeColor: '#ff7a00',
+        strokeColor: this.themeColor('--mk-primary', '#ff7a00'),
         strokeWeight: 4,
       },
     });

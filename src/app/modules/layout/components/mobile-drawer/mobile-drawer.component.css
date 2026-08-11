@@ -17,7 +17,7 @@
 
   inset: 0;
 
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--mk-overlay);
 }
 
 .mobile-drawer {
@@ -31,7 +31,7 @@
   height: 100vh;
   height: 100dvh;
 
-  background: #ffffff;
+  background: var(--mk-card-bg);
 
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@
 
   gap: 12px;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--mk-border);
 }
 
 .drawer-header img {
@@ -67,13 +67,13 @@
   font-size: 17px;
   font-weight: 800;
 
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .drawer-header span {
   font-size: 12px;
 
-  color: #64748b;
+  color: var(--mk-text-secondary);
 }
 
 .close-btn {
@@ -86,7 +86,7 @@
 
   border-radius: 10px;
 
-  background: #f8fafc;
+  background: var(--mk-surface-muted);
 
   cursor: pointer;
 
@@ -116,7 +116,7 @@
 
   text-decoration: none;
 
-  color: #334155;
+  color: var(--mk-text-secondary);
 
   font-size: 14px;
 
@@ -124,9 +124,9 @@
 }
 
 .drawer-item:hover {
-  background: #fff7ed;
+  background: var(--mk-warning-soft);
 
-  color: #ff7a00;
+  color: var(--mk-primary);
 }
 
 .drawer-icon {
@@ -140,9 +140,9 @@
 .drawer-footer {
   padding: 18px;
 
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--mk-border);
 
-  color: #dc2626;
+  color: var(--mk-danger);
 
   font-weight: 600;
 
@@ -162,7 +162,7 @@
 .drawer-item.active {
   background: rgba(255, 122, 0, 0.08);
 
-  color: #ff7a00;
+  color: var(--mk-primary);
 
   font-weight: 700;
 }

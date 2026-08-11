@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, Observable, Subject } from 'rxjs';
 import { AdminSettingsService } from '../../services/admin-settings.service';
 import { ToastService } from '../../services/toast.service';
 import { PendingChangesComponent } from 'src/app/core/guards/pending-changes.guard';
@@ -17,13 +17,18 @@ export class SettingsComponent
     if (this.showMaintenanceConfirm) {
       this.closeMaintenanceModal();
     }
+    if (this.showUnsavedChangesConfirm) {
+      this.stayOnSettings();
+    }
   }
 
   form!: FormGroup;
   loading = false;
   saving = false;
   showMaintenanceConfirm = false;
+  showUnsavedChangesConfirm = false;
   pendingSave = false;
+  private pendingDeactivateDecision?: Subject<boolean>;
   settingsData: any = null;
   originalSettings: any = null;
   auditLogs: any[] = [];
@@ -56,12 +61,16 @@ export class SettingsComponent
     private toast: ToastService,
   ) {}
 
-  canDeactivate(): boolean {
+  canDeactivate(): boolean | Observable<boolean> {
     if (!this.form || !this.form.dirty) {
       return true;
     }
 
-    return window.confirm('You have unsaved changes. Leave this page anyway?');
+    this.showUnsavedChangesConfirm = true;
+    document.body.style.overflow = 'hidden';
+    this.pendingDeactivateDecision = new Subject<boolean>();
+
+    return this.pendingDeactivateDecision.asObservable();
   }
 
   ngOnInit(): void {
@@ -177,6 +186,23 @@ export class SettingsComponent
     });
   }
 
+  stayOnSettings(): void {
+    this.resolvePendingNavigation(false);
+  }
+
+  discardChangesAndLeave(): void {
+    this.form.markAsPristine();
+    this.resolvePendingNavigation(true);
+  }
+
+  private resolvePendingNavigation(leavePage: boolean): void {
+    this.showUnsavedChangesConfirm = false;
+    document.body.style.overflow = '';
+    this.pendingDeactivateDecision?.next(leavePage);
+    this.pendingDeactivateDecision?.complete();
+    this.pendingDeactivateDecision = undefined;
+  }
+
   private executeSave(): void {
     this.saving = true;
 
@@ -210,5 +236,6 @@ export class SettingsComponent
 
   ngOnDestroy(): void {
     document.body.style.overflow = '';
+    this.pendingDeactivateDecision?.complete();
   }
 }

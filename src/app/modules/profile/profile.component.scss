@@ -1,5 +1,5 @@
 .settings-page {
-  background: #f5f7fb;
+  background: var(--mk-surface-muted);
   min-height: calc(100vh - 80px);
   min-height: calc(100dvh - 80px);
   padding: 60px 20px;
@@ -17,12 +17,12 @@
 .page-title {
   font-size: 30px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--mk-text-primary);
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
   margin-top: 6px;
 }
 
@@ -33,10 +33,10 @@
 }
 
 .settings-card {
-  background: #ffffff;
+  background: var(--mk-card-bg);
   border-radius: 12px;
   padding: 28px;
-  border: 1px solid #eef1f5;
+  border: 1px solid var(--mk-border);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
@@ -47,7 +47,7 @@
 .card-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--mk-text-primary);
 }
 
 .field {
@@ -58,7 +58,7 @@ label {
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: var(--mk-text-secondary);
   margin-bottom: 6px;
 }
 
@@ -68,13 +68,13 @@ input {
   height: 42px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--mk-border);
   font-size: 14px;
 }
 
 input:focus {
   outline: none;
-  border-color: #ff7a00;
+  border-color: var(--mk-primary);
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.15);
 }
 
@@ -84,8 +84,8 @@ input:focus {
   padding: 0 20px;
   border-radius: 8px;
   border: none;
-  background: #ff7a00;
-  color: white;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
   font-weight: 500;
   cursor: pointer;
 }
@@ -95,7 +95,7 @@ input:focus {
 }
 
 .btn-primary:hover {
-  background: #e56d00;
+  background: var(--mk-primary-strong);
 }
 
 .btn-primary:disabled {
@@ -121,7 +121,7 @@ input:focus {
         rgba(10, 132, 255, 0.11),
         transparent 30%
       ),
-      #000;
+      var(--mk-bg);
     color: var(--color-text-primary);
   }
 
@@ -136,19 +136,19 @@ input:focus {
   }
 
   .settings-card {
-    background: #1c1c1e;
+    background: var(--mk-surface-elevated);
     border-color: var(--color-border);
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
   }
 
   input {
-    background: #2c2c2e;
+    background: var(--mk-surface-active);
     border-color: var(--color-border);
     color: var(--color-text-primary);
   }
 
   input:disabled {
-    background: #3a3a3c;
+    background: var(--mk-surface-hover);
     color: var(--color-text-muted);
   }
 }

@@ -287,4 +287,34 @@
         </div>
     </div>
 
+    <div class="modal-backdrop" *ngIf="showUnsavedChangesConfirm" (click)="stayOnSettings()">
+        <div class="confirm-modal" (click)="$event.stopPropagation()">
+            <div class="modal-head">
+                <h3>Discard Unsaved Changes?</h3>
+
+                <p>
+                    You have settings changes that have not been saved yet.
+                    Leaving this page will discard them.
+                </p>
+            </div>
+
+            <div class="modal-warning">
+                Save your changes first if you want to keep the updated admin settings.
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="button" class="secondary-btn" (click)="stayOnSettings()">
+                    Stay Here
+                </button>
+
+                <button type="button" class="danger-btn" (click)="discardChangesAndLeave()">
+                    Discard & Leave
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
 </div>

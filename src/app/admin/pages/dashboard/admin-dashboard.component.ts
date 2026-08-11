@@ -8,6 +8,7 @@ import {
 import { ChartConfiguration } from 'chart.js';
 
 import { Subject, takeUntil } from 'rxjs';
+import { ThemeService } from 'src/app/core/services/theme.service';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
@@ -35,6 +36,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     private dashboardService: AdminDashboardService,
     private socketService: AdminSocketService,
     private ordersStore: OrdersStore,
+    private themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
@@ -51,6 +53,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.loadStats();
       });
+
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => this.applyChartTheme());
+    });
   }
 
   loadStats(): void {
@@ -93,6 +99,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const theme = this.chartTheme;
+
     this.statusChartData = {
       labels: ['Created', 'In Progress', 'Delivered', 'Cancelled'],
       datasets: [
@@ -104,12 +112,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             statusCounts.CANCELLED || 0,
           ],
           backgroundColor: [
-            '#6366f1', // created
-            '#f59e0b', // progress
-            '#10b981', // delivered
-            '#ef4444', // cancelled
+            theme.info,
+            theme.warning,
+            theme.success,
+            theme.danger,
           ],
-          borderWidth: 0,
+          borderColor: theme.surface,
+          borderWidth: 2,
         },
       ],
     };
@@ -129,6 +138,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const theme = this.chartTheme;
+
     this.lineChartData = {
       labels: sales.map((s, i) => this.formatLabel(s.label, i)),
       datasets: [
@@ -137,11 +148,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           label: 'Sales',
           fill: true,
           tension: 0.4,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.15)',
+          borderColor: theme.info,
+          backgroundColor: theme.infoSoft,
           borderWidth: 2,
           pointRadius: 4,
-          pointBackgroundColor: '#6366f1',
+          pointBackgroundColor: theme.info,
+          pointBorderColor: theme.surface,
           pointBorderWidth: 2,
           pointHoverRadius: 6,
         },
@@ -226,10 +238,17 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     scales: {
       x: {
         grid: { display: false },
+        ticks: {
+          color: this.chartTheme.textSecondary,
+          callback: function (value) {
+            return String(value);
+          },
+        },
       },
       y: {
-        grid: { color: '#f1f5f9' },
+        grid: { color: this.chartTheme.border },
         ticks: {
+          color: this.chartTheme.textSecondary,
           callback: function (value) {
             return Number(value).toLocaleString();
           },
@@ -237,6 +256,81 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       },
     },
   };
+
+  private get chartTheme() {
+    const css = getComputedStyle(document.documentElement);
+    const token = (name: string, fallback: string) =>
+      css.getPropertyValue(name).trim() || fallback;
+
+    return {
+      surface: token('--mk-card-bg', '#ffffff'),
+      textSecondary: token('--mk-text-secondary', '#64748b'),
+      border: token('--mk-border', '#e5e7eb'),
+      info: token('--mk-info', '#2563eb'),
+      infoSoft: token('--mk-info-soft', 'rgba(37, 99, 235, 0.14)'),
+      warning: token('--mk-warning', '#ea580c'),
+      success: token('--mk-success', '#16a34a'),
+      danger: token('--mk-danger', '#dc2626'),
+    };
+  }
+
+  private applyChartTheme(): void {
+    const theme = this.chartTheme;
+
+    if (this.lineChartData?.datasets?.length) {
+      this.lineChartData = {
+        ...this.lineChartData,
+        datasets: this.lineChartData.datasets.map((dataset) => ({
+          ...dataset,
+          borderColor: theme.info,
+          backgroundColor: theme.infoSoft,
+          pointBackgroundColor: theme.info,
+          pointBorderColor: theme.surface,
+        })),
+      };
+    }
+
+    if (this.statusChartData?.datasets?.length) {
+      this.statusChartData = {
+        ...this.statusChartData,
+        datasets: this.statusChartData.datasets.map((dataset: any) => ({
+          ...dataset,
+          backgroundColor: [
+            theme.info,
+            theme.warning,
+            theme.success,
+            theme.danger,
+          ],
+          borderColor: theme.surface,
+        })),
+      };
+    }
+
+    this.lineChartOptions = {
+      ...this.lineChartOptions,
+      scales: {
+        ...this.lineChartOptions?.scales,
+        x: {
+          ...this.lineChartOptions?.scales?.['x'],
+          ticks: {
+            ...this.lineChartOptions?.scales?.['x']?.ticks,
+            color: theme.textSecondary,
+          },
+        },
+        y: {
+          ...this.lineChartOptions?.scales?.['y'],
+          grid: {
+            ...this.lineChartOptions?.scales?.['y']?.grid,
+            color: theme.border,
+          },
+          ticks: {
+            ...this.lineChartOptions?.scales?.['y']?.ticks,
+            color: theme.textSecondary,
+          },
+        },
+      },
+    };
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

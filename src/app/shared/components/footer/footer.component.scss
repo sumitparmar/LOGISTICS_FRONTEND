@@ -1,6 +1,6 @@
 .footer {
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  border-top: 1px solid #e5e7eb;
+  background: linear-gradient(180deg, var(--mk-surface-muted) 0%, var(--mk-card-bg) 100%);
+  border-top: 1px solid var(--mk-border);
   padding-top: 72px;
   overflow: hidden;
 }
@@ -27,7 +27,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
-  color: #94a3b8;
+  color: var(--mk-text-muted);
 }
 
 /* Brand */
@@ -36,7 +36,7 @@
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #111827;
+  color: var(--mk-text-primary);
   margin-bottom: 16px;
 }
 
@@ -45,7 +45,7 @@
 
   font-size: 14px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--mk-text-secondary);
 
   max-width: 320px;
 }
@@ -68,14 +68,14 @@
 .city-list span {
   font-size: 14px;
   line-height: 1.5;
-  color: #111827;
+  color: var(--mk-text-primary);
   text-decoration: none;
 
   transition: color 0.18s ease;
 }
 
 .footer-col a:hover {
-  color: #ff7a00;
+  color: var(--mk-primary);
 }
 
 /* Cities */
@@ -91,7 +91,7 @@
 }
 
 .city-list span {
-  color: #2563eb;
+  color: var(--mk-info);
   font-weight: 500;
 }
 
@@ -113,14 +113,15 @@
 
   border-radius: 14px;
 
-  background: #0f172a;
+  background: linear-gradient(135deg, var(--mk-primary), var(--mk-primary-strong));
   color: #ffffff;
+  border: 1px solid rgba(255, 122, 0, 0.28);
 
   font-size: 14px;
   font-weight: 700;
   text-align: center;
 
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 18px var(--mk-shadow-color, rgba(15, 23, 42, 0.08));
 
   transition:
     transform 0.18s ease,
@@ -129,9 +130,9 @@
 }
 
 .app-card:hover {
-  background: #1e293b;
+  background: linear-gradient(135deg, var(--mk-primary-hover), var(--mk-primary));
   transform: translateY(-1px);
-  box-shadow: 0 16px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 16px 24px var(--mk-shadow-color-strong, rgba(15, 23, 42, 0.12));
 }
 
 /* Bottom */
@@ -141,7 +142,7 @@
   margin: 52px auto 0;
   padding: 22px 24px 26px;
 
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--mk-border);
 
   display: flex;
   align-items: center;
@@ -166,7 +167,8 @@
   border-radius: 12px;
   text-decoration: none;
 
-  background: #0f172a;
+  background: var(--mk-surface-elevated);
+  border: 1px solid var(--mk-border);
 
   transition:
     transform 0.18s ease,
@@ -177,19 +179,19 @@
 .icon svg {
   width: 18px;
   height: 18px;
-  fill: #ffffff;
+  fill: var(--mk-text-primary);
 }
 
 .icon:hover {
-  background: #1e293b;
+  background: var(--mk-primary-soft);
   transform: translateY(-2px);
-  box-shadow: 0 12px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 18px var(--mk-shadow-color-strong, rgba(15, 23, 42, 0.12));
 }
 
 .copyright {
   font-size: 13px;
   line-height: 1.6;
-  color: #64748b;
+  color: var(--mk-text-secondary);
   text-align: right;
 }
 

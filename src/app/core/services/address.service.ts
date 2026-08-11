@@ -15,4 +15,8 @@ export class AddressService {
   createAddress(data: any) {
     return this.http.post<any>(this.baseUrl, data);
   }
+
+  deleteAddress(id: string) {
+    return this.http.delete<any>(`${this.baseUrl}/${id}`);
+  }
 }

@@ -1,0 +1,362 @@
+<div class="settings-page">
+  <section class="settings-hero">
+    <div class="identity-card">
+      <div class="avatar">{{ initials }}</div>
+
+      <div class="identity-copy">
+        <p class="eyebrow">Customer settings</p>
+        <h1>{{ profile?.name || 'Your account' }}</h1>
+        <p>
+          Manage your MoveKart account, security, delivery preferences and app
+          experience.
+        </p>
+      </div>
+    </div>
+
+    <div class="account-health">
+      <div>
+        <span>Account status</span>
+        <strong>{{ accountStatus }}</strong>
+      </div>
+      <div>
+        <span>Sign-in method</span>
+        <strong>{{ authLabel }}</strong>
+      </div>
+      <div>
+        <span>Delivery mode</span>
+        <strong>{{ profile?.deliveryMode || 'Not selected' }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="alert warning" *ngIf="profileError">
+    <span>{{ profileError }}</span>
+    <button type="button" (click)="loadProfile()">Retry</button>
+  </div>
+
+  <div class="settings-grid">
+    <section class="settings-panel profile-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Account</p>
+          <h2>Personal information</h2>
+          <p>Keep your contact details accurate for delivery coordination.</p>
+        </div>
+        <button type="button" class="ghost-btn" (click)="goTo('/app/profile')">
+          Open profile
+        </button>
+      </div>
+
+      <div class="panel-loader" *ngIf="loadingProfile">Loading account details...</div>
+
+      <form
+        *ngIf="!loadingProfile"
+        [formGroup]="profileForm"
+        class="settings-form"
+        (ngSubmit)="saveProfile()"
+      >
+        <label class="field">
+          <span>Name</span>
+          <input formControlName="name" autocomplete="name" />
+          <small
+            class="field-error"
+            *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid"
+          >
+            Enter your full name.
+          </small>
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input formControlName="email" autocomplete="email" />
+          <small>Email changes are not supported by the current account API.</small>
+        </label>
+
+        <label class="field">
+          <span>Mobile number</span>
+          <input formControlName="phone" inputmode="tel" autocomplete="tel" />
+          <small
+            class="field-error"
+            *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid"
+          >
+            Enter a valid mobile number.
+          </small>
+        </label>
+
+        <label class="field">
+          <span>Business name</span>
+          <input formControlName="businessName" autocomplete="organization" />
+        </label>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-btn"
+            (click)="resetProfileForm()"
+            [disabled]="!hasUnsavedProfileChanges() || savingProfile"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="primary-btn"
+            [disabled]="profileForm.invalid || !hasUnsavedProfileChanges() || savingProfile"
+          >
+            {{ savingProfile ? 'Saving...' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="settings-panel security-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Security</p>
+          <h2>Change password</h2>
+          <p>Use a strong password that you do not reuse elsewhere.</p>
+        </div>
+      </div>
+
+      <form
+        [formGroup]="passwordForm"
+        class="settings-form"
+        (ngSubmit)="changePassword()"
+      >
+        <label class="field">
+          <span>Current password</span>
+          <input
+            type="password"
+            formControlName="currentPassword"
+            autocomplete="current-password"
+          />
+        </label>
+
+        <label class="field">
+          <span>New password</span>
+          <input
+            type="password"
+            formControlName="newPassword"
+            autocomplete="new-password"
+          />
+          <small>Minimum 6 characters.</small>
+        </label>
+
+        <label class="field">
+          <span>Confirm new password</span>
+          <input
+            type="password"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+          />
+          <small
+            class="field-error"
+            *ngIf="passwordForm.get('confirmPassword')?.touched && !passwordsMatch()"
+          >
+            Passwords do not match.
+          </small>
+        </label>
+
+        <div class="form-actions single">
+          <button
+            type="submit"
+            class="primary-btn"
+            [disabled]="passwordForm.invalid || !passwordsMatch() || savingPassword"
+          >
+            {{ savingPassword ? 'Updating...' : 'Update password' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="settings-panel addresses-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Addresses</p>
+          <h2>Saved pickup addresses</h2>
+          <p>Addresses saved while creating deliveries are available here.</p>
+        </div>
+        <button
+          type="button"
+          class="ghost-btn"
+          (click)="goTo('/app/delivery/create')"
+        >
+          Add address
+        </button>
+      </div>
+
+      <div class="panel-loader" *ngIf="loadingAddresses">Loading saved addresses...</div>
+
+      <div class="alert" *ngIf="!loadingAddresses && addressError">
+        <span>{{ addressError }}</span>
+        <button type="button" (click)="loadAddresses()">Retry</button>
+      </div>
+
+      <div
+        class="empty-state"
+        *ngIf="!loadingAddresses && !addressError && savedAddresses.length === 0"
+      >
+        <h3>No saved addresses yet</h3>
+        <p>Save a pickup address from Create Delivery to reuse it faster.</p>
+        <button type="button" class="primary-btn" (click)="goTo('/app/delivery/create')">
+          Create delivery
+        </button>
+      </div>
+
+      <div class="address-list" *ngIf="!loadingAddresses && savedAddresses.length">
+        <article
+          class="address-card"
+          *ngFor="let address of savedAddresses; trackBy: trackAddress"
+        >
+          <div>
+            <div class="address-label">{{ address.label || 'Saved address' }}</div>
+            <h3>{{ address.name || 'Contact person' }}</h3>
+            <p>{{ address.address || 'Address unavailable' }}</p>
+            <small>{{ address.phone || 'No phone saved' }}</small>
+          </div>
+
+          <button
+            type="button"
+            class="danger-link"
+            (click)="deleteAddress(address)"
+            [disabled]="deletingAddressId === address._id"
+          >
+            {{ deletingAddressId === address._id ? 'Removing...' : 'Remove' }}
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <section class="settings-panel preferences-panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Experience</p>
+          <h2>Theme preference</h2>
+          <p>Theme is applied globally across user and admin-aware shared UI.</p>
+        </div>
+      </div>
+
+      <div class="theme-options" role="group" aria-label="Theme preference">
+        <button
+          type="button"
+          [class.active]="currentTheme === 'light'"
+          (click)="setTheme('light')"
+        >
+          <span class="theme-swatch light"></span>
+          <strong>Light</strong>
+          <small>Bright surfaces for daytime use</small>
+        </button>
+
+        <button
+          type="button"
+          [class.active]="currentTheme === 'dark'"
+          (click)="setTheme('dark')"
+        >
+          <span class="theme-swatch dark"></span>
+          <strong>Dark</strong>
+          <small>Lower glare for night work</small>
+        </button>
+      </div>
+
+      <div class="capability-note">
+        System/default mode and language preferences are not shown because the
+        current app does not expose persisted support for them.
+      </div>
+    </section>
+  </div>
+
+  <section class="quick-links">
+    <div class="section-title">
+      <p class="section-kicker">Manage</p>
+      <h2>Connected settings</h2>
+    </div>
+
+    <div class="link-grid">
+      <button type="button" class="link-card" (click)="goTo('/app/notifications')">
+        <span class="link-icon">N</span>
+        <div>
+          <strong>Notifications</strong>
+          <p>View order and account notifications.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+
+      <!-- TEMP WALLET DISABLED:
+      <button type="button" class="link-card" (click)="goTo('/app/wallet')">
+        <span class="link-icon">W</span>
+        <div>
+          <strong>Wallet & payments</strong>
+          <p>Open wallet balance and transaction history.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+      -->
+
+      <button type="button" class="link-card" (click)="goTo('/app/support')">
+        <span class="link-icon">S</span>
+        <div>
+          <strong>Support center</strong>
+          <p>Get help with orders or account issues.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+
+      <button type="button" class="link-card" (click)="goTo('/privacy-policy')">
+        <span class="link-icon">P</span>
+        <div>
+          <strong>Privacy policy</strong>
+          <p>Review how MoveKart handles your information.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+
+      <button type="button" class="link-card" (click)="goTo('/terms-and-conditions')">
+        <span class="link-icon">T</span>
+        <div>
+          <strong>Terms & conditions</strong>
+          <p>Read usage terms for MoveKart services.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+
+      <button type="button" class="link-card" (click)="goTo('/about')">
+        <span class="link-icon">M</span>
+        <div>
+          <strong>About MoveKart</strong>
+          <p>Company information and service details.</p>
+        </div>
+        <span class="chevron">-></span>
+      </button>
+    </div>
+  </section>
+
+  <section class="account-actions">
+    <div>
+      <p class="section-kicker">Account actions</p>
+      <h2>Session</h2>
+      <p>
+        Logout is available for this device. Logout from all devices and account
+        deletion are not exposed by the current backend.
+      </p>
+    </div>
+
+    <div class="account-buttons">
+      <button type="button" class="secondary-btn" (click)="goTo('/app/support')">
+        Contact support
+      </button>
+      <button type="button" class="danger-btn" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </section>
+</div>
+
+<app-confirm-modal
+  [visible]="!!addressPendingDelete"
+  title="Remove Saved Address?"
+  message="This pickup address will be removed from your MoveKart account."
+  confirmText="Remove Address"
+  cancelText="Keep Address"
+  [loading]="!!deletingAddressId"
+  (confirm)="confirmDeleteAddress()"
+  (cancel)="cancelDeleteAddress()"
+></app-confirm-modal>

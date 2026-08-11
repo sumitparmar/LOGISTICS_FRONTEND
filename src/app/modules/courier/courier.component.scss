@@ -1,12 +1,12 @@
 /* ================= DESIGN SYSTEM ================= */
-:root {
-  --text-primary: #111;
-  --text-secondary: #6f6f6f;
+:host {
+  --text-primary: var(--mk-text-primary);
+  --text-secondary: var(--mk-text-secondary);
 
-  --bg-light: #f6f6f6;
-  --bg-card: #fafafa;
+  --bg-light: var(--mk-surface-muted);
+  --bg-card: var(--mk-card-bg);
 
-  --border-light: #eaeaea;
+  --border-light: var(--mk-border);
 
   --radius-lg: 24px;
   --radius-md: 16px;
@@ -38,8 +38,8 @@ section {
   height: 48px;
   padding: 0 28px;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
   font-size: 15px;
   font-weight: 500;
   border: none;
@@ -47,7 +47,7 @@ section {
   transition: all 0.25s ease;
 
   &:hover {
-    background: #2b2b2b;
+    background: var(--mk-primary-hover);
     transform: translateY(-1px);
   }
 }
@@ -145,7 +145,7 @@ section {
       -webkit-appearance: none;
       width: 100%;
       height: 4px;
-      background: #ddd;
+      background: var(--mk-border-strong);
       border-radius: 4px;
       outline: none;
     }
@@ -154,7 +154,7 @@ section {
       -webkit-appearance: none;
       width: 16px;
       height: 16px;
-      background: #111;
+      background: var(--mk-primary);
       border-radius: 50%;
       cursor: pointer;
     }
@@ -178,7 +178,7 @@ section {
 
     p {
       font-size: 14px;
-      color: #999;
+      color: var(--mk-text-muted);
     }
   }
 }
@@ -204,8 +204,8 @@ section {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: #111;
-    color: #fff;
+    background: var(--mk-primary);
+    color: var(--mk-text-inverse);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,21 +272,21 @@ section {
 
 .city {
   padding: 10px 16px;
-  background: #f2f2f2;
+  background: var(--mk-surface-muted);
   border-radius: 20px;
   font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
 
   &:hover {
-    background: #111;
-    color: #fff;
+    background: var(--mk-primary);
+    color: var(--mk-text-inverse);
   }
 }
 
 .faq {
   &__item {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--mk-border);
     padding: 18px 0;
   }
 
@@ -301,7 +301,7 @@ section {
   &__answer {
     margin-top: 12px;
     font-size: 14px;
-    color: #777;
+    color: var(--mk-text-muted);
     line-height: 1.6;
   }
 }

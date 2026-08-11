@@ -8,13 +8,13 @@
   height: 32px;
   width: 32px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--mk-border);
+  background: var(--mk-card-bg);
   cursor: pointer;
 }
 
 .pagination button:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--mk-surface-muted);
 }
 
 .pagination button:disabled {
@@ -24,7 +24,7 @@
 
 .page-info {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--mk-text-secondary);
 }
 /* Wrapper */
 .table-controls {
@@ -44,12 +44,12 @@
   height: 32px;
   padding: 0 10px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--mk-border);
   font-size: 13px;
   outline: none;
   transition: border 0.2s ease;
 }
 
 .search-box input:focus {
-  border-color: #6366f1; /* matches admin theme */
+  border-color: var(--mk-secondary); /* matches admin theme */
 }
