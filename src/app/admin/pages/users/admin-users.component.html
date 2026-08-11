@@ -12,7 +12,8 @@
             <!-- Controls -->
             <div class="users-controls">
 
-                <app-table-controls [page]="page" [totalPages]="totalPages" (pageChange)="onPageChange($event)"
+                <app-table-controls [page]="page" [total]="total" [totalPages]="totalPages" [limit]="limit"
+                    (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)"
                     (searchChange)="onSearchChange($event)">
                 </app-table-controls>
 

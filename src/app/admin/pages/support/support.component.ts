@@ -68,11 +68,17 @@ export class SupportComponent implements OnInit {
     this.ticketUpdatedSub = this.socketService.ticketUpdated$.subscribe(
       (ticket: any) => {
         this.tickets = this.tickets.map((item) =>
-          item._id === ticket._id ? { ...item, ...ticket } : item,
+          item._id === ticket._id
+            ? { ...item, ...ticket, messages: ticket.messages || item.messages }
+            : item,
         );
 
         if (this.selectedTicket?._id === ticket._id) {
-          this.selectedTicket = ticket;
+          this.selectedTicket = {
+            ...this.selectedTicket,
+            ...ticket,
+            messages: ticket.messages || this.selectedTicket.messages,
+          };
           this.scrollToBottom();
         }
 
@@ -183,7 +189,17 @@ export class SupportComponent implements OnInit {
   }
 
   onPageChange(newPage: number) {
+    if (newPage < 1 || newPage > this.totalPages) return;
+
     this.page = newPage;
+    this.searchTerm$.next(this.searchTerm || '');
+  }
+
+  onLimitChange(limit: number) {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
     this.searchTerm$.next(this.searchTerm || '');
   }
 
@@ -256,6 +272,7 @@ export class SupportComponent implements OnInit {
   }
 
   onSearch(value: string) {
+    this.page = 1;
     this.searchTerm$.next(value);
   }
 
@@ -298,9 +315,16 @@ export class SupportComponent implements OnInit {
           }
 
           this.selectedTicket.messages.push(res.data);
+          this.selectedTicket.updatedAt = new Date().toISOString();
+          this.tickets = this.tickets.map((ticket) =>
+            ticket._id === this.selectedTicket._id
+              ? { ...ticket, ...this.selectedTicket }
+              : ticket,
+          );
 
           this.replyText = '';
           this.scrollToBottom();
+          this.fetchCounts();
         },
         error: (err) => {
           console.error('Reply error:', err);
@@ -403,5 +427,32 @@ export class SupportComponent implements OnInit {
   statusBelongsToCurrentTab(status: string): boolean {
     const filter = this.statusFilterForCurrentTab();
     return Array.isArray(filter) ? filter.includes(status) : filter === status;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.total / this.limit) || 1;
+  }
+
+  statusLabel(status: string): string {
+    return (status || '').replace(/_/g, ' ').toLowerCase();
+  }
+
+  lastMessage(ticket: any): string {
+    const messages = ticket?.messages || [];
+    const latest = messages[messages.length - 1];
+
+    return latest?.message || ticket?.message || ticket?.subject || 'No message yet';
+  }
+
+  customerName(ticket: any): string {
+    return ticket?.user?.name || ticket?.name || 'Customer';
+  }
+
+  customerContact(ticket: any): string {
+    return ticket?.user?.email || ticket?.user?.phone || ticket?.email || ticket?.phone || 'No contact saved';
+  }
+
+  trackByTicket(_: number, ticket: any): string {
+    return ticket?._id;
   }
 }

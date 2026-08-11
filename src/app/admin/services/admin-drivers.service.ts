@@ -19,11 +19,22 @@ export interface DriversResponse {
   };
 }
 
+export interface DriverOnboardingResponse {
+  data: any[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AdminDriversService {
   private baseUrl = `${environment.apiBaseUrl}/admin/couriers`;
+  private onboardingUrl = `${environment.apiBaseUrl}/admin/driver-onboarding`;
   constructor(private http: HttpClient) {}
 
   getDrivers(
@@ -38,5 +49,36 @@ export class AdminDriversService {
     }
 
     return this.http.get<DriversResponse>(this.baseUrl, { params });
+  }
+
+  getOnboardingApplications(
+    page = 1,
+    limit = 10,
+    search = '',
+    status = 'ALL',
+  ): Observable<DriverOnboardingResponse> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit)
+      .set('status', status);
+
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    return this.http.get<DriverOnboardingResponse>(this.onboardingUrl, {
+      params,
+    });
+  }
+
+  updateOnboardingStatus(
+    id: string,
+    status: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED',
+    remarks = '',
+  ): Observable<any> {
+    return this.http.put(`${this.onboardingUrl}/${id}/status`, {
+      status,
+      remarks,
+    });
   }
 }

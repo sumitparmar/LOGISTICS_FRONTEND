@@ -63,6 +63,14 @@ const routes: Routes = [
       },
 
       {
+        path: 'driver-onboarding',
+        loadChildren: () =>
+          import('../driver-onboarding/driver-onboarding.module').then(
+            (m) => m.DriverOnboardingModule,
+          ),
+      },
+
+      {
         path: 'delivery',
         loadChildren: () =>
           import('../delivery/delivery.module').then((m) => m.DeliveryModule),

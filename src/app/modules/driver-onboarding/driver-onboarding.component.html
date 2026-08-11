@@ -1,0 +1,204 @@
+<div class="driver-onboarding">
+    <section class="onboarding-hero">
+        <div>
+            <span class="eyebrow">Driver onboarding</span>
+            <h1>Start delivering with MoveKart</h1>
+            <p>Complete your profile, vehicle, document and payout details for admin review.</p>
+        </div>
+
+        <div class="status-card">
+            <span>Application status</span>
+            <strong>{{ statusLabel(application?.status) }}</strong>
+            <small *ngIf="application?.review?.remarks">{{ application.review.remarks }}</small>
+        </div>
+    </section>
+
+    <div class="loader" *ngIf="isLoading">Loading onboarding details...</div>
+
+    <form *ngIf="!isLoading" [formGroup]="form" class="onboarding-form">
+        <section class="form-section" formGroupName="personal">
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <h2>Personal details</h2>
+                    <p>Use the same name and mobile number as your documents.</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <label>
+                    Full name
+                    <input type="text" formControlName="fullName" [readonly]="isLocked">
+                </label>
+                <label>
+                    Mobile number
+                    <input type="tel" formControlName="phone" [readonly]="isLocked">
+                </label>
+                <label>
+                    Email
+                    <input type="email" formControlName="email" [readonly]="isLocked">
+                </label>
+                <label>
+                    City
+                    <input type="text" formControlName="city" [readonly]="isLocked">
+                </label>
+                <label class="wide">
+                    Current address
+                    <textarea formControlName="address" rows="3" [readonly]="isLocked"></textarea>
+                </label>
+                <label>
+                    Date of birth
+                    <input type="date" formControlName="dateOfBirth" [readonly]="isLocked">
+                </label>
+            </div>
+        </section>
+
+        <section class="form-section" formGroupName="vehicle">
+            <div class="section-heading">
+                <span>02</span>
+                <div>
+                    <h2>Vehicle details</h2>
+                    <p>Vehicle type is pulled from the active provider catalog.</p>
+                </div>
+            </div>
+
+            <div class="vehicle-options">
+                <button type="button" *ngFor="let vehicle of vehicles" class="vehicle-option"
+                    [class.active]="form.get('vehicle.vehicleTypeId')?.value === vehicle.id"
+                    [disabled]="isLocked" (click)="form.get('vehicle.vehicleTypeId')?.setValue(vehicle.id)">
+                    <strong>{{ vehicle.name || vehicle.title }}</strong>
+                    <span *ngIf="vehicle.maxWeightKg">Up to {{ vehicle.maxWeightKg }} kg</span>
+                </button>
+            </div>
+
+            <div class="field-grid">
+                <label>
+                    Vehicle registration number
+                    <input type="text" formControlName="registrationNumber" [readonly]="isLocked">
+                </label>
+                <label>
+                    Driving license number
+                    <input type="text" formControlName="drivingLicenseNumber" [readonly]="isLocked">
+                </label>
+            </div>
+        </section>
+
+        <section class="form-section" formGroupName="documents">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h2>Documents</h2>
+                    <p>Upload service can attach URLs here; validation keeps numbers in Indian formats.</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <label>
+                    Aadhaar number
+                    <input type="text" formControlName="aadhaarNumber" maxlength="12" [readonly]="isLocked">
+                </label>
+                <label>
+                    PAN number
+                    <input type="text" formControlName="panNumber" maxlength="10" [readonly]="isLocked">
+                </label>
+                <label>
+                    License document URL
+                    <input type="url" formControlName="licenseUrl" [readonly]="isLocked">
+                </label>
+                <label>
+                    RC document URL
+                    <input type="url" formControlName="rcUrl" [readonly]="isLocked">
+                </label>
+                <label>
+                    Aadhaar document URL
+                    <input type="url" formControlName="aadhaarUrl" [readonly]="isLocked">
+                </label>
+                <label>
+                    PAN document URL
+                    <input type="url" formControlName="panUrl" [readonly]="isLocked">
+                </label>
+            </div>
+        </section>
+
+        <section class="form-section" formGroupName="payout">
+            <div class="section-heading">
+                <span>04</span>
+                <div>
+                    <h2>Payout details</h2>
+                    <p>Only the last 4 account digits are stored in this form.</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <label>
+                    Account holder name
+                    <input type="text" formControlName="accountHolderName" [readonly]="isLocked">
+                </label>
+                <label>
+                    Bank name
+                    <input type="text" formControlName="bankName" [readonly]="isLocked">
+                </label>
+                <label>
+                    Account number last 4 digits
+                    <input type="text" formControlName="accountNumberLast4" maxlength="4" [readonly]="isLocked">
+                </label>
+                <label>
+                    IFSC
+                    <input type="text" formControlName="ifsc" maxlength="11" [readonly]="isLocked">
+                </label>
+            </div>
+        </section>
+
+        <section class="form-section" formGroupName="servicePreferences">
+            <div class="section-heading">
+                <span>05</span>
+                <div>
+                    <h2>Service preferences</h2>
+                    <p>Tell operations where and when you prefer to deliver.</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <label>
+                    Availability
+                    <select formControlName="availability" [disabled]="isLocked">
+                        <option *ngFor="let option of availabilityOptions" [value]="option.value">
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="area-list" formArrayName="preferredAreas">
+                <label *ngFor="let area of preferredAreas.controls; let i = index">
+                    Preferred area {{ i + 1 }}
+                    <div class="area-row">
+                        <input type="text" [formControlName]="i" [readonly]="isLocked">
+                        <button type="button" (click)="removeArea(i)" [disabled]="isLocked">Remove</button>
+                    </div>
+                </label>
+                <button type="button" class="btn-outline" (click)="addArea()" [disabled]="isLocked">Add area</button>
+            </div>
+        </section>
+
+        <section class="form-section consent-section" formGroupName="consent">
+            <label>
+                <input type="checkbox" formControlName="termsAccepted" [disabled]="isLocked">
+                I confirm that the information provided is accurate.
+            </label>
+            <label>
+                <input type="checkbox" formControlName="backgroundCheckAccepted" [disabled]="isLocked">
+                I consent to document and background verification for onboarding.
+            </label>
+        </section>
+
+        <div class="action-bar">
+            <button type="button" class="btn-outline" (click)="saveDraft()" [disabled]="isLocked || isSaving">
+                {{ isSaving ? 'Saving...' : 'Save draft' }}
+            </button>
+            <button type="button" class="btn-primary" (click)="submit()" [disabled]="isLocked || isSubmitting">
+                {{ isSubmitting ? 'Submitting...' : 'Submit for review' }}
+            </button>
+        </div>
+    </form>
+</div>

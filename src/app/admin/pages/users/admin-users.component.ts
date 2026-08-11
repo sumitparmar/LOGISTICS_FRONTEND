@@ -32,6 +32,7 @@ export class AdminUsersComponent implements OnInit {
   users: any[] = [];
   page = 1;
   limit = 5;
+  total = 0;
   totalPages = 1;
   search = '';
   columns: any[] = [];
@@ -104,6 +105,7 @@ export class AdminUsersComponent implements OnInit {
 
         this.totalPages = p.totalPages;
         this.page = p.page;
+        this.total = p.total || 0;
       }),
     );
   }
@@ -151,6 +153,14 @@ export class AdminUsersComponent implements OnInit {
 
   onPageChange(page: number) {
     this.page = page;
+    this.loadUsers();
+  }
+
+  onLimitChange(limit: number) {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
     this.loadUsers();
   }
 

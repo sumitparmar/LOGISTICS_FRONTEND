@@ -146,6 +146,28 @@
 
 
             <!-- EXTRAS -->
+            <div class="card">
+                <div class="card-body">
+                    <h4>Tax</h4>
+
+                    <div class="form-group">
+                        <label class="toggle">
+                            <input type="checkbox" formControlName="gstEnabled">
+                            Apply GST on customer payable amount
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>GST (%)</label>
+                        <input type="number" formControlName="gstPercent" class="form-control"
+                            placeholder="Enter GST %" min="0" />
+                    </div>
+
+                    <small class="hint">
+                        GST is calculated by the backend pricing engine and stored with each order.
+                    </small>
+                </div>
+            </div>
 
 
         </ng-container>

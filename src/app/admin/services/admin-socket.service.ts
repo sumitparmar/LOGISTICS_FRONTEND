@@ -19,6 +19,13 @@ export class AdminSocketService {
   private orderUpdateSubject = new Subject<any>();
   orderUpdate$ = this.orderUpdateSubject.asObservable();
 
+  private pricingUpdateSubject = new Subject<any>();
+  pricingUpdate$ = this.pricingUpdateSubject.asObservable();
+
+  private driverOnboardingUpdateSubject = new Subject<any>();
+  driverOnboardingUpdate$ =
+    this.driverOnboardingUpdateSubject.asObservable();
+
   private userUpdateSubject = new Subject<void>();
   userUpdate$ = this.userUpdateSubject.asObservable();
 
@@ -42,6 +49,14 @@ export class AdminSocketService {
 
     this.socket.on('admin-user-update', () => {
       this.userUpdateSubject.next();
+    });
+
+    this.socket.on('admin-pricing-update', (data: any) => {
+      this.pricingUpdateSubject.next(data);
+    });
+
+    this.socket.on('admin-driver-onboarding-update', (data: any) => {
+      this.driverOnboardingUpdateSubject.next(data);
     });
 
     this.socket.on('admin_notification', (data: any) => {

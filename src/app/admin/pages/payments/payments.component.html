@@ -208,40 +208,15 @@
 
     </div>
 
-    <div class="pagination-bar" *ngIf="!isLoading && total > 0">
-        <div class="pagination-left">
-            <span class="pagination-meta">
-                Showing
-                {{ ((page - 1) * limit) + 1 }}
-                -
-                {{ (page * limit) > total ? total : (page * limit) }}
-                of
-                {{ total }}
-                records
-            </span>
-
-            <select class="limit-select" [ngModel]="limit" (ngModelChange)="onLimitChange($event)">
-                <option [ngValue]="10">10</option>
-                <option [ngValue]="25">25</option>
-                <option [ngValue]="50">50</option>
-            </select>
-        </div>
-
-        <div class="pagination-right">
-
-            <button type="button" class="page-btn" (click)="onPageChange(page - 1)" [disabled]="page === 1">
-                Prev
-            </button>
-
-            <span class="page-indicator">
-                Page {{ page }} of {{ totalPages }}
-            </span>
-
-            <button type="button" class="page-btn" (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
-                Next
-            </button>
-
-        </div>
-    </div>
+    <app-pagination
+        *ngIf="!isLoading && total > 0"
+        [total]="total"
+        [page]="page"
+        [limit]="limit"
+        [limitOptions]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+        (limitChange)="onLimitChange($event)"
+    >
+    </app-pagination>
 
 </div>

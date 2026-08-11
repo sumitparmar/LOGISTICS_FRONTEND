@@ -9,6 +9,7 @@ import { ViewChild } from '@angular/core';
 import { AdminOrdersService } from '../../services/admin-orders.service';
 import { ToastService } from '../../services/toast.service';
 import { ThemeService } from 'src/app/core/services/theme.service';
+import { AdminSocketService } from '../../services/admin-socket.service';
 @Component({
   selector: 'app-pricing',
   templateUrl: './pricing.component.html',
@@ -38,6 +39,7 @@ export class PricingComponent implements OnInit {
     private ordersService: AdminOrdersService,
     private toastService: ToastService,
     private themeService: ThemeService,
+    private socketService: AdminSocketService,
   ) {}
 
   ngOnInit(): void {
@@ -50,6 +52,12 @@ export class PricingComponent implements OnInit {
     this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => this.applyChartTheme());
     });
+    this.socketService.pricingUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPricing();
+        this.loadAdminAnalytics();
+      });
   }
 
   initForm() {
@@ -68,6 +76,10 @@ export class PricingComponent implements OnInit {
       bikeMultiplier: [1],
       carMultiplier: [1],
       vanMultiplier: [1],
+
+      // TAX
+      gstEnabled: [true],
+      gstPercent: [18],
     });
   }
 
@@ -186,17 +198,20 @@ export class PricingComponent implements OnInit {
       : 0;
     const afterSurge = afterVehicle + surgeImpact;
 
-    // Extras
-    const extrasImpact = 0;
+    // Tax
+    const gstPercent = this.form.value.gstEnabled
+      ? Number(this.form.value.gstPercent || 0)
+      : 0;
+    const taxImpact = (afterSurge * gstPercent) / 100;
 
-    price = afterSurge;
+    price = afterSurge + taxImpact;
 
     this.simulatedResult = Math.round(price);
 
     this.chartData = null;
 
     this.chartData = {
-      labels: ['Base', 'Margin', 'Fees', 'Vehicle', 'Surge', 'Extras', 'Final'],
+      labels: ['Base', 'Margin', 'Fees', 'Vehicle', 'Surge', 'GST', 'Final'],
       datasets: [
         {
           label: 'Price Breakdown',
@@ -206,7 +221,7 @@ export class PricingComponent implements OnInit {
             fees,
             vehicleImpact,
             surgeImpact,
-            extrasImpact,
+            taxImpact,
             this.simulatedResult,
           ],
           borderColor: this.chartTheme.danger,
@@ -414,6 +429,8 @@ export class PricingComponent implements OnInit {
           bikeMultiplier: this.getVehicle(res, '1'),
           carMultiplier: this.getVehicle(res, '2'),
           vanMultiplier: this.getVehicle(res, '3'),
+          gstEnabled: res.tax?.gstEnabled !== false,
+          gstPercent: res.tax?.gstPercent ?? 18,
         });
 
         // IMPORTANT
@@ -457,6 +474,11 @@ export class PricingComponent implements OnInit {
         { type: '2', multiplier: this.form.value.carMultiplier },
         { type: '3', multiplier: this.form.value.vanMultiplier },
       ],
+
+      tax: {
+        gstEnabled: this.form.value.gstEnabled,
+        gstPercent: Number(this.form.value.gstPercent || 0),
+      },
     };
 
     if (this.form.value.surgeEnabled) {
@@ -471,6 +493,12 @@ export class PricingComponent implements OnInit {
         this.isSaving = false;
         return;
       }
+    }
+
+    if (payload.tax.gstEnabled && payload.tax.gstPercent < 0) {
+      this.toastService.warning('GST percentage cannot be negative');
+      this.isSaving = false;
+      return;
     }
 
     this.pricingService.updatePricing(payload).subscribe({

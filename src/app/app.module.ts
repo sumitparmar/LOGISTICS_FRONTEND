@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,6 +19,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { SharedModule } from './shared/shared.module';
 import { PublicLayoutComponent } from './modules/public-layout/pages/public-layout/public-layout.component';
 import { NgChartsModule } from 'ng2-charts';
+import { RuntimeConfigService } from './core/services/runtime-config.service';
 
 import {
   LucideAngularModule,
@@ -32,6 +33,9 @@ import {
   UserX,
 } from 'lucide-angular';
 export function HttpLoaderFactory(http: HttpClient) {}
+export function runtimeConfigFactory(config: RuntimeConfigService) {
+  return () => config.load();
+}
 
 @NgModule({
   declarations: [AppComponent, PublicLayoutComponent],
@@ -64,6 +68,12 @@ export function HttpLoaderFactory(http: HttpClient) {}
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: runtimeConfigFactory,
+      deps: [RuntimeConfigService],
       multi: true,
     },
   ],

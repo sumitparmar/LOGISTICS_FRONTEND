@@ -89,8 +89,19 @@
 
             <!-- RIGHT -->
             <div class="toolbar-right">
+                <app-pagination
+                    [total]="backendTotal"
+                    [page]="page"
+                    [limit]="limit"
+                    [limitOptions]="[10, 20, 50]"
+                    [showSummary]="false"
+                    (pageChange)="onPageChange($event)"
+                    (limitChange)="onLimitChange($event)"
+                >
+                </app-pagination>
 
-                <button class="page-btn" [disabled]="page === 1" (click)="onPageChange(page - 1)">
+                <div class="legacy-pager" aria-hidden="true">
+                <button class="page-btn" [disabled]="page === 1" (click)="onPageChange(page - 1)" tabindex="-1">
                     ‹
                 </button>
 
@@ -98,9 +109,10 @@
                     Page {{ page }} of {{ totalPages }}
                 </div>
 
-                <button class="page-btn" [disabled]="page === totalPages" (click)="onPageChange(page + 1)">
+                <button class="page-btn" [disabled]="page === totalPages" (click)="onPageChange(page + 1)" tabindex="-1">
                     ›
                 </button>
+                </div>
 
             </div>
 

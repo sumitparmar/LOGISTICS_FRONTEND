@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -12,22 +12,16 @@ export class AdminSupportService {
   private ticketsSubject = new Subject<any>();
   tickets$ = this.ticketsSubject.asObservable();
 
-  private lastParams: any = null;
-
   constructor(private http: HttpClient) {}
 
   getTickets(params?: any) {
-    return this.http.get(`${this.baseUrl}/tickets`, { params });
+    return this.http
+      .get(`${this.baseUrl}/tickets`, { params })
+      .pipe(tap((res) => this.ticketsSubject.next(res)));
   }
 
   fetchTicketsReactive(params: any): Observable<any> {
-    if (JSON.stringify(this.lastParams) === JSON.stringify(params)) {
-      return this.tickets$;
-    }
-
-    this.lastParams = params;
-
-    return this.http.get(`${this.baseUrl}/tickets`, { params });
+    return this.getTickets(params);
   }
 
   getTicketById(id: string): Observable<any> {

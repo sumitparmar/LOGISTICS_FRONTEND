@@ -56,6 +56,11 @@ export class MobileDrawerComponent {
       route: '/app/support',
     },
     {
+      label: 'Driver Onboarding',
+      icon: 'ID',
+      route: '/app/driver-onboarding',
+    },
+    {
       label: 'Notifications',
       icon: '🔔',
       route: '/app/notifications',

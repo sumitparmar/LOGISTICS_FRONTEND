@@ -61,6 +61,9 @@ export class CreateDeliveryComponent
   priceSummary = {
     deliveryFee: 0,
     insurance: 0,
+    taxableAmount: 0,
+    gstRate: 0,
+    gstAmount: 0,
     total: 0,
   };
   currentStep = 1;
@@ -124,7 +127,8 @@ export class CreateDeliveryComponent
     },
   ];
 
-  paymentOptions = [{ label: 'Cash Payment', value: 'CASH' }];
+  paymentOptions = [{ label: 'Advance Payment', value: 'BALANCE' }];
+  paymentIntentId: string | null = null;
 
   showReorderModal = false;
   showPickupLocationPicker = false;
@@ -693,18 +697,60 @@ export class CreateDeliveryComponent
   }
 
   handleCheckout(): void {
-    const form = this.deliveryForm.value;
-
     if (!this.priceSummary.total) {
       this.showToastMessage('Please calculate price first');
       return;
     }
 
+    if (this.isPaymentProcessing || this.isCreatingOrder) {
+      return;
+    }
+
     this.currentStep = 3;
-    this.createOrder();
+    this.processOnlinePayment();
   }
 
-  processOnlinePayment(): void {}
+  processOnlinePayment(): void {
+    this.isPaymentProcessing = true;
+
+    this.ordersService
+      .createPaymentIntent({
+        amount: this.priceSummary.total,
+        paymentMethod: 'UPI',
+      })
+      .subscribe({
+        next: (res: any) => {
+          const intentId = res?.data?.intentId;
+
+          if (!intentId) {
+            this.isPaymentProcessing = false;
+            this.showToastMessage('Payment could not be initialized');
+            return;
+          }
+
+          this.ordersService.confirmMockPaymentIntent(intentId).subscribe({
+            next: () => {
+              this.paymentCompleted = true;
+              this.paymentIntentId = intentId;
+              this.isPaymentProcessing = false;
+              this.createOrder();
+            },
+            error: (err) => {
+              this.isPaymentProcessing = false;
+              this.showToastMessage(
+                err?.error?.message || 'Payment confirmation failed',
+              );
+            },
+          });
+        },
+        error: (err) => {
+          this.isPaymentProcessing = false;
+          this.showToastMessage(
+            err?.error?.message || 'Payment could not be initialized',
+          );
+        },
+      });
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -758,7 +804,7 @@ export class CreateDeliveryComponent
 
       deliveryType: ['NOW', Validators.required],
       scheduledAt: [null],
-      paymentMethod: ['CASH', Validators.required],
+      paymentMethod: ['BALANCE', Validators.required],
       bankCardId: [null],
 
       vehicleTypeId: [8, Validators.required],
@@ -890,6 +936,9 @@ export class CreateDeliveryComponent
           this.insuranceCharge = insurance;
           this.priceSummary.deliveryFee = deliveryFee;
           this.priceSummary.insurance = insurance;
+          this.priceSummary.taxableAmount = res?.data?.taxableAmount || 0;
+          this.priceSummary.gstRate = res?.data?.gstRate || 0;
+          this.priceSummary.gstAmount = res?.data?.gstAmount || 0;
           this.priceSummary.total = amount;
 
           this.isCalculatingPrice = false;
@@ -1000,7 +1049,8 @@ export class CreateDeliveryComponent
       },
 
       payment: {
-        method: form.paymentMethod,
+        method: 'BALANCE',
+        intentId: this.paymentIntentId,
         feePayer: 'DROP',
         ...(form.paymentMethod === 'BANK_CARD' && form.bankCardId
           ? {
@@ -1041,8 +1091,9 @@ export class CreateDeliveryComponent
 
             delivery_fee: this.priceSummary.deliveryFee,
             insurance: this.priceSummary.insurance,
+            gst: this.priceSummary.gstAmount,
 
-            payment_method: this.deliveryForm.value.paymentMethod,
+            payment_method: 'BALANCE',
             vehicle_type: this.deliveryForm.value.vehicleTypeId,
             delivery_type: this.deliveryForm.value.deliveryType,
           });
@@ -1166,12 +1217,12 @@ export class CreateDeliveryComponent
   }
 
   selectPayment(type: string): void {
-    if (type !== 'CASH') {
+    if (type !== 'BALANCE') {
       this.showToastMessage('Selected payment method is not enabled');
       return;
     }
 
-    this.deliveryForm.get('paymentMethod')?.setValue('CASH');
+    this.deliveryForm.get('paymentMethod')?.setValue('BALANCE');
     this.deliveryForm.get('bankCardId')?.setValue(null);
   }
 
@@ -1193,8 +1244,13 @@ export class CreateDeliveryComponent
     this.priceSummary = {
       deliveryFee: 0,
       insurance: 0,
+      taxableAmount: 0,
+      gstRate: 0,
+      gstAmount: 0,
       total: 0,
     };
+    this.paymentCompleted = false;
+    this.paymentIntentId = null;
   }
   selectWeight(weight: number): void {
     this.deliveryForm.get('package.weight')?.setValue(weight);

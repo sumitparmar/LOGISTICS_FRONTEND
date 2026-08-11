@@ -67,11 +67,11 @@
 
                         <h2>Pickup & Delivery</h2>
 
-                        <div class="route-grid">
+                        <div class="route-grid" [class.has-extra-stops]="stops.length > 1">
 
                             <!-- PICKUP -->
 
-                            <div class="route-row">
+                                <div class="route-row pickup-row">
 
                                 <div class="route-step">
                                     <div class="step-circle">1</div>
@@ -187,7 +187,7 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                             <ng-container formArrayName="stops">
 
-                                <div class="route-row" *ngFor="let stop of stops.controls; let i=index"
+                                <div class="route-row stop-row" *ngFor="let stop of stops.controls; let i=index"
                                     [formGroupName]="i">
 
                                     <div class="route-step">
@@ -361,8 +361,18 @@ deliveryForm.get('package.description')?.invalid">
                                 <span>{{ priceSummary.insurance ? ('Rs. ' + priceSummary.insurance) : '-' }}</span>
                             </div>
 
+                            <div class="price-row" *ngIf="priceSummary.taxableAmount">
+                                <span>Subtotal</span>
+                                <span>Rs. {{ priceSummary.taxableAmount }}</span>
+                            </div>
+
+                            <div class="price-row" *ngIf="priceSummary.gstAmount">
+                                <span>GST ({{ priceSummary.gstRate }}%)</span>
+                                <span>Rs. {{ priceSummary.gstAmount }}</span>
+                            </div>
+
                             <div class="price-total">
-                                <span>Total</span>
+                                <span>Total payable</span>
                                 <span>{{ priceSummary.total ? ('Rs. ' + priceSummary.total) : 'Calculate fare' }}</span>
                             </div>
 
@@ -513,24 +523,24 @@ deliveryForm.get('package.description')?.invalid">
 
                         <h4>Payment Method</h4>
                         <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
-                            Businesses usually use cash or card for faster processing
+                            Advance payment keeps dispatch ready for business deliveries
                         </div>
 
                         <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
-                            Cash payment is easiest for personal deliveries
+                            Pay before booking so the courier can focus only on pickup and delivery
                         </div>
 
                         <div class="payment-section">
 
-                            <!-- CASH PAYMENT -->
+                            <!-- ADVANCE PAYMENT -->
                             <div class="payment-card"
-                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'CASH'"
-                                (click)="selectPayment('CASH')">
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'BALANCE'"
+                                (click)="selectPayment('BALANCE')">
                                 <span class="material-icons payment-icon">payments</span>
 
                                 <div class="payment-info">
-                                    <h4>Cash Payment</h4>
-                                    <p>Delivery fee is paid to the courier at the drop address</p>
+                                    <h4>Advance Payment</h4>
+                                    <p>Payment is collected before order creation. Gateway adapter is ready to plug in.</p>
                                 </div>
                             </div>
 
@@ -544,14 +554,12 @@ deliveryForm.get('package.description')?.invalid">
                             ? 'Creating Order...'
                             : isPaymentProcessing
                             ? 'Processing Payment...'
-                            : deliveryForm.get('paymentMethod')?.value === 'CASH'
-                            ? 'Create Order'
-                            : 'Create Order'
+                            : 'Pay & Create Order'
                             }}
 
                         </button>
                         <div class="checkout-note">
-                            Secure booking - Live tracking - Instant confirmation
+                            GST included - Advance payment - Instant confirmation
                         </div>
 
                     </div>

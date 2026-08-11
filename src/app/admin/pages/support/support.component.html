@@ -4,7 +4,7 @@
     <div class="support-header">
         <div class="header-left">
             <h2>Support Tickets</h2>
-            <p>Manage customer queries and issues</p>
+            <p>Resolve customer conversations with synced ticket status and replies.</p>
         </div>
 
         <div class="header-right">
@@ -28,6 +28,21 @@
         <button [class.active]="!isSearching && currentTab === 'RESOLVED'" (click)="changeTab('RESOLVED')">
             Resolved ({{ counts.RESOLVED || 0 }})
         </button>
+    </div>
+
+    <div class="support-metrics">
+        <div>
+            <span>Open queue</span>
+            <strong>{{ counts.OPEN || 0 }}</strong>
+        </div>
+        <div>
+            <span>Active conversations</span>
+            <strong>{{ (counts.IN_PROGRESS || 0) + (counts.WAITING_CUSTOMER || 0) + (counts.REOPENED || 0) }}</strong>
+        </div>
+        <div>
+            <span>Resolved</span>
+            <strong>{{ counts.RESOLVED || 0 }}</strong>
+        </div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -55,24 +70,38 @@
             </div>
 
             <!-- LIST -->
-            <div *ngFor="let ticket of tickets" class="ticket-item" [class.active]="selectedTicket?._id === ticket._id"
+            <div *ngFor="let ticket of tickets; trackBy: trackByTicket" class="ticket-item" [class.active]="selectedTicket?._id === ticket._id"
                 (click)="selectTicket(ticket)">
 
                 <div class="ticket-top">
-                    <h4 [innerHTML]="(ticket.user?.name || ticket.name || 'User') | highlight: searchTerm">
+                    <h4 [innerHTML]="customerName(ticket) | highlight: searchTerm">
                     </h4>
                     <span class="status" [ngClass]="ticket.status">
-                        {{ ticket.status }}
+                        {{ statusLabel(ticket.status) }}
                     </span>
                 </div>
 
                 <p class="message" [innerHTML]="(ticket.subject || 'No subject') | highlight: searchTerm">
                 </p>
 
+                <p class="ticket-preview">{{ lastMessage(ticket) }}</p>
+
                 <div class="ticket-bottom">
                     <span>{{ ticket.createdAt | date:'short' }}</span>
+                    <span>{{ ticket.ticketNumber || ticket._id }}</span>
                 </div>
             </div>
+
+            <app-pagination
+                *ngIf="!isLoading && total > 0"
+                [total]="total"
+                [page]="page"
+                [limit]="limit"
+                [limitOptions]="[10, 20, 50]"
+                (pageChange)="onPageChange($event)"
+                (limitChange)="onLimitChange($event)"
+            >
+            </app-pagination>
 
         </div>
 
@@ -97,10 +126,11 @@
                 <div class="detail-header">
                     <div>
                         <h3
-                            [innerHTML]="(selectedTicket.user?.name || selectedTicket.name || 'User') | highlight: searchTerm">
+                            [innerHTML]="customerName(selectedTicket) | highlight: searchTerm">
                         </h3>
+                        <p class="customer-contact">{{ customerContact(selectedTicket) }}</p>
                         <span class="status" [ngClass]="selectedTicket.status">
-                            {{ selectedTicket.status }}
+                            {{ statusLabel(selectedTicket.status) }}
                         </span>
                     </div>
 
@@ -130,6 +160,9 @@
                         <div *ngFor="let msg of selectedTicket.messages" class="chat-message"
                             [class.admin]="msg.sender === 'admin'">
 
+                            <div class="message-author">
+                                {{ msg.sender === 'admin' ? 'MoveKart Support' : customerName(selectedTicket) }}
+                            </div>
                             <p>{{ msg.message }}</p>
                             <span>{{ msg.createdAt | date:'shortTime' }}</span>
 

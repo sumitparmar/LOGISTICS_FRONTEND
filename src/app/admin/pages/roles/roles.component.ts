@@ -133,7 +133,17 @@ export class RolesComponent implements OnInit {
   }
 
   onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+
     this.page = page;
+    this.fetchRoles();
+  }
+
+  onLimitChange(limit: number): void {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
     this.fetchRoles();
   }
 
@@ -277,5 +287,9 @@ export class RolesComponent implements OnInit {
 
   get totalPages(): number {
     return Math.ceil(this._backendTotal / this.limit) || 1;
+  }
+
+  get backendTotal(): number {
+    return this._backendTotal;
   }
 }

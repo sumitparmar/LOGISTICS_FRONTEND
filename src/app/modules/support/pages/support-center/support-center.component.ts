@@ -24,6 +24,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
   isDetailLoading = false;
   isCreating = false;
   isSubmittingReply = false;
+  showCreatePanel = false;
   errorMessage = '';
   successMessage = '';
   page = 1;
@@ -84,6 +85,10 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
     this.loadTickets();
   }
 
+  get visibleCreatePanel(): boolean {
+    return this.showCreatePanel || (!this.isLoading && this.tickets.length === 0);
+  }
+
   loadTickets(silent = false): void {
     if (!silent) this.isLoading = true;
     this.errorMessage = '';
@@ -122,6 +127,10 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
         ) {
           this.selectedTicket = this.tickets.length ? this.tickets[0] : null;
         }
+
+        if (this.tickets.length && this.showCreatePanel) {
+          this.showCreatePanel = false;
+        }
       },
       error: (err) => {
         this.isLoading = false;
@@ -142,6 +151,21 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
 
   onSearch(value: string): void {
     this.search$.next(value);
+  }
+
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+
+    this.page = page;
+    this.loadTickets();
+  }
+
+  onLimitChange(limit: number): void {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
+    this.loadTickets();
   }
 
   selectTicket(ticket: any): void {
@@ -196,6 +220,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
           };
           this.isCreating = false;
           this.successMessage = 'Your support ticket has been raised.';
+          this.showCreatePanel = false;
           this.selectTicket(ticket);
         },
         error: (err) => {
@@ -230,6 +255,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
               : this.selectedTicket.status;
           this.replyText = '';
           this.isSubmittingReply = false;
+          this.applyRealtimeTicket(this.selectedTicket);
           this.loadTickets(true);
           this.scrollToBottom();
         },
@@ -248,19 +274,46 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
     return (status || '').replace(/_/g, ' ').toLowerCase();
   }
 
+  categoryLabel(category: string): string {
+    return (category || 'OTHER').replace(/_/g, ' ').toLowerCase();
+  }
+
+  lastMessage(ticket: any): string {
+    const messages = ticket?.messages || [];
+    const latest = messages[messages.length - 1];
+
+    return latest?.message || ticket?.message || ticket?.subject || 'No message yet';
+  }
+
+  trackByTicket(_: number, ticket: any): string {
+    return ticket?._id;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.total / this.limit) || 1;
+  }
+
   private applyRealtimeTicket(ticket: any): void {
     if (!ticket?._id) return;
 
     const index = this.tickets.findIndex((item) => item._id === ticket._id);
     if (index >= 0) {
-      this.tickets[index] = { ...this.tickets[index], ...ticket };
+      this.tickets[index] = {
+        ...this.tickets[index],
+        ...ticket,
+        messages: ticket.messages || this.tickets[index].messages,
+      };
       this.tickets = [...this.tickets];
     } else if (this.activeTab !== 'resolved') {
       this.tickets = [ticket, ...this.tickets];
     }
 
     if (this.selectedTicket?._id === ticket._id) {
-      this.selectedTicket = ticket;
+      this.selectedTicket = {
+        ...this.selectedTicket,
+        ...ticket,
+        messages: ticket.messages || this.selectedTicket.messages,
+      };
       this.markSelectedAsRead();
       this.scrollToBottom();
     }

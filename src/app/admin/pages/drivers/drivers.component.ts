@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-// import { AdminDriversService } from '../../services/admin-drivers.service';
+import { AdminDriversService } from '../../services/admin-drivers.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from 'src/app/core/services/api.service';
 import { PermissionService } from '../../services/permission.service';
+import { AdminSocketService } from '../../services/admin-socket.service';
 
 declare const google: any;
 @Component({
@@ -20,6 +21,7 @@ declare const google: any;
 export class DriversComponent implements OnInit {
   private destroy$ = new Subject<void>();
   drivers: any[] = [];
+  onboardingApplications: any[] = [];
   loading: boolean = false;
   allDrivers: any[] = [];
   filteredDrivers: any[] = [];
@@ -54,16 +56,18 @@ export class DriversComponent implements OnInit {
     private api: ApiService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    // private driversStore: DriversStore,
+    private driversService: AdminDriversService,
     private ordersService: AdminOrdersService,
     private ordersStore: OrdersStore,
     public permissionService: PermissionService,
+    private socketService: AdminSocketService,
   ) {}
 
   ngOnInit(): void {
     this.setupSearch();
 
     this.loadOrdersForDrivers();
+    this.loadOnboardingApplications();
 
     this.ordersStore.orders$
       .pipe(takeUntil(this.destroy$))
@@ -84,6 +88,14 @@ export class DriversComponent implements OnInit {
 
         this.applyPagination();
       });
+
+    this.socketService.orderUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadOrdersForDrivers());
+
+    this.socketService.driverOnboardingUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadOnboardingApplications());
   }
 
   private applyPagination(): void {
@@ -109,6 +121,7 @@ export class DriversComponent implements OnInit {
 
         this.total = this.filteredDrivers.length;
         this.applyPagination();
+        this.loadOnboardingApplications();
 
         this.cdr.detectChanges();
       });
@@ -231,6 +244,33 @@ export class DriversComponent implements OnInit {
     });
   }
 
+  loadOnboardingApplications(): void {
+    this.driversService
+      .getOnboardingApplications(1, 6, this.searchTerm, 'ALL')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.onboardingApplications = res.data || [];
+        },
+        error: () => {
+          this.onboardingApplications = [];
+        },
+      });
+  }
+
+  updateApplicationStatus(
+    application: any,
+    status: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED',
+  ): void {
+    if (!this.permissionService.has('drivers.update')) return;
+
+    this.driversService
+      .updateOnboardingStatus(application._id, status)
+      .subscribe({
+        next: () => this.loadOnboardingApplications(),
+      });
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'ASSIGNED':
@@ -257,6 +297,14 @@ export class DriversComponent implements OnInit {
 
     this.page = page;
 
+    this.applyPagination();
+  }
+
+  onLimitChange(limit: number): void {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
     this.applyPagination();
   }
 

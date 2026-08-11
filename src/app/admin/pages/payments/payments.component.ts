@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminOrdersService } from '../../services/admin-orders.service';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AdminSocketService } from '../../services/admin-socket.service';
 interface PaymentRecord {
   orderId: string;
   customer: string;
@@ -17,6 +20,7 @@ interface PaymentRecord {
   styleUrls: ['./payments.component.scss'],
 })
 export class PaymentsComponent implements OnInit {
+  private destroy$ = new Subject<void>();
   isLoading = false;
   isExporting = false;
   isReconciling = false;
@@ -49,10 +53,14 @@ export class PaymentsComponent implements OnInit {
     private ordersService: AdminOrdersService,
     private router: Router,
     private toastService: ToastService,
+    private socketService: AdminSocketService,
   ) {}
 
   ngOnInit(): void {
     this.loadPayments();
+    this.socketService.orderUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadPayments());
   }
 
   get totalPages(): number {
@@ -83,7 +91,7 @@ export class PaymentsComponent implements OnInit {
           };
         });
         this.allRecords = this.applyFrontendFilters(mapped);
-        this.total = res.pagination?.total || this.allRecords.length;
+        this.total = this.allRecords.length;
 
         this.sortRecords();
         this.applyPagination();
@@ -196,7 +204,7 @@ export class PaymentsComponent implements OnInit {
     this.loadPayments();
   }
 
-  onLimitChange(limit: string): void {
+  onLimitChange(limit: number): void {
     this.limit = Number(limit);
     this.page = 1;
     this.applyPagination();
@@ -283,5 +291,10 @@ export class PaymentsComponent implements OnInit {
       .catch(() => {
         this.toastService.error('Copy failed');
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

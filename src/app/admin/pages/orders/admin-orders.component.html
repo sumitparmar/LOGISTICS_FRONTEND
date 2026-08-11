@@ -119,8 +119,10 @@
 
                 <!-- LEFT SIDE -->
                 <div class="controls-left">
-                    <app-table-controls [page]="page" [totalPages]="totalPages" [search]="searchTerm"
-                        (pageChange)="onPageChange($event)" (searchChange)="onSearchChange($event)">
+                    <app-table-controls [page]="page" [total]="total" [totalPages]="totalPages" [limit]="limit"
+                        [search]="searchTerm" [limitOptions]="[7, 10, 20, 50]"
+                        (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)"
+                        (searchChange)="onSearchChange($event)">
                     </app-table-controls>
 
                     <div class="advanced-filters">

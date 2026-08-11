@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 import { OrdersStore } from '../../services/admin-orders.store';
 import { NgZone } from '@angular/core';
 import { PermissionService } from '../../services/permission.service';
+import { AdminSocketService } from '../../services/admin-socket.service';
 
 import {
   AdminOrdersService,
@@ -77,6 +78,7 @@ export class AdminOrdersComponent implements OnInit {
     private ordersStore: OrdersStore,
     private ngZone: NgZone,
     public permissionService: PermissionService,
+    private socketService: AdminSocketService,
   ) {}
 
   ngOnInit(): void {
@@ -107,6 +109,12 @@ export class AdminOrdersComponent implements OnInit {
         }));
 
         this.cdr.detectChanges();
+      });
+
+    this.socketService.orderUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadOrders();
       });
   }
 
@@ -378,7 +386,18 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+
     this.page = page;
+    this.loadOrders();
+  }
+
+  onLimitChange(limit: number): void {
+    if (limit === this.limit) return;
+
+    this.limit = limit;
+    this.page = 1;
+    this.selectedOrders.clear();
     this.loadOrders();
   }
 
@@ -416,6 +435,10 @@ export class AdminOrdersComponent implements OnInit {
 
   get totalPages(): number {
     return Math.ceil(this._backendTotal / this.limit) || 1;
+  }
+
+  get total(): number {
+    return this._backendTotal;
   }
 
   mapStatusForBackend(status: string): any {

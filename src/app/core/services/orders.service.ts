@@ -50,6 +50,17 @@ export class OrdersService {
     return this.api.post('/orders/create', payload);
   }
 
+  createPaymentIntent(payload: {
+    amount: number;
+    paymentMethod: 'UPI' | 'CARD' | 'QR' | 'NETBANKING' | 'WALLET';
+  }): Observable<any> {
+    return this.api.post('/payments/intent', payload);
+  }
+
+  confirmMockPaymentIntent(intentId: string): Observable<any> {
+    return this.api.post(`/payments/intent/${intentId}/mock-confirm`, {});
+  }
+
   getPricingBreakdown(orderId: string): Observable<any> {
     return this.api.get(`/orders/${orderId}/pricing-breakdown`);
   }

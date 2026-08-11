@@ -1,26 +1,41 @@
 <div class="pagination">
-
-    <!-- LEFT SIDE -->
-    <div class="pagination-left">
-        <button (click)="prev()" [disabled]="page === 1">‹</button>
-
-        <div class="pages">
-            <button *ngFor="let p of pages" [class.active]="p === page" (click)="goTo(p)">
-                {{ p }}
-            </button>
-        </div>
-
-        <button (click)="next()" [disabled]="page === totalPages">›</button>
+    <div class="pagination-summary" *ngIf="showSummary">
+        <span *ngIf="total > 0">Showing {{ startItem }}-{{ endItem }} of {{ total }}</span>
+        <span *ngIf="total === 0">No results</span>
     </div>
 
-    <!-- RIGHT SIDE -->
-    <div class="pagination-right">
-        <span>Rows per page:</span>
-        <select (change)="changeLimit($event)" [value]="limit">
+    <div class="pagination-controls" aria-label="Pagination">
+        <button type="button" class="nav-btn" (click)="prev()" [disabled]="safePage === 1" aria-label="Previous page">
+            &lsaquo;
+        </button>
+
+        <div class="pages">
+            <ng-container *ngFor="let item of pageItems">
+                <span *ngIf="item === 'ellipsis'" class="ellipsis" aria-hidden="true">...</span>
+
+                <button
+                    *ngIf="item !== 'ellipsis'"
+                    type="button"
+                    [class.active]="item === safePage"
+                    [attr.aria-current]="item === safePage ? 'page' : null"
+                    (click)="goTo(item)"
+                >
+                    {{ item }}
+                </button>
+            </ng-container>
+        </div>
+
+        <button type="button" class="nav-btn" (click)="next()" [disabled]="safePage === totalPages" aria-label="Next page">
+            &rsaquo;
+        </button>
+    </div>
+
+    <div class="pagination-size" *ngIf="showPageSize">
+        <span>{{ pageSizeLabel }}:</span>
+        <select (change)="changeLimit($event)" [value]="limit" aria-label="Rows per page">
             <option *ngFor="let size of limitOptions" [value]="size">
                 {{ size }}
             </option>
         </select>
     </div>
-
 </div>

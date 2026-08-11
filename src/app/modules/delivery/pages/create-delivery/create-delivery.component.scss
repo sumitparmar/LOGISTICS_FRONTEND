@@ -131,11 +131,7 @@
 
 .route-grid::before {
   content: "";
-  position: absolute;
-  left: 16px;
-  top: 34px;
-  bottom: 34px;
-  border-left: 2px dashed var(--mk-info-soft);
+  display: none;
 }
 
 .route-row {
@@ -151,6 +147,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  min-height: 34px;
+}
+
+.pickup-row .route-step::after,
+.has-extra-stops .stop-row:not(:last-child) .route-step::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  height: calc(100% + 22px - 34px);
+  transform: translateX(-50%);
+  border-left: 2px dashed var(--mk-info-soft);
+  z-index: -1;
 }
 
 .step-circle {
@@ -717,6 +727,16 @@
     height: 28px;
   }
 
+  .route-step {
+    min-height: 28px;
+  }
+
+  .pickup-row .route-step::after,
+  .has-extra-stops .stop-row:not(:last-child) .route-step::after {
+    top: 28px;
+    height: calc(100% + 22px - 28px);
+  }
+
   .card-section {
     padding: 18px;
     border-radius: 18px;
@@ -860,7 +880,8 @@
     background: var(--mk-surface-active);
   }
 
-  .route-grid::before {
+  .pickup-row .route-step::after,
+  .has-extra-stops .stop-row:not(:last-child) .route-step::after {
     border-color: rgba(10, 132, 255, 0.35);
   }
 

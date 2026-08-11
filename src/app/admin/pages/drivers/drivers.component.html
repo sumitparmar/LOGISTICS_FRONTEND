@@ -11,6 +11,39 @@
             (input)="onSearchChange(searchInput.value)" />
     </div>
 
+    <section class="onboarding-panel" *ngIf="onboardingApplications.length">
+        <div class="panel-heading">
+            <div>
+                <h3>Driver onboarding applications</h3>
+                <p>Latest user submissions for operations review</p>
+            </div>
+        </div>
+
+        <div class="application-grid">
+            <article class="application-card" *ngFor="let application of onboardingApplications">
+                <div>
+                    <strong>{{ application.personal?.fullName || application.user?.name || 'Applicant' }}</strong>
+                    <span>{{ application.personal?.city || '-' }} - {{ application.vehicle?.vehicleName || '-' }}</span>
+                </div>
+                <div class="application-meta">
+                    <span class="status-badge idle">{{ application.status }}</span>
+                    <span>{{ application.personal?.phone || application.user?.phone || '-' }}</span>
+                </div>
+                <div class="application-actions" *ngIf="permissionService.has('drivers.update')">
+                    <button type="button" (click)="updateApplicationStatus(application, 'UNDER_REVIEW')">
+                        Review
+                    </button>
+                    <button type="button" (click)="updateApplicationStatus(application, 'APPROVED')">
+                        Approve
+                    </button>
+                    <button type="button" (click)="updateApplicationStatus(application, 'REJECTED')">
+                        Reject
+                    </button>
+                </div>
+            </article>
+        </div>
+    </section>
+
     <!-- DRIVERS GRID -->
     <div class="drivers-grid" *ngIf="!loading; else loadingTpl">
 
@@ -84,21 +117,16 @@
     </div>
 
     <!-- PAGINATION -->
-    <div class="pagination" *ngIf="totalPages > 1">
-
-        <button (click)="onPageChange(page - 1)" [disabled]="page === 1">
-            Prev
-        </button>
-
-        <span>
-            Page {{ page }} of {{ totalPages }}
-        </span>
-
-        <button (click)="onPageChange(page + 1)" [disabled]="page === totalPages">
-            Next
-        </button>
-
-    </div>
+    <app-pagination
+        *ngIf="total > 0"
+        [total]="total"
+        [page]="page"
+        [limit]="limit"
+        [limitOptions]="[10, 20, 50]"
+        (pageChange)="onPageChange($event)"
+        (limitChange)="onLimitChange($event)"
+    >
+    </app-pagination>
 
     <!-- LOADING TEMPLATE -->
     <ng-template #loadingTpl>

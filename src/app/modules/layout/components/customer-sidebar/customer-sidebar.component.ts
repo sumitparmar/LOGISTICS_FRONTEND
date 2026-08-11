@@ -54,6 +54,11 @@ export class CustomerSidebarComponent {
       route: '/app/support',
     },
     {
+      label: 'Driver Onboarding',
+      icon: 'ID',
+      route: '/app/driver-onboarding',
+    },
+    {
       label: 'Notifications',
       icon: '🔔',
       route: '/app/notifications',
