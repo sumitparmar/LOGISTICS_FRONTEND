@@ -26,7 +26,7 @@ export class CustomerSidebarComponent {
       route: '/app/dashboard',
     },
     {
-      label: 'Create Delivery',
+      label: 'Book a Delivery',
       icon: '🚚',
       route: '/app/delivery/create',
     },

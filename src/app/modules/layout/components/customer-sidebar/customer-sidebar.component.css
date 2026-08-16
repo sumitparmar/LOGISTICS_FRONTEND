@@ -27,7 +27,7 @@
 }
 
 .sidebar-brand {
-  padding: 24px;
+  padding: 18px;
 
   display: flex;
   align-items: center;
@@ -37,8 +37,8 @@
 }
 
 .sidebar-brand img {
-  width: 184px;
-  height: 54px;
+  width: 220px;
+  height: 64px;
   object-fit: contain;
   object-position: left center;
 }
