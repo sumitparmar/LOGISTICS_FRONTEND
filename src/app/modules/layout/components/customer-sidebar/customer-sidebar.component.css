@@ -37,9 +37,10 @@
 }
 
 .sidebar-brand img {
-  width: 42px;
-  height: 42px;
+  width: 184px;
+  height: 54px;
   object-fit: contain;
+  object-position: left center;
 }
 
 .sidebar-brand h2 {

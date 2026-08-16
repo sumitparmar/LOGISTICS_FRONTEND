@@ -18,6 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { AddressService } from 'src/app/core/services/address.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 declare const google: any;
+declare const Razorpay: any;
 
 @Component({
   selector: 'app-create-delivery',
@@ -44,10 +45,15 @@ export class CreateDeliveryComponent
   private directionsRenderer: any;
   private pickupMarker: any = null;
   private dropMarker: any = null;
+  routeDistanceKm: number | null = null;
+  routeDurationText = '';
+  routeLoading = false;
+  routeError = '';
   isFetchingCurrentLocation = false;
   currentLocationSuccess = false;
   private currentLocationRetryCount = 0;
   private geocoder: any;
+  private mapInitTimer: any;
   private stopInputSubscription: any;
   private formSubscriptions: any[] = [];
   deliveryForm!: FormGroup;
@@ -75,60 +81,42 @@ export class CreateDeliveryComponent
     );
   }
 
-  weightOptions = [1, 5, 10, 20, 50, 100, 250, 500, 750, 1000];
+  weightOptions = [1, 5, 10, 15, 20];
   packageCategories = [
     'Documents',
-    'Clothes',
+    'Cloth',
     'Groceries',
     'Medicine',
     'Food',
+    'Pet products',
     'Parcel',
   ];
 
+  // Keep the initial render aligned with the verified MoveKart vehicle catalog.
+  // The backend catalog remains the source of truth once it loads.
   vehicleOptions = [
-    {
-      id: 1,
-      title: 'Mini 3-Wheeler',
-      description: 'Small vehicle for medium parcels',
-      limit: 'Up to 100 kg',
-      icon: 'local_shipping',
-    },
-
-    {
-      id: 2,
-      title: 'Tempo Truck',
-      description: 'Large scale cargo delivery',
-      limit: 'Up to 200 kg',
-      icon: 'local_shipping',
-    },
-
-    {
-      id: 3,
-      title: 'Tata Ace 7ft',
-      description: 'Heavy shipment transport',
-      limit: 'Up to 750 kg',
-      icon: 'airport_shuttle',
-    },
-
-    {
-      id: 5,
-      title: 'Tata Ace 8ft',
-      description: 'Medium cargo deliveries',
-      limit: 'Up to 1000 kg',
-      icon: 'airport_shuttle',
-    },
-
     {
       id: 8,
       title: 'Motorbike',
       description: 'Fast delivery via bike',
       limit: 'Up to 20 kg',
+      maxWeightKg: 20,
       icon: 'two_wheeler',
     },
   ];
 
-  paymentOptions = [{ label: 'Advance Payment', value: 'BALANCE' }];
+  // COD is the safe fallback while the payment gateway metadata is loading.
+  paymentOptions = [
+    {
+      label: 'COD / Cash on delivery',
+      value: 'CASH',
+      gatewayMethod: 'CASH',
+      description: 'Pay the delivery partner at the selected payment point',
+    },
+  ];
+  selectedGatewayMethod: 'UPI' | 'CARD' | 'NETBANKING' | 'WALLET' = 'UPI';
   paymentIntentId: string | null = null;
+  private createOrderIdempotencyKey: string | null = null;
 
   showReorderModal = false;
   showPickupLocationPicker = false;
@@ -158,6 +146,8 @@ export class CreateDeliveryComponent
     if (this.directionsRenderer) {
       this.directionsRenderer.setMap(null);
     }
+    this.routeDistanceKm = null;
+    this.routeDurationText = '';
     if (this.modeSub) {
       this.modeSub.unsubscribe();
     }
@@ -166,6 +156,9 @@ export class CreateDeliveryComponent
 
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
+    }
+    if (this.mapInitTimer) {
+      clearTimeout(this.mapInitTimer);
     }
   }
 
@@ -409,6 +402,7 @@ export class CreateDeliveryComponent
     this.loadSavedAddresses();
     this.loadDeliveryTypes();
     this.loadVehicleOptions();
+    this.loadPaymentMethods();
     this.hasLastDelivery = !!localStorage.getItem('LAST_DELIVERY');
     // this.loadLastDelivery();
     this.modeSub = this.authService.deliveryMode$.subscribe((mode) => {
@@ -563,6 +557,7 @@ export class CreateDeliveryComponent
           description:
             vehicle.description || this.getVehicleDescription(vehicle),
           limit: vehicle.maxWeightKg ? `Up to ${vehicle.maxWeightKg} kg` : '',
+          maxWeightKg: Number(vehicle.maxWeightKg) || null,
           icon: this.getVehicleIcon(vehicle.code || vehicle.name),
         }));
 
@@ -576,11 +571,107 @@ export class CreateDeliveryComponent
             vehicleTypeId: Number(vehicles[0].id),
           });
         }
+
+        this.refreshWeightOptions();
       },
       error: (err) => {
         console.error('Vehicle catalog failed', err);
       },
     });
+  }
+
+  loadPaymentMethods(): void {
+    this.ordersService.getPaymentMethods().subscribe({
+      next: (res: any) => {
+        const methods = Array.isArray(res?.data) ? res.data : [];
+        const online = methods.find((method: any) => method.code === 'UPI');
+        const cash = methods.find(
+          (method: any) => method.code === 'CASH' || method.code === 'COD',
+        );
+
+        const availableOptions = [
+          ...(online
+            ? [
+                {
+                  label: 'Pay online',
+                  value: 'BALANCE',
+                  gatewayMethod: 'UPI',
+                  description: online.name,
+                },
+              ]
+            : []),
+          ...(cash
+            ? [
+                {
+                  label: 'COD / Cash on delivery',
+                  value: 'CASH',
+                  gatewayMethod: 'CASH',
+                  description:
+                    'Pay the delivery partner at the selected payment point',
+                },
+              ]
+            : []),
+        ];
+
+        this.paymentOptions = availableOptions.length
+          ? availableOptions
+          : [
+              {
+                label: 'COD / Cash on delivery',
+                value: 'CASH',
+                gatewayMethod: 'CASH',
+                description:
+                  'Pay the delivery partner at the selected payment point',
+              },
+            ];
+
+        const selected = this.deliveryForm.get('paymentMethod')?.value;
+        if (!this.paymentOptions.some((option) => option.value === selected)) {
+          this.deliveryForm.patchValue({
+            paymentMethod: this.paymentOptions[0]?.value || 'CASH',
+          });
+        }
+      },
+      error: () => {
+        // Keep COD available when payment metadata or the gateway is unavailable.
+        this.paymentOptions = [
+          {
+            label: 'COD / Cash on delivery',
+            value: 'CASH',
+            gatewayMethod: 'CASH',
+            description:
+              'Pay the delivery partner at the selected payment point',
+          },
+        ];
+        this.deliveryForm.patchValue({ paymentMethod: 'CASH' });
+      },
+    });
+  }
+
+  refreshWeightOptions(): void {
+    const selectedVehicle = this.vehicleOptions.find(
+      (vehicle) =>
+        Number(vehicle.id) ===
+        Number(this.deliveryForm.get('vehicleTypeId')?.value),
+    );
+    const maxWeight = Number(selectedVehicle?.maxWeightKg);
+
+    if (!Number.isFinite(maxWeight) || maxWeight <= 0) {
+      return;
+    }
+
+    const weightPresets = [1, 5, 10, 15, 20, 50, 100, 250, 500, 750, 1000];
+    this.weightOptions = weightPresets.filter((weight) => weight <= maxWeight);
+
+    if (!this.weightOptions.includes(maxWeight)) {
+      this.weightOptions.push(maxWeight);
+      this.weightOptions.sort((a, b) => a - b);
+    }
+
+    const currentWeight = Number(this.deliveryForm.get('package.weight')?.value);
+    if (!this.weightOptions.includes(currentWeight)) {
+      this.deliveryForm.get('package.weight')?.setValue(this.weightOptions[0] || maxWeight);
+    }
   }
 
   getVehicleDescription(vehicle: any): string {
@@ -759,6 +850,14 @@ export class CreateDeliveryComponent
     }
 
     this.currentStep = 3;
+
+    if (this.deliveryForm.get('paymentMethod')?.value === 'CASH') {
+      this.paymentCompleted = true;
+      this.paymentIntentId = null;
+      this.createOrder();
+      return;
+    }
+
     this.processOnlinePayment();
   }
 
@@ -768,11 +867,14 @@ export class CreateDeliveryComponent
     this.ordersService
       .createPaymentIntent({
         amount: this.priceSummary.total,
-        paymentMethod: 'UPI',
+        paymentMethod: this.selectedGatewayMethod,
+        purpose: 'ORDER_PAYMENT',
       })
       .subscribe({
         next: (res: any) => {
           const intentId = res?.data?.intentId;
+          const gatewayOrderId = res?.data?.gatewayOrderId;
+          const gatewayKey = res?.data?.key;
 
           if (!intentId) {
             this.isPaymentProcessing = false;
@@ -780,20 +882,53 @@ export class CreateDeliveryComponent
             return;
           }
 
-          this.ordersService.confirmMockPaymentIntent(intentId).subscribe({
-            next: () => {
-              this.paymentCompleted = true;
-              this.paymentIntentId = intentId;
-              this.isPaymentProcessing = false;
-              this.createOrder();
+          if (String(gatewayOrderId).startsWith('mock_')) {
+            this.ordersService.confirmMockPaymentIntent(intentId).subscribe({
+              next: () => this.completePayment(intentId),
+              error: (err) => this.failPayment(err),
+            });
+            return;
+          }
+
+          if (typeof Razorpay !== 'function' || !gatewayKey) {
+            this.failPayment({
+              error: { message: 'Online payment is not available right now' },
+            });
+            return;
+          }
+
+          const checkout = new Razorpay({
+            key: gatewayKey,
+            amount: Math.round(Number(this.priceSummary.total) * 100),
+            currency: res?.data?.currency || 'INR',
+            name: 'MoveKart',
+            description: 'MoveKart delivery payment',
+            order_id: gatewayOrderId,
+            handler: (payment: any) => {
+              this.ordersService
+                .verifyPaymentIntent(intentId, payment)
+                .subscribe({
+                  next: () => this.completePayment(intentId),
+                  error: (err) => this.failPayment(err),
+                });
             },
-            error: (err) => {
-              this.isPaymentProcessing = false;
-              this.showToastMessage(
-                err?.error?.message || 'Payment confirmation failed',
-              );
+            modal: {
+              ondismiss: () => this.failPayment({
+                error: { message: 'Payment was cancelled' },
+              }),
             },
+            theme: { color: '#ff7a00' },
           });
+
+          checkout.on('payment.failed', (response: any) =>
+            this.failPayment({
+              error: {
+                message:
+                  response?.error?.description || 'Payment failed. Try again.',
+              },
+            }),
+          );
+          checkout.open();
         },
         error: (err) => {
           this.isPaymentProcessing = false;
@@ -804,16 +939,22 @@ export class CreateDeliveryComponent
       });
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (!this.isGoogleMapsReady()) {
-        return;
-      }
+  private completePayment(intentId: string): void {
+    this.paymentCompleted = true;
+    this.paymentIntentId = intentId;
+    this.isPaymentProcessing = false;
+    this.createOrder();
+  }
 
-      this.initMap();
-      this.initPickupAutocomplete();
-      this.attachStopAutocompletes();
-    }, 300);
+  private failPayment(err: any): void {
+    this.isPaymentProcessing = false;
+    this.showToastMessage(
+      err?.error?.message || 'Payment confirmation failed',
+    );
+  }
+
+  ngAfterViewInit(): void {
+    this.initializeMapsWhenReady();
 
     this.stopInputSubscription = this.stopInputs.changes.subscribe(() => {
       setTimeout(() => this.attachStopAutocompletes(), 300);
@@ -824,6 +965,8 @@ export class CreateDeliveryComponent
     this.deliveryForm.patchValue({
       vehicleTypeId: vehicleId,
     });
+
+    this.refreshWeightOptions();
 
     this.resetPrice();
 
@@ -856,7 +999,7 @@ export class CreateDeliveryComponent
 
       deliveryType: ['NOW', Validators.required],
       scheduledAt: [null],
-      paymentMethod: ['BALANCE', Validators.required],
+      paymentMethod: ['CASH', Validators.required],
       bankCardId: [null],
 
       vehicleTypeId: [8, Validators.required],
@@ -1047,6 +1190,7 @@ export class CreateDeliveryComponent
     }
 
     this.isCreatingOrder = true;
+    this.createOrderIdempotencyKey ||= this.createIdempotencyKey();
 
     const deliveryStops = this.buildDeliveryStops(form);
     const lastStop = deliveryStops[deliveryStops.length - 1];
@@ -1101,8 +1245,8 @@ export class CreateDeliveryComponent
       },
 
       payment: {
-        method: 'BALANCE',
-        intentId: this.paymentIntentId,
+        method: form.paymentMethod || 'CASH',
+        ...(this.paymentIntentId ? { intentId: this.paymentIntentId } : {}),
         feePayer: 'DROP',
         ...(form.paymentMethod === 'BANK_CARD' && form.bankCardId
           ? {
@@ -1112,7 +1256,9 @@ export class CreateDeliveryComponent
       },
     };
 
-    this.ordersService.createOrder(payload).subscribe({
+    this.ordersService
+      .createOrder(payload, this.createOrderIdempotencyKey || undefined)
+      .subscribe({
       next: (res: any) => {
         this.isCreatingOrder = false;
 
@@ -1145,7 +1291,7 @@ export class CreateDeliveryComponent
             insurance: this.priceSummary.insurance,
             gst: this.priceSummary.gstAmount,
 
-            payment_method: 'BALANCE',
+            payment_method: form.paymentMethod || 'CASH',
             vehicle_type: this.deliveryForm.value.vehicleTypeId,
             delivery_type: this.deliveryForm.value.deliveryType,
           });
@@ -1156,6 +1302,7 @@ export class CreateDeliveryComponent
 
       error: (err) => {
         this.isCreatingOrder = false;
+        this.createOrderIdempotencyKey = null;
 
         this.resetPrice();
 
@@ -1166,7 +1313,35 @@ export class CreateDeliveryComponent
 
         this.showToastMessage(message);
       },
-    });
+      });
+  }
+
+  private initializeMapsWhenReady(attempt = 0): void {
+    if (this.isGoogleMapsReady()) {
+      this.initMap();
+      this.initPickupAutocomplete();
+      this.attachStopAutocompletes();
+      return;
+    }
+
+    // Runtime configuration loads the Maps script asynchronously. Retry for
+    // a short window so a slow but valid Maps load does not leave a blank map.
+    if (attempt >= 20) return;
+    this.mapInitTimer = setTimeout(
+      () => this.initializeMapsWhenReady(attempt + 1),
+      250,
+    );
+  }
+
+  private createIdempotencyKey(): string {
+    const browserCrypto = globalThis.crypto as Crypto & {
+      randomUUID?: () => string;
+    };
+
+    return (
+      browserCrypto?.randomUUID?.() ||
+      `mk-${Date.now()}-${Math.random().toString(36).slice(2, 18)}`
+    );
   }
 
   private buildDeliveryStops(form: any): any[] {
@@ -1192,14 +1367,13 @@ export class CreateDeliveryComponent
       }
 
       if (opt.code === 'END_OF_DAY') {
-        const discounted = Math.round(nowPrice * 0.85);
-        const saving = nowPrice - discounted;
         return {
           ...opt,
-          description: saving > 0 ? `Save ₹${saving}` : 'Lower cost delivery',
-          price: discounted,
+          description: 'Lower cost delivery; calculate the live fare after selecting this option',
+          price: null,
         };
       }
+
 
       if (opt.code === 'SCHEDULED') {
         return {
@@ -1269,12 +1443,17 @@ export class CreateDeliveryComponent
   }
 
   selectPayment(type: string): void {
-    if (type !== 'BALANCE') {
-      this.showToastMessage('Selected payment method is not enabled');
-      return;
-    }
+    const selected = this.paymentOptions.find((option) => option.value === type);
+    if (!selected) return;
 
-    this.deliveryForm.get('paymentMethod')?.setValue('BALANCE');
+    this.deliveryForm.get('paymentMethod')?.setValue(type);
+    if (selected.gatewayMethod !== 'CASH') {
+      this.selectedGatewayMethod = selected.gatewayMethod as
+        | 'UPI'
+        | 'CARD'
+        | 'NETBANKING'
+        | 'WALLET';
+    }
     this.deliveryForm.get('bankCardId')?.setValue(null);
   }
 
@@ -1305,6 +1484,9 @@ export class CreateDeliveryComponent
     this.paymentIntentId = null;
   }
   selectWeight(weight: number): void {
+    if (!this.weightOptions.includes(weight)) {
+      return;
+    }
     this.deliveryForm.get('package.weight')?.setValue(weight);
   }
 
@@ -1527,12 +1709,17 @@ export class CreateDeliveryComponent
 
     const form = this.deliveryForm.value;
 
-    if (!form.pickupLat || !form.pickupLng) return;
-    if (!form.stops.length) return;
+    if (!form.pickupLat || !form.pickupLng || !form.stops.length) {
+      this.clearRoutePreview();
+      return;
+    }
 
     const destinationStop = form.stops[form.stops.length - 1];
 
-    if (!destinationStop.lat) return;
+    if (!destinationStop.lat || !destinationStop.lng) {
+      this.clearRoutePreview();
+      return;
+    }
 
     const origin = {
       lat: form.pickupLat,
@@ -1547,7 +1734,10 @@ export class CreateDeliveryComponent
     const waypoints = form.stops.slice(0, -1).map((stop: any) => ({
       location: { lat: stop.lat, lng: stop.lng },
       stopover: true,
-    }));
+    })).filter((waypoint: any) => waypoint.location.lat && waypoint.location.lng);
+
+    this.routeLoading = true;
+    this.routeError = '';
     this.routeService
       .calculateRouteWithWaypoints(origin, destination, waypoints)
       .then((result: any) => {
@@ -1555,6 +1745,21 @@ export class CreateDeliveryComponent
 
         const bounds = result.routes[0].bounds;
         this.map.fitBounds(bounds);
+
+        const legs = result.routes[0].legs || [];
+        const totalDistanceMeters = legs.reduce(
+          (total: number, leg: any) => total + Number(leg.distance?.value || 0),
+          0,
+        );
+        const totalDurationSeconds = legs.reduce(
+          (total: number, leg: any) => total + Number(leg.duration?.value || 0),
+          0,
+        );
+        this.routeDistanceKm = totalDistanceMeters
+          ? Number((totalDistanceMeters / 1000).toFixed(1))
+          : null;
+        this.routeDurationText = this.formatRouteDuration(totalDurationSeconds);
+        this.routeLoading = false;
 
         if (!this.pickupMarker) {
           this.pickupMarker = new google.maps.Marker({
@@ -1590,8 +1795,35 @@ export class CreateDeliveryComponent
         this.dropMarker.setPosition(destination);
       })
       .catch((err: any) => {
+        this.routeLoading = false;
+        this.routeDistanceKm = null;
+        this.routeDurationText = '';
+        this.routeError = 'Route preview is unavailable for these locations. Please verify both map selections.';
         console.error('Route error', err);
       });
+  }
+
+  private formatRouteDuration(totalSeconds: number): string {
+    if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '';
+
+    const minutes = Math.max(1, Math.round(totalSeconds / 60));
+    if (minutes < 60) return `${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
+  }
+
+  private clearRoutePreview(): void {
+    this.routeLoading = false;
+    this.routeDistanceKm = null;
+    this.routeDurationText = '';
+    this.routeError = '';
+    this.directionsRenderer?.setDirections({ routes: [] });
+    this.pickupMarker?.setMap(null);
+    this.dropMarker?.setMap(null);
+    this.pickupMarker = null;
+    this.dropMarker = null;
   }
 
   scrollToFirstInvalidField(): void {

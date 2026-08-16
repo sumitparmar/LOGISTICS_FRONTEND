@@ -18,6 +18,10 @@ export class OrderDetailsComponent implements OnInit {
   showCancelModal: boolean = false;
   selectedStatus: string = '';
   isUpdating: boolean = false;
+  invoice: any = null;
+  invoiceLoading = false;
+  invoiceDownloading = false;
+  invoiceEmailing = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -42,6 +46,7 @@ export class OrderDetailsComponent implements OnInit {
 
         if (this.order) {
           this.prepareTimeline();
+          if (this.order.status === 'DELIVERED') this.loadInvoice();
         }
 
         this.loading = false;
@@ -196,5 +201,60 @@ export class OrderDetailsComponent implements OnInit {
         this.isUpdating = false;
       },
     });
+  }
+
+  loadInvoice(): void {
+    if (!this.orderId || this.invoiceLoading) return;
+    this.invoiceLoading = true;
+    this.ordersService.getInvoice(this.orderId).subscribe({
+      next: (res: any) => {
+        this.invoice = res?.data || null;
+        this.invoiceLoading = false;
+      },
+      error: () => {
+        this.invoice = null;
+        this.invoiceLoading = false;
+      },
+    });
+  }
+
+  downloadInvoice(): void {
+    if (!this.orderId || this.invoiceDownloading) return;
+    this.invoiceDownloading = true;
+    this.ordersService.downloadInvoice(this.orderId).subscribe({
+      next: (response: any) => {
+        const filename = this.invoiceFilename(response.headers?.get('Content-Disposition'));
+        const url = URL.createObjectURL(response.body);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        this.invoiceDownloading = false;
+      },
+      error: () => {
+        this.invoiceDownloading = false;
+      },
+    });
+  }
+
+  resendInvoiceEmail(): void {
+    if (!this.orderId || this.invoiceEmailing) return;
+    this.invoiceEmailing = true;
+    this.ordersService.resendInvoiceEmail(this.orderId).subscribe({
+      next: (res: any) => {
+        this.invoice = res?.data || this.invoice;
+        this.invoiceEmailing = false;
+      },
+      error: () => {
+        this.invoiceEmailing = false;
+      },
+    });
+  }
+
+  private invoiceFilename(contentDisposition: string | null): string {
+    const match = contentDisposition?.match(/filename="?([^";]+)"?/i);
+    const safe = match?.[1]?.replace(/[^a-zA-Z0-9._-]/g, '-');
+    return safe || 'MoveKart-Invoice.pdf';
   }
 }

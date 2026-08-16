@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
 
+declare const Razorpay: any;
+
 @Component({
   selector: 'app-wallet',
   templateUrl: './wallet.component.html',
@@ -203,21 +205,90 @@ export class WalletComponent implements OnInit {
     this.loading = true;
 
     this.api
-      .post('/payments/payin', {
+      .post('/payments/intent', {
         amount: this.addMoneyPayload.amount,
-        reason: this.addMoneyPayload.reason,
+        paymentMethod: 'UPI',
+        purpose: 'WALLET_TOPUP',
       })
       .subscribe({
-        next: () => {
-          this.closeAddMoney();
-          this.loadWallet();
+        next: (res: any) => {
+          const payment = res?.data;
+
+          if (!payment?.intentId) {
+            this.completeTopUpError('Unable to initialize wallet top-up');
+            return;
+          }
+
+          if (String(payment.gatewayOrderId).startsWith('mock_')) {
+            this.api
+              .post(`/payments/intent/${payment.intentId}/mock-confirm`, {})
+              .subscribe({
+                next: () => this.completeTopUp(),
+                error: (err) =>
+                  this.completeTopUpError(
+                    err?.error?.message || 'Wallet top-up failed',
+                  ),
+              });
+            return;
+          }
+
+          if (typeof Razorpay !== 'function' || !payment.key) {
+            this.completeTopUpError(
+              'Online payment is not available right now',
+            );
+            return;
+          }
+
+          const checkout = new Razorpay({
+            key: payment.key,
+            amount: Math.round(Number(payment.amount) * 100),
+            currency: payment.currency || 'INR',
+            name: 'MoveKart',
+            description: 'MoveKart wallet top-up',
+            order_id: payment.gatewayOrderId,
+            handler: (gatewayPayment: any) => {
+              this.api
+                .post(`/payments/intent/${payment.intentId}/verify`, gatewayPayment)
+                .subscribe({
+                  next: () => this.completeTopUp(),
+                  error: (err) =>
+                    this.completeTopUpError(
+                      err?.error?.message || 'Wallet top-up verification failed',
+                    ),
+                });
+            },
+            modal: {
+              ondismiss: () =>
+                this.completeTopUpError('Wallet top-up was cancelled'),
+            },
+            theme: { color: '#ff7a00' },
+          });
+
+          checkout.on('payment.failed', (response: any) =>
+            this.completeTopUpError(
+              response?.error?.description || 'Wallet top-up failed',
+            ),
+          );
+          checkout.open();
         },
         error: (err) => {
-          this.loading = false;
-
-          this.toast.error(err?.error?.message || 'Unable to add money');
+          this.completeTopUpError(
+            err?.error?.message || 'Unable to initialize wallet top-up',
+          );
         },
       });
+  }
+
+  private completeTopUp(): void {
+    this.closeAddMoney();
+    this.loading = false;
+    this.toast.success('Wallet top-up successful');
+    this.loadWallet();
+  }
+
+  private completeTopUpError(message: string): void {
+    this.loading = false;
+    this.toast.error(message);
   }
 
   submitWithdraw(): void {

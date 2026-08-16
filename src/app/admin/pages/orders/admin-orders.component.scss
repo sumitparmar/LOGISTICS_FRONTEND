@@ -152,10 +152,45 @@
   flex-wrap: wrap;
 }
 
+/* Keep the search and pagination component from competing with the filters. */
+.controls-left > app-table-controls {
+  display: block;
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+}
+
 .controls-right {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* The Orders content area can be narrower than the browser viewport because
+   of the admin navigation. Reflow the nested pagination to its real width. */
+:host ::ng-deep .controls-left app-table-controls app-pagination .pagination {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+
+:host ::ng-deep .controls-left app-table-controls app-pagination .pagination-summary {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  white-space: normal;
+}
+
+:host ::ng-deep .controls-left app-table-controls app-pagination .pagination-controls {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+:host ::ng-deep .controls-left app-table-controls app-pagination .pagination-size {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: max-content;
 }
 
 /* =========================

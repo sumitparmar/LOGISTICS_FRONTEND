@@ -10,7 +10,7 @@
             <h1 class="mk-greeting-title">Dashboard Overview</h1>
 
             <p class="mk-greeting-desc">
-                Manage truck bookings, deliveries and active shipments.
+                Manage delivery bookings and active shipments.
             </p>
 
             <div class="mk-mini-stats">
@@ -69,7 +69,7 @@
                 </div>
                 <div class="mk-stat-value">{{ dashboardStats.totalOrders }}</div>
                 <div class="mk-stat-label">Total Orders</div>
-                <div class="mk-stat-sub">Goods transport &amp; mini truck bookings</div>
+                <div class="mk-stat-sub">Delivery bookings and live orders</div>
                 <div class="mk-stat-cta">View all →</div>
             </div>
 
@@ -277,7 +277,7 @@
                                         <div class="mk-empty-icon">📭</div>
                                         <p class="mk-empty-title">No orders yet</p>
                                         <p class="mk-empty-sub">
-                                            Book your first goods transport or mini truck delivery
+                                            Book your first delivery
                                         </p>
                                         <button type="button" class="mk-empty-cta" (click)="goToBookDelivery()"> + Book
                                             Delivery

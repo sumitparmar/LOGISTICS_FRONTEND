@@ -151,6 +151,52 @@
   box-shadow: var(--shadow-md);
 }
 
+.invoice-card .invoice-loading,
+.invoice-card .invoice-error {
+  padding: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.invoice-card .invoice-error {
+  color: var(--red);
+}
+
+.invoice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.invoice-action {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.invoice-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.invoice-action.primary {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--mk-text-inverse);
+}
+
+.invoice-action.secondary,
+.invoice-action.tertiary {
+  background: var(--bg-card);
+  color: var(--brand-text);
+}
+
 .card-header {
   padding: 18px 20px 14px;
   border-bottom: 1px solid var(--border);

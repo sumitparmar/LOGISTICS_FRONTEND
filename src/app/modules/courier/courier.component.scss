@@ -52,6 +52,24 @@ section {
   }
 }
 
+.btn-secondary {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid var(--mk-border);
+  cursor: pointer;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 /* ================= HERO ================= */
 .hero {
   display: flex;
@@ -346,6 +364,10 @@ section {
         font-size: 24px;
       }
     }
+  }
+
+  .hero__actions {
+    justify-content: center;
   }
 
   .benefits__grid,

@@ -469,6 +469,13 @@ $radius-md: 12px;
   box-shadow: 0 0 0 2px var(--mk-info-soft);
 }
 
+.invoice-section .invoice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .status-helper {
   color: var(--mk-text-muted);
   font-size: 13px;

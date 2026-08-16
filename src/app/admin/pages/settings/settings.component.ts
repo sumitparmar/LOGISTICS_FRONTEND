@@ -86,6 +86,20 @@ export class SettingsComponent
       supportEmail: ['', [Validators.email]],
 
       supportPhone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
+      invoice: this.fb.group({
+        legalName: ['', [Validators.maxLength(160)]],
+        registeredAddress: ['', [Validators.maxLength(500)]],
+        state: ['', [Validators.maxLength(80)]],
+        stateCode: ['', [Validators.pattern(/^\d{1,2}$/)]],
+        gstin: ['', [Validators.pattern(/^[0-9A-Z]{15}$/i)]],
+        pan: ['', [Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/i)]],
+        sacCode: ['', [Validators.maxLength(20)]],
+        prefix: ['', [Validators.pattern(/^[A-Z0-9]{2,10}$/i)]],
+        financialYearStartMonth: [4, [Validators.required, Validators.min(1), Validators.max(12)]],
+        templateVersion: ['1.0', [Validators.required, Validators.maxLength(20)]],
+        supportEmail: ['', [Validators.email]],
+        supportPhone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
+      }),
       timezone: ['Asia/Kolkata', Validators.required],
       currency: ['INR', Validators.required],
 
@@ -211,6 +225,20 @@ export class SettingsComponent
       platformName: this.form.value.platformName?.trim(),
       supportEmail: this.form.value.supportEmail?.trim(),
       supportPhone: this.form.value.supportPhone?.trim(),
+      invoice: {
+        ...this.form.value.invoice,
+        legalName: this.form.value.invoice?.legalName?.trim(),
+        registeredAddress: this.form.value.invoice?.registeredAddress?.trim(),
+        state: this.form.value.invoice?.state?.trim(),
+        stateCode: this.form.value.invoice?.stateCode?.trim(),
+        gstin: this.form.value.invoice?.gstin?.trim().toUpperCase(),
+        pan: this.form.value.invoice?.pan?.trim().toUpperCase(),
+        sacCode: this.form.value.invoice?.sacCode?.trim(),
+        prefix: this.form.value.invoice?.prefix?.trim().toUpperCase(),
+        templateVersion: this.form.value.invoice?.templateVersion?.trim(),
+        supportEmail: this.form.value.invoice?.supportEmail?.trim(),
+        supportPhone: this.form.value.invoice?.supportPhone?.trim(),
+      },
     };
 
     this.settingsService

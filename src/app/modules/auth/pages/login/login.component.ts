@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   phoneNumber = '';
   loading = false;
   errorMessage = '';
+  mockOtp = '';
   private returnUrl = '/app/dashboard';
 
   constructor(
@@ -59,6 +60,7 @@ export class LoginComponent implements OnInit {
     this.loginMode = mode;
 
     this.errorMessage = '';
+    this.mockOtp = '';
     this.loading = false;
 
     this.otpStep = 'PHONE';
@@ -141,7 +143,8 @@ export class LoginComponent implements OnInit {
       })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => {
+        next: (res: any) => {
+          this.mockOtp = res?.data?.mockOtp || '';
           this.otpStep = 'OTP';
         },
         error: (err) => {

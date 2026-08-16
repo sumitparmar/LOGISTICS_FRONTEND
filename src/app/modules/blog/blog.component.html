@@ -1,0 +1,23 @@
+<main class="blog-page">
+    <section class="blog-hero">
+        <div class="blog-container">
+            <span class="eyebrow">MoveKart Insights</span>
+            <h1>Ideas for faster, clearer logistics</h1>
+            <p>Practical guidance for individuals, retailers, and teams that move goods every day.</p>
+        </div>
+    </section>
+
+    <section class="blog-container blog-list" aria-label="MoveKart articles">
+        <article class="blog-card" *ngFor="let post of posts">
+            <span class="blog-category">{{ post.category }}</span>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.summary }}</p>
+            <button type="button" class="blog-link" (click)="openPost(post)">
+                {{ activePost === post ? 'Close article' : 'Read article' }}
+            </button>
+            <div class="blog-body" *ngIf="activePost === post">
+                <p *ngFor="let paragraph of post.body">{{ paragraph }}</p>
+            </div>
+        </article>
+    </section>
+</main>

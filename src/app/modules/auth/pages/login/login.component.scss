@@ -239,6 +239,11 @@ button[type="submit"]:disabled {
   font-weight: 700;
 }
 
+.mock-otp strong {
+  color: var(--mk-primary);
+  letter-spacing: 0.12em;
+}
+
 .otp-help {
   margin: -4px 0 14px;
   color: var(--mk-text-secondary);

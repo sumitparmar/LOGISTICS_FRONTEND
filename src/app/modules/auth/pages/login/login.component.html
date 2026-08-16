@@ -93,7 +93,7 @@
                                     formControlName="email" />
                             </div>
                             <p class="otp-help">
-                                If SMS is unavailable, MoveKart can send the same OTP to this email.
+                                Email is optional. MoveKart will use SMS when configured, or the approved testing fallback while SMS integration is pending.
                             </p>
 
                             <button type="submit" [disabled]="loading">
@@ -107,6 +107,10 @@
 
                             <div class="otp-status">
                                 OTP sent to {{ phoneNumber }} and your linked email when available.
+                            </div>
+
+                            <div class="otp-status mock-otp" *ngIf="mockOtp">
+                                Testing OTP: <strong>{{ mockOtp }}</strong>
                             </div>
 
                             <div class="input-group">

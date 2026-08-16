@@ -167,6 +167,26 @@
 
             </div>
 
+            <div class="section full-width invoice-section" *ngIf="order.status === 'DELIVERED'">
+                <h3>Invoice</h3>
+                <p *ngIf="invoiceLoading">Preparing invoice details...</p>
+                <ng-container *ngIf="!invoiceLoading && invoice">
+                    <p><strong>Invoice:</strong> {{ invoice.invoiceNumber }}</p>
+                    <p><strong>Total:</strong> {{ invoice.currency }} {{ (invoice.grandTotal ?? invoice.total) | number:'1.2-2' }}</p>
+                    <p><strong>Email:</strong> {{ invoice.email?.status || 'PENDING' }}</p>
+                    <div class="invoice-actions">
+                        <button class="btn primary" type="button" (click)="downloadInvoice()"
+                            [disabled]="invoiceDownloading || invoiceEmailing">
+                            {{ invoiceDownloading ? 'Downloading...' : 'Download Invoice' }}
+                        </button>
+                        <button class="btn secondary" type="button" (click)="resendInvoiceEmail()"
+                            [disabled]="invoiceDownloading || invoiceEmailing">
+                            {{ invoiceEmailing ? 'Queuing...' : 'Resend Invoice' }}
+                        </button>
+                    </div>
+                </ng-container>
+            </div>
+
             <div class="section full-width action-section" *ngIf="order">
 
                 <h3>Actions</h3>

@@ -5,6 +5,8 @@ declare const google: any;
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket.service';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
+import { CustomerSupportService } from '../../../support/services/customer-support.service';
+import { InvoiceFile, InvoiceService } from '../../../../core/services/invoice.service';
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
@@ -20,10 +22,18 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   providerHistory: any = null;
   documents: any = null;
   invoice: any = null;
+  invoiceLoading = false;
+  invoiceDownloading = false;
+  invoiceSharing = false;
+  invoiceEmailing = false;
+  invoiceError = '';
   podData: any = null;
   courierPosition: any = null;
   // pricingBreakdown: any = null;
   showCancelModal = false;
+  showSafetyReport = false;
+  safetyMessage = '';
+  isSubmittingSafetyReport = false;
   animationFrame: any = null;
   courierMarker: any = null;
   trackingInterval: any = null;
@@ -66,6 +76,8 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private ordersService: OrdersService,
     private socketService: SocketService,
     private toastService: ToastService,
+    private supportService: CustomerSupportService,
+    private invoiceService: InvoiceService,
   ) {}
 
   ngAfterViewInit(): void {
@@ -416,6 +428,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
 
                 this.loadPOD();
+                this.loadInvoice();
               }
             }
           });
@@ -593,15 +606,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getVehicleLabel(id: number): string {
-    const map: Record<number, string> = {
-      1: 'Mini 3-Wheeler',
-      2: 'Tata Ace 8ft',
-      3: 'Tata Ace 7ft',
-      5: 'Tempo Truck',
-      8: 'Motorbike',
-    };
+    const map: Record<number, string> = { 8: 'Motorbike' };
 
-    return map[id] || 'Assigned Vehicle';
+    return map[id] || 'Vehicle assigned by MoveKart';
   }
 
   addMarkers(
@@ -701,6 +708,47 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ordersService.cancelOrder(this.order._id).subscribe(() => {
       this.loadOrder();
     });
+  }
+
+  openSafetyReport(): void {
+    this.safetyMessage = '';
+    this.showSafetyReport = true;
+  }
+
+  closeSafetyReport(): void {
+    if (this.isSubmittingSafetyReport) return;
+    this.showSafetyReport = false;
+  }
+
+  submitSafetyReport(): void {
+    const message = this.safetyMessage.trim();
+    if (!message || !this.order?._id || this.isSubmittingSafetyReport) return;
+
+    this.isSubmittingSafetyReport = true;
+    this.supportService
+      .createTicket({
+        subject: `Safety report for order ${this.order.borzoOrderId || this.order._id}`,
+        message,
+        category: 'SAFETY',
+        priority: 'high',
+        order: this.order._id,
+      })
+      .subscribe({
+        next: () => {
+          this.isSubmittingSafetyReport = false;
+          this.showSafetyReport = false;
+          this.safetyMessage = '';
+          this.toastService.success(
+            'Safety report submitted. Support will review it within 24 hours.',
+          );
+        },
+        error: (err) => {
+          this.isSubmittingSafetyReport = false;
+          this.toastService.error(
+            err?.error?.message || 'Unable to submit safety report',
+          );
+        },
+      });
   }
 
   ngOnDestroy(): void {
@@ -845,12 +893,80 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   loadInvoice(): void {
     if (!this.order?._id) return;
 
+    this.invoiceLoading = true;
+    this.invoiceError = '';
     this.ordersService.getInvoice(this.order._id).subscribe({
       next: (res: any) => {
         this.invoice = res.data;
+        this.invoiceLoading = false;
       },
       error: (err) => {
-        console.error('Invoice fetch failed', err);
+        this.invoiceLoading = false;
+        this.invoice = null;
+        this.invoiceError = err?.error?.message || 'Invoice is not available yet.';
+      },
+    });
+  }
+
+  downloadInvoice(): void {
+    if (!this.order?._id || this.invoiceDownloading) return;
+    this.invoiceDownloading = true;
+    this.invoiceService.download(this.order._id).subscribe({
+      next: (file: InvoiceFile) => {
+        this.invoiceService.save(file);
+        this.invoiceDownloading = false;
+        this.toastService.success('Invoice downloaded.');
+      },
+      error: (err) => {
+        this.invoiceDownloading = false;
+        this.toastService.error(err?.error?.message || 'Unable to download invoice.');
+      },
+    });
+  }
+
+  shareInvoice(): void {
+    if (!this.order?._id || this.invoiceSharing) return;
+    this.invoiceSharing = true;
+    this.invoiceService.download(this.order._id).subscribe({
+      next: async (file: InvoiceFile) => {
+        try {
+          const result = await this.invoiceService.share(
+            file,
+            this.order?.borzoOrderId || this.order?._id,
+          );
+          if (result.status === 'shared') {
+            this.toastService.success('Invoice shared.');
+          } else if (result.status === 'cancelled') {
+            this.toastService.warning('Invoice sharing was cancelled.');
+          } else {
+            this.invoiceService.save(file);
+            this.toastService.success('Invoice downloaded. You can share the PDF from your device.');
+          }
+        } catch (error) {
+          this.toastService.error('Unable to share invoice.');
+        } finally {
+          this.invoiceSharing = false;
+        }
+      },
+      error: (err) => {
+        this.invoiceSharing = false;
+        this.toastService.error(err?.error?.message || 'Unable to prepare invoice for sharing.');
+      },
+    });
+  }
+
+  resendInvoiceEmail(): void {
+    if (!this.order?._id || this.invoiceEmailing) return;
+    this.invoiceEmailing = true;
+    this.ordersService.resendInvoiceEmail(this.order._id).subscribe({
+      next: (res: any) => {
+        this.invoice = res.data;
+        this.invoiceEmailing = false;
+        this.toastService.success('Invoice email queued.');
+      },
+      error: (err) => {
+        this.invoiceEmailing = false;
+        this.toastService.error(err?.error?.message || 'Unable to resend invoice email.');
       },
     });
   }

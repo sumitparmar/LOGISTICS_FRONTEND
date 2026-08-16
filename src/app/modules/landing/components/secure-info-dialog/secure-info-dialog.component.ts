@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { PricingService } from '../../../../core/services/pricing.service';
 
 interface Feature {
   icon: string;
@@ -23,6 +24,7 @@ export class SecureInfoDialogComponent {
   isVisible = true;
   isClosing = false;
   activeTab = 0;
+  availableVehicleText = 'Loading live vehicle availability...';
 
   tabs = ['Overview', 'Coverage', 'FAQ'];
 
@@ -68,11 +70,11 @@ export class SecureInfoDialogComponent {
         'Reliable intra-city and inter-city courier and goods delivery services across major Indian cities.',
       features: [
         {
-          icon: '25+',
+          icon: 'LIVE',
           iconBg: 'var(--mk-primary-soft)',
           title: 'Active Cities',
           description:
-            'Mumbai, Delhi/NCR, Bengaluru, Pune, Chennai, Hyderabad, Ahmedabad, Kolkata, and growing.',
+            'Service availability is checked for the selected route before a booking is confirmed.',
         },
         {
           icon: 'MAP',
@@ -86,7 +88,7 @@ export class SecureInfoDialogComponent {
           iconBg: 'var(--mk-success-soft)',
           title: 'Fleet Types',
           description:
-            'Motorbike, Mini 3-Wheeler, Tempo Truck, Tata Ace 7ft and Tata Ace 8ft.',
+            this.availableVehicleText,
         },
         {
           icon: 'LAW',
@@ -107,7 +109,7 @@ export class SecureInfoDialogComponent {
           iconBg: 'var(--mk-primary-soft)',
           title: 'How do I protect high-value goods?',
           description:
-            'Declare the accurate shipment value during booking and pay the security fee of 0.85% + GST for coverage up to Rs. 50,000 per order.',
+            'Declare the accurate shipment value during booking and review the protection fee returned in the live fare quote.',
         },
         {
           icon: 'Q2',
@@ -121,7 +123,7 @@ export class SecureInfoDialogComponent {
           iconBg: 'var(--mk-warning-soft)',
           title: 'What happens if I cancel?',
           description:
-            'Cancellation is free before assignment or within 5 minutes of assignment if the partner has not arrived. Travel/waiting charges may apply later.',
+            'Cancellation and any applicable travel or waiting charges are governed by the live order state and the applicable MoveKart policy.',
         },
         {
           icon: 'Q4',
@@ -135,7 +137,7 @@ export class SecureInfoDialogComponent {
           iconBg: 'var(--mk-success-soft)',
           title: 'How fast are refunds processed?',
           description:
-            'Approved wallet refunds are processed within 24 hours. Original payment method refunds usually take 5-7 working days.',
+            'Approved refunds are initiated through the recorded payment method and may take additional time for bank or payment-network processing.',
         },
       ],
     },
@@ -149,7 +151,30 @@ export class SecureInfoDialogComponent {
     return this.activeContent.features;
   }
 
-  constructor(private dialogRef: MatDialogRef<SecureInfoDialogComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<SecureInfoDialogComponent>,
+    private pricingService: PricingService,
+  ) {
+    this.pricingService.getVehicles().subscribe({
+      next: (response: any) => {
+        const vehicles = Array.isArray(response?.data) ? response.data : [];
+        this.availableVehicleText = vehicles.length
+          ? vehicles
+              .map((vehicle: any) =>
+                vehicle.maxWeightKg
+                  ? `${vehicle.name} up to ${vehicle.maxWeightKg} kg`
+                  : vehicle.name,
+              )
+              .join(', ')
+          : 'No vehicle options are currently available for this service area.';
+        this.content[1].features[2].description = this.availableVehicleText;
+      },
+      error: () => {
+        this.availableVehicleText = 'Vehicle availability is confirmed during booking.';
+        this.content[1].features[2].description = this.availableVehicleText;
+      },
+    });
+  }
 
   setTab(index: number): void {
     this.activeTab = index;

@@ -127,6 +127,20 @@ const routes: Routes = [
       },
 
       {
+        path: 'blog',
+        loadChildren: () =>
+          import('./modules/blog/blog.module').then((m) => m.BlogModule),
+      },
+
+      {
+        path: 'api-integration',
+        loadChildren: () =>
+          import('./modules/api-integration/api-integration.module').then(
+            (m) => m.ApiIntegrationModule,
+          ),
+      },
+
+      {
         path: 'terms-and-conditions',
         loadChildren: () =>
           import('./modules/terms/terms.module').then((m) => m.TermsModule),

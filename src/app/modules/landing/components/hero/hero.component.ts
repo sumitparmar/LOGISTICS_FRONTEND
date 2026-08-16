@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { SecureInfoDialogComponent } from '../secure-info-dialog/secure-info-dialog.component';
 import { PriceDialogComponent } from '../price-dialog/price-dialog.component';
+import { PricingService } from '../../../../core/services/pricing.service';
 declare var google: any;
 @Component({
   selector: 'app-hero',
@@ -25,12 +26,14 @@ export class HeroComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   price: number | null = null;
   errorMessage = '';
+  vehicles: { id: number; name: string; maxWeightKg: number }[] = [];
   @ViewChild('pickupInput') pickupInput!: ElementRef;
   @ViewChild('dropInput') dropInput!: ElementRef;
   private autocompleteInstances: any[] = [];
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
+    private pricingService: PricingService,
     private router: Router,
     private dialog: MatDialog,
   ) {}
@@ -46,7 +49,19 @@ export class HeroComponent implements OnInit, AfterViewInit, OnDestroy {
     this.quoteForm = this.fb.group({
       pickup: ['', Validators.required],
       drop: ['', Validators.required],
-      vehicleType: [8, Validators.required],
+      vehicleType: [null, Validators.required],
+    });
+
+    this.pricingService.getVehicles().subscribe({
+      next: (response: any) => {
+        this.vehicles = Array.isArray(response?.data) ? response.data : [];
+        this.quoteForm.patchValue({
+          vehicleType: this.vehicles[0]?.id || null,
+        });
+      },
+      error: () => {
+        this.errorMessage = 'Delivery options are temporarily unavailable. Please try again shortly.';
+      },
     });
   }
 
@@ -122,22 +137,11 @@ export class HeroComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const payload: any = {
       matter: 'delivery',
+      deliveryType: 'NOW',
       pickup: { address: this.quoteForm.value.pickup },
       drop: { address: this.quoteForm.value.drop },
+      vehicleTypeId: selected,
     };
-
-    if (selected === 8) {
-      payload.vehicleTypeId = 8;
-    }
-
-    if (selected === 1) {
-      payload.deliveryType = 'END_OF_DAY';
-    }
-
-    if (selected === 5) {
-      payload.vehicleTypeId = 8;
-      payload.priority = true;
-    }
 
     this.api.post<any>('/orders/calculate', payload).subscribe({
       next: (res) => {

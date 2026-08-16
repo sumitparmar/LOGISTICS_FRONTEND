@@ -40,8 +40,12 @@
   opacity: 0.9;
 }
 
-.logo-text {
-  font-weight: 700;
+.admin-logo-image {
+  display: block;
+  width: 176px;
+  height: 48px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .logo-sub {
@@ -492,9 +496,14 @@
     margin-bottom: 24px;
   }
 
-  .logo-text,
+  .admin-logo-image,
   .logo-sub {
-    font-size: 0;
+    width: 56px;
+    height: 42px;
+  }
+
+  .logo-sub {
+    display: none;
   }
 
   .admin-menu a {

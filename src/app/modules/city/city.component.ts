@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PricingService } from '../../core/services/pricing.service';
 
 interface CityPage {
   slug: string;
@@ -7,6 +8,13 @@ interface CityPage {
   region: string;
   localities: string[];
   faqs: { q: string; a: string }[];
+}
+
+interface CityVehicle {
+  type: string;
+  capacity: string;
+  idealFor: string;
+  price: string;
 }
 
 @Component({
@@ -39,12 +47,12 @@ export class CityComponent implements OnInit {
       ],
       faqs: [
         {
-          q: 'How fast can I get a mini truck in Mumbai?',
-          a: 'Most MoveKart partners arrive at your pickup location in Mumbai within 15-20 minutes, subject to availability and traffic.',
+          q: 'How fast can I book a delivery in Mumbai?',
+          a: 'MoveKart confirms the available delivery option and estimated timing after you enter the route. Actual arrival depends on location, traffic and live partner availability.',
         },
         {
-          q: "Does MoveKart operate during Mumbai's non-entry truck hours?",
-          a: '2-wheelers and 3-wheelers operate round the clock. Larger truck movement follows Mumbai Traffic Police timing restrictions.',
+          q: 'Is delivery available throughout Mumbai?',
+          a: 'Coverage is checked from the live service catalog and route quote. If a route cannot be served, MoveKart will show that before the order is created.',
         },
       ],
     },
@@ -99,20 +107,32 @@ export class CityComponent implements OnInit {
     },
   ];
 
-  vehicles = [
-    { type: '3-Wheeler', capacity: '500 kg', idealFor: 'Small boxes, local deliveries', price: 'Rs. 160' },
-    { type: 'Tata Ace (Chota Hathi)', capacity: '750 kg', idealFor: 'Commercial goods, appliances', price: 'Rs. 210' },
-    { type: 'Pickup / 8ft', capacity: '1200 kg', idealFor: 'Furniture, bulk goods', price: 'Rs. 300' },
-  ];
+  vehicles: CityVehicle[] = [];
 
   city!: CityPage;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private pricingService: PricingService,
   ) {}
 
   ngOnInit(): void {
+    this.pricingService.getVehicles().subscribe({
+      next: (response: any) => {
+        const catalog = Array.isArray(response?.data) ? response.data : [];
+        this.vehicles = catalog.map((vehicle: any) => ({
+          type: vehicle.name,
+          capacity: vehicle.maxWeightKg ? `Up to ${vehicle.maxWeightKg} kg` : 'Shown at booking',
+          idealFor: vehicle.description || 'Cargo that fits the displayed weight limit',
+          price: 'Quote after route selection',
+        }));
+      },
+      error: () => {
+        this.vehicles = [];
+      },
+    });
+
     this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug') || 'mumbai';
       const city = this.cities.find((item) => item.slug === slug);
@@ -131,7 +151,7 @@ export class CityComponent implements OnInit {
               },
               {
                 q: `Which vehicles are available in ${city.name}?`,
-                a: 'Motorbikes, 3-wheelers, tempo trucks and Tata Ace vehicles are supported based on cargo size, weight and operational availability.',
+                a: 'MoveKart shows the vehicles currently available for the selected service area. Capacity and pricing are confirmed from the live booking quote before you place an order.',
               },
             ],
       };

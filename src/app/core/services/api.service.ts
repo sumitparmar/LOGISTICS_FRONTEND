@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpParams,
+  HttpResponse,
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -27,8 +32,14 @@ export class ApiService {
     });
   }
 
-  post<T>(endpoint: string, body: any): Observable<T> {
-    return this.http.post<T>(this.buildUrl(endpoint), body);
+  post<T>(
+    endpoint: string,
+    body: any,
+    headers?: Record<string, string>,
+  ): Observable<T> {
+    return this.http.post<T>(this.buildUrl(endpoint), body, {
+      headers: headers ? new HttpHeaders(headers) : undefined,
+    });
   }
 
   put<T>(endpoint: string, body: any): Observable<T> {
@@ -45,6 +56,13 @@ export class ApiService {
 
   download(endpoint: string): Observable<Blob> {
     return this.http.get(this.buildUrl(endpoint), {
+      responseType: 'blob',
+    });
+  }
+
+  downloadFile(endpoint: string): Observable<HttpResponse<Blob>> {
+    return this.http.get(this.buildUrl(endpoint), {
+      observe: 'response',
       responseType: 'blob',
     });
   }

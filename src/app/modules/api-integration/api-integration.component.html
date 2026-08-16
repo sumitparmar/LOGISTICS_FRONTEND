@@ -1,0 +1,38 @@
+<main class="api-page">
+    <section class="api-hero">
+        <div class="api-container api-hero-grid">
+            <div>
+                <span class="eyebrow">MoveKart Business API</span>
+                <h1>Connect delivery to the tools your business already uses</h1>
+                <p>Automate estimates, bookings, delivery updates, and operational visibility through a secure integration designed for business workflows.</p>
+                <a routerLink="/contact" fragment="contact-form" class="api-cta">Talk to the MoveKart team</a>
+            </div>
+            <div class="api-summary">
+                <span>Integration capabilities</span>
+                <ul>
+                    <li *ngFor="let capability of capabilities">{{ capability }}</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="api-container api-steps">
+        <div class="section-heading">
+            <span class="eyebrow">Integration flow</span>
+            <h2>From checkout to completed delivery</h2>
+        </div>
+        <div class="step-grid">
+            <article class="step-card" *ngFor="let step of steps">
+                <span class="step-number">{{ step.number }}</span>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.description }}</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="api-container api-notes">
+        <h2>Build with a controlled provider boundary</h2>
+        <p>Keep provider credentials on your server, validate every request before sending it, and use webhook signatures to accept delivery changes. Your MoveKart integration should treat returned prices and order references as provider responses and persist them for reconciliation.</p>
+        <a routerLink="/faq" class="api-text-link">Review common delivery questions</a>
+    </section>
+</main>

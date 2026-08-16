@@ -41,10 +41,11 @@
 }
 
 .mobile-brand img {
-  width: 36px;
-  height: 36px;
+  width: 136px;
+  height: 42px;
 
   object-fit: contain;
+  object-position: left center;
 }
 
 .mobile-brand h3 {

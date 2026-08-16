@@ -46,15 +46,35 @@ export class OrdersService {
     return this.api.post('/orders/calculate', payload);
   }
 
-  createOrder(payload: any): Observable<any> {
-    return this.api.post('/orders/create', payload);
+  createOrder(payload: any, idempotencyKey?: string): Observable<any> {
+    return this.api.post(
+      '/orders/create',
+      payload,
+      idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+    );
   }
 
   createPaymentIntent(payload: {
     amount: number;
     paymentMethod: 'UPI' | 'CARD' | 'QR' | 'NETBANKING' | 'WALLET';
+    purpose?: 'ORDER_PAYMENT' | 'WALLET_TOPUP';
   }): Observable<any> {
     return this.api.post('/payments/intent', payload);
+  }
+
+  verifyPaymentIntent(
+    intentId: string,
+    payload: {
+      razorpay_payment_id: string;
+      razorpay_order_id: string;
+      razorpay_signature: string;
+    },
+  ): Observable<any> {
+    return this.api.post(`/payments/intent/${intentId}/verify`, payload);
+  }
+
+  getPaymentMethods(): Observable<any> {
+    return this.api.get('/payments');
   }
 
   confirmMockPaymentIntent(intentId: string): Observable<any> {
@@ -79,6 +99,14 @@ export class OrdersService {
 
   getInvoice(orderId: string): Observable<any> {
     return this.api.get(`/invoices/${orderId}`);
+  }
+
+  downloadInvoice(orderId: string): Observable<any> {
+    return this.api.downloadFile(`/invoices/${orderId}/download`);
+  }
+
+  resendInvoiceEmail(orderId: string): Observable<any> {
+    return this.api.post(`/invoices/${orderId}/email`, {});
   }
 
   getProviderHistory(orderId: string): Observable<any> {

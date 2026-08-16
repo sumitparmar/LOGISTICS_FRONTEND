@@ -4,7 +4,7 @@
             <span>MoveKart City Network</span>
             <h1>Fast & Affordable Goods Transport Services in {{ city.name }}</h1>
             <p>
-                Book motorbikes, mini 3-wheelers, tempo trucks and Tata Ace vehicles on-demand across {{ city.region }}.
+                Book the delivery option currently available for your route across {{ city.region }}. Vehicle capacity and fare are confirmed before you place an order.
             </p>
             <div class="hero-actions">
                 <a routerLink="/pricing">Get Instant Price</a>
@@ -32,6 +32,9 @@
                 <span>{{ vehicle.idealFor }}</span>
                 <span>{{ vehicle.price }}</span>
             </div>
+            <p class="catalog-empty" *ngIf="!vehicles.length">
+                Current vehicle availability will appear here from the live booking catalog.
+            </p>
         </div>
     </section>
 

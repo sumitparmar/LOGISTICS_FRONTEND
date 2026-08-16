@@ -236,23 +236,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   getVehicleLabel(id: number): string {
     switch (id) {
-      case 1:
-        return 'Mini 3-Wheeler';
-
-      case 2:
-        return 'Tata Ace 8ft';
-
-      case 3:
-        return 'Tata Ace 7ft';
-
-      case 5:
-        return 'Tempo Truck';
-
       case 8:
         return 'Motorbike';
 
       default:
-        return 'Assigned Vehicle';
+        return 'Vehicle assigned by MoveKart';
     }
   }
 

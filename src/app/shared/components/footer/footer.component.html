@@ -3,12 +3,17 @@
     <div class="footer-container">
 
         <div class="footer-col brand">
-            <div class="logo">MoveKart</div>
+            <a class="logo" routerLink="/" aria-label="MoveKart home">
+                <img src="assets/images/movekart-logo.png" alt="MoveKart" />
+            </a>
 
             <p class="brand-text">
-                Fast & affordable logistics company in India for truck booking,
-                mini truck booking, goods transport and pickup delivery solutions.
+                Route-based delivery booking with live tracking, clear pricing and business workflows.
             </p>
+
+            <a routerLink="/" class="brand-home-link">
+                MoveKart delivery and logistics service
+            </a>
 
             <ul class="city-list">
                 <li *ngFor="let city of footer.cities">
@@ -43,11 +48,19 @@
 
         <div class="footer-col apps">
 
-            <div class="app-card">Available on App Store</div>
+            <ng-container *ngFor="let app of footer.apps">
+                <a *ngIf="app.url; else appPending" class="app-card" [href]="app.url" target="_blank"
+                    rel="noopener noreferrer">
+                    {{ app.label }}
+                </a>
+                <ng-template #appPending>
+                    <span class="app-card app-card-disabled" aria-disabled="true">{{ app.label }}</span>
+                </ng-template>
+            </ng-container>
 
-            <div class="app-card">Get it on Google Play</div>
-
-            <div class="app-card">Business Dashboard</div>
+            <a class="app-card" routerLink="/auth/login" [queryParams]="{ returnUrl: '/app/dashboard' }">
+                Business Dashboard
+            </a>
 
         </div>
 
@@ -57,20 +70,23 @@
 
         <div class="socials">
 
-            <a href="#" class="icon" aria-label="Facebook">
+            <a *ngIf="footer.socials[0].url" [href]="footer.socials[0].url" target="_blank" rel="noopener noreferrer" class="icon"
+                [attr.aria-label]="footer.socials[0].label">
                 <svg viewBox="0 0 24 24">
                     <path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z" />
                 </svg>
             </a>
 
-            <a href="#" class="icon" aria-label="Instagram">
+            <a *ngIf="footer.socials[1].url" [href]="footer.socials[1].url" target="_blank" rel="noopener noreferrer" class="icon"
+                [attr.aria-label]="footer.socials[1].label">
                 <svg viewBox="0 0 24 24">
                     <path
                         d="M7 2C4.8 2 3 3.8 3 6v12c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4V6c0-2.2-1.8-4-4-4H7zm5 5a5 5 0 110 10 5 5 0 010-10z" />
                 </svg>
             </a>
 
-            <a href="#" class="icon" aria-label="YouTube">
+            <a *ngIf="footer.socials[2].url" [href]="footer.socials[2].url" target="_blank" rel="noopener noreferrer" class="icon"
+                [attr.aria-label]="footer.socials[2].label">
                 <svg viewBox="0 0 24 24">
                     <path d="M10 14.5v-5l5 2.5-5 2.5z" />
                 </svg>
@@ -78,9 +94,9 @@
 
         </div>
 
-        <div class="copyright">
-            © {{ currentYear }} MoveKart Logistics & Truck Booking Service. All rights reserved.
-        </div>
+            <div class="copyright">
+                Copyright {{ currentYear }} MoveKart delivery and logistics service. All rights reserved.
+            </div>
 
     </div>
 

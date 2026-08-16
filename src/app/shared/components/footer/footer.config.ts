@@ -1,4 +1,17 @@
 export const FOOTER_DATA = {
+  socials: [
+    // Replace these values with the official MoveKart profiles when supplied.
+    { label: 'Facebook', url: '' },
+    { label: 'Instagram', url: '' },
+    { label: 'YouTube', url: '' },
+  ],
+
+  apps: [
+    // Keep the cards wired here so only the official store URLs are needed later.
+    { label: 'App Store link pending', url: '' },
+    { label: 'Google Play link pending', url: '' },
+  ],
+
   cities: [
     { label: 'Mumbai', route: '/city/mumbai' },
     { label: 'Delhi/NCR', route: '/city/delhi-ncr' },
@@ -11,7 +24,7 @@ export const FOOTER_DATA = {
   ],
 
   company: [
-    { label: 'Become a courier', route: '/app/driver-onboarding' },
+    { label: 'Become a courier', route: '/become-courier' },
     { label: 'Privacy Policy', route: '/privacy-policy' },
     { label: 'Refund Policy', route: '/refund-policy' },
     { label: 'Community Guidelines', route: '/community-guidelines' },

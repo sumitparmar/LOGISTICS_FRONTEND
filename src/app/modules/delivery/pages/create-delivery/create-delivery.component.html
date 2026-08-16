@@ -315,11 +315,11 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                         <div class="package-categories">
 
-                            <span class="category" *ngFor="let category of packageCategories"
+                            <button type="button" class="category" *ngFor="let category of packageCategories"
                                 [class.active]="deliveryForm.get('package.category')?.value === category"
                                 (click)="selectCategory(category)">
                                 {{ category }}
-                            </span>
+                            </button>
 
                         </div>
                         <div class="mode-recommendation" *ngIf="mode === 'BUSINESS'">
@@ -339,11 +339,25 @@ deliveryForm.get('package.description')?.invalid">
                     </div>
 
 
-                    <div class="card-section">
+                    <div class="card-section route-preview-section">
 
-                        <h4>Route Preview</h4>
+                        <div class="route-preview-header">
+                            <div>
+                                <h4>Route Review</h4>
+                                <p>Review the route before calculating the fare.</p>
+                            </div>
+                            <div class="route-review-stats" *ngIf="routeDistanceKm || routeDurationText">
+                                <span *ngIf="routeDistanceKm">{{ routeDistanceKm }} km</span>
+                                <span *ngIf="routeDurationText">{{ routeDurationText }}</span>
+                            </div>
+                        </div>
 
                         <div #routeMap class="route-map"></div>
+                        <div class="route-map-message" *ngIf="routeLoading">Loading route...</div>
+                        <div class="route-map-message error" *ngIf="routeError">{{ routeError }}</div>
+                        <div class="route-map-message" *ngIf="!routeLoading && !routeError && !routeDistanceKm">
+                            Select pickup and delivery locations on the map to review the route.
+                        </div>
 
                     </div>
                     <!-- PRICE SUMMARY -->
@@ -460,7 +474,8 @@ deliveryForm.get('package.description')?.invalid">
 
                     <!-- VEHICLE -->
 
-                    <div class="card-section">
+                    <div class="card-section"
+                        *ngIf="deliveryForm.get('deliveryType')?.value !== 'END_OF_DAY' && deliveryForm.get('deliveryType')?.value !== 'EOD'">
 
                         <h3>Vehicle Type</h3>
 
@@ -488,6 +503,12 @@ deliveryForm.get('package.description')?.invalid">
 
                         </div>
 
+                    </div>
+
+                    <div class="card-section provider-note"
+                        *ngIf="deliveryForm.get('deliveryType')?.value === 'END_OF_DAY' || deliveryForm.get('deliveryType')?.value === 'EOD'">
+                        <h3>Vehicle assignment</h3>
+                        <p>MoveKart assigns the best available vehicle automatically for End of Day delivery.</p>
                     </div>
 
                     <!-- INSURANCE -->
@@ -523,25 +544,22 @@ deliveryForm.get('package.description')?.invalid">
                     <div class="card-section">
 
                         <h4>Payment Method</h4>
-                        <div class="mode-hint" *ngIf="mode === 'BUSINESS'">
-                            Advance payment keeps dispatch ready for business deliveries
-                        </div>
-
-                        <div class="mode-hint" *ngIf="mode === 'PERSONAL'">
-                            Pay before booking so the courier can focus only on pickup and delivery
+                        <div class="mode-hint">
+                            Choose COD or an available online payment method. The final amount comes from the live fare quote.
                         </div>
 
                         <div class="payment-section">
 
-                            <!-- ADVANCE PAYMENT -->
-                            <div class="payment-card"
-                                [class.active]="deliveryForm.get('paymentMethod')?.value === 'BALANCE'"
-                                (click)="selectPayment('BALANCE')">
-                                <span class="material-icons payment-icon">payments</span>
+                            <div class="payment-card" *ngFor="let option of paymentOptions"
+                                [class.active]="deliveryForm.get('paymentMethod')?.value === option.value"
+                                (click)="selectPayment(option.value)">
+                                <span class="material-icons payment-icon">
+                                    {{ option.value === 'CASH' ? 'payments' : 'account_balance_wallet' }}
+                                </span>
 
                                 <div class="payment-info">
-                                    <h4>Advance Payment</h4>
-                                    <p>Payment is collected before order creation. Gateway adapter is ready to plug in.</p>
+                                    <h4>{{ option.label }}</h4>
+                                    <p>{{ option.description }}</p>
                                 </div>
                             </div>
 
@@ -560,7 +578,9 @@ deliveryForm.get('package.description')?.invalid">
 
                         </button>
                         <div class="checkout-note">
-                            GST included - Advance payment - Instant confirmation
+                            {{ deliveryForm.get('paymentMethod')?.value === 'CASH'
+                                ? 'COD selected. Cash-payment details are recorded with the order.'
+                            : 'Payment confirmation is required before the order is created.' }}
                         </div>
 
                     </div>

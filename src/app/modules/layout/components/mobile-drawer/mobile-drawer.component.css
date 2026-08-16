@@ -55,10 +55,11 @@
 }
 
 .drawer-header img {
-  width: 42px;
+  width: 152px;
   height: 42px;
 
   object-fit: contain;
+  object-position: left center;
 }
 
 .drawer-header h3 {

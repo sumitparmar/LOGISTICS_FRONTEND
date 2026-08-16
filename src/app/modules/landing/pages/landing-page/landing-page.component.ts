@@ -35,19 +35,19 @@ export class LandingPageComponent implements OnInit {
 
   setSeoTags(): void {
     this.title.setTitle(
-      'MoveKart | Logistics Company in India | Truck Booking & Delivery Service',
+      'MoveKart | Delivery booking and logistics',
     );
 
     this.meta.updateTag({
       name: 'description',
       content:
-        'MoveKart offers truck booking service, goods transport service, mini truck booking, pickup truck service and same-day delivery solutions across India.',
+        'MoveKart provides route-based delivery booking, live tracking, fare quotes and business delivery workflows where service is available.',
     });
 
     this.meta.updateTag({
       name: 'keywords',
       content:
-        'logistics company in India, truck booking service, goods transport service, mini truck booking, pickup truck service, logistics services India, MoveKart',
+        'MoveKart delivery booking, same-day delivery, route pricing, live tracking, business delivery',
     });
   }
 

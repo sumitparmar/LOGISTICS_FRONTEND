@@ -24,23 +24,23 @@
             <div class="hero-stats">
 
                 <div class="stat-card">
-                    <strong>10K+</strong>
-                    <span>Bookings</span>
-                </div>
-
-                <div class="stat-card">
-                    <strong>25+</strong>
-                    <span>Cities</span>
-                </div>
-
-                <div class="stat-card">
-                    <strong>24/7</strong>
-                    <span>Support</span>
-                </div>
-
-                <div class="stat-card">
                     <strong>Live</strong>
-                    <span>Tracking</span>
+                    <span>Route quotes</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>Upfront</strong>
+                    <span>Fare estimate</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>Map</strong>
+                    <span>Location tools</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>COD</strong>
+                    <span>Live fallback</span>
                 </div>
 
             </div>
@@ -137,9 +137,9 @@
 
                     <mat-select formControlName="vehicleType">
 
-                        <mat-option [value]="8">Instant Delivery</mat-option>
-                        <mat-option [value]="1">Same Day Delivery</mat-option>
-                        <mat-option [value]="5">Priority Delivery</mat-option>
+                        <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.id">
+                            {{ vehicle.name }} (up to {{ vehicle.maxWeightKg }} kg)
+                        </mat-option>
 
                     </mat-select>
                 </mat-form-field>
@@ -251,8 +251,8 @@
             <span class="eyebrow">How It Works</span>
             <h2>Book Logistics in 3 Simple Steps</h2>
             <p>
-                MoveKart helps households and businesses book fast truck booking,
-                goods transport and delivery services in minutes.
+                MoveKart helps households and businesses book available delivery services
+                    with route-based pricing and tracking.
             </p>
         </div>
 
@@ -344,12 +344,12 @@
         </div>
         <div class="services-grid">
 
-            <div class="service-pill">Truck Booking Service</div>
-            <div class="service-pill">Goods Transport Service</div>
-            <div class="service-pill">Mini Truck Booking</div>
-            <div class="service-pill">Pickup Truck Service</div>
-            <div class="service-pill">Business Delivery Solutions</div>
-            <div class="service-pill">Same Day Logistics</div>
+            <div class="service-pill">Delivery booking</div>
+            <div class="service-pill">Same-day parcel delivery</div>
+            <div class="service-pill">Business delivery workflows</div>
+            <div class="service-pill">Live order tracking</div>
+            <div class="service-pill">Route-based pricing</div>
+            <div class="service-pill">Cash payment at delivery point</div>
 
         </div>
 
@@ -365,7 +365,7 @@
             <span class="eyebrow">Cities We Serve</span>
             <h2>Fast Logistics Across Major Indian Cities</h2>
             <p>
-                MoveKart offers truck booking, goods transport and delivery support across growing markets.
+                MoveKart shows route coverage and vehicle availability from the live booking catalog.
             </p>
         </div>
 
@@ -397,7 +397,7 @@
 
             <div class="testimonial-card">
                 <p>
-                    "Booked a mini truck in minutes. Smooth pickup and fair pricing."
+                    "Booked a delivery in minutes. Smooth pickup and clear pricing."
                 </p>
                 <strong>Rohit Sharma</strong>
                 <span>Delhi</span>
@@ -461,7 +461,7 @@
         <div class="faq-grid">
 
             <div class="faq-card">
-                <h3>How does truck booking service work?</h3>
+                <h3>How does delivery booking work?</h3>
                 <p>Enter pickup and drop, get price, confirm booking and track live.</p>
             </div>
 

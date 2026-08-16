@@ -33,7 +33,7 @@ export class FaqComponent {
         {
           question: 'What vehicle options are available on MoveKart?',
           answer:
-            'MoveKart supports bikes for documents and small packages up to 20 kg, Mini 3-Wheelers for small goods up to 100 kg, Tempo Trucks up to 200 kg, Tata Ace 7ft up to 750 kg, and Tata Ace 8ft up to 1,000 kg.',
+            'The booking screen shows the vehicle options currently available for your MoveKart service area. Capacity limits are displayed beside each live option and are validated again before the order is sent.',
         },
         {
           question: 'What items are prohibited from transport?',
@@ -73,7 +73,7 @@ export class FaqComponent {
         {
           question: 'Is my shipment protected against damage or loss?',
           answer:
-            'MoveKart Parcel Protection is available during checkout when you declare accurate shipment value and pay the security fee of 0.85% + GST. Eligible protection applies up to Rs. 50,000.',
+            'MoveKart Parcel Protection is available during checkout when enabled for the route. Declare an accurate shipment value and review the protection fee and eligibility returned in the live quote.',
         },
         {
           question: 'What should I do if my parcel arrives damaged or is lost?',
@@ -88,12 +88,12 @@ export class FaqComponent {
         {
           question: 'Can I cancel after a driver is assigned?',
           answer:
-            'Yes. Cancellation is free before the driver arrives or within 5 minutes of assignment. If the driver has arrived or spent significant travel time, a fee of Rs. 50-150 may apply depending on vehicle size.',
+            'Cancellation is governed by the live order state and the applicable MoveKart policy. Any cancellation or waiting charge is shown or communicated before it is applied.',
         },
         {
           question: 'How long does it take to receive a refund?',
           answer:
-            'Approved wallet refunds are credited within 24 hours. Bank, card and UPI refunds generally take 5-7 working days depending on bank processing cycles.',
+            'Approved refunds are recorded against the payment used for the order. Wallet credits are reflected in the ledger; bank or payment-network timing depends on the configured gateway.',
         },
       ],
     },

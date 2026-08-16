@@ -31,12 +31,12 @@ export class CourierComponent {
 
   faqs = [
     {
-      q: 'How is Borzo different from other courier services?',
-      a: 'Borzo offers flexible delivery jobs with instant payouts, simple app usage, and no fixed schedule.',
+      q: 'How is MoveKart different from other courier services?',
+      a: 'MoveKart offers flexible delivery jobs with simple app usage, transparent earnings, and no fixed schedule.',
       open: false,
     },
     {
-      q: 'What are the requirements for a Borzo courier job?',
+      q: 'What are the requirements for a MoveKart courier job?',
       a: 'You need a smartphone, valid ID, and a vehicle (bike/scooter) to start delivering.',
       open: false,
     },
@@ -51,8 +51,8 @@ export class CourierComponent {
       open: false,
     },
     {
-      q: 'Can I combine Borzo with other work or studies?',
-      a: 'Yes, Borzo is fully flexible and allows you to work anytime.',
+      q: 'Can I combine MoveKart with other work or studies?',
+      a: 'Yes, MoveKart is flexible and allows you to choose when you work.',
       open: false,
     },
     {
@@ -62,7 +62,7 @@ export class CourierComponent {
     },
     {
       q: 'Are there currently any courier vacancies?',
-      a: 'Yes, Borzo regularly accepts new couriers across multiple cities.',
+      a: 'MoveKart regularly accepts new courier partners across multiple cities.',
       open: false,
     },
     {
@@ -77,7 +77,7 @@ export class CourierComponent {
     },
     {
       q: 'Which cities offer the opportunity to get delivery jobs?',
-      a: 'Borzo operates in major cities like Delhi, Mumbai, Bengaluru, and more.',
+      a: 'MoveKart operates in major cities like Delhi, Mumbai, Bengaluru, and more.',
       open: false,
     },
   ];
@@ -101,5 +101,24 @@ export class CourierComponent {
     this.router.navigate(['/auth/login'], {
       queryParams: { returnUrl: destination },
     });
+  }
+
+  downloadGuide(): void {
+    const guide = [
+      'MoveKart Courier Partner Guide',
+      '',
+      '1. Create your onboarding profile.',
+      '2. Submit your identity, license, vehicle, and payout documents.',
+      '3. Wait for operations review and approval.',
+      '4. Keep your phone available for delivery updates.',
+      '',
+      'Support: partners@movekart.in',
+    ].join('\n');
+    const url = URL.createObjectURL(new Blob([guide], { type: 'text/plain;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'movekart-courier-partner-guide.txt';
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }

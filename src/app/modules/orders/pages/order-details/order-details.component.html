@@ -349,17 +349,43 @@
 
                     </div>
 
+                    <div class="track-action" *ngIf="order.status !== 'DELIVERED'
+                        && order.status !== 'CANCELLED'
+                        && order.status !== 'FAILED'">
+                        <button class="cancel-order-btn" type="button" (click)="openSafetyReport()">
+                            Emergency / Report
+                        </button>
+                    </div>
+
                 </div>
 
-                <div class="order-card pricing-card" *ngIf="order.status === 'DELIVERED' && invoice">
+                <div class="order-card pricing-card invoice-card" *ngIf="order.status === 'DELIVERED'">
                     <div class="card-header">
                         <h3>Invoice</h3>
                     </div>
 
-                    <div class="pricing-breakdown">
+                    <div class="invoice-loading" *ngIf="invoiceLoading">
+                        Preparing your invoice...
+                    </div>
+
+                    <div class="invoice-error" *ngIf="!invoiceLoading && invoiceError && !invoice">
+                        {{ invoiceError }}
+                    </div>
+
+                    <div class="pricing-breakdown" *ngIf="!invoiceLoading && invoice">
                         <div class="price-row">
                             <span>Invoice No.</span>
                             <span>{{ invoice.invoiceNumber }}</span>
+                        </div>
+
+                        <div class="price-row">
+                            <span>Issued</span>
+                            <span>{{ invoice.issueDate | date:'dd MMM yyyy, hh:mm a' }}</span>
+                        </div>
+
+                        <div class="price-row">
+                            <span>Email status</span>
+                            <span>{{ invoice.email?.status || 'PENDING' }}</span>
                         </div>
 
                         <div class="price-row" *ngFor="let item of invoice.lineItems">
@@ -369,7 +395,22 @@
 
                         <div class="price-total">
                             <span>Total</span>
-                            <span>{{ invoice.currency }} {{ invoice.total | number:'1.2-2' }}</span>
+                            <span>{{ invoice.currency }} {{ (invoice.grandTotal ?? invoice.total) | number:'1.2-2' }}</span>
+                        </div>
+
+                        <div class="invoice-actions">
+                            <button type="button" class="invoice-action primary" (click)="downloadInvoice()"
+                                [disabled]="invoiceDownloading || invoiceSharing || invoiceEmailing">
+                                {{ invoiceDownloading ? 'Downloading...' : 'Download Invoice' }}
+                            </button>
+                            <button type="button" class="invoice-action secondary" (click)="shareInvoice()"
+                                [disabled]="invoiceDownloading || invoiceSharing || invoiceEmailing">
+                                {{ invoiceSharing ? 'Preparing...' : 'Share Invoice' }}
+                            </button>
+                            <button type="button" class="invoice-action tertiary" (click)="resendInvoiceEmail()"
+                                [disabled]="invoiceDownloading || invoiceSharing || invoiceEmailing">
+                                {{ invoiceEmailing ? 'Queuing...' : 'Email Invoice Again' }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -421,4 +462,20 @@
 
 <div *ngIf="loading" class="loading">
     Loading order...
+</div>
+
+<div class="cancel-overlay" *ngIf="showSafetyReport">
+    <div class="cancel-modal">
+        <h3>Emergency / Safety Report</h3>
+        <p>Describe the safety issue or urgent incident for this active order.</p>
+        <textarea [(ngModel)]="safetyMessage" rows="5" maxlength="2000"
+            placeholder="Tell MoveKart support what happened and where assistance is needed."></textarea>
+        <div class="cancel-actions">
+            <button class="cancel-no-btn" type="button" (click)="closeSafetyReport()">Close</button>
+            <button class="cancel-yes-btn" type="button" (click)="submitSafetyReport()"
+                [disabled]="isSubmittingSafetyReport || !safetyMessage.trim()">
+                {{ isSubmittingSafetyReport ? 'Submitting...' : 'Submit Report' }}
+            </button>
+        </div>
+    </div>
 </div>

@@ -112,6 +112,21 @@ export class AdminOrdersService {
     });
   }
 
+  getInvoice(orderId: string) {
+    return this.http.get(`${environment.apiBaseUrl}/admin/invoices/${orderId}`);
+  }
+
+  downloadInvoice(orderId: string) {
+    return this.http.get(`${environment.apiBaseUrl}/admin/invoices/${orderId}/download`, {
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  resendInvoiceEmail(orderId: string) {
+    return this.http.post(`${environment.apiBaseUrl}/admin/invoices/${orderId}/email`, {});
+  }
+
   exportCSV(params: any) {
     return this.http.get(`${environment.apiBaseUrl}/admin/export`, {
       params,
