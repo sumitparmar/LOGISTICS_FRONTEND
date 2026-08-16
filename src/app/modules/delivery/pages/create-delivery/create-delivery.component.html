@@ -360,46 +360,6 @@ deliveryForm.get('package.description')?.invalid">
                         </div>
 
                     </div>
-                    <!-- PRICE SUMMARY -->
-                    <div class="pricesummary">
-                        <div class="card-section price-summary">
-
-                            <h4>Estimated Fare</h4>
-                            <div class="price-row">
-                                <span>Delivery Fee</span>
-                                <span>{{ priceSummary.deliveryFee ? ('Rs. ' + priceSummary.deliveryFee) : 'Pending'
-                                    }}</span>
-                            </div>
-
-                            <div class="price-row">
-                                <span>Insurance</span>
-                                <span>{{ priceSummary.insurance ? ('Rs. ' + priceSummary.insurance) : '-' }}</span>
-                            </div>
-
-                            <div class="price-row" *ngIf="priceSummary.taxableAmount">
-                                <span>Subtotal</span>
-                                <span>Rs. {{ priceSummary.taxableAmount }}</span>
-                            </div>
-
-                            <div class="price-row" *ngIf="priceSummary.gstAmount">
-                                <span>GST ({{ priceSummary.gstRate }}%)</span>
-                                <span>Rs. {{ priceSummary.gstAmount }}</span>
-                            </div>
-
-                            <div class="price-total">
-                                <span>Total payable</span>
-                                <span>{{ priceSummary.total ? ('Rs. ' + priceSummary.total) : 'Calculate fare' }}</span>
-                            </div>
-
-                            <button type="button" class="btn-price" (click)="calculatePrice()"
-                                [disabled]="isCalculatingPrice || isCreatingOrder">
-                                {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
-                            </button>
-
-                        </div>
-
-                    </div>
-
                 </div>
 
                 <!-- RIGHT PANEL -->
@@ -581,6 +541,46 @@ deliveryForm.get('package.description')?.invalid">
                             {{ deliveryForm.get('paymentMethod')?.value === 'CASH'
                                 ? 'COD selected. Cash-payment details are recorded with the order.'
                             : 'Payment confirmation is required before the order is created.' }}
+                        </div>
+
+                    </div>
+
+                    <!-- PRICE SUMMARY -->
+                    <div class="pricesummary">
+                        <div class="card-section price-summary">
+
+                            <h4>Estimated Fare</h4>
+                            <div class="price-row">
+                                <span>Delivery Fee</span>
+                                <span>{{ priceSummary.deliveryFee ? ('Rs. ' + priceSummary.deliveryFee) : 'Pending'
+                                    }}</span>
+                            </div>
+
+                            <div class="price-row">
+                                <span>Insurance</span>
+                                <span>{{ priceSummary.insurance ? ('Rs. ' + priceSummary.insurance) : '-' }}</span>
+                            </div>
+
+                            <div class="price-row" *ngIf="priceSummary.taxableAmount">
+                                <span>Subtotal</span>
+                                <span>Rs. {{ priceSummary.taxableAmount }}</span>
+                            </div>
+
+                            <div class="price-row" *ngIf="priceSummary.gstAmount">
+                                <span>GST ({{ priceSummary.gstRate }}%)</span>
+                                <span>Rs. {{ priceSummary.gstAmount }}</span>
+                            </div>
+
+                            <div class="price-total">
+                                <span>Total payable</span>
+                                <span>{{ priceSummary.total ? ('Rs. ' + priceSummary.total) : 'Calculate fare' }}</span>
+                            </div>
+
+                            <button type="button" class="btn-price" (click)="calculatePrice()"
+                                [disabled]="isCalculatingPrice || isCreatingOrder">
+                                {{ isCalculatingPrice ? 'Calculating...' : 'Calculate Price' }}
+                            </button>
+
                         </div>
 
                     </div>
