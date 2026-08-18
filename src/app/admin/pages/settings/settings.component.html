@@ -12,7 +12,7 @@
                 Reset
             </button>
 
-            <button type="submit" class="primary-btn" (click)="onSave()" [disabled]="!canSave">
+            <button type="submit" form="settingsForm" class="primary-btn" [disabled]="!canSave">
                 {{ saving ? 'Saving Changes...' : 'Save Changes' }}
             </button>
         </div>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Form -->
-    <form *ngIf="!loading" [formGroup]="form" class="settings-grid" (ngSubmit)="onSave()">
+    <form id="settingsForm" *ngIf="!loading" [formGroup]="form" class="settings-grid" (ngSubmit)="onSave()">
         <!-- LEFT -->
         <div class="settings-column">
 
@@ -71,8 +71,7 @@
                 <div class="form-group">
                     <label>Support Phone</label>
 
-                    <input type="text" formControlName="supportPhone" placeholder="+91 98765 43210" maxlength="15"
-                        autocomplete="tel" inputmode="tel" />
+                    <app-phone-input formControlName="supportPhone" placeholder="10 digit support number"></app-phone-input>
                     <div class="field-error"
                         *ngIf="form.get('supportPhone')?.touched && form.get('supportPhone')?.invalid">
 
@@ -143,7 +142,7 @@
                     </div>
                     <div class="form-group">
                         <label>Invoice Support Phone</label>
-                        <input type="text" formControlName="supportPhone" placeholder="Billing contact" inputmode="tel" />
+                        <app-phone-input formControlName="supportPhone" placeholder="10 digit billing number"></app-phone-input>
                     </div>
                 </div>
 

@@ -31,7 +31,10 @@
 
                     <div class="field">
                         <label>Phone</label>
-                        <input formControlName="phone" inputmode="tel" autocomplete="tel">
+                        <app-phone-input formControlName="phone"></app-phone-input>
+                        <small *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid">
+                            Enter a valid 10 digit phone number.
+                        </small>
                     </div>
 
                     <button type="button" class="btn-primary" (click)="updateProfile()"

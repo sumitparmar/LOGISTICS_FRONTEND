@@ -176,6 +176,25 @@
   background: var(--mk-card-bg);
 }
 
+/* The ticket list is intentionally narrow, so keep its pagination inside the column. */
+.support-pagination {
+  padding: 12px;
+  background: var(--mk-card-bg);
+}
+
+.support-pagination ::ng-deep .pagination {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+.support-pagination ::ng-deep .pagination-summary,
+.support-pagination ::ng-deep .pagination-controls,
+.support-pagination ::ng-deep .pagination-size {
+  justify-content: center;
+  width: 100%;
+}
+
 .ticket-list::-webkit-scrollbar,
 .chat-box::-webkit-scrollbar {
   width: 8px;

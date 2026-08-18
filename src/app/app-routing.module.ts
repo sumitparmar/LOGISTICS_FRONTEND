@@ -47,6 +47,14 @@ const routes: Routes = [
       },
 
       {
+        path: 'become-courier/apply',
+        loadChildren: () =>
+          import('./modules/driver-onboarding/driver-onboarding.module').then(
+            (m) => m.DriverOnboardingModule,
+          ),
+      },
+
+      {
         path: 'become-courier',
         loadChildren: () =>
           import('./modules/courier/courier.module').then(

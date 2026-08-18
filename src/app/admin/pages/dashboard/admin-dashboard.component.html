@@ -1,34 +1,60 @@
 <div class="dashboard" *ngIf="!isLoading && stats; else loadingTpl">
 
     <div class="dashboard-header">
-        <h2 class="dashboard-title">Dashboard</h2>
+        <div>
+            <h2 class="dashboard-title">Dashboard</h2>
+            <p class="dashboard-subtitle">Live operational overview for MoveKart</p>
+        </div>
 
-        <div class="range-filter">
-            <button [class.active]="selectedRange === 'today'" (click)="changeRange('today')">
-                Today
-            </button>
+        <div class="dashboard-actions">
+            <div class="range-filter" role="group" aria-label="Dashboard date range">
+                <button type="button" [class.active]="selectedRange === 'today'" (click)="changeRange('today')">
+                    Today
+                </button>
 
-            <button [class.active]="selectedRange === 'week'" (click)="changeRange('week')">
-                Week
-            </button>
+                <button type="button" [class.active]="selectedRange === 'week'" (click)="changeRange('week')">
+                    Week
+                </button>
 
-            <button [class.active]="selectedRange === 'month'" (click)="changeRange('month')">
-                Month
+                <button type="button" [class.active]="selectedRange === 'month'" (click)="changeRange('month')">
+                    Month
+                </button>
+            </div>
+
+            <button type="button" class="refresh-btn" (click)="refreshDashboard()" [disabled]="isLoading">
+                Refresh
             </button>
         </div>
+    </div>
+
+    <div class="dashboard-meta" *ngIf="lastUpdated">
+        Updated {{ lastUpdated | date:'shortTime' }}
+    </div>
+
+    <div class="dashboard-inline-error" *ngIf="errorMessage">
+        <span>{{ errorMessage }}</span>
+        <button type="button" class="retry-btn" (click)="refreshDashboard()">Retry</button>
     </div>
 
     <!-- KPI CARDS -->
     <div class="dashboard-cards">
 
         <app-kpi-card title="Total Users" [value]="stats.totalUsers" [growth]="stats.usersChange"
-            [subtitle]="getComparisonText()" icon="users" variant="users"></app-kpi-card>
+            [subtitle]="getComparisonText()" icon="users" variant="users"
+            [clickable]="permissionService.has('users.read')" (cardClick)="goToUsers()"></app-kpi-card>
 
         <app-kpi-card title="Total Orders" [value]="stats.totalOrders" [growth]="stats.ordersChange"
-            [subtitle]="getComparisonText()" icon="shopping-cart" variant="orders"></app-kpi-card>
+            [subtitle]="getComparisonText()" icon="shopping-cart" variant="orders"
+            [clickable]="permissionService.has('orders.read')" (cardClick)="goToOrders()"></app-kpi-card>
+
+        <app-kpi-card title="Active Orders" [value]="stats.activeOrders" [growth]="0"
+            subtitle="currently in progress" icon="truck" variant="active"
+            [clickable]="permissionService.has('orders.read')"
+            (cardClick)="goToOrders('IN_PROGRESS')"></app-kpi-card>
 
         <app-kpi-card title="Revenue" [value]="stats.revenue" [growth]="stats.revenueChange"
-            [subtitle]="getComparisonText()" icon="dollar-sign" variant="revenue"></app-kpi-card>
+            [subtitle]="getComparisonText()" icon="dollar-sign" variant="revenue"
+            [clickable]="permissionService.has('payments.read')" (cardClick)="goToPayments()"></app-kpi-card>
 
     </div>
 
@@ -68,6 +94,13 @@
 </div>
 
 <ng-template #loadingTpl>
+    <div class="dashboard-error" *ngIf="errorMessage; else loadingState">
+        <h2>Dashboard unavailable</h2>
+        <p>{{ errorMessage }}</p>
+        <button type="button" class="retry-btn" (click)="refreshDashboard()">Try again</button>
+    </div>
+
+    <ng-template #loadingState>
     <div class="dashboard-skeleton">
 
         <!-- HEADER -->
@@ -82,11 +115,12 @@
 
         <!-- KPI CARDS -->
         <div class="skeleton-cards">
-            <div class="skeleton-card" *ngFor="let i of [1,2,3]"></div>
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
         </div>
 
         <!-- CHART -->
         <div class="skeleton-chart"></div>
 
     </div>
+    </ng-template>
 </ng-template>

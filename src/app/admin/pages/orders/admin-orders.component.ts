@@ -33,6 +33,7 @@ export class AdminOrdersComponent implements OnInit {
 
   isBulkCancelling: boolean = false;
   isBulkUpdating: boolean = false;
+  isCancelling = false;
   private searchSubject = new Subject<string>();
   searchTerm: string = '';
   selectedStatus: string = 'ALL';
@@ -44,6 +45,7 @@ export class AdminOrdersComponent implements OnInit {
   orders: any[] = [];
   allOrders: any[] = [];
   loading: boolean = false;
+  errorMessage = '';
 
   isExportingFromModal: boolean = false;
   isExporting: boolean = false;
@@ -88,12 +90,24 @@ export class AdminOrdersComponent implements OnInit {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params: any) => {
-        const status = params['status'];
+        const requestedStatus = params['status'];
         const search = params['search'];
+        const allowedStatuses = new Set([
+          'ALL',
+          'CREATED',
+          'IN_PROGRESS',
+          'DELIVERED',
+          'CANCELLED',
+          'FAILED',
+        ]);
+        const status = allowedStatuses.has(requestedStatus)
+          ? requestedStatus
+          : 'ALL';
 
         this.selectedStatus = status || 'ALL';
         this.searchTerm = search || '';
         this.page = 1;
+        this.clearSelection();
 
         this.loadOrders();
       });
@@ -120,16 +134,17 @@ export class AdminOrdersComponent implements OnInit {
 
   private setupSearchDebounce(): void {
     this.searchSubject
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((search: string) => {
         this.searchTerm = search;
         this.page = 1;
+        this.clearSelection();
         this.loadOrders();
       });
   }
 
   confirmExport(): void {
-    if (!this.permissionService.has('orders.update')) return;
+    if (!this.permissionService.has('orders.read')) return;
 
     this.confirmMode = 'export';
     this.showConfirm = true;
@@ -155,15 +170,15 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onRowClick(order: any): void {
-    if (!order?._id) return;
+    if (!order?._id || !this.permissionService.has('orders.read')) return;
 
     this.router.navigate(['/admin/orders', order._id]);
   }
 
   loadOrders(): void {
     this.loading = true;
+    this.errorMessage = '';
     this.cdr.detectChanges();
-    const status = this.mapStatusForBackend(this.selectedStatus);
     let statusParam: any = this.mapStatusForBackend(this.selectedStatus);
 
     if (statusParam === null) {
@@ -187,6 +202,7 @@ export class AdminOrdersComponent implements OnInit {
         next: (res: OrdersResponse) => {
           this.ordersStore.setOrders(res.data || []);
           this._backendTotal = res.pagination?.total || 0;
+          this.errorMessage = '';
 
           if (res.statusCounts) {
             const counts = res.statusCounts;
@@ -202,11 +218,18 @@ export class AdminOrdersComponent implements OnInit {
             };
           }
           this.loading = false;
+
+          if (this.page > this.totalPages) {
+            this.page = this.totalPages;
+            this.loadOrders();
+          }
         },
 
         error: (err: any) => {
           console.error('Orders API failed:', err);
-          this.showToast('Failed to load orders', 'error');
+          this.errorMessage =
+            err?.error?.message || 'Unable to load orders right now.';
+          this.showToast(this.errorMessage, 'error');
           this.orders = [];
           this.loading = false;
         },
@@ -227,6 +250,15 @@ export class AdminOrdersComponent implements OnInit {
 
       case 'ASSIGNED':
         return 'Assigned';
+
+      case 'CREATED':
+        return 'Pending';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      case 'FAILED':
+        return 'Failed';
 
       default:
         return status;
@@ -285,18 +317,23 @@ export class AdminOrdersComponent implements OnInit {
     }
 
     this.page = 1;
+    this.clearSelection();
     this.loadOrders();
   }
 
   // ===== Actions =====
   onEdit(order: any): void {
-    if (!order?._id) return;
+    if (!order?._id || !this.permissionService.has('orders.update')) return;
 
     this.router.navigate(['/admin/orders', order._id]);
   }
 
   onDelete(order: any): void {
-    if (!this.permissionService.has('orders.cancel')) return;
+    if (
+      !this.permissionService.has('orders.cancel') ||
+      !order?._id ||
+      ['DELIVERED', 'CANCELLED'].includes(order.status)
+    ) return;
 
     this.selectedOrder = order;
     this.confirmMode = 'single';
@@ -306,14 +343,18 @@ export class AdminOrdersComponent implements OnInit {
   onConfirmDelete(): void {
     // SINGLE
     if (this.confirmMode === 'single' && this.selectedOrder?._id) {
+      if (this.isCancelling) return;
+      this.isCancelling = true;
       this.ordersService.cancelOrder(this.selectedOrder._id).subscribe({
         next: () => {
+          this.isCancelling = false;
           this.showToast('Order cancelled successfully', 'success');
           this.resetConfirmState();
           this.loadOrders();
         },
         error: () => {
-          this.showToast('Cancel failed', 'error');
+          this.isCancelling = false;
+          this.showToast('Unable to cancel this order.', 'error');
           this.resetConfirmState();
         },
       });
@@ -379,6 +420,7 @@ export class AdminOrdersComponent implements OnInit {
     this.selectedOrder = null;
     this.confirmMode = 'single';
     this.bulkStatusValue = '';
+    this.isCancelling = false;
   }
 
   onCancelDelete(): void {
@@ -408,7 +450,7 @@ export class AdminOrdersComponent implements OnInit {
   filterByStatus(status: string): void {
     this.selectedStatus = status;
     this.page = 1;
-    // this.selectedOrders.clear();
+    this.clearSelection();
     this.loadOrders();
   }
 
@@ -427,6 +469,9 @@ export class AdminOrdersComponent implements OnInit {
 
       case 'CREATED':
         return 'pending';
+
+      case 'FAILED':
+        return 'failed';
 
       default:
         return 'default';
@@ -457,6 +502,10 @@ export class AdminOrdersComponent implements OnInit {
       !this.permissionService.has('orders.cancel')
     )
       return;
+
+    if (!order?._id || ['DELIVERED', 'CANCELLED'].includes(order.status)) {
+      return;
+    }
 
     if (this.selectedOrders.has(order._id)) {
       this.selectedOrders.delete(order._id);
@@ -594,6 +643,10 @@ export class AdminOrdersComponent implements OnInit {
       provider: this.selectedProvider || '',
     };
 
+    if (this.selectedOrders.size > 0) {
+      params.orderIds = [...this.selectedOrders];
+    }
+
     this.ordersService.exportCSV(params).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -613,6 +666,10 @@ export class AdminOrdersComponent implements OnInit {
         this.ngZone.run(() => {
           this.isExporting = false;
           this.showConfirm = false;
+          this.showToast(
+            err?.error?.message || 'Export failed. Please try again.',
+            'error',
+          );
         });
       },
     });
@@ -640,6 +697,7 @@ export class AdminOrdersComponent implements OnInit {
     }
 
     this.page = 1;
+    this.clearSelection();
     this.loadOrders();
   }
 

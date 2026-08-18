@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { AdminUsersService } from '../../services/admin-users.service';
 import { Router } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { AdminUsersStore } from '../../services/admin-users.store';
-import { Subscription } from 'rxjs';
 import { ToastService } from '../../services/toast.service';
 import { PermissionService } from '../../services/permission.service';
 
@@ -13,8 +13,8 @@ import { PermissionService } from '../../services/permission.service';
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss'],
 })
-export class AdminUsersComponent implements OnInit {
-  private sub!: Subscription;
+export class AdminUsersComponent implements OnInit, OnDestroy {
+  private sub = new Subscription();
   private searchSubject = new Subject<string>();
   @ViewChild('statusTemplate', { static: true })
   statusTemplate!: TemplateRef<any>;
@@ -39,6 +39,12 @@ export class AdminUsersComponent implements OnInit {
   showConfirm = false;
   selectedUser: any = null;
   roles: any[] = [];
+  loading = false;
+  errorMessage: string | null = null;
+  rolesLoading = false;
+  rolesError = '';
+  roleUpdatingIds = new Set<string>();
+  statusUpdating = false;
 
   initializeColumns(): void {
     this.columns = [
@@ -75,15 +81,14 @@ export class AdminUsersComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private usersStore: AdminUsersStore,
     private toastService: ToastService,
+    private route: ActivatedRoute,
     public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
     this.initializeColumns();
-    this.loadUsers();
     this.setupSearchStream();
     this.loadRoles();
-    this.sub = new Subscription();
 
     // USERS
     this.sub.add(
@@ -108,16 +113,41 @@ export class AdminUsersComponent implements OnInit {
         this.total = p.total || 0;
       }),
     );
+
+    this.sub.add(
+      this.usersStore.loading$.subscribe((loading) => {
+        this.loading = loading;
+      }),
+    );
+
+    this.sub.add(
+      this.usersStore.error$.subscribe((error) => {
+        this.errorMessage = error;
+      }),
+    );
+
+    this.sub.add(
+      this.route.queryParams.subscribe((params) => {
+        const requestedStatus = params['status'] || '';
+        const allowedStatuses = new Set(['', 'active', 'inactive']);
+        this.search = params['search'] || '';
+        this.filterStatus = allowedStatuses.has(requestedStatus)
+          ? requestedStatus
+          : '';
+        this.page = 1;
+        this.loadUsers();
+      }),
+    );
   }
 
   setupSearchStream(): void {
-    this.searchSubject
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((search) => {
+    this.sub.add(
+      this.searchSubject
+        .pipe(debounceTime(400), distinctUntilChanged())
+        .subscribe((search) => {
           this.search = search;
           this.page = 1;
+          this.errorMessage = null;
 
           this.usersStore.loadUsers(
             this.page,
@@ -125,10 +155,8 @@ export class AdminUsersComponent implements OnInit {
             this.search,
             this.filterStatus,
           );
-          return [];
         }),
-      )
-      .subscribe();
+    );
   }
 
   loadUsers() {
@@ -141,23 +169,29 @@ export class AdminUsersComponent implements OnInit {
   }
 
   loadRoles(): void {
+    this.rolesLoading = true;
+    this.rolesError = '';
     this.adminUsersService.getRoles().subscribe({
       next: (res: any) => {
-        this.roles = res.data || [];
+        this.roles = res?.data || [];
+        this.rolesLoading = false;
       },
       error: (err: any) => {
         console.error('Failed to load roles', err);
+        this.rolesLoading = false;
+        this.rolesError = 'Unable to load admin roles.';
       },
     });
   }
 
   onPageChange(page: number) {
+    if (page < 1 || page > this.totalPages || this.loading) return;
     this.page = page;
     this.loadUsers();
   }
 
   onLimitChange(limit: number) {
-    if (limit === this.limit) return;
+    if (limit === this.limit || this.loading) return;
 
     this.limit = limit;
     this.page = 1;
@@ -169,6 +203,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onEdit(user: any): void {
+    if (!this.permissionService.has('users.update')) return;
     const id = user._id || user.id;
 
     if (!id) {
@@ -183,6 +218,9 @@ export class AdminUsersComponent implements OnInit {
     const userId =
       typeof user._id === 'string' ? user._id : user._id?._id || user.id;
 
+    if (!userId || this.roleUpdatingIds.has(userId)) return;
+
+    this.roleUpdatingIds.add(userId);
     const request$ = roleId
       ? this.adminUsersService.assignRole({ userId, roleId })
       : this.adminUsersService.removeRole(userId);
@@ -190,6 +228,8 @@ export class AdminUsersComponent implements OnInit {
     request$.subscribe({
       next: () => {
         // ✅ Always sync from backend (single source of truth)
+        this.roleUpdatingIds.delete(userId);
+        this.toastService.success('Admin role updated successfully');
         this.loadUsers();
       },
 
@@ -197,6 +237,7 @@ export class AdminUsersComponent implements OnInit {
         console.error('Role update failed', err);
 
         // ✅ Reload to revert UI properly
+        this.roleUpdatingIds.delete(userId);
         this.loadUsers();
 
         this.toastService.error(err?.error?.message || 'Role update failed');
@@ -213,13 +254,16 @@ export class AdminUsersComponent implements OnInit {
   // }
 
   onToggleStatus(user: any): void {
+    if (!this.permissionService.has('users.update') || this.statusUpdating) return;
     this.selectedUser = user;
     this.showConfirm = true;
   }
 
   onFilterChange(value: string) {
+    if (!['', 'active', 'inactive'].includes(value)) return;
     this.filterStatus = value;
     this.page = 1;
+    this.errorMessage = null;
     this.loadUsers();
   }
 
@@ -230,6 +274,7 @@ export class AdminUsersComponent implements OnInit {
 
     const id = user.id || user._id;
     const newStatus = !user.isActive;
+    this.statusUpdating = true;
 
     this.adminUsersService
       .updateUser(id, {
@@ -245,9 +290,15 @@ export class AdminUsersComponent implements OnInit {
 
           this.showConfirm = false;
           this.selectedUser = null;
+          this.statusUpdating = false;
+          this.toastService.success(
+            newStatus ? 'User activated successfully' : 'User deactivated successfully',
+          );
         },
         error: (err) => {
           console.error('Status update failed', err);
+          this.statusUpdating = false;
+          this.toastService.error(err?.error?.message || 'Status update failed');
         },
       });
   }
@@ -258,10 +309,12 @@ export class AdminUsersComponent implements OnInit {
   }
 
   goToCreate(): void {
+    if (!this.permissionService.has('users.create')) return;
     this.router.navigate(['/admin/users/create']);
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.searchSubject.complete();
   }
 }

@@ -118,7 +118,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.profileForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: [{ value: '', disabled: true }, [Validators.email]],
-      phone: ['', [Validators.required, Validators.minLength(8)]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       businessName: [''],
     });
 

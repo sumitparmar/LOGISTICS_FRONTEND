@@ -65,19 +65,20 @@
 
         <!-- ERROR -->
         <div *ngIf="!isLoading && error" class="state error">
-            {{ error }}
+            <span>{{ error }}</span>
+            <button type="button" class="secondary-btn" (click)="fetchRoles()">Retry</button>
         </div>
 
         <!-- EMPTY -->
-        <div *ngIf="!isLoading && roles.length === 0" class="state empty">
-            <p>No roles found</p>
-            <button *ngIf="permissionService.has('users.create')" class="primary-btn" (click)="openDrawer()">
+        <div *ngIf="!isLoading && !error && roles.length === 0" class="state empty">
+            <p>{{ searchTerm ? 'No roles match your search.' : 'No roles found.' }}</p>
+            <button *ngIf="!searchTerm && permissionService.has('users.create')" class="primary-btn" (click)="openDrawer()">
                 Create First Role
             </button>
         </div>
 
         <!-- ================= TOOLBAR (SEARCH + PAGINATION) ================= -->
-        <div class="roles-toolbar" *ngIf="!isLoading && roles.length > 0">
+        <div class="roles-toolbar" *ngIf="!isLoading && !error">
 
             <!-- LEFT -->
             <div class="toolbar-left">
@@ -99,20 +100,6 @@
                     (limitChange)="onLimitChange($event)"
                 >
                 </app-pagination>
-
-                <div class="legacy-pager" aria-hidden="true">
-                <button class="page-btn" [disabled]="page === 1" (click)="onPageChange(page - 1)" tabindex="-1">
-                    ‹
-                </button>
-
-                <div class="page-info">
-                    Page {{ page }} of {{ totalPages }}
-                </div>
-
-                <button class="page-btn" [disabled]="page === totalPages" (click)="onPageChange(page + 1)" tabindex="-1">
-                    ›
-                </button>
-                </div>
 
             </div>
 
@@ -141,12 +128,16 @@
                             <td>{{ role.description || '-' }}</td>
 
                             <td class="permissions-cell">
-                                <span *ngFor="let perm of role.permissions.slice(0, 2)">
+                                <span *ngFor="let perm of (role.permissions || []).slice(0, 2)">
                                     {{ perm }}
                                 </span>
 
-                                <span *ngIf="role.permissions.length > 2" class="more">
-                                    +{{ role.permissions.length - 2 }} more
+                                <span *ngIf="!(role.permissions || []).length" class="muted">
+                                    No permissions assigned
+                                </span>
+
+                                <span *ngIf="(role.permissions || []).length > 2" class="more">
+                                    +{{ (role.permissions || []).length - 2 }} more
                                 </span>
                             </td>
 
@@ -183,10 +174,10 @@
 
             <div class="drawer-header">
                 <h3>{{ isEditMode ? 'Edit Role' : 'Create Role' }}</h3>
-                <button class="close-btn" (click)="closeDrawer()">✕</button>
+                <button type="button" class="close-btn" (click)="closeDrawer()" aria-label="Close role editor">✕</button>
             </div>
 
-            <form [formGroup]="createRoleForm" class="drawer-form">
+            <form [formGroup]="createRoleForm" class="drawer-form" (ngSubmit)="createRole()">
 
                 <div class="form-body">
 
@@ -212,7 +203,16 @@
                     </div>
 
                     <!-- PERMISSIONS -->
-                    <div class="permissions-section" *ngIf="permissionsMap">
+                    <div *ngIf="permissionsLoading" class="permissions-state">
+                        Loading available permissions...
+                    </div>
+
+                    <div *ngIf="!permissionsLoading && permissionsError" class="permissions-state error">
+                        {{ permissionsError }}
+                        <button type="button" class="secondary-btn" (click)="fetchPermissions()">Retry</button>
+                    </div>
+
+                    <div class="permissions-section" *ngIf="!permissionsLoading && !permissionsError && permissionsMap.length">
 
                         <div class="permission-card" *ngFor="let module of permissionsMap">
 
@@ -234,7 +234,7 @@
                                         [checked]="createRoleForm.value.permissions?.includes(perm)"
                                         (change)="onPermissionChange($event)" />
 
-                                    <span>{{ perm.split('.')[1] | titlecase }}</span>
+                                    <span>{{ (perm.split('.')[1] || perm) | titlecase }}</span>
 
                                 </label>
 
@@ -253,7 +253,7 @@
                     <button *ngIf="
     (isEditMode && permissionService.has('users.update')) ||
     (!isEditMode && permissionService.has('users.create'))
-  " type="button" class="primary-btn" [disabled]="createRoleForm.invalid || isCreating" (click)="createRole()">
+  " type="submit" class="primary-btn" [disabled]="createRoleForm.invalid || isCreating || permissionsLoading || !!permissionsError">
 
                         {{
                         isCreating

@@ -1,4 +1,6 @@
-<div class="dashboard-card" [ngClass]="variant">
+<div class="dashboard-card" [ngClass]="variant" [class.clickable]="clickable"
+    [attr.role]="clickable ? 'button' : null" [attr.tabindex]="clickable ? 0 : null"
+    (click)="activate()" (keydown.enter)="activate()" (keydown.space)="activate()">
     <div class="card-header">
         <span class="card-title">{{ title }}</span>
 

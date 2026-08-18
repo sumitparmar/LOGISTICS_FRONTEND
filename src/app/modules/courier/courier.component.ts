@@ -91,16 +91,12 @@ export class CourierComponent {
   }
 
   startOnboarding(): void {
-    const destination = '/app/driver-onboarding';
-
     if (this.authService.hasToken()) {
-      this.router.navigateByUrl(destination);
+      this.router.navigateByUrl('/app/driver-onboarding');
       return;
     }
 
-    this.router.navigate(['/auth/login'], {
-      queryParams: { returnUrl: destination },
-    });
+    this.router.navigateByUrl('/become-courier/apply');
   }
 
   downloadGuide(): void {

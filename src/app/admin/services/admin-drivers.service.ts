@@ -51,6 +51,14 @@ export class AdminDriversService {
     return this.http.get<DriversResponse>(this.baseUrl, { params });
   }
 
+  getCourierOrders(courierId: number, page = 1, limit = 100) {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit);
+
+    return this.http.get<any>(`${this.baseUrl}/${courierId}/orders`, { params });
+  }
+
   getOnboardingApplications(
     page = 1,
     limit = 10,
@@ -75,10 +83,12 @@ export class AdminDriversService {
     id: string,
     status: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED',
     remarks = '',
+    source = 'AUTHENTICATED',
   ): Observable<any> {
     return this.http.put(`${this.onboardingUrl}/${id}/status`, {
       status,
       remarks,
+      source,
     });
   }
 }

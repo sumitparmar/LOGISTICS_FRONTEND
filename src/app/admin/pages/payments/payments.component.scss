@@ -287,6 +287,15 @@
   background: var(--mk-border-strong);
 }
 
+.filter-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.filter-actions .btn {
+  width: 100%;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -326,6 +335,20 @@ tbody tr:hover {
   text-align: center;
   color: var(--mk-text-muted);
   padding: 40px 20px;
+}
+
+.error-state {
+  color: var(--mk-danger);
+}
+
+.retry-link {
+  display: block;
+  margin: 10px auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--mk-info);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .text-right {
@@ -511,6 +534,10 @@ tbody tr:hover {
   .kpi-grid,
   .filter-row {
     grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    align-items: stretch;
   }
 
   .pagination-bar {

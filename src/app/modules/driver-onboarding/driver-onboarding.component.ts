@@ -10,6 +10,7 @@ import {
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { DriverOnboardingService } from './driver-onboarding.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 declare const google: any;
 
@@ -33,6 +34,7 @@ export class DriverOnboardingComponent
   isLoading = false;
   isSaving = false;
   isSubmitting = false;
+  publicMode = false;
 
   availabilityOptions: any[] = [];
   private areaAutocompleteInstances: any[] = [];
@@ -44,12 +46,16 @@ export class DriverOnboardingComponent
     private fb: FormBuilder,
     private onboardingService: DriverOnboardingService,
     private toastService: ToastService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.publicMode = !this.authService.hasToken();
     this.initForm();
     this.loadOptions();
-    this.loadApplication();
+    if (!this.publicMode) {
+      this.loadApplication();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -77,7 +83,9 @@ export class DriverOnboardingComponent
       personal: this.fb.group({
         fullName: ['', [Validators.required, Validators.minLength(2)]],
         phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-        email: ['', [Validators.email]],
+        email: ['', this.publicMode
+          ? [Validators.required, Validators.email]
+          : [Validators.email]],
         city: ['', Validators.required],
         address: ['', [Validators.required, Validators.minLength(8)]],
         dateOfBirth: [''],
@@ -133,7 +141,11 @@ export class DriverOnboardingComponent
   }
 
   loadOptions(): void {
-    this.onboardingService.getOptions().subscribe({
+    const optionsRequest = this.publicMode
+      ? this.onboardingService.getPublicOptions()
+      : this.onboardingService.getOptions();
+
+    optionsRequest.subscribe({
       next: (res: any) => {
         const data = res?.data || {};
         this.vehicles = data.vehicles || [];
@@ -244,7 +256,11 @@ export class DriverOnboardingComponent
     }
 
     this.isSubmitting = true;
-    this.onboardingService.submitMine(this.payload).subscribe({
+    const submitRequest = this.publicMode
+      ? this.onboardingService.submitPublic(this.payload)
+      : this.onboardingService.submitMine(this.payload);
+
+    submitRequest.subscribe({
       next: (res: any) => {
         this.application = res?.data;
         this.isSubmitting = false;

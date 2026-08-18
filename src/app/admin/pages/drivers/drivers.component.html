@@ -2,7 +2,11 @@
 
     <!-- HEADER -->
     <div class="page-header">
-        <h2>Drivers</h2>
+        <div>
+            <h2>Drivers</h2>
+            <p>Monitor courier activity, order workload and onboarding reviews.</p>
+        </div>
+        <span class="result-count" *ngIf="total">{{ total }} drivers</span>
     </div>
 
     <!-- TOOLBAR -->
@@ -11,15 +15,27 @@
             (input)="onSearchChange(searchInput.value)" />
     </div>
 
-    <section class="onboarding-panel" *ngIf="onboardingApplications.length">
+    <section class="onboarding-panel">
         <div class="panel-heading">
             <div>
                 <h3>Driver onboarding applications</h3>
                 <p>Latest user submissions for operations review</p>
             </div>
+            <label class="status-filter">
+                <span>Status</span>
+                <select [value]="onboardingStatus" (change)="onOnboardingStatusChange($any($event.target).value)">
+                    <option value="ALL">All applications</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="UNDER_REVIEW">Under review</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </label>
         </div>
 
-        <div class="application-grid">
+        <div class="inline-loading" *ngIf="onboardingLoading">Loading applications...</div>
+        <div class="inline-error" *ngIf="!onboardingLoading && onboardingError">{{ onboardingError }}</div>
+        <div class="application-grid" *ngIf="!onboardingLoading && !onboardingError && onboardingApplications.length">
             <article class="application-card" *ngFor="let application of onboardingApplications">
                 <div>
                     <strong>{{ application.personal?.fullName || application.user?.name || 'Applicant' }}</strong>
@@ -35,22 +51,34 @@
                     <span>{{ application.personal?.phone || application.user?.phone || '-' }}</span>
                 </div>
                 <div class="application-actions" *ngIf="permissionService.has('drivers.update')">
-                    <button type="button" (click)="updateApplicationStatus(application, 'UNDER_REVIEW')">
+                    <button type="button" [disabled]="!!updatingApplicationId" (click)="updateApplicationStatus(application, 'UNDER_REVIEW')">
                         Review
                     </button>
-                    <button type="button" (click)="updateApplicationStatus(application, 'APPROVED')">
+                    <button type="button" [disabled]="!!updatingApplicationId" (click)="updateApplicationStatus(application, 'APPROVED')">
                         Approve
                     </button>
-                    <button type="button" (click)="updateApplicationStatus(application, 'REJECTED')">
+                    <button type="button" [disabled]="!!updatingApplicationId" (click)="updateApplicationStatus(application, 'REJECTED')">
                         Reject
                     </button>
                 </div>
             </article>
         </div>
+        <div class="empty compact" *ngIf="!onboardingLoading && !onboardingError && !onboardingApplications.length">
+            No applications match the current filters.
+        </div>
+        <app-pagination
+            *ngIf="onboardingTotal > 0"
+            [total]="onboardingTotal"
+            [page]="onboardingPage"
+            [limit]="onboardingLimit"
+            [limitOptions]="[]"
+            [showPageSize]="false"
+            (pageChange)="onOnboardingPageChange($event)">
+        </app-pagination>
     </section>
 
     <!-- DRIVERS GRID -->
-    <div class="drivers-grid" *ngIf="!loading; else loadingTpl">
+    <div class="drivers-grid" *ngIf="!loading && !errorMessage; else loadingOrErrorTpl">
 
         <!-- DRIVER CARD -->
         <div class="driver-card" *ngFor="let driver of drivers" (click)="openDriver(driver)">
@@ -116,7 +144,7 @@
 
         <!-- EMPTY STATE -->
         <div class="empty" *ngIf="!drivers.length">
-            No drivers found
+            No drivers match your search.
         </div>
 
     </div>
@@ -134,9 +162,12 @@
     </app-pagination>
 
     <!-- LOADING TEMPLATE -->
-    <ng-template #loadingTpl>
-        <div class="loading">
-            Loading drivers...
+    <ng-template #loadingOrErrorTpl>
+        <div class="loading" *ngIf="loading">Loading drivers...</div>
+        <div class="empty" *ngIf="!loading && errorMessage">
+            <strong>Drivers could not be loaded.</strong>
+            <span>{{ errorMessage }}</span>
+            <button type="button" class="retry-button" (click)="loadDrivers()">Retry</button>
         </div>
     </ng-template>
 
@@ -177,6 +208,12 @@
                 </div>
                 <div *ngIf="trackingLoading" class="map-loading">
                     Loading location...
+                </div>
+                <div *ngIf="driverDetailsLoading" class="map-loading">
+                    Loading driver orders...
+                </div>
+                <div *ngIf="trackingError && !trackingLoading" class="map-empty">
+                    {{ trackingError }}
                 </div>
 
                 <div class="map-empty" *ngIf="!getActiveOrders(selectedDriver).length">

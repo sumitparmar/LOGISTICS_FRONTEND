@@ -13,12 +13,14 @@
             <div class="users-controls">
 
                 <app-table-controls [page]="page" [total]="total" [totalPages]="totalPages" [limit]="limit"
+                    [search]="search" [limitOptions]="[5, 10, 20, 50]"
                     (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)"
                     (searchChange)="onSearchChange($event)">
                 </app-table-controls>
 
 
-                <select #statusSelect (change)="onFilterChange(statusSelect.value)">
+                <select #statusSelect [value]="filterStatus" (change)="onFilterChange(statusSelect.value)"
+                    [disabled]="loading">
                     <option value="">All</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -31,11 +33,24 @@
 
             </div>
 
+            <div *ngIf="rolesError" class="users-inline-state warning">
+                <span>{{ rolesError }}</span>
+                <button type="button" class="retry-btn" (click)="loadRoles()">Retry roles</button>
+            </div>
+
+            <div *ngIf="loading" class="users-loading" aria-live="polite">
+                Loading users...
+            </div>
+
+            <div *ngIf="!loading && errorMessage" class="users-inline-state error">
+                <span>{{ errorMessage }}</span>
+                <button type="button" class="retry-btn" (click)="loadUsers()">Retry</button>
+            </div>
 
 
 
             <!-- Data Table -->
-            <app-data-table [columns]="columns" [data]="users">
+            <app-data-table *ngIf="!loading && !errorMessage" [columns]="columns" [data]="users">
             </app-data-table>
             <!-- NAME TEMPLATE -->
             <ng-template #nameTemplate let-user>
@@ -78,7 +93,8 @@
                 <!-- Only for admin users -->
                 <div *ngIf="user.role === 'admin' && permissionService.has('users.update'); else noRole"
                     class="role-cell">
-                    <select [(ngModel)]="user.adminRoleId" (ngModelChange)="onRoleChange(user, $event)">
+                    <select [(ngModel)]="user.adminRoleId" (ngModelChange)="onRoleChange(user, $event)"
+                        [disabled]="rolesLoading || !!rolesError || !user.adminRoleId || roleUpdatingIds.has(user._id)">
                         <option [ngValue]="null">Super Admin</option>
 
                         <option *ngFor="let role of roles" [ngValue]="role._id">
@@ -86,6 +102,8 @@
                         </option>
 
                     </select>
+
+                    <span *ngIf="!user.adminRoleId" class="super-admin-label">Super Admin</span>
 
                 </div>
 
@@ -99,8 +117,8 @@
 
 
             <!-- Empty State -->
-            <div *ngIf="users.length === 0" class="empty-state">
-                No users found
+            <div *ngIf="!loading && !errorMessage && users.length === 0" class="empty-state">
+                {{ search || filterStatus ? 'No users match the current filters.' : 'No users found.' }}
             </div>
 
         </div>
@@ -116,5 +134,5 @@
     (selectedUser?.isActive
       ? 'Are you sure you want to deactivate '
       : 'Are you sure you want to activate ') + selectedUser?.name + '?'
-  " (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
+  " [loading]="statusUpdating" (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
 </app-confirm-dialog>

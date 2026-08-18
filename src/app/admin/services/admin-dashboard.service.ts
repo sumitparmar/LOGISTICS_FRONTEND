@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 export interface AdminStats {
   totalUsers: number;
   totalOrders: number;
+  activeOrders: number;
   revenue: number;
   usersChange: number;
   ordersChange: number;
@@ -17,6 +18,7 @@ export interface AdminStats {
     IN_PROGRESS: number;
     DELIVERED: number;
     CANCELLED: number;
+    FAILED: number;
   };
 }
 

@@ -62,6 +62,54 @@
   flex-wrap: wrap;
 }
 
+.users-inline-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.users-inline-state.warning {
+  background: var(--mk-warning-soft);
+  color: var(--mk-warning);
+}
+
+.users-inline-state.error {
+  background: var(--mk-danger-soft);
+  color: var(--mk-danger);
+}
+
+.users-loading {
+  padding: 48px 16px;
+  color: var(--mk-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.retry-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid currentColor;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retry-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
 /* ===============================
    Scoped Select Styling
 =============================== */
@@ -215,6 +263,12 @@ app-data-table {
 
 .actions lucide-icon:hover {
   color: var(--mk-text-primary);
+}
+
+.super-admin-label {
+  color: var(--mk-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .action-icon {

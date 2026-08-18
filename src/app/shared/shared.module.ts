@@ -19,6 +19,7 @@ import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.com
 import { LocationPickerComponent } from './components/location-picker/location-picker.component';
 import { LocationPickerDialogComponent } from './components/location-picker-dialog/location-picker-dialog.component';
 import { LocationPickerModalComponent } from './components/location-picker-modal/location-picker-modal.component';
+import { PhoneInputComponent } from './components/phone-input/phone-input.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { LocationPickerModalComponent } from './components/location-picker-modal
     LocationPickerComponent,
     LocationPickerDialogComponent,
     LocationPickerModalComponent,
+    PhoneInputComponent,
   ],
   imports: [CommonModule, RouterModule, LucideAngularModule, MatDialogModule],
   exports: [
@@ -45,6 +47,7 @@ import { LocationPickerModalComponent } from './components/location-picker-modal
     ConfirmModalComponent,
     ThemeToggleComponent,
     LocationPickerModalComponent,
+    PhoneInputComponent,
   ],
 })
 export class SharedModule {}

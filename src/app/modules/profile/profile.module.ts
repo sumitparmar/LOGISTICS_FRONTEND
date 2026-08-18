@@ -4,9 +4,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { ProfileComponent } from './profile.component';
 import { ProfileRoutingModule } from './profile-routing.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   declarations: [ProfileComponent],
-  imports: [CommonModule, ReactiveFormsModule, ProfileRoutingModule],
+  imports: [CommonModule, ReactiveFormsModule, ProfileRoutingModule, SharedModule],
 })
 export class ProfileModule {}

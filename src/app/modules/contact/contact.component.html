@@ -104,7 +104,10 @@
 
                     <input type="text" formControlName="name" placeholder="Your Name">
                     <input type="email" formControlName="email" placeholder="Email Address">
-                    <input type="text" formControlName="phone" placeholder="Phone Number">
+                    <app-phone-input formControlName="phone" placeholder="10 digit phone number"></app-phone-input>
+                    <small *ngIf="contactForm.get('phone')?.touched && contactForm.get('phone')?.invalid">
+                        Enter a valid 10 digit phone number.
+                    </small>
                     <select formControlName="inquiryType">
                         <option value="" disabled selected hidden>
                             Select inquiry type

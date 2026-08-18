@@ -1,30 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AdminOrdersService } from '../../services/admin-orders.service';
-import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { AdminSocketService } from '../../services/admin-socket.service';
-interface PaymentRecord {
-  orderId: string;
-  customer: string;
-  amount: number;
-  type: string;
-  status: string;
-  createdAt: string;
-}
+import {
+  AdminPaymentRecord,
+  AdminPaymentsService,
+} from '../../services/admin-payments.service';
 
 @Component({
   selector: 'app-payments',
   templateUrl: './payments.component.html',
   styleUrls: ['./payments.component.scss'],
 })
-export class PaymentsComponent implements OnInit {
+export class PaymentsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
+  private requestId = 0;
+
   isLoading = false;
   isExporting = false;
   isReconciling = false;
-
+  errorMessage = '';
+  reconciliationMessage = '';
   lastReconciledAt = '';
 
   page = 1;
@@ -32,8 +31,7 @@ export class PaymentsComponent implements OnInit {
   total = 0;
   sortBy = 'createdAt';
   sortOrder: 'asc' | 'desc' = 'desc';
-  records: PaymentRecord[] = [];
-  allRecords: PaymentRecord[] = [];
+  records: AdminPaymentRecord[] = [];
 
   summary = {
     totalCodOrders: 0,
@@ -50,13 +48,21 @@ export class PaymentsComponent implements OnInit {
   };
 
   constructor(
-    private ordersService: AdminOrdersService,
+    private paymentsService: AdminPaymentsService,
     private router: Router,
     private toastService: ToastService,
     private socketService: AdminSocketService,
   ) {}
 
   ngOnInit(): void {
+    this.searchSubject
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((search) => {
+        this.filters.search = search;
+        this.page = 1;
+        this.loadPayments();
+      });
+
     this.loadPayments();
     this.socketService.orderUpdate$
       .pipe(takeUntil(this.destroy$))
@@ -68,101 +74,50 @@ export class PaymentsComponent implements OnInit {
   }
 
   loadPayments(): void {
+    const currentRequestId = ++this.requestId;
     this.isLoading = true;
+    this.errorMessage = '';
 
-    this.ordersService.getOrders(1, 1000, this.filters.search).subscribe({
-      next: (res: any) => {
-        const rawOrders = res.data || [];
+    this.paymentsService
+      .getPayments(
+        this.page,
+        this.limit,
+        this.filters.search,
+        this.filters.status,
+        this.filters.type,
+        this.filters.date,
+        this.sortBy,
+        this.sortOrder,
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (currentRequestId !== this.requestId) return;
 
-        const mapped = rawOrders.map((item: any) => {
-          const paymentStatus = item.codSettled
-            ? 'Collected'
-            : item.status === 'CANCELLED' || item.status === 'FAILED'
-              ? 'Failed'
-              : 'Pending';
-
-          return {
-            orderId: item.borzoOrderId || '-',
-            customer: item.customer?.name || '-',
-            amount: item.cod?.enabled ? item.cod?.amount || 0 : item.pricing?.amount || 0,
-            type: item.cod?.enabled ? 'COD Collection' : item.payment?.method || 'CASH',
-            status: paymentStatus,
-            createdAt: this.formatDate(item.createdAt),
+          this.records = (res.data || []).map((record) => ({
+            ...record,
+            createdAt: this.formatDate(record.createdAt),
+          }));
+          this.total = Number(res.pagination?.total || 0);
+          this.summary = {
+            totalCodOrders: Number(res.summary?.totalCodOrders || 0),
+            pendingCollection: Number(res.summary?.pendingCollection || 0),
+            collectedAmount: Number(res.summary?.collectedAmount || 0),
+            refundQueue: Number(res.summary?.refundQueue || 0),
           };
-        });
-        this.allRecords = this.applyFrontendFilters(mapped);
-        this.total = this.allRecords.length;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          if (currentRequestId !== this.requestId) return;
 
-        this.sortRecords();
-        this.applyPagination();
-        this.buildSummary(this.allRecords);
-
-        this.isLoading = false;
-      },
-      error: () => {
-        this.records = [];
-        this.allRecords = [];
-        this.total = 0;
-        this.resetSummary();
-        this.isLoading = false;
-      },
-    });
-  }
-
-  applyPagination(): void {
-    const start = (this.page - 1) * this.limit;
-    const end = start + this.limit;
-
-    this.records = this.allRecords.slice(start, end);
-  }
-
-  sortRecords(): void {
-    this.allRecords.sort((a: any, b: any) => {
-      let first = a[this.sortBy];
-      let second = b[this.sortBy];
-
-      if (this.sortBy === 'amount') {
-        first = Number(first);
-        second = Number(second);
-      }
-
-      if (first < second) {
-        return this.sortOrder === 'asc' ? -1 : 1;
-      }
-
-      if (first > second) {
-        return this.sortOrder === 'asc' ? 1 : -1;
-      }
-
-      return 0;
-    });
-  }
-
-  applyFrontendFilters(data: PaymentRecord[]): PaymentRecord[] {
-    let rows = [...data];
-
-    if (this.filters.status !== 'All') {
-      rows = rows.filter((x) => x.status === this.filters.status);
-    }
-
-    if (this.filters.date) {
-      rows = rows.filter((x) => x.createdAt.includes(this.filters.date));
-    }
-
-    return rows;
-  }
-
-  buildSummary(data: PaymentRecord[]): void {
-    this.summary.totalCodOrders = this.total;
-    this.summary.pendingCollection = data
-      .filter((x) => x.status === 'Pending')
-      .reduce((sum, x) => sum + x.amount, 0);
-
-    this.summary.collectedAmount = data
-      .filter((x) => x.status === 'Collected')
-      .reduce((sum, x) => sum + x.amount, 0);
-
-    this.summary.refundQueue = 0;
+          this.records = [];
+          this.total = 0;
+          this.resetSummary();
+          this.errorMessage =
+            err?.error?.message || 'Unable to load payment records.';
+          this.isLoading = false;
+        },
+      });
   }
 
   resetSummary(): void {
@@ -175,6 +130,7 @@ export class PaymentsComponent implements OnInit {
   }
 
   applyFilters(): void {
+    this.filters.search = this.filters.search.trim();
     this.page = 1;
     this.loadPayments();
   }
@@ -186,52 +142,46 @@ export class PaymentsComponent implements OnInit {
       type: 'COD',
       date: '',
     };
-
     this.page = 1;
     this.loadPayments();
   }
 
   onPageChange(page: number): void {
     if (page < 1 || page > this.totalPages) return;
-
     this.page = page;
-    this.applyPagination();
+    this.loadPayments();
   }
 
   onSearchChange(search: string): void {
-    this.filters.search = search;
-    this.page = 1;
-    this.loadPayments();
+    this.searchSubject.next(search.trim());
   }
 
   onLimitChange(limit: number): void {
     this.limit = Number(limit);
     this.page = 1;
-    this.applyPagination();
+    this.loadPayments();
   }
 
   exportPayments(): void {
     if (this.isExporting) return;
 
     this.isExporting = true;
-
-    const params: any = {
-      type: 'payments',
+    const params = {
+      exportType: 'payments',
       search: this.filters.search || '',
       status: this.filters.status === 'All' ? '' : this.filters.status,
+      type: this.filters.type === 'All' ? '' : this.filters.type,
+      date: this.filters.date || '',
     };
 
-    this.ordersService.exportCSV(params).subscribe({
+    this.paymentsService.exportPayments(params).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'payments-export.csv';
-        a.click();
-
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'payments-export.csv';
+        anchor.click();
         window.URL.revokeObjectURL(url);
-
         this.isExporting = false;
         this.toastService.success('Payments exported successfully');
       },
@@ -250,31 +200,48 @@ export class PaymentsComponent implements OnInit {
       this.sortOrder = 'asc';
     }
 
-    this.sortRecords();
-    this.applyPagination();
+    this.page = 1;
+    this.loadPayments();
   }
 
   reconcilePayments(): void {
     if (this.isReconciling) return;
 
     this.isReconciling = true;
+    this.reconciliationMessage = '';
 
-    this.loadPayments();
-
-    setTimeout(() => {
-      this.lastReconciledAt = new Date().toLocaleString();
-      this.isReconciling = false;
-    }, 700);
+    this.paymentsService
+      .reconcilePayments()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.lastReconciledAt = res.data?.completedAt
+            ? new Date(res.data.completedAt).toLocaleString()
+            : new Date().toLocaleString();
+          this.reconciliationMessage = `${res.data?.mismatches || 0} mismatches found.`;
+          this.isReconciling = false;
+          this.toastService.success('Payments reconciled successfully');
+          this.loadPayments();
+        },
+        error: (err) => {
+          this.isReconciling = false;
+          this.errorMessage =
+            err?.error?.message || 'Payment reconciliation failed.';
+          this.toastService.error(this.errorMessage);
+        },
+      });
   }
 
   formatDate(date: string): string {
     if (!date) return '-';
-    return new Date(date).toISOString().split('T')[0];
+    const parsed = new Date(date);
+    return Number.isNaN(parsed.getTime())
+      ? '-'
+      : parsed.toISOString().split('T')[0];
   }
 
   viewOrder(orderId: string): void {
     if (!orderId) return;
-
     this.router.navigate(['/admin/orders'], {
       queryParams: { search: orderId },
     });
@@ -285,12 +252,12 @@ export class PaymentsComponent implements OnInit {
 
     navigator.clipboard
       .writeText(orderId)
-      .then(() => {
-        this.toastService.success('Order ID copied');
-      })
-      .catch(() => {
-        this.toastService.error('Copy failed');
-      });
+      .then(() => this.toastService.success('Order ID copied'))
+      .catch(() => this.toastService.error('Copy failed'));
+  }
+
+  trackByOrderId(_: number, item: AdminPaymentRecord): string {
+    return item.orderId;
   }
 
   ngOnDestroy(): void {

@@ -9,6 +9,9 @@ export interface AdminNotification {
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
   isRead: boolean;
   createdAt: string;
+  ticketId?: string;
+  actionLabel?: string;
+  actionUrl?: string;
 }
 
 @Injectable({
@@ -25,27 +28,63 @@ export class AdminNotificationStore {
     return this.notificationsSubject.getValue();
   }
 
-  setNotifications(list: AdminNotification[]) {
+  setNotifications(list: AdminNotification[], updateCount = true) {
     this.notificationsSubject.next(list);
-    this.updateUnreadCount(list);
+    if (updateCount) {
+      this.updateUnreadCount(list);
+    }
   }
 
   addNotification(notification: AdminNotification) {
-    const updated = [notification, ...this.notifications];
+    const existing = this.notifications.find(
+      (item) => item._id === notification._id,
+    );
+    const updated = [
+      notification,
+      ...this.notifications.filter((item) => item._id !== notification._id),
+    ];
     this.notificationsSubject.next(updated);
 
-    if (!notification.isRead) {
+    if (!existing && !notification.isRead) {
       this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+    } else if (existing?.isRead && !notification.isRead) {
+      this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+    } else if (existing && !existing.isRead && notification.isRead) {
+      this.unreadCountSubject.next(Math.max(this.unreadCountSubject.value - 1, 0));
     }
   }
 
   markAsRead(id: string) {
+    const notification = this.notifications.find((item) => item._id === id);
     const updated = this.notifications.map((n) =>
       n._id === id ? { ...n, isRead: true } : n,
     );
 
     this.notificationsSubject.next(updated);
-    this.updateUnreadCount(updated);
+    if (notification && !notification.isRead) {
+      this.unreadCountSubject.next(Math.max(this.unreadCountSubject.value - 1, 0));
+    }
+  }
+
+  markAllAsRead() {
+    this.notificationsSubject.next(
+      this.notifications.map((notification) => ({
+        ...notification,
+        isRead: true,
+      })),
+    );
+    this.unreadCountSubject.next(0);
+  }
+
+  removeNotification(id: string) {
+    const notification = this.notifications.find((item) => item._id === id);
+    this.notificationsSubject.next(
+      this.notifications.filter((item) => item._id !== id),
+    );
+
+    if (notification && !notification.isRead) {
+      this.unreadCountSubject.next(Math.max(this.unreadCountSubject.value - 1, 0));
+    }
   }
 
   setUnreadCount(count: number) {

@@ -2,7 +2,7 @@
     <section class="onboarding-hero">
         <div>
             <span class="eyebrow">Driver onboarding</span>
-            <h1>Start delivering with MoveKart</h1>
+            <h1>{{ publicMode ? 'Apply as a MoveKart delivery partner' : 'Start delivering with MoveKart' }}</h1>
             <p>Complete your verified partner profile, vehicle details, documents, payout information and service preferences for operations review.</p>
         </div>
 
@@ -33,7 +33,7 @@
                 </label>
                 <label>
                     Mobile number
-                    <input type="tel" formControlName="phone" [readonly]="isLocked">
+                    <app-phone-input formControlName="phone" [disabled]="isLocked"></app-phone-input>
                 </label>
                 <label>
                     Email
@@ -205,11 +205,11 @@
         </section>
 
         <div class="action-bar">
-            <button type="button" class="btn-outline" (click)="saveDraft()" [disabled]="isLocked || isSaving">
+            <button *ngIf="!publicMode" type="button" class="btn-outline" (click)="saveDraft()" [disabled]="isLocked || isSaving">
                 {{ isSaving ? 'Saving...' : 'Save draft' }}
             </button>
             <button type="button" class="btn-primary" (click)="submit()" [disabled]="isLocked || isSubmitting">
-                {{ isSubmitting ? 'Submitting...' : 'Submit for review' }}
+                {{ isSubmitting ? 'Submitting...' : (publicMode ? 'Submit application' : 'Submit for review') }}
             </button>
         </div>
     </form>

@@ -1,11 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AdminDriversService } from '../../services/admin-drivers.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { DriversStore } from '../../services/admin-drivers.store';
-import { AdminOrdersService } from '../../services/admin-orders.service';
-import { OrdersStore } from '../../services/admin-orders.store';
 import { takeUntil } from 'rxjs/operators';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from 'src/app/core/services/api.service';
@@ -18,19 +15,27 @@ declare const google: any;
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss'],
 })
-export class DriversComponent implements OnInit {
+export class DriversComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   drivers: any[] = [];
   onboardingApplications: any[] = [];
   loading: boolean = false;
-  allDrivers: any[] = [];
-  filteredDrivers: any[] = [];
   page: number = 1;
   limit: number = 10;
   total: number = 0;
   selectedDriver: any = null;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  errorMessage = '';
+  onboardingLoading = false;
+  onboardingError = '';
+  onboardingPage = 1;
+  onboardingLimit = 6;
+  onboardingTotal = 0;
+  onboardingStatus = 'ALL';
+  updatingApplicationId: string | null = null;
+  driverDetailsLoading = false;
+  trackingError = '';
   map: any;
   courierMarker: any;
   trackingLoading = false;
@@ -43,6 +48,8 @@ export class DriversComponent implements OnInit {
   animationInterval: any = null;
   private targetPosition: any = null;
   private liveAnimationFrame: any = null;
+  private trackingStartTimeout: any = null;
+  private trackingOrderId: string | null = null;
 
   private themeColor(token: string, fallback: string): string {
     return (
@@ -61,8 +68,6 @@ export class DriversComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private driversService: AdminDriversService,
-    private ordersService: AdminOrdersService,
-    private ordersStore: OrdersStore,
     public permissionService: PermissionService,
     private socketService: AdminSocketService,
   ) {}
@@ -70,64 +75,27 @@ export class DriversComponent implements OnInit {
   ngOnInit(): void {
     this.setupSearch();
 
-    this.loadOrdersForDrivers();
+    this.loadDrivers();
     this.loadOnboardingApplications();
-
-    this.ordersStore.orders$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((orders: any[]) => {
-        const drivers = this.buildDrivers(orders);
-
-        this.allDrivers = drivers;
-
-        this.filteredDrivers = this.searchTerm
-          ? drivers.filter(
-              (d: any) =>
-                d.name?.toLowerCase().includes(this.searchTerm) ||
-                d.phone?.includes(this.searchTerm),
-            )
-          : drivers;
-
-        this.total = this.filteredDrivers.length;
-
-        this.applyPagination();
-      });
 
     this.socketService.orderUpdate$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadOrdersForDrivers());
+      .subscribe(() => this.loadDrivers());
 
     this.socketService.driverOnboardingUpdate$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.loadOnboardingApplications());
   }
 
-  private applyPagination(): void {
-    const start = (this.page - 1) * this.limit;
-    const end = start + this.limit;
-
-    this.drivers = this.filteredDrivers.slice(start, end);
-    this.cdr.detectChanges();
-  }
-
   private setupSearch(): void {
     this.searchSubject
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((value: string) => {
         this.searchTerm = value.toLowerCase();
         this.page = 1;
-
-        this.filteredDrivers = this.allDrivers.filter(
-          (d: any) =>
-            d.name?.toLowerCase().includes(this.searchTerm) ||
-            d.phone?.includes(this.searchTerm),
-        );
-
-        this.total = this.filteredDrivers.length;
-        this.applyPagination();
+        this.loadDrivers();
+        this.onboardingPage = 1;
         this.loadOnboardingApplications();
-
-        this.cdr.detectChanges();
       });
   }
 
@@ -140,74 +108,34 @@ export class DriversComponent implements OnInit {
     });
   }
 
-  private buildDrivers(orders: any[]): any[] {
-    const map = new Map();
-
-    orders.forEach((order) => {
-      const c = order.courier;
-
-      if (!c || !c.phone) return;
-
-      const key = c.phone;
-
-      if (!map.has(key)) {
-        map.set(key, {
-          name: `${c.name || ''} ${c.surname || ''}`.trim() || 'Unknown',
-          phone: c.phone,
-          photo: c.photoUrl,
-          orders: [],
-          activeOrders: 0,
-          completedOrders: 0,
-          lastOrderId: order._id,
-          lastStatus: order.status,
-
-          location: c.location || null,
-        });
-      }
-
-      const driver = map.get(key);
-      if (c.location) {
-        driver.location = c.location;
-      }
-      driver.orders.push(order);
-
-      if (['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT'].includes(order.status)) {
-        driver.activeOrders++;
-      }
-
-      if (order.status === 'DELIVERED') {
-        driver.completedOrders++;
-      }
-    });
-
-    return Array.from(map.values()).sort((a, b) => {
-      if (b.activeOrders !== a.activeOrders) {
-        return b.activeOrders - a.activeOrders;
-      }
-      return b.completedOrders - a.completedOrders;
-    });
-  }
-
   loadDriverTracking(orderId: string) {
+    this.clearTrackingPoller();
+    this.trackingOrderId = orderId;
     this.trackingLoading = true;
+    this.trackingError = '';
 
-    this.api.get(`/orders/${orderId}/tracking`).subscribe({
+    this.api.get(`/admin/orders/${orderId}/tracking`).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         this.trackingLoading = false;
 
-        const points = res?.data?.points;
-        if (!points?.length) return;
-
+        const courier = res?.data?.courier;
+        const points = res?.data?.points || [];
         const courierPoint = points.find((p: any) => p.delivery);
-        if (!courierPoint?.latitude) return;
+        const lat = Number(courier?.latitude ?? courierPoint?.latitude);
+        const lng = Number(courier?.longitude ?? courierPoint?.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          this.trackingError = 'Live location is not available for this order yet.';
+          this.cdr.markForCheck();
+          return;
+        }
 
-        const lat = Number(courierPoint.latitude);
-        const lng = Number(courierPoint.longitude);
-
-        this.initMap(lat, lng);
+        this.cdr.detectChanges();
+        setTimeout(() => this.initMap(lat, lng));
       },
-      error: () => {
+      error: (err) => {
         this.trackingLoading = false;
+        this.trackingError = err?.error?.message || 'Unable to load live location.';
+        this.cdr.markForCheck();
       },
     });
 
@@ -215,21 +143,21 @@ export class DriversComponent implements OnInit {
   }
 
   startTracking(orderId: string) {
-    if (this.trackingInterval) {
-      clearInterval(this.trackingInterval);
-    }
+    this.clearTrackingPoller();
+    this.trackingOrderId = orderId;
 
     this.trackingInterval = setInterval(() => {
-      this.api.get(`/orders/${orderId}/tracking`).subscribe({
+      if (this.trackingOrderId !== orderId || !this.selectedDriver) return;
+
+      this.api.get(`/admin/orders/${orderId}/tracking`).pipe(takeUntil(this.destroy$)).subscribe({
         next: (res: any) => {
-          const points = res?.data?.points;
-          if (!points?.length) return;
-
+          if (this.trackingOrderId !== orderId) return;
+          const courier = res?.data?.courier;
+          const points = res?.data?.points || [];
           const courierPoint = points.find((p: any) => p.delivery);
-          if (!courierPoint?.latitude) return;
-
-          const lat = Number(courierPoint.latitude);
-          const lng = Number(courierPoint.longitude);
+          const lat = Number(courier?.latitude ?? courierPoint?.latitude);
+          const lng = Number(courier?.longitude ?? courierPoint?.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
           this.updateDriverLocation(lat, lng);
         },
@@ -237,27 +165,58 @@ export class DriversComponent implements OnInit {
     }, 5000);
   }
 
-  loadOrdersForDrivers(): void {
-    this.ordersService.getOrders(1, 1000).subscribe({
+  private clearTrackingPoller(): void {
+    if (this.trackingInterval) {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+    }
+  }
+
+  loadDrivers(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.driversService.getDrivers(this.page, this.limit, this.searchTerm).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
-        this.ordersStore.setOrders(res.data || []);
+        this.drivers = res.data || [];
+        this.total = Number(res.pagination?.total || 0);
+        this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('Drivers load error:', err);
+        this.drivers = [];
+        this.total = 0;
+        this.loading = false;
+        this.errorMessage = err?.error?.message || 'Unable to load drivers right now.';
+        this.cdr.markForCheck();
       },
     });
   }
 
   loadOnboardingApplications(): void {
+    this.onboardingLoading = true;
+    this.onboardingError = '';
     this.driversService
-      .getOnboardingApplications(1, 6, this.searchTerm, 'ALL')
+      .getOnboardingApplications(
+        this.onboardingPage,
+        this.onboardingLimit,
+        this.searchTerm,
+        this.onboardingStatus,
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           this.onboardingApplications = res.data || [];
+          this.onboardingTotal = Number(res.pagination?.total || 0);
+          this.onboardingLoading = false;
+          this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err) => {
           this.onboardingApplications = [];
+          this.onboardingTotal = 0;
+          this.onboardingLoading = false;
+          this.onboardingError = err?.error?.message || 'Unable to load applications right now.';
+          this.cdr.markForCheck();
         },
       });
   }
@@ -267,11 +226,22 @@ export class DriversComponent implements OnInit {
     status: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED',
   ): void {
     if (!this.permissionService.has('drivers.update')) return;
+    if (!application?._id || this.updatingApplicationId) return;
+
+    this.updatingApplicationId = application._id;
 
     this.driversService
-      .updateOnboardingStatus(application._id, status)
+      .updateOnboardingStatus(application._id, status, '', application.source)
       .subscribe({
-        next: () => this.loadOnboardingApplications(),
+        next: () => {
+          this.updatingApplicationId = null;
+          this.loadOnboardingApplications();
+        },
+        error: (err) => {
+          this.updatingApplicationId = null;
+          this.onboardingError = err?.error?.message || 'Unable to update this application.';
+          this.cdr.markForCheck();
+        },
       });
   }
 
@@ -292,16 +262,11 @@ export class DriversComponent implements OnInit {
     }
   }
 
-  loadDrivers(): void {
-    // No-op (now using reactive store)
-  }
-
   onPageChange(page: number): void {
     if (page < 1 || page > this.totalPages) return;
 
     this.page = page;
-
-    this.applyPagination();
+    this.loadDrivers();
   }
 
   onLimitChange(limit: number): void {
@@ -309,7 +274,7 @@ export class DriversComponent implements OnInit {
 
     this.limit = limit;
     this.page = 1;
-    this.applyPagination();
+    this.loadDrivers();
   }
 
   onSearchChange(value: string): void {
@@ -318,6 +283,21 @@ export class DriversComponent implements OnInit {
 
   get totalPages(): number {
     return Math.ceil(this.total / this.limit) || 1;
+  }
+
+  onOnboardingStatusChange(status: string): void {
+    this.onboardingStatus = status;
+    this.onboardingPage = 1;
+    this.loadOnboardingApplications();
+  }
+
+  onOnboardingPageChange(page: number): void {
+    this.onboardingPage = page;
+    this.loadOnboardingApplications();
+  }
+
+  get onboardingTotalPages(): number {
+    return Math.ceil(this.onboardingTotal / this.onboardingLimit) || 1;
   }
 
   initMap(lat: number, lng: number) {
@@ -409,8 +389,36 @@ export class DriversComponent implements OnInit {
   }
 
   openDriver(driver: any) {
+    this.closeDrawer();
     this.selectedDriver = driver;
 
+    if (!driver?.id) {
+      this.trackingError = 'Driver details are unavailable.';
+      return;
+    }
+
+    this.driverDetailsLoading = true;
+    this.driversService
+      .getCourierOrders(driver.id, 1, 100)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          if (!this.selectedDriver || this.selectedDriver.id !== driver.id) return;
+          this.selectedDriver = { ...driver, orders: res.data || [] };
+          this.driverDetailsLoading = false;
+          this.cdr.markForCheck();
+          this.prepareDriverTracking(this.selectedDriver);
+        },
+        error: () => {
+          this.driverDetailsLoading = false;
+          this.selectedDriver = { ...driver, orders: [] };
+          this.trackingError = 'Unable to load this driver\'s orders.';
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private prepareDriverTracking(driver: any): void {
     const activeOrder = this.getActiveOrders(driver)[0];
     if (!activeOrder) return;
 
@@ -449,8 +457,9 @@ export class DriversComponent implements OnInit {
       console.warn('Route data missing in order:', activeOrder);
     }
 
-    // start tracking (existing logic)
-    setTimeout(() => {
+    this.trackingStartTimeout = setTimeout(() => {
+      this.trackingStartTimeout = null;
+      if (!this.selectedDriver || this.selectedDriver.id !== driver.id) return;
       this.loadDriverTracking(activeOrder._id);
     }, 300);
   }
@@ -628,11 +637,16 @@ export class DriversComponent implements OnInit {
 
   closeDrawer() {
     this.selectedDriver = null;
+    this.driverDetailsLoading = false;
+    this.trackingOrderId = null;
 
-    if (this.trackingInterval) {
-      clearInterval(this.trackingInterval);
-      this.trackingInterval = null;
+    if (this.trackingStartTimeout) {
+      clearTimeout(this.trackingStartTimeout);
+      this.trackingStartTimeout = null;
     }
+
+    this.clearTrackingPoller();
+    this.clearAnimations();
 
     if (this.courierMarker) {
       this.courierMarker.setMap(null);
@@ -644,6 +658,21 @@ export class DriversComponent implements OnInit {
     this.routePath = [];
     this.currentPickup = null;
     this.currentDrop = null;
+    this.trackingError = '';
+  }
+
+  private clearAnimations(): void {
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+      this.animationInterval = null;
+    }
+
+    if (this.liveAnimationFrame) {
+      cancelAnimationFrame(this.liveAnimationFrame);
+      this.liveAnimationFrame = null;
+    }
+
+    this.targetPosition = null;
   }
 
   getActiveOrders(driver: any) {
@@ -684,15 +713,18 @@ export class DriversComponent implements OnInit {
     this.destroy$.next();
     this.destroy$.complete();
 
+    if (this.trackingStartTimeout) {
+      clearTimeout(this.trackingStartTimeout);
+      this.trackingStartTimeout = null;
+    }
+
     if (this.courierMarker) {
       this.courierMarker.setMap(null);
       this.courierMarker = null;
     }
 
-    if (this.trackingInterval) {
-      clearInterval(this.trackingInterval);
-      this.trackingInterval = null;
-    }
+    this.clearTrackingPoller();
+    this.clearAnimations();
     this.map = null;
   }
 }

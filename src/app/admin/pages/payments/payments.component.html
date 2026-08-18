@@ -31,7 +31,7 @@
     </div>
 
     <div class="sync-meta" *ngIf="lastReconciledAt">
-        Last reconciled: {{ lastReconciledAt }}
+        Last reconciled: {{ lastReconciledAt }}<span *ngIf="reconciliationMessage"> · {{ reconciliationMessage }}</span>
     </div>
 
     <!-- KPI Cards -->
@@ -68,7 +68,7 @@
                 <label>Search</label>
 
                 <input type="text" placeholder="Order ID / Customer" [(ngModel)]="filters.search"
-                    (keyup.enter)="applyFilters()" />
+                    (input)="onSearchChange($any($event.target).value)" (keyup.enter)="applyFilters()" />
             </div>
 
             <div class="field">
@@ -86,7 +86,11 @@
                 <label>Payment Type</label>
 
                 <select [(ngModel)]="filters.type" (change)="applyFilters()">
+                    <option value="All">All payment types</option>
                     <option value="COD">Cash/COD</option>
+                    <option value="ONLINE">Online payment</option>
+                    <option value="WALLET">Wallet</option>
+                    <option value="CASH">Cash</option>
                 </select>
             </div>
 
@@ -94,6 +98,10 @@
                 <label>Date</label>
 
                 <input type="date" [(ngModel)]="filters.date" (change)="applyFilters()" />
+            </div>
+
+            <div class="filter-actions">
+                <button type="button" class="btn btn-secondary" (click)="resetFilters()">Reset</button>
             </div>
 
         </div>
@@ -105,7 +113,7 @@
 
         <div class="table-header">
             <h3>Transactions</h3>
-            <span class="table-count">{{ records.length }} Records</span>
+            <span class="table-count">{{ total }} Records</span>
         </div>
 
         <div class="table-wrapper">
@@ -164,14 +172,18 @@
                     </tr>
 
                     <!-- Empty -->
-                    <tr *ngIf="!isLoading && records.length === 0">
+                    <tr *ngIf="!isLoading && !errorMessage && records.length === 0">
                         <td colspan="7" class="empty-state">
-                            No payment records available yet.
+                            No payment records match the selected filters.
                         </td>
                     </tr>
 
+                    <tr *ngIf="!isLoading && errorMessage">
+                        <td colspan="7" class="empty-state error-state">{{ errorMessage }}</td>
+                    </tr>
+
                     <!-- Data Rows -->
-                    <tr *ngFor="let item of records">
+                    <tr *ngFor="let item of records; trackBy: trackByOrderId">
                         <td>{{ item.orderId }}</td>
                         <td>{{ item.customer }}</td>
                         <td>Rs. {{ item.amount | number:'1.0-0' }}</td>

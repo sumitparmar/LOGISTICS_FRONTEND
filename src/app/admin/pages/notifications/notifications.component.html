@@ -1,46 +1,177 @@
 <div class="notifications-container">
-
-    <!-- HEADER -->
-    <div class="header">
-        <h2>Notifications</h2>
-
-        <button *ngIf="permissionService.isSuperAdmin()" class="header-btn" (click)="createTest()"> + Test
-        </button>
-    </div>
-
-    <!-- EMPTY STATE -->
-    <div *ngIf="(unreadNotifications$ | async)?.length === 0" class="empty-state"> No notifications found
-    </div>
-
-    <!-- LIST -->
-    <div *ngFor="let n of (unreadNotifications$ | async)" class="card" [class.unread]="!n.isRead"
-        (click)="onNotificationClick(n)" [class.clickable]="permissionService.has('support.read')">
-        <!-- LEFT CONTENT -->
-        <div class="card-left">
-
-            <div class="title">
-                {{ n.title }}
-            </div>
-
-            <div class="message">
-                {{ n.message }}
-            </div>
-
-            <div class="time">
-                {{ n.createdAt | date:'medium' }}
-            </div>
-
+    <header class="notifications-header">
+        <div>
+            <h2>Notifications</h2>
+            <p>Monitor platform activity and follow up on operational events.</p>
         </div>
 
-        <!-- RIGHT ACTION -->
-        <div class="card-right">
-
-            <button *ngIf="!n.isRead" class="mark-btn" (click)="markAsRead(n._id); $event.stopPropagation()"> Mark as
-                read
+        <div class="header-actions">
+            <button
+                *ngIf="permissionService.has('notifications.update')"
+                type="button"
+                class="secondary-btn"
+                [disabled]="!unreadCount || bulkAction || isLoading"
+                (click)="markAllAsRead()"
+            >
+                {{ bulkAction ? 'Updating...' : 'Mark all as read' }}
             </button>
 
         </div>
+    </header>
 
+    <section class="notification-summary" aria-label="Notification summary">
+        <div class="summary-item">
+            <span>Total shown</span>
+            <strong>{{ total }}</strong>
+        </div>
+        <div class="summary-item unread-summary">
+            <span>Unread</span>
+            <strong>{{ unreadCount }}</strong>
+        </div>
+    </section>
+
+    <section class="notification-toolbar" aria-label="Notification filters">
+        <div class="search-field">
+            <label for="notification-search">Search</label>
+            <input
+                id="notification-search"
+                type="search"
+                [value]="searchTerm"
+                placeholder="Search title, message or type"
+                (input)="onSearch($any($event.target).value)"
+            />
+        </div>
+
+        <div class="filter-field">
+            <label for="notification-read-filter">Status</label>
+            <select
+                id="notification-read-filter"
+                [ngModel]="readFilter"
+                (ngModelChange)="setReadFilter($event)"
+            >
+                <option value="ALL">All notifications</option>
+                <option value="UNREAD">Unread only</option>
+                <option value="READ">Read only</option>
+            </select>
+        </div>
+
+        <div class="filter-field">
+            <label for="notification-type-filter">Type</label>
+            <select
+                id="notification-type-filter"
+                [ngModel]="typeFilter"
+                (ngModelChange)="setTypeFilter($event)"
+            >
+                <option value="">All types</option>
+                <option *ngFor="let type of types" [value]="type">
+                    {{ typeLabel(type) }}
+                </option>
+            </select>
+        </div>
+
+        <div class="filter-field">
+            <label for="notification-priority-filter">Priority</label>
+            <select
+                id="notification-priority-filter"
+                [ngModel]="priorityFilter"
+                (ngModelChange)="setPriorityFilter($event)"
+            >
+                <option value="">All priorities</option>
+                <option *ngFor="let priority of priorities" [value]="priority">
+                    {{ priorityLabel(priority) }}
+                </option>
+            </select>
+        </div>
+
+        <button type="button" class="clear-btn" (click)="clearFilters()">
+            Clear filters
+        </button>
+    </section>
+
+    <div *ngIf="isLoading" class="state-card" role="status">
+        Loading notifications...
     </div>
 
+    <div *ngIf="!isLoading && errorMessage" class="state-card error-state" role="alert">
+        <p>{{ errorMessage }}</p>
+        <button type="button" class="secondary-btn" (click)="loadNotifications()">
+            Try again
+        </button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && !notifications.length" class="state-card empty-state">
+        <strong>No notifications found</strong>
+        <span>New platform activity will appear here automatically.</span>
+    </div>
+
+    <section *ngIf="!isLoading && !errorMessage && notifications.length" class="notification-list" aria-live="polite">
+        <article
+            *ngFor="let notification of notifications; trackBy: trackByNotification"
+            class="notification-card"
+            [class.unread]="!notification.isRead"
+            [class.clickable]="!!notification.ticketId || !!notification.actionUrl"
+            (click)="onNotificationClick(notification)"
+        >
+            <div class="notification-marker" [ngClass]="notification.priority.toLowerCase()"></div>
+
+            <div class="notification-content">
+                <div class="notification-topline">
+                    <span class="notification-type">{{ typeLabel(notification.type) }}</span>
+                    <span class="notification-priority" [ngClass]="notification.priority.toLowerCase()">
+                        {{ priorityLabel(notification.priority) }}
+                    </span>
+                    <span *ngIf="!notification.isRead" class="unread-label">Unread</span>
+                </div>
+
+                <h3>{{ notification.title }}</h3>
+                <p>{{ notification.message }}</p>
+                <time [attr.datetime]="notification.createdAt">
+                    {{ notification.createdAt | date:'medium' }}
+                </time>
+            </div>
+
+            <div class="notification-actions">
+                <button
+                    *ngIf="!notification.isRead && permissionService.has('notifications.update')"
+                    type="button"
+                    class="action-btn"
+                    [disabled]="actionId === notification._id"
+                    (click)="markAsRead(notification, $event)"
+                >
+                    Mark as read
+                </button>
+
+                <button
+                    *ngIf="permissionService.has('notifications.update')"
+                    type="button"
+                    class="delete-btn"
+                    [disabled]="actionId === notification._id"
+                    (click)="requestDelete(notification, $event)"
+                >
+                    Delete
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <app-pagination
+        *ngIf="!isLoading && !errorMessage && total > 0"
+        [total]="total"
+        [page]="page"
+        [limit]="limit"
+        [limitOptions]="[10, 20, 50]"
+        (pageChange)="onPageChange($event)"
+        (limitChange)="onLimitChange($event)"
+    ></app-pagination>
+
+    <app-confirm-modal
+        [visible]="showDeleteConfirm"
+        title="Delete notification"
+        message="This notification will be permanently removed. Do you want to continue?"
+        confirmText="Delete notification"
+        cancelText="Keep notification"
+        [loading]="!!actionId"
+        (confirm)="confirmDelete()"
+        (cancel)="cancelDelete()"
+    ></app-confirm-modal>
 </div>

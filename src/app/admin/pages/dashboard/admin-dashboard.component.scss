@@ -37,6 +37,12 @@
   color: var(--mk-text-primary);
 }
 
+.dashboard-subtitle {
+  margin: 6px 0 0;
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+}
+
 /* =============================
    RANGE FILTER
 ============================= */
@@ -46,6 +52,61 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.refresh-btn,
+.retry-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--mk-border);
+  border-radius: 10px;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.refresh-btn:hover,
+.retry-btn:hover {
+  border-color: var(--mk-secondary);
+  background: var(--mk-surface-muted);
+}
+
+.refresh-btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.dashboard-meta {
+  margin-top: -12px;
+  color: var(--mk-text-muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.dashboard-inline-error,
+.dashboard-error {
+  border: 1px solid var(--mk-danger);
+  border-radius: 12px;
+  background: var(--mk-danger-soft);
+  color: var(--mk-danger);
+}
+
+.dashboard-inline-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
 }
 
 .range-filter button {
@@ -91,7 +152,7 @@
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -286,6 +347,33 @@
   gap: 20px;
 }
 
+.dashboard-error {
+  min-height: 280px;
+  margin: 24px;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.dashboard-error h2,
+.dashboard-error p {
+  margin: 0;
+}
+
+.dashboard-error h2 {
+  color: var(--mk-text-primary);
+  font-size: 20px;
+}
+
+.dashboard-error p {
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+}
+
 .skeleton-header {
   display: flex;
   align-items: center;
@@ -316,7 +404,7 @@
 
 .skeleton-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 

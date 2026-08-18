@@ -84,9 +84,11 @@
                         <form *ngIf="otpStep === 'PHONE'" [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
 
                             <div class="input-group">
-                                <input type="tel" inputmode="numeric" autocomplete="tel" maxlength="10"
-                                    placeholder="Enter Phone Number" formControlName="phone" />
+                                <app-phone-input formControlName="phone" placeholder="Enter 10 digit phone number"></app-phone-input>
                             </div>
+                            <small *ngIf="phoneForm.get('phone')?.touched && phoneForm.get('phone')?.invalid">
+                                Enter a valid 10 digit phone number.
+                            </small>
 
                             <div class="input-group">
                                 <input type="email" autocomplete="email" placeholder="Email for OTP fallback (optional)"

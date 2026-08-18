@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-kpi-card',
@@ -11,7 +11,9 @@ export class KpiCardComponent implements OnChanges {
   @Input() growth!: number;
   @Input() subtitle!: string;
   @Input() icon!: string;
-  @Input() variant!: 'users' | 'orders' | 'revenue';
+  @Input() variant!: 'users' | 'orders' | 'revenue' | 'active';
+  @Input() clickable = false;
+  @Output() cardClick = new EventEmitter<void>();
 
   displayValue = 0;
 
@@ -46,5 +48,9 @@ export class KpiCardComponent implements OnChanges {
     const values = isPositive ? [10, 16, 14, 22, 28] : [28, 22, 18, 16, 10];
 
     return values.map((v, i) => `${i * 25},${30 - v}`).join(' ');
+  }
+
+  activate(): void {
+    if (this.clickable) this.cardClick.emit();
   }
 }

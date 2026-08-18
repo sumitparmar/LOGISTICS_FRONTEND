@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   declarations: [LoginComponent, RegisterComponent, ForgotPasswordComponent, ResetPasswordComponent],
@@ -25,6 +26,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
     MatFormFieldModule,
     MatButtonModule,
     MatCardModule,
+    SharedModule,
   ],
 })
 export class AuthModule {}

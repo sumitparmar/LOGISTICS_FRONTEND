@@ -142,7 +142,7 @@
 
                 <!-- RIGHT SIDE -->
                 <div class="controls-right">
-                    <button *ngIf="permissionService.has('orders.update')" class="export-btn" (click)="confirmExport()"
+                    <button *ngIf="permissionService.has('orders.read')" class="export-btn" (click)="confirmExport()"
                         [disabled]="loading || isExporting || isExportingFromModal || !orders.length">
                         {{ (isExporting || isExportingFromModal) ? 'Exporting...' : 'Export CSV' }}
                     </button>
@@ -200,14 +200,20 @@
 
 
 
+        <!-- ERROR -->
+        <div *ngIf="!loading && errorMessage" class="orders-state error">
+            <span>{{ errorMessage }}</span>
+            <button type="button" class="retry-btn" (click)="loadOrders()">Retry</button>
+        </div>
+
         <!-- TABLE -->
-        <app-data-table class="orders-table" [columns]="columns" [data]="orders" [sortBy]="sortBy"
+        <app-data-table *ngIf="!loading && !errorMessage" class="orders-table" [columns]="columns" [data]="orders" [sortBy]="sortBy"
             [sortOrder]="sortOrder" (sort)="onSort($event)" (rowClick)="onRowClick($event)">
         </app-data-table>
 
         <!-- EMPTY STATE -->
-        <div *ngIf="!loading && orders.length === 0" class="no-data">
-            No orders found
+        <div *ngIf="!loading && !errorMessage && orders.length === 0" class="no-data">
+            No orders found for the current filters.
         </div>
         <ng-template #selectTemplate let-order let-isHeader="isHeader">
             <!-- HEADER CHECKBOX -->
@@ -258,7 +264,7 @@
     </div>
 
     <app-confirm-dialog [visible]="showConfirm" title="Confirm Action" [message]="getConfirmMessage()"
-        [loading]="isExportingFromModal" (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
+        [loading]="isExporting || isBulkCancelling || isBulkUpdating || isCancelling" (confirm)="onConfirmDelete()" (cancel)="onCancelDelete()">
     </app-confirm-dialog>
 
 </div>

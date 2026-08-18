@@ -74,7 +74,7 @@
 
         <label class="field">
           <span>Mobile number</span>
-          <input formControlName="phone" inputmode="tel" autocomplete="tel" />
+          <app-phone-input formControlName="phone"></app-phone-input>
           <small
             class="field-error"
             *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid"

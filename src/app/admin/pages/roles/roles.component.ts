@@ -1,22 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AdminRolesService, Role } from '../../services/admin-roles.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PermissionService } from '../../services/permission.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.scss'],
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
-  errorMessage: string = '';
+  private searchSubscription?: Subscription;
   roles: Role[] = [];
   isLoading: boolean = false;
   error: string | null = null;
   searchTerm: string = '';
-  permissionsMap: any = {};
+  permissionsMap: any[] = [];
+  permissionsLoading = false;
+  permissionsError = '';
   createRoleForm!: FormGroup;
   isDrawerOpen: boolean = false;
   isCreating: boolean = false;
@@ -34,13 +37,14 @@ export class RolesComponent implements OnInit {
     private rolesService: AdminRolesService,
     private fb: FormBuilder,
     public permissionService: PermissionService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.fetchPermissions();
 
-    this.searchSubject
+    this.searchSubscription = this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((value) => {
         this.page = 1;
@@ -53,9 +57,9 @@ export class RolesComponent implements OnInit {
 
   initForm(): void {
     this.createRoleForm = this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
-      permissions: [],
+      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+      description: ['', Validators.maxLength(300)],
+      permissions: [[]],
     });
 
     this.createRoleForm.get('name')?.valueChanges.subscribe(() => {
@@ -70,6 +74,8 @@ export class RolesComponent implements OnInit {
   }
 
   editRole(role: Role): void {
+    if (!this.permissionService.has('users.update')) return;
+
     this.isEditMode = true;
     this.selectedRoleId = role._id;
     this.isDrawerOpen = true;
@@ -82,26 +88,41 @@ export class RolesComponent implements OnInit {
   }
 
   fetchPermissions(): void {
+    this.permissionsLoading = true;
+    this.permissionsError = '';
     this.rolesService.getPermissions().subscribe({
       next: (res: any) => {
-        this.permissionsMap = Object.entries(res.data || res || {}).map(
+        this.permissionsMap = Object.entries(res?.data || res || {}).map(
           ([key, value]) => ({
             key,
             value,
           }),
         );
+        this.permissionsLoading = false;
       },
-      error: (err) => {
-        console.error('PERMISSIONS ERROR:', err);
+      error: () => {
+        this.permissionsLoading = false;
+        this.permissionsError = 'Unable to load available permissions.';
       },
     });
   }
 
   openDrawer(): void {
+    if (!this.permissionService.has('users.create')) return;
+
+    this.isEditMode = false;
+    this.selectedRoleId = null;
+    this.createRoleForm.reset({
+      name: '',
+      description: '',
+      permissions: [],
+    });
     this.isDrawerOpen = true;
   }
 
   closeDrawer(): void {
+    if (this.isCreating) return;
+
     this.isDrawerOpen = false;
     this.isEditMode = false;
     this.selectedRoleId = null;
@@ -124,6 +145,12 @@ export class RolesComponent implements OnInit {
           this.roles = res?.data || [];
           this._backendTotal = res?.pagination?.total || 0;
           this.isLoading = false;
+
+          const totalPages = this.totalPages;
+          if (this.page > totalPages) {
+            this.page = totalPages;
+            this.fetchRoles();
+          }
         },
         error: (err) => {
           this.error = err?.error?.message || 'Failed to fetch roles';
@@ -152,7 +179,9 @@ export class RolesComponent implements OnInit {
   }
 
   getPermissionsList(module: any): string[] {
-    return module?.value ? Object.values(module.value) : [];
+    return module?.value ? Object.values(module.value).filter(
+      (permission): permission is string => typeof permission === 'string',
+    ) : [];
   }
 
   isAllSelected(module: any): boolean {
@@ -195,9 +224,12 @@ export class RolesComponent implements OnInit {
 
   createRole(): void {
     if (this.isCreating) return;
-    if (this.createRoleForm.invalid) return;
+    if (this.createRoleForm.invalid) {
+      this.createRoleForm.markAllAsTouched();
+      return;
+    }
 
-    const name = this.createRoleForm.value.name?.trim().toLowerCase();
+    const name = String(this.createRoleForm.value.name || '').trim().toLowerCase();
 
     const exists = this.roles.some(
       (r) =>
@@ -217,6 +249,8 @@ export class RolesComponent implements OnInit {
 
     const payload = {
       ...this.createRoleForm.value,
+      name: String(this.createRoleForm.value.name || '').trim(),
+      description: String(this.createRoleForm.value.description || '').trim(),
       permissions: cleanPermissions,
     };
 
@@ -230,30 +264,27 @@ export class RolesComponent implements OnInit {
     request$.subscribe({
       next: (res: any) => {
         this.isCreating = false;
-
-        const newRole = res?.data;
-
-        const isEdit = this.isEditMode;
-        const roleId = this.selectedRoleId;
-
-        if (isEdit && roleId) {
-          this.roles = this.roles.map((r) => (r._id === roleId ? newRole : r));
-        } else {
-          this.roles = [newRole, ...this.roles];
-        }
-
-        this.closeDrawer(); // move AFTER update
+        const wasEdit = this.isEditMode;
+        this.closeDrawer();
+        this.fetchRoles();
+        this.toastService.success(
+          wasEdit ? 'Role updated successfully' : 'Role created successfully',
+        );
       },
 
       error: (err) => {
         this.isCreating = false;
-        this.errorMessage = err?.error?.message || 'Failed to save role';
-        console.error('ROLE SAVE ERROR:', err);
+        const message = err?.error?.message || 'Failed to save role';
+        this.createRoleForm.get('name')?.setErrors(
+          message.toLowerCase().includes('already exists') ? { duplicate: true } : null,
+        );
+        this.toastService.error(message);
       },
     });
   }
 
   confirmDelete(role: Role): void {
+    if (!this.permissionService.has('users.delete')) return;
     this.roleToDelete = role;
     this.deleteModalOpen = true;
   }
@@ -264,23 +295,23 @@ export class RolesComponent implements OnInit {
   }
 
   deleteRole(): void {
-    if (!this.roleToDelete) return;
+    if (!this.roleToDelete || !this.permissionService.has('users.delete')) return;
 
     this.isDeleting = true;
 
     this.rolesService.deleteRole(this.roleToDelete._id).subscribe({
       next: () => {
         this.isDeleting = false;
-
-        const deletedId = this.roleToDelete?._id;
-
-        this.roles = this.roles.filter((r) => r._id !== deletedId);
-
         this.closeDeleteModal();
+        if (this.page > 1 && this.roles.length === 1) {
+          this.page -= 1;
+        }
+        this.fetchRoles();
+        this.toastService.success('Role deleted successfully');
       },
       error: (err) => {
         this.isDeleting = false;
-        this.errorMessage = err?.error?.message || 'Failed to delete role';
+        this.toastService.error(err?.error?.message || 'Failed to delete role');
       },
     });
   }
@@ -291,5 +322,10 @@ export class RolesComponent implements OnInit {
 
   get backendTotal(): number {
     return this._backendTotal;
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
+    this.searchSubject.complete();
   }
 }

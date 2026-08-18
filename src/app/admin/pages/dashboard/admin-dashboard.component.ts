@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AdminSocketService } from '../../services/admin-socket.service';
-import { OrdersStore } from '../../services/admin-orders.store';
 import {
   AdminDashboardService,
   AdminStats,
@@ -9,6 +8,8 @@ import { ChartConfiguration } from 'chart.js';
 
 import { Subject, takeUntil } from 'rxjs';
 import { ThemeService } from 'src/app/core/services/theme.service';
+import { Router } from '@angular/router';
+import { PermissionService } from '../../services/permission.service';
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
@@ -18,6 +19,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   stats: AdminStats | null = null;
   isLoading: boolean = true;
+  errorMessage = '';
+  lastUpdated: Date | null = null;
   lineChartData: ChartConfiguration<'line'>['data'] | null = null;
   selectedRange: 'today' | 'week' | 'month' = 'month';
   private requestId = 0;
@@ -35,8 +38,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private dashboardService: AdminDashboardService,
     private socketService: AdminSocketService,
-    private ordersStore: OrdersStore,
     private themeService: ThemeService,
+    private router: Router,
+    public permissionService: PermissionService,
   ) {}
 
   ngOnInit(): void {
@@ -71,8 +75,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           if (currentRequest !== this.requestId) return;
 
           this.stats = data;
-          this.updateChartData(data.sales);
-          this.updateStatusChart(data.statusCounts);
+          this.updateChartData(data?.sales || []);
+          this.updateStatusChart(data?.statusCounts);
+          this.errorMessage = '';
+          this.lastUpdated = new Date();
           this.isLoading = false;
         },
 
@@ -80,6 +86,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           if (currentRequest !== this.requestId) return;
 
           console.error('Dashboard load failed', err);
+          this.errorMessage =
+            err?.error?.message || 'Unable to load dashboard data.';
           this.isLoading = false;
         },
       });
@@ -90,6 +98,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     this.selectedRange = range;
     this.isLoading = true;
+    this.errorMessage = '';
+    this.loadStats();
+  }
+
+  refreshDashboard(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
+    this.errorMessage = '';
     this.loadStats();
   }
 
@@ -102,7 +118,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const theme = this.chartTheme;
 
     this.statusChartData = {
-      labels: ['Created', 'In Progress', 'Delivered', 'Cancelled'],
+      labels: ['Created', 'In Progress', 'Delivered', 'Cancelled', 'Failed'],
       datasets: [
         {
           data: [
@@ -110,12 +126,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             statusCounts.IN_PROGRESS || 0,
             statusCounts.DELIVERED || 0,
             statusCounts.CANCELLED || 0,
+            statusCounts.FAILED || 0,
           ],
           backgroundColor: [
             theme.info,
             theme.warning,
             theme.success,
             theme.danger,
+            theme.textSecondary,
           ],
           borderColor: theme.surface,
           borderWidth: 2,
@@ -166,11 +184,40 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     const index = event.active[0].index;
 
-    const statusMap = ['CREATED', 'IN_PROGRESS', 'DELIVERED', 'CANCELLED'];
+    const statusMap = [
+      'CREATED',
+      'IN_PROGRESS',
+      'DELIVERED',
+      'CANCELLED',
+      'FAILED',
+    ];
     const selectedStatus = statusMap[index];
 
-    // navigation (safe)
-    window.location.href = `/admin/orders?status=${selectedStatus}`;
+    if (!selectedStatus || !this.permissionService.has('orders.read')) return;
+
+    this.router.navigate(['/admin/orders'], {
+      queryParams: { status: selectedStatus },
+    });
+  }
+
+  goToUsers(): void {
+    if (this.permissionService.has('users.read')) {
+      this.router.navigate(['/admin/users']);
+    }
+  }
+
+  goToOrders(status?: string): void {
+    if (!this.permissionService.has('orders.read')) return;
+
+    this.router.navigate(['/admin/orders'], {
+      queryParams: status ? { status } : {},
+    });
+  }
+
+  goToPayments(): void {
+    if (this.permissionService.has('payments.read')) {
+      this.router.navigate(['/admin/payments']);
+    }
   }
 
   // formatLabel(label: string, index?: number): string {
@@ -300,6 +347,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             theme.warning,
             theme.success,
             theme.danger,
+            theme.textSecondary,
           ],
           borderColor: theme.surface,
         })),

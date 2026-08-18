@@ -85,7 +85,7 @@ export class SettingsComponent
 
       supportEmail: ['', [Validators.email]],
 
-      supportPhone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
+      supportPhone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
       invoice: this.fb.group({
         legalName: ['', [Validators.maxLength(160)]],
         registeredAddress: ['', [Validators.maxLength(500)]],
@@ -98,7 +98,7 @@ export class SettingsComponent
         financialYearStartMonth: [4, [Validators.required, Validators.min(1), Validators.max(12)]],
         templateVersion: ['1.0', [Validators.required, Validators.maxLength(20)]],
         supportEmail: ['', [Validators.email]],
-        supportPhone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
+        supportPhone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
       }),
       timezone: ['Asia/Kolkata', Validators.required],
       currency: ['INR', Validators.required],
@@ -169,7 +169,7 @@ export class SettingsComponent
   onReset(): void {
     if (!this.originalSettings) return;
 
-    this.form.patchValue({ ...this.originalSettings });
+    this.form.reset({ ...this.originalSettings });
 
     this.form.markAsPristine();
     this.form.markAsUntouched();

@@ -121,6 +121,14 @@ export class AdminLayoutComponent implements OnInit {
       return;
     }
 
+    if (
+      notification.actionUrl &&
+      notification.actionUrl.startsWith('/admin/')
+    ) {
+      this.router.navigateByUrl(notification.actionUrl);
+      return;
+    }
+
     if (this.permissionService.has('notifications.read')) {
       this.router.navigate(['/admin/notifications']);
     }

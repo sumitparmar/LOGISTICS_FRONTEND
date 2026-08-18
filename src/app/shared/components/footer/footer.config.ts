@@ -34,7 +34,7 @@ export const FOOTER_DATA = {
   ],
 
   business: [
-    { label: 'API Integration', route: '/api-integration' },
+    // { label: 'API Integration', route: '/api-integration' },
     { label: 'FAQs', route: '/faq' },
     { label: 'Contacts', route: '/contact' },
     { label: 'Pricing', route: '/pricing' },

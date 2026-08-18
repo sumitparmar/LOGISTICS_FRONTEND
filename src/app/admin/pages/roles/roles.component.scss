@@ -80,6 +80,23 @@
   box-shadow: none;
 }
 
+.secondary-btn {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--mk-border);
+  border-radius: 10px;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: var(--mk-surface-active);
+  border-color: var(--mk-border-strong);
+}
+
 /* ================= CONTENT ================= */
 
 .roles-content {
@@ -102,6 +119,11 @@
 
 .state.error {
   color: var(--mk-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .state.empty {
@@ -120,10 +142,6 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.legacy-pager {
-  display: none;
 }
 
 .toolbar-left,
@@ -186,6 +204,23 @@
   font-size: 13px;
   color: var(--mk-text-secondary);
   font-weight: 600;
+}
+
+.permissions-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  background: var(--mk-surface-muted);
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+}
+
+.permissions-state.error {
+  color: var(--mk-danger);
 }
 
 /* ================= TABLE ================= */
@@ -326,6 +361,14 @@
   color: var(--mk-text-secondary);
   font-size: 12px;
   padding: 0;
+}
+
+.permissions-cell .muted {
+  background: transparent;
+  color: var(--mk-text-secondary);
+  font-size: 12px;
+  padding: 0;
+  font-weight: 500;
 }
 
 /* ================= DRAWER ================= */

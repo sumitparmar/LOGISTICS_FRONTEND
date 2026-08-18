@@ -149,8 +149,7 @@ deliveryForm.get('pickupAddress')?.invalid">
                                         <input class="form-input" placeholder="Sender name *"
                                             formControlName="pickupName" />
 
-                                        <input class="form-input" placeholder="+91 phone *"
-                                            formControlName="pickupPhone" />
+                                        <app-phone-input formControlName="pickupPhone" placeholder="10 digit phone number"></app-phone-input>
 
                                     </div>
 
@@ -249,7 +248,7 @@ deliveryForm.get('pickupAddress')?.invalid">
                                                 Recipient name is required
                                             </div>
 
-                                            <input class="form-input" placeholder="+91 phone" formControlName="phone" />
+                                            <app-phone-input formControlName="phone" placeholder="10 digit phone number"></app-phone-input>
 
                                         </div>
                                         <div class="form-error"
