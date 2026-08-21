@@ -52,6 +52,21 @@
               "sourceMap": false
             },
 
+            "phone": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.phone.ts"
+                }
+              ],
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            },
+
             "development": {
               "buildOptimizer": false,
               "optimization": false,
@@ -72,6 +87,10 @@
           "configurations": {
             "production": {
               "browserTarget": "Logistics_FrontEnd:build:production"
+            },
+            "phone": {
+              "browserTarget": "Logistics_FrontEnd:build:phone",
+              "proxyConfig": "proxy.phone.conf.json"
             },
             "development": {
               "browserTarget": "Logistics_FrontEnd:build:development"

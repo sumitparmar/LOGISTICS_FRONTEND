@@ -21,6 +21,7 @@ export class AdminLayoutComponent implements OnInit {
   globalSearch = '';
   isUserMenuOpen = false;
   isOnline = false;
+  isMobileMenuOpen = false;
 
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: Event) {
@@ -38,14 +39,20 @@ export class AdminLayoutComponent implements OnInit {
       return;
     }
 
+    if (target.closest('.admin-sidebar') || target.closest('.admin-menu-toggle')) {
+      return;
+    }
+
     this.isDropdownOpen = false;
     this.isUserMenuOpen = false;
+    this.isMobileMenuOpen = false;
   }
 
   @HostListener('document:keydown.escape')
   handleEscape() {
     this.isDropdownOpen = false;
     this.isUserMenuOpen = false;
+    this.isMobileMenuOpen = false;
   }
 
   constructor(
@@ -79,6 +86,7 @@ export class AdminLayoutComponent implements OnInit {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.isDropdownOpen = false;
+        this.isMobileMenuOpen = false;
       }
     });
 
@@ -164,6 +172,32 @@ export class AdminLayoutComponent implements OnInit {
   toggleUserMenu(event: Event): void {
     event.stopPropagation();
     this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  toggleMobileMenu(event: Event): void {
+    event.stopPropagation();
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+  }
+
+  navigateAdmin(path: string, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.isMobileMenuOpen = false;
+    this.isDropdownOpen = false;
+    this.isUserMenuOpen = false;
+    this.router.navigateByUrl(path);
+  }
+
+  isAdminRoute(path: string): boolean {
+    if (path === '/admin') {
+      return this.router.url === '/admin' || this.router.url === '/admin/';
+    }
+
+    return this.router.url.startsWith(path);
   }
 
   goDashboard(): void {

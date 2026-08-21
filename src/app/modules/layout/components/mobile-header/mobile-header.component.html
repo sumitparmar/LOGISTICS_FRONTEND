@@ -1,5 +1,5 @@
 <div class="mobile-header">
-    <button class="menu-btn" (click)="openMenu()">
+    <button class="menu-btn" type="button" aria-label="Open menu" (click)="openMenu()">
         ☰
     </button>
 
@@ -12,13 +12,36 @@
 
     <div class="mobile-actions">
 
-        <button>
-            🔔
+        <button *ngIf="isAdmin" class="admin-btn" type="button" (click)="openAdminPanel()" aria-label="Open admin panel">
+            Admin
         </button>
 
-        <button class="avatar">
-            S
+        <button class="notification-btn" type="button" aria-label="Notifications" (click)="openNotifications()">
+            🔔
+            <span class="notification-badge" *ngIf="unreadCount > 0">
+                {{ unreadCount }}
+            </span>
         </button>
+
+        <div class="profile-wrapper">
+            <button class="avatar" type="button" aria-label="Account" (click)="toggleDropdown($event)">
+                {{ userInitial }}
+            </button>
+
+            <div class="profile-dropdown" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+                <div class="user-info">
+                    {{ userName || 'Account' }}
+                </div>
+
+                <button type="button" class="dropdown-item" (click)="openProfile()">
+                    My Profile
+                </button>
+
+                <button type="button" class="dropdown-item logout" (click)="logout()">
+                    Logout
+                </button>
+            </div>
+        </div>
 
     </div>
 

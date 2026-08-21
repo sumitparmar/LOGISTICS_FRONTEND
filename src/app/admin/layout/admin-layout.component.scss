@@ -40,6 +40,15 @@
   opacity: 0.9;
 }
 
+.admin-sidebar-close,
+.admin-menu-toggle {
+  display: none;
+}
+
+.admin-drawer-backdrop {
+  display: none;
+}
+
 .admin-logo-image {
   display: block;
   width: 176px;
@@ -59,17 +68,22 @@
   gap: 6px;
 }
 
-.admin-menu a {
+.admin-menu button {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   min-height: 46px;
   padding: 0 14px;
+  border: none;
   border-radius: 14px;
+  background: transparent;
   color: var(--mk-text-secondary);
-  text-decoration: none;
   font-size: 14px;
   font-weight: 500;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -77,19 +91,19 @@
     box-shadow 0.2s ease;
 }
 
-.admin-menu a lucide-icon {
+.admin-menu button lucide-icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
 }
 
-.admin-menu a:hover {
+.admin-menu button:hover {
   background: var(--mk-surface-muted);
   color: var(--mk-text-primary);
   transform: translateX(2px);
 }
 
-.admin-menu a.active {
+.admin-menu button.active {
   background: linear-gradient(
     90deg,
     rgba(99, 102, 241, 0.14),
@@ -506,12 +520,12 @@
     display: none;
   }
 
-  .admin-menu a {
+  .admin-menu button {
     justify-content: center;
     padding: 0;
   }
 
-  .admin-menu a span {
+  .admin-menu button span {
     display: none;
   }
 
@@ -539,55 +553,147 @@
 ========================= */
 @media (max-width: 768px) {
   .admin-shell {
-    flex-direction: column;
+    display: block;
   }
 
   .admin-sidebar {
-    width: 100%;
-    min-width: 100%;
-    padding: 10px 12px;
-    border-right: none;
-    border-bottom: 1px solid var(--mk-border);
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 8px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(304px, 86vw);
+    min-width: 0;
+    padding: 18px 14px;
+    border-right: 1px solid var(--mk-border);
+    border-bottom: none;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    gap: 0;
+    z-index: 1200;
+    transform: translateX(-105%);
+    box-shadow: 24px 0 60px rgba(15, 23, 42, 0.18);
+    transition: transform 0.22s ease;
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
   }
 
   .admin-logo {
-    display: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-size: 18px;
+  }
+
+  .admin-logo-image {
+    width: 156px;
+    height: 44px;
+  }
+
+  .logo-sub {
+    display: inline;
+    width: auto;
+    height: auto;
+  }
+
+  .admin-sidebar-close {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--mk-border);
+    border-radius: 12px;
+    background: var(--mk-card-bg);
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .admin-sidebar-close lucide-icon {
+    width: 18px;
+    height: 18px;
+    color: #475569;
+  }
+
+  .admin-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.48);
+    z-index: 1190;
+  }
+
+  .admin-menu-toggle {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--mk-border);
+    border-radius: 12px;
+    background: var(--mk-card-bg);
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .admin-menu-toggle lucide-icon {
+    width: 20px;
+    height: 20px;
+    color: #475569;
   }
 
   .admin-menu {
-    flex-direction: row;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
   }
 
-  .admin-menu a {
-    min-height: 40px;
+  .admin-menu button {
+    min-height: 48px;
     padding: 0 14px;
-    white-space: nowrap;
-    justify-content: center;
+    white-space: normal;
+    justify-content: flex-start;
   }
 
-  .admin-menu a span {
+  .admin-menu button span {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
+  }
+
+  .admin-menu button lucide-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .menu-item {
+    justify-content: space-between;
+  }
+
+  .badge {
+    position: static;
   }
 
   .admin-navbar {
-    min-height: auto;
+    min-height: 68px;
     padding: 14px 16px;
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
     gap: 12px;
   }
 
   .search-box {
     max-width: 100%;
     width: 100%;
+    min-width: 0;
   }
 
   .admin-actions {
+    grid-column: 1 / -1;
     width: 100%;
     justify-content: space-between;
   }
@@ -617,10 +723,10 @@
    SMALL MOBILE
 ========================= */
 @media (max-width: 480px) {
-  .admin-menu a {
-    padding: 0 12px;
-    min-height: 38px;
-    font-size: 12px;
+  .admin-menu button {
+    padding: 0 14px;
+    min-height: 48px;
+    font-size: 14px;
   }
 
   .admin-navbar {

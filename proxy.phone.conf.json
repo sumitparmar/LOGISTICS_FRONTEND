@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://movekart.in",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Origin": "https://movekart.in"
+    },
+    "logLevel": "debug"
+  }
+}

@@ -15,11 +15,15 @@ interface DrawerItem {
 })
 export class MobileDrawerComponent {
   @Output() closed = new EventEmitter<void>();
+  isAdmin = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-  ) {}
+  ) {
+    const user = this.authService.getUser();
+    this.isAdmin = user?.role?.toLowerCase() === 'admin';
+  }
 
   menuItems: DrawerItem[] = [
     {
@@ -84,6 +88,11 @@ export class MobileDrawerComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+    this.closeDrawer();
+  }
+
+  openAdminPanel(): void {
+    this.router.navigate(['/admin']);
     this.closeDrawer();
   }
 }

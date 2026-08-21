@@ -33,6 +33,8 @@ import {
   Shield,
   UserCheck,
   UserX,
+  Menu,
+  X,
 } from 'lucide-angular';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { AdminUserEditComponent } from './pages/user-edit/user-edit.component';
@@ -98,6 +100,8 @@ import { HighlightPipe } from './pipes/highlight.pipe';
       Settings,
       UserCheck,
       UserX,
+      Menu,
+      X,
     }),
   ],
 })

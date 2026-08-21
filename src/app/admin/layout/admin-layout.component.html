@@ -1,54 +1,64 @@
-<div class="admin-shell">
+<div class="admin-shell" [class.menu-open]="isMobileMenuOpen">
 
     <!-- Sidebar -->
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" [class.open]="isMobileMenuOpen" (click)="$event.stopPropagation()">
 
-        <div class="admin-logo" routerLink="/admin" aria-label="MoveKart admin home"> <img class="admin-logo-image"
+        <div class="admin-logo" (click)="navigateAdmin('/admin', $event)" aria-label="MoveKart admin home"> <img class="admin-logo-image"
                 src="assets/images/movekart-logo.png" alt="MoveKart" />
             <span class="logo-sub"> Admin</span>
+            <button class="admin-sidebar-close" type="button" aria-label="Close admin menu"
+                (click)="closeMobileMenu(); $event.stopPropagation()">
+                <lucide-icon name="x"></lucide-icon>
+            </button>
         </div>
 
         <nav class="admin-menu">
 
             <!-- Dashboard -->
-            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <button type="button" [class.active]="isAdminRoute('/admin')" (click)="navigateAdmin('/admin', $event)">
                 <lucide-icon name="home"></lucide-icon>
                 <span>Dashboard</span>
-            </a>
+            </button>
 
             <!-- Orders -->
-            <a *ngIf="permissionService.has('orders.read')" routerLink="/admin/orders" routerLinkActive="active">
+            <button *ngIf="permissionService.has('orders.read')" type="button"
+                [class.active]="isAdminRoute('/admin/orders')" (click)="navigateAdmin('/admin/orders', $event)">
                 <lucide-icon name="shopping-cart"></lucide-icon>
                 <span>Orders</span>
-            </a>
+            </button>
 
             <!-- Users -->
-            <a *ngIf="permissionService.has('users.read')" routerLink="/admin/users" routerLinkActive="active">
+            <button *ngIf="permissionService.has('users.read')" type="button"
+                [class.active]="isAdminRoute('/admin/users')" (click)="navigateAdmin('/admin/users', $event)">
                 <lucide-icon name="users"></lucide-icon>
                 <span>Users</span>
-            </a>
+            </button>
 
             <!-- Drivers -->
-            <a *ngIf="permissionService.has('drivers.read')" routerLink="/admin/drivers" routerLinkActive="active">
+            <button *ngIf="permissionService.has('drivers.read')" type="button"
+                [class.active]="isAdminRoute('/admin/drivers')" (click)="navigateAdmin('/admin/drivers', $event)">
                 <lucide-icon name="truck"></lucide-icon>
                 <span>Drivers</span>
-            </a>
+            </button>
 
             <!-- Payments -->
-            <a *ngIf="permissionService.has('payments.read')" routerLink="/admin/payments" routerLinkActive="active">
+            <button *ngIf="permissionService.has('payments.read')" type="button"
+                [class.active]="isAdminRoute('/admin/payments')" (click)="navigateAdmin('/admin/payments', $event)">
                 <lucide-icon name="credit-card"></lucide-icon>
                 <span>Payments</span>
-            </a>
+            </button>
 
             <!-- Pricing -->
-            <a *ngIf="permissionService.has('pricing.read')" routerLink="/admin/pricing" routerLinkActive="active">
+            <button *ngIf="permissionService.has('pricing.read')" type="button"
+                [class.active]="isAdminRoute('/admin/pricing')" (click)="navigateAdmin('/admin/pricing', $event)">
                 <lucide-icon name="tag"></lucide-icon>
                 <span>Pricing</span>
-            </a>
+            </button>
 
             <!-- Notifications -->
-            <a *ngIf="permissionService.has('notifications.read')" routerLink="/admin/notifications"
-                routerLinkActive="active">
+            <button *ngIf="permissionService.has('notifications.read')" type="button"
+                [class.active]="isAdminRoute('/admin/notifications')"
+                (click)="navigateAdmin('/admin/notifications', $event)">
                 <lucide-icon name="bell"></lucide-icon>
 
                 <span class="menu-item">
@@ -57,36 +67,46 @@
                         {{ unreadCount }}
                     </span>
                 </span>
-            </a>
+            </button>
 
             <!-- Support -->
-            <a *ngIf="permissionService.has('support.read')" routerLink="/admin/support" routerLinkActive="active">
+            <button *ngIf="permissionService.has('support.read')" type="button"
+                [class.active]="isAdminRoute('/admin/support')" (click)="navigateAdmin('/admin/support', $event)">
                 <lucide-icon name="life-buoy"></lucide-icon>
                 <span>Support</span>
-            </a>
+            </button>
 
             <!-- Roles -->
-            <a *ngIf="permissionService.has('users.read')" routerLink="/admin/roles" routerLinkActive="active">
+            <button *ngIf="permissionService.has('users.read')" type="button"
+                [class.active]="isAdminRoute('/admin/roles')" (click)="navigateAdmin('/admin/roles', $event)">
                 <lucide-icon name="shield"></lucide-icon>
                 <span>Roles</span>
-            </a>
+            </button>
 
             <!-- Settings -->
-            <a routerLink="/admin/settings" routerLinkActive="active">
+            <button type="button" [class.active]="isAdminRoute('/admin/settings')"
+                (click)="navigateAdmin('/admin/settings', $event)">
                 <lucide-icon name="settings"></lucide-icon>
                 <span>Settings</span>
-            </a>
+            </button>
 
         </nav>
 
 
     </aside>
 
+    <div class="admin-drawer-backdrop" *ngIf="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
+
     <!-- Main -->
     <div class="admin-main">
 
         <!-- Navbar -->
         <header class="admin-navbar">
+
+            <button class="admin-menu-toggle" type="button" aria-label="Open admin menu"
+                (click)="toggleMobileMenu($event)">
+                <lucide-icon name="menu"></lucide-icon>
+            </button>
 
             <!-- Search -->
             <div class="search-box">

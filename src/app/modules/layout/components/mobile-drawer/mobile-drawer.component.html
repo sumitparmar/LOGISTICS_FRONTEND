@@ -6,7 +6,7 @@
 
         <img src="assets/images/movekart-logo.png" alt="MoveKart Logistics">
 
-        <button class="close-btn" (click)="closeDrawer()">
+        <button class="close-btn" type="button" aria-label="Close menu" (click)="closeDrawer()">
             ✕
         </button>
 
@@ -29,6 +29,10 @@
 
     </nav>
 
+
+    <button *ngIf="isAdmin" class="drawer-footer admin-footer" type="button" (click)="openAdminPanel()">
+        Admin Panel
+    </button>
 
     <div class="drawer-footer" (click)="logout()">
         🚪 Logout
