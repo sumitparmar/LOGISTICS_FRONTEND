@@ -76,6 +76,13 @@
                 <span>Support</span>
             </button>
 
+            <!-- Customer feedback -->
+            <button *ngIf="permissionService.has('reviews.read')" type="button"
+                [class.active]="isAdminRoute('/admin/reviews')" (click)="navigateAdmin('/admin/reviews', $event)">
+                <lucide-icon name="message-square"></lucide-icon>
+                <span>Feedback</span>
+            </button>
+
             <!-- Roles -->
             <button *ngIf="permissionService.has('users.read')" type="button"
                 [class.active]="isAdminRoute('/admin/roles')" (click)="navigateAdmin('/admin/roles', $event)">

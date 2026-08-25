@@ -135,6 +135,14 @@ const routes: Routes = [
       },
 
       {
+        path: 'feedback',
+        loadChildren: () =>
+          import('./modules/feedback/feedback.module').then(
+            (m) => m.FeedbackModule,
+          ),
+      },
+
+      {
         path: 'blog',
         loadChildren: () =>
           import('./modules/blog/blog.module').then((m) => m.BlogModule),

@@ -1,0 +1,54 @@
+<main class="feedback-page">
+    <section class="feedback-panel" *ngIf="!loading && !error && !submitted">
+        <div class="brand-mark"><img src="assets/images/movekart-logo.png" alt="MoveKart"></div>
+        <span class="eyebrow">Delivery complete</span>
+        <h1>How was your MoveKart delivery?</h1>
+        <p class="intro">Your feedback helps us improve the experience for every customer.</p>
+        <div class="order-reference" *ngIf="invitation">Order #{{ invitation.orderReference }}</div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="rating-block">
+                <span class="field-label">Rate your experience</span>
+                <div class="rating-stars" role="radiogroup" aria-label="Delivery rating">
+                    <button type="button" *ngFor="let star of ratingScale" [class.selected]="star <= form.value.rating"
+                        [attr.aria-label]="'Rate ' + star + ' out of 5'" [attr.aria-checked]="form.value.rating === star"
+                        (click)="setRating(star)">
+                        <mat-icon aria-hidden="true">{{ star <= form.value.rating ? 'star' : 'star_border' }}</mat-icon>
+                    </button>
+                </div>
+                <small class="validation" *ngIf="attempted && form.get('rating')?.invalid">Please select a rating.</small>
+            </div>
+
+            <label class="field-label" for="feedback-name">Name shown with your feedback</label>
+            <input id="feedback-name" formControlName="displayName" type="text" maxlength="80" autocomplete="name">
+            <small class="validation" *ngIf="attempted && form.get('displayName')?.invalid">Please enter a name between 2 and 80 characters.</small>
+
+            <label class="field-label" for="feedback-comment">Tell us about your delivery</label>
+            <textarea id="feedback-comment" formControlName="comment" rows="5" maxlength="500"></textarea>
+            <small class="validation" *ngIf="attempted && form.get('comment')?.invalid">Feedback must be between 10 and 500 characters.</small>
+
+            <button class="submit-button" type="submit" [disabled]="submitting">{{ submitting ? 'Submitting...' : 'Submit feedback' }}</button>
+        </form>
+        <button class="secondary-button" type="button" (click)="goHome()">Not now</button>
+        <p class="privacy-note">Your feedback is linked to this completed delivery and is reviewed before publication.</p>
+    </section>
+
+    <section class="feedback-panel state-panel" *ngIf="!loading && error" role="alert">
+        <div class="state-icon">!</div>
+        <h1>Feedback link unavailable</h1>
+        <p>{{ error }}</p>
+        <button class="submit-button" type="button" (click)="goHome()">Go to MoveKart</button>
+    </section>
+
+    <section class="feedback-panel state-panel" *ngIf="loading" role="status">
+        <div class="loader"></div>
+        <p>Preparing your feedback form...</p>
+    </section>
+
+    <section class="feedback-panel state-panel" *ngIf="!loading && submitted" role="status">
+        <div class="success-icon">✓</div>
+        <h1>Thank you for your feedback</h1>
+        <p>Your feedback has been received and will be published after a quick quality review.</p>
+        <button class="submit-button" type="button" (click)="goHome()">Back to MoveKart</button>
+    </section>
+</main>

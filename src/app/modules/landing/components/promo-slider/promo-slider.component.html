@@ -1,0 +1,86 @@
+<section class="promo-section" aria-labelledby="promo-heading">
+  <div class="promo-shell">
+    <div class="promo-heading">
+      <div>
+        <span class="promo-eyebrow">MoveKart in motion</span>
+        <h2 id="promo-heading">Every delivery deserves care.</h2>
+        <p>From careful packing to the final handover, MoveKart keeps every move moving.</p>
+      </div>
+      <span class="promo-count" aria-hidden="true">
+        {{ activeIndex + 1 | number: '2.0-0' }} / {{ slides.length | number: '2.0-0' }}
+      </span>
+    </div>
+
+    <div
+      #sliderRegion
+      class="promo-slider"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="MoveKart delivery highlights"
+      tabindex="0"
+      (keydown)="onKeydown($event)"
+      (focusin)="onFocusIn()"
+      (focusout)="onFocusOut($event)"
+      (mouseenter)="onMouseEnter()"
+      (mouseleave)="onMouseLeave()"
+      (pointerdown)="onPointerDown($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointercancel)="onPointerCancel()"
+    >
+      <div class="promo-viewport">
+        <article
+          class="promo-slide"
+          *ngFor="let slide of slides; let index = index"
+          [class.is-active]="index === activeIndex"
+          [attr.aria-hidden]="index !== activeIndex"
+          [attr.aria-label]="'Slide ' + (index + 1) + ' of ' + slides.length"
+          role="group"
+        >
+          <picture>
+            <source
+              media="(max-width: 767px)"
+              [srcset]="slide.mobileImage"
+            />
+            <img
+              [src]="slide.desktopImage"
+              [alt]="slide.alt"
+              [loading]="index === 0 ? 'eager' : 'lazy'"
+              [decoding]="index === 0 ? 'sync' : 'async'"
+              [style.object-position]="slide.desktopPosition || 'center'"
+            />
+          </picture>
+        </article>
+      </div>
+
+      <button
+        type="button"
+        class="promo-control promo-control-prev"
+        aria-label="Show previous MoveKart highlight"
+        (click)="previous()"
+      >
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="promo-control promo-control-next"
+        aria-label="Show next MoveKart highlight"
+        (click)="next()"
+      >
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </button>
+
+      <div class="promo-dots" role="tablist" aria-label="Choose a MoveKart highlight">
+        <button
+          type="button"
+          class="promo-dot"
+          *ngFor="let slide of slides; let index = index"
+          [class.is-active]="index === activeIndex"
+          [attr.aria-label]="'Show slide ' + (index + 1)"
+          [attr.aria-selected]="index === activeIndex"
+          role="tab"
+          (click)="selectSlide(index)"
+        ></button>
+      </div>
+    </div>
+  </div>
+</section>

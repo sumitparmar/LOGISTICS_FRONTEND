@@ -39,5 +39,23 @@
     <app-onboarding-modal *ngIf="showOnboarding" (selected)="onModeSelected($event)" (closed)="closeOnboarding()">
     </app-onboarding-modal>
 
+    <div class="feedback-prompt-backdrop" *ngIf="feedbackPrompt" (click)="dismissFeedbackPrompt()">
+        <section class="feedback-prompt" role="dialog" aria-modal="true" aria-labelledby="feedback-prompt-title"
+            (click)="$event.stopPropagation()">
+            <button class="feedback-prompt-close" type="button" aria-label="Not now" (click)="dismissFeedbackPrompt()">×</button>
+            <div class="feedback-prompt-icon">★</div>
+            <span class="feedback-prompt-label">Delivery completed</span>
+            <h2 id="feedback-prompt-title">How was your MoveKart delivery?</h2>
+            <p>Your feedback helps us improve the experience for every customer.</p>
+            <div class="feedback-prompt-reference" *ngIf="feedbackPrompt.order?.borzoOrderId">
+                Order #{{ feedbackPrompt.order.borzoOrderId }}
+            </div>
+            <div class="feedback-prompt-actions">
+                <button class="feedback-prompt-primary" type="button" (click)="openFeedbackPrompt()">Share feedback</button>
+                <button class="feedback-prompt-secondary" type="button" (click)="dismissFeedbackPrompt()">Not now</button>
+            </div>
+        </section>
+    </div>
+
 
 </div>

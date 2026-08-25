@@ -49,13 +49,10 @@
         <div class="footer-col apps">
 
             <ng-container *ngFor="let app of footer.apps">
-                <a *ngIf="app.url; else appPending" class="app-card" [href]="app.url" target="_blank"
+                <a *ngIf="app.url" class="app-card" [href]="app.url" target="_blank"
                     rel="noopener noreferrer">
                     {{ app.label }}
                 </a>
-                <ng-template #appPending>
-                    <span class="app-card app-card-disabled" aria-disabled="true">{{ app.label }}</span>
-                </ng-template>
             </ng-container>
 
             <a class="app-card" routerLink="/auth/login" [queryParams]="{ returnUrl: '/app/dashboard' }">

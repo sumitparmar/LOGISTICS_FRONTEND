@@ -1,0 +1,231 @@
+:host {
+  display: block;
+}
+
+.promo-section {
+  padding: clamp(48px, 7vw, 88px) 24px;
+  background: var(--mk-surface-muted);
+}
+
+.promo-shell {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.promo-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.promo-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--mk-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.promo-heading h2 {
+  margin: 0;
+  color: var(--mk-text-primary);
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.12;
+  font-weight: 900;
+}
+
+.promo-heading p {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: var(--mk-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.promo-count {
+  flex-shrink: 0;
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.promo-slider {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--mk-border);
+  border-radius: 22px;
+  background: var(--mk-card-bg);
+  box-shadow: 0 18px 40px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.08));
+  outline: none;
+  touch-action: pan-y;
+}
+
+.promo-slider:focus-visible {
+  box-shadow: 0 0 0 4px var(--mk-info-soft), 0 18px 40px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.08));
+}
+
+.promo-viewport {
+  position: relative;
+  aspect-ratio: 1.75 / 1;
+  min-height: 300px;
+  background: var(--mk-surface-muted);
+}
+
+.promo-slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--mk-surface-muted);
+  transform: scale(1.015);
+  transition: opacity 420ms ease, transform 520ms ease;
+}
+
+.promo-slide.is-active {
+  z-index: 1;
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.promo-slide picture,
+.promo-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.promo-slide img {
+  object-fit: contain;
+}
+
+.promo-control {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(8, 31, 73, 0.72);
+  color: #fff;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.promo-control:hover {
+  background: var(--mk-primary);
+  transform: translateY(-50%) scale(1.04);
+}
+
+.promo-control:focus-visible,
+.promo-dot:focus-visible {
+  outline: 3px solid var(--mk-primary-hover);
+  outline-offset: 3px;
+}
+
+.promo-control mat-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+}
+
+.promo-control-prev {
+  left: 18px;
+}
+
+.promo-control-next {
+  right: 18px;
+}
+
+.promo-dots {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 18px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.promo-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: width 180ms ease, border-radius 180ms ease, background 180ms ease;
+}
+
+.promo-dot.is-active {
+  width: 26px;
+  border-radius: 999px;
+  background: var(--mk-primary);
+}
+
+@media (max-width: 767px) {
+  .promo-section {
+    padding: 48px 16px 64px;
+  }
+
+  .promo-heading {
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .promo-heading p {
+    font-size: 14px;
+  }
+
+  .promo-count {
+    padding-top: 4px;
+  }
+
+  .promo-viewport {
+    aspect-ratio: 4 / 5;
+    min-height: 0;
+  }
+
+  .promo-slide img {
+    object-fit: contain;
+  }
+
+  .promo-control {
+    width: 42px;
+    height: 42px;
+  }
+
+  .promo-control-prev {
+    left: 10px;
+  }
+
+  .promo-control-next {
+    right: 10px;
+  }
+
+  .promo-dots {
+    bottom: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-slide,
+  .promo-control,
+  .promo-dot {
+    transition: none;
+  }
+}

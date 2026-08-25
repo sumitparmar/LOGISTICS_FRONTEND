@@ -7,6 +7,8 @@ import { SocketService } from '../../../../core/services/socket.service';
 import { ToastService } from 'src/app/shared/components/toast/toast.service';
 import { CustomerSupportService } from '../../../support/services/customer-support.service';
 import { InvoiceFile, InvoiceService } from '../../../../core/services/invoice.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReviewsService } from '../../../../core/services/reviews.service';
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
@@ -27,6 +29,12 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   invoiceSharing = false;
   invoiceEmailing = false;
   invoiceError = '';
+  review: any = null;
+  reviewLoading = false;
+  reviewSubmitting = false;
+  reviewError = '';
+  reviewAttempted = false;
+  reviewForm: FormGroup;
   podData: any = null;
   courierPosition: any = null;
   // pricingBreakdown: any = null;
@@ -78,7 +86,15 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private toastService: ToastService,
     private supportService: CustomerSupportService,
     private invoiceService: InvoiceService,
-  ) {}
+    private formBuilder: FormBuilder,
+    private reviewsService: ReviewsService,
+  ) {
+    this.reviewForm = this.formBuilder.group({
+      rating: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
+      displayName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+      comment: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+    });
+  }
 
   ngAfterViewInit(): void {
     if (this.order) {
@@ -89,6 +105,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.orderId = this.route.snapshot.paramMap.get('id') || '';
     this.loadOrder();
+    if (this.route.snapshot.queryParamMap.get('feedback') === '1') {
+      setTimeout(() => document.getElementById('feedback-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 700);
+    }
   }
 
   onEditOrder(): void {
@@ -437,6 +456,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.order.status === 'DELIVERED') {
           this.loadPOD();
           this.loadInvoice();
+          this.loadOrderReview();
         }
 
         if (
@@ -461,6 +481,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ordersService.getOrderById(this.orderId).subscribe({
       next: (res: any) => {
         this.order = res?.data || res;
+        if (this.order?.status === 'DELIVERED') this.loadOrderReview();
       },
       error: () => {},
     });
@@ -609,6 +630,48 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     const map: Record<number, string> = { 8: 'Motorbike' };
 
     return map[id] || 'Vehicle assigned by MoveKart';
+  }
+
+  loadOrderReview(): void {
+    if (!this.orderId) return;
+    this.reviewLoading = true;
+    this.reviewsService.getOrderReview(this.orderId).subscribe({
+      next: (response: any) => {
+        this.review = response?.data?.review || null;
+        this.reviewLoading = false;
+      },
+      error: () => {
+        this.review = null;
+        this.reviewLoading = false;
+      },
+    });
+  }
+
+  setReviewRating(rating: number): void {
+    this.reviewForm.patchValue({ rating });
+    this.reviewForm.get('rating')?.markAsTouched();
+  }
+
+  submitReview(): void {
+    if (!this.order || this.review || this.reviewSubmitting) return;
+    this.reviewAttempted = true;
+    this.reviewError = '';
+    if (this.reviewForm.invalid) {
+      this.reviewForm.markAllAsTouched();
+      return;
+    }
+    this.reviewSubmitting = true;
+    this.reviewsService.submitReview({ orderId: this.orderId, ...this.reviewForm.value }).subscribe({
+      next: (response: any) => {
+        this.review = { status: response?.data?.status || 'PENDING' };
+        this.reviewSubmitting = false;
+        this.toastService.success('Thank you. Your feedback was submitted for review.');
+      },
+      error: (error: any) => {
+        this.reviewSubmitting = false;
+        this.reviewError = error?.error?.message || 'Unable to submit feedback right now.';
+      },
+    });
   }
 
   addMarkers(

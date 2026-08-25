@@ -151,6 +151,47 @@
                     </div>
                 </div>
 
+                <div id="feedback-card" class="order-card review-card" *ngIf="order.status === 'DELIVERED' && !reviewLoading">
+                    <div class="card-header">
+                        <div>
+                            <h3>Share your delivery experience</h3>
+                            <p class="review-helper" *ngIf="!review">Your feedback helps us improve the MoveKart experience.</p>
+                        </div>
+                        <span class="review-status" *ngIf="review">{{ review.status === 'APPROVED' ? 'Published' : 'Submitted for review' }}</span>
+                    </div>
+
+                    <div class="review-submitted" *ngIf="review">
+                        Your feedback has been received. It will be published after a quick quality review.
+                    </div>
+
+                    <form *ngIf="!review" class="review-form" [formGroup]="reviewForm" (ngSubmit)="submitReview()" novalidate>
+                        <div class="review-stars" role="radiogroup" aria-label="Delivery rating">
+                            <button type="button" *ngFor="let star of [1, 2, 3, 4, 5]" [class.selected]="star <= reviewForm.value.rating"
+                                [attr.aria-checked]="reviewForm.value.rating === star" [attr.aria-label]="'Rate ' + star + ' out of 5'" (click)="setReviewRating(star)">
+                                <mat-icon aria-hidden="true">{{ star <= reviewForm.value.rating ? 'star' : 'star_border' }}</mat-icon>
+                            </button>
+                        </div>
+                        <p class="review-validation" *ngIf="reviewAttempted && reviewForm.get('rating')?.invalid">
+                            Please select a rating before submitting.
+                        </p>
+                        <input formControlName="displayName" type="text" maxlength="80" placeholder="Name shown with your feedback">
+                        <p class="review-validation" *ngIf="reviewAttempted && reviewForm.get('displayName')?.invalid">
+                            Please enter the name to show with your feedback.
+                        </p>
+                        <textarea formControlName="comment" rows="4" maxlength="500" placeholder="Tell us about your delivery"></textarea>
+                        <p class="review-validation" *ngIf="reviewAttempted && reviewForm.get('comment')?.invalid">
+                            Feedback must be between 10 and 500 characters.
+                        </p>
+                        <div class="review-form-footer">
+                            <small>Your review is linked to this completed order and may be published after approval.</small>
+                            <button type="submit" class="review-submit" [disabled]="reviewSubmitting">
+                                {{ reviewSubmitting ? 'Submitting...' : 'Submit feedback' }}
+                            </button>
+                        </div>
+                        <p class="review-error" *ngIf="reviewError">{{ reviewError }}</p>
+                    </form>
+                </div>
+
             </div>
 
             <div class="order-right">
@@ -414,7 +455,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <button *ngIf="order.status === 'CREATED' || order.status === 'ASSIGNED'" class="edit-order-btn"
                     (click)="onEditOrder()" [disabled]="loading">

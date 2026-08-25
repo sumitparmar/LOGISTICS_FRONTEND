@@ -66,6 +66,13 @@ export class SocketService {
     this.socket.on('order-status-update', callback);
   }
 
+  onCustomerNotification(callback: (data: any) => void): void {
+    if (!this.socket) return;
+
+    this.socket.off('customer_notification');
+    this.socket.on('customer_notification', callback);
+  }
+
   onTicketReply(callback: (data: any) => void): void {
     if (!this.socket) return;
 

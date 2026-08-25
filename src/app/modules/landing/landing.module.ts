@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PriceDialogComponent } from './components/price-dialog/price-dialog.component';
+import { PromoSliderComponent } from './components/promo-slider/promo-slider.component';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,7 @@ import { PriceDialogComponent } from './components/price-dialog/price-dialog.com
     HeroComponent,
     SecureInfoDialogComponent,
     PriceDialogComponent,
+    PromoSliderComponent,
   ],
   imports: [
     CommonModule,
@@ -32,6 +35,7 @@ import { PriceDialogComponent } from './components/price-dialog/price-dialog.com
     MatIconModule,
     MatSelectModule,
     MatDialogModule,
+    SharedModule,
   ],
 })
 export class LandingModule {}

@@ -35,6 +35,7 @@ import {
   UserX,
   Menu,
   X,
+  MessageSquare,
 } from 'lucide-angular';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { AdminUserEditComponent } from './pages/user-edit/user-edit.component';
@@ -48,6 +49,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { SupportComponent } from './pages/support/support.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { ReviewsComponent } from './pages/reviews/reviews.component';
 import { HighlightPipe } from './pipes/highlight.pipe';
 
 @NgModule({
@@ -72,6 +74,7 @@ import { HighlightPipe } from './pipes/highlight.pipe';
     SupportComponent,
     RolesComponent,
     SettingsComponent,
+    ReviewsComponent,
     HighlightPipe,
   ],
   imports: [
@@ -102,6 +105,7 @@ import { HighlightPipe } from './pipes/highlight.pipe';
       UserX,
       Menu,
       X,
+      MessageSquare,
     }),
   ],
 })

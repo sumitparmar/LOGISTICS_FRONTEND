@@ -16,6 +16,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { SupportComponent } from './pages/support/support.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { ReviewsComponent } from './pages/reviews/reviews.component';
 import { PendingChangesGuard } from '../core/guards/pending-changes.guard';
 import { OrderDetailsComponent } from '../features/admin/order-details/order-details.component';
 const routes: Routes = [
@@ -97,6 +98,13 @@ const routes: Routes = [
         component: SupportComponent,
         canActivate: [PermissionGuard],
         data: { permission: 'support.read' },
+      },
+
+      {
+        path: 'reviews',
+        component: ReviewsComponent,
+        canActivate: [PermissionGuard],
+        data: { permission: 'reviews.read' },
       },
 
       {

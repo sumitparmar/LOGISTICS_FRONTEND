@@ -193,6 +193,7 @@
 
   font-size: 13px;
   font-weight: 800;
+  font-family: inherit;
 
   transition: all 0.18s ease;
 }
@@ -200,6 +201,66 @@
 .chip:hover {
   transform: translateY(-2px);
   background: var(--mk-surface-hover);
+}
+
+.location-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 8px;
+}
+
+.location-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--mk-info);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.location-action:hover {
+  color: var(--mk-primary);
+  text-decoration: underline;
+}
+
+.location-action:focus-visible,
+.faq-toggle:focus-visible,
+.faq-link:focus-visible {
+  outline: 3px solid var(--mk-primary-hover);
+  outline-offset: 3px;
+}
+
+.location-action mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+}
+
+.availability-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 24px;
+  margin: -2px 0 4px;
+  color: var(--mk-success, #15803d);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.availability-status.is-error {
+  color: var(--mk-danger);
+}
+
+.availability-status mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
 }
 
 .chip mat-icon {
@@ -722,6 +783,7 @@
   border: 1px solid var(--mk-border);
 
   transition: all 0.18s ease;
+  text-decoration: none;
 }
 
 .service-pill:hover {
@@ -950,7 +1012,37 @@
   gap: 22px;
 }
 
+.testimonial-grid.single-review {
+  grid-template-columns: minmax(0, 620px);
+  justify-content: center;
+}
+
+.review-summary {
+  margin: 14px 0 0;
+  color: var(--mk-text-secondary);
+  font-size: 14px;
+}
+
+.review-state {
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px;
+  border: 1px dashed var(--mk-border);
+  border-radius: 18px;
+  color: var(--mk-text-secondary);
+  text-align: center;
+}
+
+.review-state strong {
+  color: var(--mk-text-primary);
+}
+
 .testimonial-card {
+  min-height: 230px;
   padding: 28px;
   border-radius: 24px;
 
@@ -960,23 +1052,81 @@
   box-shadow:
     0 14px 28px rgba(15, 23, 42, 0.04),
     0 4px 10px rgba(15, 23, 42, 0.02);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--mk-primary);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+.review-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.verified-chip {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--mk-success-soft);
+  color: var(--mk-success);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .testimonial-card p {
-  margin: 0 0 18px;
-  font-size: 15px;
-  line-height: 1.8;
-  color: var(--mk-text-secondary);
+  position: relative;
+  margin: 0 0 24px;
+  padding-left: 18px;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--mk-text-primary);
 }
 
-.testimonial-card strong {
+.testimonial-card p::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 3px;
+  height: calc(100% - 8px);
+  border-radius: 3px;
+  background: var(--mk-primary);
+}
+
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 50%;
+  background: var(--mk-primary);
+  color: var(--mk-text-inverse);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.review-author strong {
   display: block;
   font-size: 15px;
   font-weight: 900;
   color: var(--mk-text-primary);
 }
 
-.testimonial-card span {
+.review-author span {
   display: block;
   margin-top: 4px;
   font-size: 13px;
@@ -1011,12 +1161,42 @@
   color: var(--mk-text-primary);
 }
 
+.business-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.secondary-business-btn {
+  color: var(--mk-text-primary);
+  background: var(--mk-surface-muted);
+  border: 1px solid var(--mk-border);
+  box-shadow: none;
+}
+
+.secondary-business-btn:hover {
+  background: var(--mk-surface-hover);
+}
+
 .business-copy p {
   margin: 14px 0 0;
   max-width: 620px;
   font-size: 16px;
   line-height: 1.75;
   color: var(--mk-text-secondary);
+}
+
+.review-rating {
+  display: flex;
+  gap: 2px;
+  color: var(--mk-primary);
+}
+
+.review-rating mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
 
 .business-btn {
@@ -1064,6 +1244,54 @@
   border: 1px solid var(--mk-border);
 }
 
+.faq-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--mk-text-primary);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.faq-toggle span {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.faq-toggle mat-icon {
+  flex-shrink: 0;
+  color: var(--mk-primary);
+}
+
+.faq-answer p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--mk-text-secondary);
+}
+
+.faq-link {
+  display: block;
+  width: fit-content;
+  margin: 30px auto 0;
+  color: var(--mk-info);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.faq-link:hover {
+  color: var(--mk-primary);
+  text-decoration: underline;
+}
+
 .faq-card h3 {
   margin: 0 0 10px;
   font-size: 18px;
@@ -1086,6 +1314,10 @@
   }
 
   .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-grid.single-review {
     grid-template-columns: 1fr;
   }
 
@@ -1116,6 +1348,10 @@
   .business-btn {
     width: 100%;
     min-width: auto;
+  }
+
+  .business-actions {
+    width: 100%;
   }
 }
 

@@ -21,16 +21,16 @@
             </p>
 
             <!-- TRUST METRICS -->
-            <div class="hero-stats">
+            <div class="hero-stats" aria-label="MoveKart booking capabilities">
 
                 <div class="stat-card">
-                    <strong>Live</strong>
-                    <span>Route quotes</span>
+                    <strong>{{ vehicleAvailabilityStat }}</strong>
+                    <span>Live options</span>
                 </div>
 
                 <div class="stat-card">
-                    <strong>Upfront</strong>
-                    <span>Fare estimate</span>
+                    <strong>Live</strong>
+                    <span>Route quote</span>
                 </div>
 
                 <div class="stat-card">
@@ -40,59 +40,52 @@
 
                 <div class="stat-card">
                     <strong>COD</strong>
-                    <span>Live fallback</span>
+                    <span>Available flow</span>
                 </div>
 
             </div>
 
             <!-- POINTS -->
             <div class="hero-points">
-
-                <div class="point">
-                    <mat-icon>local_shipping</mat-icon>
-                    <span>Fast local and city delivery service</span>
+                <div class="point" *ngFor="let point of heroPoints">
+                    <mat-icon aria-hidden="true">{{ point.icon }}</mat-icon>
+                    <span>{{ point.label }}</span>
                 </div>
-
-                <div class="point">
-                    <mat-icon>inventory_2</mat-icon>
-                    <span>Safe goods transport service with verified partners</span>
-                </div>
-
-                <div class="point">
-                    <mat-icon>bolt</mat-icon>
-                    <span>Instant quote calculation in seconds</span>
-                </div>
-
             </div>
 
             <!-- QUICK ACTIONS -->
             <div class="hero-chips">
 
-                <div class="chip" (click)="scrollToBooking()">
-                    <mat-icon>flash_on</mat-icon>
+                <button class="chip" type="button" (click)="scrollToBooking()">
+                    <mat-icon aria-hidden="true">flash_on</mat-icon>
                     <span>Book Now</span>
-                </div>
+                </button>
 
-                <div class="chip" (click)="openSecureInfo()">
-                    <mat-icon>security</mat-icon>
+                <button class="chip" type="button" (click)="openSecureInfo()">
+                    <mat-icon aria-hidden="true">security</mat-icon>
                     <span>Secure Delivery</span>
-                </div>
+                </button>
 
-                <div class="chip" (click)="goToTracking()">
-                    <mat-icon>location_on</mat-icon>
+                <button class="chip" type="button" (click)="goToTracking()">
+                    <mat-icon aria-hidden="true">location_on</mat-icon>
                     <span>Track Order</span>
-                </div>
+                </button>
+
+                <button class="chip" type="button" (click)="goToDriverOnboarding()">
+                    <mat-icon aria-hidden="true">directions_bike</mat-icon>
+                    <span>Become a Partner</span>
+                </button>
 
             </div>
 
             <!-- CTA -->
             <div class="hero-buttons">
 
-                <button class="primary-btn" (click)="bookDelivery()" [disabled]="!price">
+                <button class="primary-btn" type="button" (click)="bookDelivery()" [disabled]="price === null">
                     Continue Booking
                 </button>
 
-                <button class="secondary-btn" (click)="scrollToBooking()">
+                <button class="secondary-btn" type="button" (click)="scrollToBooking()">
                     Check Price
                 </button>
 
@@ -116,8 +109,15 @@
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Pickup Location</mat-label>
-                    <input matInput formControlName="pickup" #pickupInput />
+                    <input matInput formControlName="pickup" #pickupInput autocomplete="street-address" />
                 </mat-form-field>
+
+                <div class="location-actions" aria-label="Pickup location tools">
+                    <button type="button" class="location-action" (click)="openLocationPicker('pickup')">
+                        <mat-icon aria-hidden="true">map</mat-icon>
+                        Choose on map / current location
+                    </button>
+                </div>
 
                 <div class="field-error" *ngIf="quoteForm.get('pickup')?.touched && quoteForm.get('pickup')?.invalid">
                     Pickup location is required
@@ -125,8 +125,15 @@
 
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Drop Location</mat-label>
-                    <input matInput formControlName="drop" #dropInput />
+                    <input matInput formControlName="drop" #dropInput autocomplete="street-address" />
                 </mat-form-field>
+
+                <div class="location-actions" aria-label="Drop location tools">
+                    <button type="button" class="location-action" (click)="openLocationPicker('drop')">
+                        <mat-icon aria-hidden="true">map</mat-icon>
+                        Choose on map / current location
+                    </button>
+                </div>
 
                 <div class="field-error" *ngIf="quoteForm.get('drop')?.touched && quoteForm.get('drop')?.invalid">
                     Drop location is required
@@ -135,7 +142,7 @@
                 <mat-form-field appearance="outline" class="full">
                     <mat-label>Select Service</mat-label>
 
-                    <mat-select formControlName="vehicleType">
+                    <mat-select formControlName="vehicleType" [disabled]="vehiclesLoading || !vehicles.length">
 
                         <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.id">
                             {{ vehicle.name }} (up to {{ vehicle.maxWeightKg }} kg)
@@ -144,17 +151,23 @@
                     </mat-select>
                 </mat-form-field>
 
+                <div class="availability-status" [class.is-error]="!vehiclesLoading && !vehicles.length">
+                    <mat-icon aria-hidden="true">{{ vehiclesLoading ? 'sync' : vehicles.length ? 'check_circle' : 'error' }}</mat-icon>
+                    <span>{{ vehicleAvailabilityText }}</span>
+                </div>
+
                 <div class="field-error"
                     *ngIf="quoteForm.get('vehicleType')?.touched && quoteForm.get('vehicleType')?.invalid">
                     Select a vehicle type
                 </div>
 
-                <button mat-raised-button class="quote-btn" (click)="getQuote()" [disabled]="loading">
+                <button mat-raised-button class="quote-btn" type="button" (click)="getQuote()"
+                    [disabled]="loading || vehiclesLoading || !vehicles.length">
                     {{ loading ? 'Calculating...' : 'Check Instant Price' }}
                 </button>
 
                 <!-- INLINE RESULT -->
-                <div class="quote-result-card" *ngIf="price && !loading">
+                <div class="quote-result-card" *ngIf="price !== null && !loading" aria-live="polite">
 
                     <div class="quote-row">
                         <span>Estimated Price</span>
@@ -175,7 +188,7 @@
                         Updated just now - Price based on selected route
                     </div>
 
-                    <button class="continue-btn" (click)="bookDelivery()">
+                    <button class="continue-btn" type="button" (click)="bookDelivery()">
 
 
                         Continue Booking
@@ -199,43 +212,19 @@
 
 </section>
 
+<app-promo-slider></app-promo-slider>
+
 <section class="features">
 
     <div class="features-container">
 
-        <div class="feature-card">
+        <div class="feature-card" *ngFor="let feature of features">
             <div class="icon-circle">
-                <mat-icon>local_shipping</mat-icon>
+                <mat-icon aria-hidden="true">{{ feature.icon }}</mat-icon>
             </div>
 
-            <h3>Fast Delivery Booking</h3>
-
-            <p>
-                Book same-day delivery and urgent movement instantly. </p>
-        </div>
-
-        <div class="feature-card">
-            <div class="icon-circle">
-                <mat-icon>verified</mat-icon>
-            </div>
-
-            <h3>Safe Goods Transport</h3>
-
-            <p>
-                Verified delivery partners with secure order handling.
-            </p>
-        </div>
-
-        <div class="feature-card">
-            <div class="icon-circle">
-                <mat-icon>public</mat-icon>
-            </div>
-
-            <h3>Pan India Logistics</h3>
-
-            <p>
-                Reliable logistics services across major Indian cities.
-            </p>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
         </div>
 
     </div>
@@ -257,30 +246,11 @@
         </div>
 
         <div class="steps-grid">
-
-            <div class="step-card">
-                <div class="step-no">01</div>
-                <h3>Enter Pickup & Drop</h3>
-                <p>
-                    Add your route and delivery addresses using smart location search.
-                </p>
+            <div class="step-card" *ngFor="let step of steps">
+                <div class="step-no">{{ step.number }}</div>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.description }}</p>
             </div>
-
-            <div class="step-card">
-                <div class="step-no">02</div>
-                <h3>Get Instant Price</h3>
-                <p>
-                    Receive transparent pricing for your selected delivery route. </p>
-            </div>
-
-            <div class="step-card">
-                <div class="step-no">03</div>
-                <h3>Book & Track Live</h3>
-                <p>
-                    Confirm booking, track driver movement and complete delivery smoothly.
-                </p>
-            </div>
-
         </div>
 
     </div>
@@ -300,31 +270,11 @@
         </div>
 
         <div class="benefits-grid">
-
-            <div class="benefit-card">
-                <mat-icon>verified</mat-icon>
-                <h3>Verified Drivers</h3>
-                <p>Trusted delivery partners for secure movement of goods.</p>
+            <div class="benefit-card" *ngFor="let benefit of benefits">
+                <mat-icon aria-hidden="true">{{ benefit.icon }}</mat-icon>
+                <h3>{{ benefit.title }}</h3>
+                <p>{{ benefit.description }}</p>
             </div>
-
-            <div class="benefit-card">
-                <mat-icon>schedule</mat-icon>
-                <h3>Same Day Pickup</h3>
-                <p>Quick assignment and faster order pickup in supported cities.</p>
-            </div>
-
-            <div class="benefit-card">
-                <mat-icon>payments</mat-icon>
-                <h3>Transparent Pricing</h3>
-                <p>No hidden surprises. Upfront route based pricing.</p>
-            </div>
-
-            <div class="benefit-card">
-                <mat-icon>location_on</mat-icon>
-                <h3>Live Tracking</h3>
-                <p>Track your order status and movement in real time.</p>
-            </div>
-
         </div>
 
     </div>
@@ -343,14 +293,9 @@
             </p>
         </div>
         <div class="services-grid">
-
-            <div class="service-pill">Delivery booking</div>
-            <div class="service-pill">Same-day parcel delivery</div>
-            <div class="service-pill">Business delivery workflows</div>
-            <div class="service-pill">Live order tracking</div>
-            <div class="service-pill">Route-based pricing</div>
-            <div class="service-pill">Cash payment at delivery point</div>
-
+            <a class="service-pill" *ngFor="let service of services" routerLink="/pricing">
+                {{ service }}
+            </a>
         </div>
 
     </div>
@@ -370,14 +315,9 @@
         </div>
 
         <div class="cities-grid">
-            <div class="city-pill">Delhi</div>
-            <div class="city-pill">Mumbai</div>
-            <div class="city-pill">Bangalore</div>
-            <div class="city-pill">Pune</div>
-            <div class="city-pill">Hyderabad</div>
-            <div class="city-pill">Chandigarh</div>
-            <div class="city-pill">Jaipur</div>
-            <div class="city-pill">Ahmedabad</div>
+            <a class="city-pill" *ngFor="let city of cities" [routerLink]="city.route">
+                {{ city.label }}
+            </a>
         </div>
 
     </div>
@@ -389,36 +329,41 @@
     <div class="section-shell">
 
         <div class="section-head">
-            <span class="eyebrow">Customer Trust</span>
-            <h2>Loved by Individuals & Businesses</h2>
+            <span class="eyebrow">Verified Customer Feedback</span>
+            <h2>Real experiences from completed deliveries</h2>
+            <p class="review-summary" *ngIf="!reviewsLoading && reviewSummary.count">
+                {{ reviewSummary.averageRating | number:'1.1-1' }} / 5 average rating · {{ reviewSummary.count }} verified review{{ reviewSummary.count === 1 ? '' : 's' }}
+            </p>
         </div>
 
-        <div class="testimonial-grid">
+        <div class="review-state" *ngIf="reviewsLoading" role="status">
+            Loading verified customer feedback...
+        </div>
 
-            <div class="testimonial-card">
-                <p>
-                    "Booked a delivery in minutes. Smooth pickup and clear pricing."
-                </p>
-                <strong>Rohit Sharma</strong>
-                <span>Delhi</span>
-            </div>
+        <div class="review-state" *ngIf="!reviewsLoading && !publicReviews.length" role="status">
+            <strong>Verified customer feedback will appear here after completed deliveries are reviewed.</strong>
+            <span *ngIf="reviewsUnavailable">Feedback is temporarily unavailable. Please check back shortly.</span>
+        </div>
 
-            <div class="testimonial-card">
-                <p>
-                    "We use MoveKart for store deliveries. Reliable service."
-                </p>
-                <strong>Neha Traders</strong>
-                <span>Mumbai</span>
-            </div>
-
-            <div class="testimonial-card">
-                <p>
-                    "Best option for urgent city transport needs."
-                </p>
-                <strong>Arjun Mehta</strong>
-                <span>Bangalore</span>
-            </div>
-
+        <div class="testimonial-grid" [class.single-review]="publicReviews.length === 1" *ngIf="!reviewsLoading && publicReviews.length">
+            <article class="testimonial-card" *ngFor="let review of publicReviews">
+                <div class="review-card-topline">
+                    <div class="review-rating" [attr.aria-label]="review.rating + ' out of 5 stars'">
+                        <mat-icon *ngFor="let star of ratingScale" aria-hidden="true">
+                            {{ star <= review.rating ? 'star' : 'star_border' }}
+                        </mat-icon>
+                    </div>
+                    <span class="verified-chip" *ngIf="review.verifiedDelivery">Verified delivery</span>
+                </div>
+                <p>“{{ review.comment }}”</p>
+                <div class="review-author">
+                    <span class="review-avatar" aria-hidden="true">{{ review.displayName.charAt(0).toUpperCase() }}</span>
+                    <div>
+                        <strong>{{ review.displayName }}</strong>
+                        <span>{{ review.createdAt | date:'mediumDate' }}</span>
+                    </div>
+                </div>
+            </article>
         </div>
 
     </div>
@@ -439,9 +384,14 @@
                 </p>
             </div>
 
-            <button class="business-btn" (click)="scrollToBooking()">
-                Start Business Booking
-            </button>
+                <div class="business-actions">
+                    <button class="business-btn" type="button" (click)="scrollToBooking()">
+                        Start Business Booking
+                    </button>
+                    <button class="business-btn secondary-business-btn" type="button" (click)="goToDriverOnboarding()">
+                        Become a Delivery Partner
+                    </button>
+                </div>
 
         </div>
 
@@ -459,40 +409,39 @@
         </div>
 
         <div class="faq-grid">
-
-            <div class="faq-card">
-                <h3>How does delivery booking work?</h3>
-                <p>Enter pickup and drop, get price, confirm booking and track live.</p>
-            </div>
-
-            <div class="faq-card">
-                <h3>Can I book delivery online?</h3>
-                <p>Yes, MoveKart supports online delivery booking in supported cities.</p>
-            </div>
-
-            <div class="faq-card">
-                <h3>Do you offer business logistics?</h3>
-                <p>Yes, we support recurring transport needs for businesses.</p>
-            </div>
-
-            <div class="faq-card">
-                <h3>Can I track my order?</h3>
-                <p>Yes, live tracking is available for active deliveries.</p>
-            </div>
-
+            <article class="faq-card" *ngFor="let faq of faqs; let index = index">
+                <button class="faq-toggle" type="button" [attr.aria-expanded]="activeFaqIndex === index"
+                    [attr.aria-controls]="'faq-answer-' + index" (click)="toggleFaq(index)">
+                    <span>{{ faq.question }}</span>
+                    <mat-icon aria-hidden="true">{{ activeFaqIndex === index ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+                <div class="faq-answer" [id]="'faq-answer-' + index" *ngIf="activeFaqIndex === index">
+                    <p>{{ faq.answer }}</p>
+                </div>
+            </article>
         </div>
+
+        <a class="faq-link" routerLink="/faq">View all help and FAQs</a>
 
     </div>
 
 </section>
 
+<app-location-picker-modal
+    *ngIf="locationPicker"
+    [title]="locationPicker === 'pickup' ? 'Choose Pickup Location' : 'Choose Drop Location'"
+    [addressLabel]="locationPicker === 'pickup' ? 'Selected Pickup Address' : 'Selected Drop Address'"
+    (confirmLocation)="applyMapLocation($event)"
+    (closed)="closeLocationPicker()">
+</app-location-picker-modal>
+
 <div class="mobile-sticky-cta">
 
-    <button *ngIf="!price" class="sticky-btn primary" (click)="scrollToBooking()">
+    <button *ngIf="price === null" class="sticky-btn primary" type="button" (click)="scrollToBooking()">
         Check Price
     </button>
 
-    <button *ngIf="price" class="sticky-btn success" (click)="bookDelivery()">
+    <button *ngIf="price !== null" class="sticky-btn success" type="button" (click)="bookDelivery()">
         Continue Booking Rs. {{ price }}
     </button>
 

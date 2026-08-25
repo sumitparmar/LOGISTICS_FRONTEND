@@ -31,6 +31,8 @@ import {
   DollarSign,
   UserCheck,
   UserX,
+  XCircle,
+  AlertTriangle,
 } from 'lucide-angular';
 export function HttpLoaderFactory(http: HttpClient) {}
 export function runtimeConfigFactory(config: RuntimeConfigService) {
@@ -61,6 +63,8 @@ export function runtimeConfigFactory(config: RuntimeConfigService) {
       DollarSign,
       UserCheck,
       UserX,
+      XCircle,
+      AlertTriangle,
     }),
   ],
 

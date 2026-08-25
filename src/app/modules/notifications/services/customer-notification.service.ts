@@ -10,6 +10,9 @@ export interface CustomerNotification {
   type: string;
   isRead: boolean;
   createdAt: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  meta?: Record<string, any>;
 
   order?: {
     _id: string;
@@ -40,5 +43,9 @@ export class CustomerNotificationService {
 
   markAllAsRead(): Observable<any> {
     return this.http.patch(`${this.API}/read-all`, {});
+  }
+
+  dismissFeedbackPrompt(orderId: string): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/reviews/order/${orderId}/dismiss`, {});
   }
 }
