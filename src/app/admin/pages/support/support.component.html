@@ -88,6 +88,9 @@
 
                 <div class="ticket-bottom">
                     <span>{{ ticket.createdAt | date:'short' }}</span>
+                    <span class="priority" [ngClass]="'priority-' + (ticket.priority || 'medium')">
+                        {{ priorityLabel(ticket.priority) }}
+                    </span>
                     <span>{{ ticket.ticketNumber || ticket._id }}</span>
                 </div>
             </div>
@@ -143,6 +146,13 @@
                         <option value="WAITING_CUSTOMER">Waiting Customer</option>
                         <option value="RESOLVED">Resolved</option>
 
+                    </select>
+
+                    <select *ngIf="permissionService.has('support.update')" class="priority-select"
+                        [(ngModel)]="selectedTicket.priority" (ngModelChange)="updatePriority($event)">
+                        <option value="low">Low priority</option>
+                        <option value="medium">Medium priority</option>
+                        <option value="high">High priority</option>
                     </select>
 
                     <button *ngIf="

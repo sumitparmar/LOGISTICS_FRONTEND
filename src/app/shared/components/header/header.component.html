@@ -17,6 +17,18 @@
             <a routerLink="/track" routerLinkActive="active" (click)="closeMenu()">Track Order</a>
             <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About Us</a>
             <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+            <div class="mobile-theme-control">
+                <app-theme-toggle></app-theme-toggle>
+            </div>
+            <button *ngIf="!isLoggedIn" class="mobile-menu-action" (click)="goToLogin()" type="button">
+                Login
+            </button>
+            <button *ngIf="isLoggedIn" class="mobile-menu-action" (click)="goToProfile()" type="button">
+                My Profile
+            </button>
+            <button *ngIf="isLoggedIn && isAdmin" class="mobile-menu-action" (click)="openAdminPanel()" type="button">
+                Admin Panel
+            </button>
         </nav>
 
         <div class="nav-right">

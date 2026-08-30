@@ -48,7 +48,7 @@
             <h2 id="feedback-prompt-title">How was your MoveKart delivery?</h2>
             <p>Your feedback helps us improve the experience for every customer.</p>
             <div class="feedback-prompt-reference" *ngIf="feedbackPrompt.order?.borzoOrderId">
-                Order #{{ feedbackPrompt.order.borzoOrderId }}
+                Order #{{ (feedbackPrompt.order.borzoOrderId || feedbackPrompt.order._id) | orderReference }}
             </div>
             <div class="feedback-prompt-actions">
                 <button class="feedback-prompt-primary" type="button" (click)="openFeedbackPrompt()">Share feedback</button>

@@ -36,6 +36,10 @@ export class AdminSupportService {
     return this.http.patch(`${this.baseUrl}/tickets/${id}/status`, { status });
   }
 
+  updatePriority(id: string, priority: 'low' | 'medium' | 'high'): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/tickets/${id}/priority`, { priority });
+  }
+
   getCounts() {
     return this.http.get(`${this.baseUrl}/tickets/count`);
   }

@@ -437,6 +437,28 @@ export class SupportComponent implements OnInit {
     return (status || '').replace(/_/g, ' ').toLowerCase();
   }
 
+  priorityLabel(priority: string): string {
+    return (priority || 'medium').replace(/^./, (value) => value.toUpperCase());
+  }
+
+  updatePriority(priority: string): void {
+    if (!this.permissionService.has('support.update') || !this.selectedTicket?._id) return;
+    const value = String(priority || '').toLowerCase() as 'low' | 'medium' | 'high';
+    if (!['low', 'medium', 'high'].includes(value)) return;
+
+    this.adminSupportService.updatePriority(this.selectedTicket._id, value).subscribe({
+      next: (res: any) => {
+        this.selectedTicket = { ...this.selectedTicket, ...(res.data || {}), priority: value };
+        this.tickets = this.tickets.map((ticket) =>
+          ticket._id === this.selectedTicket._id ? { ...ticket, priority: value } : ticket,
+        );
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || 'Unable to update ticket priority');
+      },
+    });
+  }
+
   lastMessage(ticket: any): string {
     const messages = ticket?.messages || [];
     const latest = messages[messages.length - 1];

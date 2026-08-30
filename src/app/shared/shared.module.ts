@@ -20,6 +20,7 @@ import { LocationPickerComponent } from './components/location-picker/location-p
 import { LocationPickerDialogComponent } from './components/location-picker-dialog/location-picker-dialog.component';
 import { LocationPickerModalComponent } from './components/location-picker-modal/location-picker-modal.component';
 import { PhoneInputComponent } from './components/phone-input/phone-input.component';
+import { OrderReferencePipe } from './pipes/order-reference.pipe';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { PhoneInputComponent } from './components/phone-input/phone-input.compon
     LocationPickerDialogComponent,
     LocationPickerModalComponent,
     PhoneInputComponent,
+    OrderReferencePipe,
   ],
   imports: [CommonModule, RouterModule, LucideAngularModule, MatDialogModule],
   exports: [
@@ -48,6 +50,7 @@ import { PhoneInputComponent } from './components/phone-input/phone-input.compon
     ThemeToggleComponent,
     LocationPickerModalComponent,
     PhoneInputComponent,
+    OrderReferencePipe,
   ],
 })
 export class SharedModule {}

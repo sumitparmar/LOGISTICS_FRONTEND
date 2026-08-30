@@ -780,6 +780,23 @@ export class CreateDeliveryComponent
     this.renderRoute();
   }
 
+  selectSavedDeliveryAddress(event: any, index: number): void {
+    const selected = this.savedAddresses.find((address) => address._id === event.target.value);
+    const stop = this.stops.at(index);
+    if (!selected || !stop) return;
+
+    stop.patchValue({
+      address: selected.address,
+      lat: selected.lat,
+      lng: selected.lng,
+      name: selected.name,
+      phone: selected.phone,
+      notes: selected.notes || '',
+    });
+    this.resetPrice();
+    this.renderRoute();
+  }
+
   saveCurrentAddress(): void {
     const form = this.deliveryForm.value;
 
@@ -806,6 +823,37 @@ export class CreateDeliveryComponent
       error: () => {
         this.showToastMessage('Failed to save address');
       },
+    });
+  }
+
+  saveCurrentDeliveryAddress(index: number): void {
+    const stop = this.stops.at(index)?.value;
+    if (!stop) return;
+
+    if (!Number.isFinite(Number(stop.lat)) || !Number.isFinite(Number(stop.lng))) {
+      this.showToastMessage('Select the delivery address from suggestions first');
+      return;
+    }
+
+    if (!stop.address || !stop.name || !/^\d{10}$/.test(String(stop.phone || '').trim())) {
+      this.showToastMessage('Enter a valid delivery address, recipient and phone');
+      return;
+    }
+
+    this.addressService.createAddress({
+      label: 'OTHER',
+      name: stop.name,
+      phone: stop.phone,
+      address: stop.address,
+      lat: Number(stop.lat),
+      lng: Number(stop.lng),
+      notes: stop.notes || '',
+    }).subscribe({
+      next: () => {
+        this.showToastMessage('Delivery address saved');
+        this.loadSavedAddresses();
+      },
+      error: () => this.showToastMessage('Failed to save delivery address'),
     });
   }
 

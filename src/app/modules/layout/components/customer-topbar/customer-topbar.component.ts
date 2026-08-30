@@ -2,10 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { HostListener } from '@angular/core';
-import { Subject, interval } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationStateService } from 'src/app/shared/services/notification-state.service';
-import { CustomerNotificationService } from 'src/app/modules/notifications/services/customer-notification.service';
 @Component({
   selector: 'app-customer-topbar',
   templateUrl: './customer-topbar.component.html',
@@ -27,7 +26,6 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificationService: CustomerNotificationService,
     private notificationState: NotificationStateService,
   ) {}
 
@@ -41,19 +39,12 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
       this.isAdmin = user.role?.toLowerCase() === 'admin';
     }
 
-    this.loadUnreadCount();
-
     this.notificationState.unreadCount$
       .pipe(takeUntil(this.destroy$))
       .subscribe((count) => {
         this.unreadCount = count;
       });
 
-    interval(30000)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.loadUnreadCount();
-      });
   }
 
   toggleDropdown(event: Event): void {
@@ -67,14 +58,7 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
   }
 
   loadUnreadCount(): void {
-    this.notificationService.getUnreadCount().subscribe({
-      next: (res) => {
-        this.notificationState.setUnreadCount(res.count || 0);
-      },
-      error: () => {
-        this.unreadCount = 0;
-      },
-    });
+    this.notificationState.refresh().subscribe();
   }
 
   goNotifications(): void {

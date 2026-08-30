@@ -69,7 +69,7 @@ const routes: Routes = [
         path: 'drivers',
         component: DriversComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'drivers.read' },
+        data: { permissions: ['drivers.read', 'driver_onboarding.read'] },
       },
 
       {

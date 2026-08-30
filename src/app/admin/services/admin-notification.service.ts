@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { AdminNotificationStore } from './admin-notification.store';
@@ -10,6 +11,8 @@ export class AdminNotificationService {
   private API = `${environment.apiBaseUrl}/admin`;
 
   private _unreadCount = new BehaviorSubject<number>(0);
+  private unreadRequest$: Observable<any> | null = null;
+  private lastUnreadFetchAt = 0;
   unreadCount$ = this._unreadCount.asObservable();
 
   constructor(
@@ -17,19 +20,24 @@ export class AdminNotificationService {
     private notificationStore: AdminNotificationStore,
   ) {}
 
-  fetchUnreadCount() {
-    this.http
+  fetchUnreadCount(force = false): void {
+    const now = Date.now();
+    if (!force && now - this.lastUnreadFetchAt < 15000) return;
+    if (this.unreadRequest$) return;
+
+    this.unreadRequest$ = this.http
       .get(`${this.API}/notifications/unread-count`)
-      .subscribe({
-        next: (res: any) => {
+      .pipe(
+        tap((res: any) => {
           const unread = Number(res?.count || 0);
+          this.lastUnreadFetchAt = Date.now();
           this._unreadCount.next(unread);
           this.notificationStore.setUnreadCount(unread);
-        },
-        error: () => {
-          this._unreadCount.next(0);
-        },
-      });
+        }),
+        catchError(() => of(null)),
+        finalize(() => (this.unreadRequest$ = null)),
+      );
+    this.unreadRequest$.subscribe();
   }
 
   decrementCount() {

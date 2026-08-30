@@ -24,7 +24,7 @@ export const FOOTER_DATA = {
   ],
 
   company: [
-    { label: 'Become a courier', route: '/become-courier' },
+    { label: 'Driver Onboarding', route: '/become-courier' },
     { label: 'Privacy Policy', route: '/privacy-policy' },
     { label: 'Refund Policy', route: '/refund-policy' },
     { label: 'Community Guidelines', route: '/community-guidelines' },

@@ -32,6 +32,39 @@ export class RegisterComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   hasPendingBooking = false;
+  readonly heroImage = 'assets/images/movekart-register-hero.png';
+  readonly heroMetrics = [
+    { value: '3 min', label: 'average signup' },
+    { value: '24/7', label: 'booking access' },
+    { value: 'Live', label: 'order visibility' },
+  ];
+  readonly trustPoints = [
+    'Verified business onboarding',
+    'Saved delivery quotes',
+    'Secure customer workspace',
+  ];
+  readonly onboardingSteps = [
+    {
+      step: '01',
+      title: 'Create account',
+      text: 'Add your business or personal delivery details once.',
+    },
+    {
+      step: '02',
+      title: 'Confirm access',
+      text: 'Verify your email and keep every booking tied to one profile.',
+    },
+    {
+      step: '03',
+      title: 'Book faster',
+      text: 'Resume saved quotes, create deliveries, and track every order.',
+    },
+  ];
+  readonly formHighlights = [
+    'Encrypted account access',
+    'Phone-ready delivery alerts',
+    'Dashboard enabled after login',
+  ];
 
   constructor(
     private fb: FormBuilder,

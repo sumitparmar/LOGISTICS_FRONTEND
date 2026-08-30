@@ -10,6 +10,7 @@ import { OrdersStore } from '../../services/admin-orders.store';
 import { NgZone } from '@angular/core';
 import { PermissionService } from '../../services/permission.service';
 import { AdminSocketService } from '../../services/admin-socket.service';
+import { orderReference } from 'src/app/shared/utils/order-reference';
 
 import {
   AdminOrdersService,
@@ -117,7 +118,7 @@ export class AdminOrdersComponent implements OnInit {
       .subscribe((orders) => {
         this.orders = orders.map((o: any) => ({
           ...o,
-          id: o.borzoOrderId || '-',
+          id: orderReference(o.borzoOrderId || o._id),
           user: o.customer?.name || '-',
           amount: `${o.pricing?.amount || 0} ${o.pricing?.currency || ''}`,
         }));

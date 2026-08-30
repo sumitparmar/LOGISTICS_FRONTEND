@@ -127,10 +127,10 @@
 
                 <div class="notification-footer">
 
-                    <div class="notification-meta" *ngIf="item.order?.borzoOrderId">
+                    <div class="notification-meta" *ngIf="item.order?.borzoOrderId || item.order?._id">
 
                         Shipment ID:
-                        #{{ item.order?.borzoOrderId }}
+                        #{{ (item.order?.borzoOrderId || item.order?._id) | orderReference }}
 
                     </div>
 

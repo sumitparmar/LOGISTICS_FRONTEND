@@ -161,6 +161,23 @@ export class WalletComponent implements OnInit {
     this.loadWallet();
   }
 
+  onPageChange(page: number): void {
+    if (page < 1 || page > Math.max(this.pagination.pages, 1) || page === this.currentPage) {
+      return;
+    }
+    this.currentPage = page;
+    this.loadWallet();
+  }
+
+  onLimitChange(limit: number): void {
+    if (!Number.isFinite(limit) || limit < 1 || limit === this.pageSize) {
+      return;
+    }
+    this.pageSize = limit;
+    this.currentPage = 1;
+    this.loadWallet();
+  }
+
   openAddMoney(): void {
     this.showAddMoneyModal = true;
   }

@@ -63,7 +63,7 @@
                         *ngIf="order.status === 'IN_TRANSIT' || order.status === 'PICKED_UP'"></span>
                     {{ getStatusLabel(order.status) }}
                 </div>
-                <span class="tp-strip__id">#{{ order.borzoOrderId || order._id?.slice(-8)?.toUpperCase() }}</span>
+                <span class="tp-strip__id">#{{ (order.borzoOrderId || order._id) | orderReference }}</span>
             </div>
             <div class="tp-strip__right">
                 <span class="tp-strip__date">{{ order.createdAt | date:'dd MMM, hh:mm a' }}</span>

@@ -102,34 +102,6 @@
                                     <div class="location-actions">
 
                                         <button type="button" class="location-action-btn"
-                                            [class.success]="currentLocationSuccess"
-                                            (click)="useCurrentPickupLocation()" [disabled]="isFetchingCurrentLocation">
-
-                                            <span *ngIf="isFetchingCurrentLocation" class="location-spinner">
-                                            </span>
-
-                                            <span *ngIf="!isFetchingCurrentLocation" class="material-icons"
-                                                [class.success-icon]="currentLocationSuccess">
-
-                                                {{
-                                                currentLocationSuccess
-                                                ? 'check_circle'
-                                                : 'my_location'
-                                                }}
-
-                                            </span>
-
-                                            {{
-                                            isFetchingCurrentLocation
-                                            ? 'Detecting location...'
-                                            : currentLocationSuccess
-                                            ? 'Location Detected'
-                                            : 'Use Current Location'
-                                            }}
-
-                                        </button>
-
-                                        <button type="button" class="location-action-btn"
                                             (click)="openPickupLocationPicker()">
 
                                             <span class="material-icons">map</span>
@@ -216,6 +188,13 @@ deliveryForm.get('pickupAddress')?.invalid">
                                         <input #stopInput class="form-input" placeholder="Street name & locality *"
                                             formControlName="address" />
 
+                                        <select class="form-input" (change)="selectSavedDeliveryAddress($event, i)">
+                                            <option value="">Use a saved delivery address</option>
+                                            <option *ngFor="let address of savedAddresses" [value]="address._id">
+                                                {{ address.label }} - {{ address.address }}
+                                            </option>
+                                        </select>
+
 
                                         <div class="location-actions">
 
@@ -266,6 +245,12 @@ deliveryForm.get('pickupAddress')?.invalid">
 
                                         <input class="form-input" placeholder="Landmarks, building, floor etc"
                                             formControlName="notes" />
+
+                                        <div class="form-group">
+                                            <button type="button" class="btn-secondary" (click)="saveCurrentDeliveryAddress(i)">
+                                                Save this address
+                                            </button>
+                                        </div>
 
                                     </div>
 

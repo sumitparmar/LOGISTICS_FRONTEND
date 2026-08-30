@@ -5,12 +5,50 @@
 
 .phone-input {
   display: grid;
-  grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+  grid-template-columns: minmax(126px, auto) minmax(0, 1fr);
   gap: 8px;
   width: 100%;
 }
 
+.country-select {
+  position: relative;
+  min-width: 0;
+}
+
+.country-flag {
+  position: absolute;
+  z-index: 1;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-block;
+  width: 22px;
+  height: 15px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    #ff9933 0 33.33%,
+    #ffffff 33.33% 66.66%,
+    #138808 66.66% 100%
+  );
+  pointer-events: none;
+}
+
+.country-flag::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border: 1px solid #000080;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .phone-input select,
+.country-select,
 .phone-input input {
   width: 100%;
   min-width: 0;
@@ -24,6 +62,18 @@
   font: inherit;
 }
 
+.country-select {
+  display: flex;
+  align-items: center;
+  padding: 12px 10px 12px 42px;
+  color: var(--mk-text-primary, #172033);
+  background: var(--mk-input-bg, var(--mk-surface, #ffffff));
+}
+
+.country-code {
+  white-space: nowrap;
+}
+
 .phone-input input:focus,
 .phone-input select:focus {
   border-color: var(--mk-primary, #2563eb);
@@ -32,10 +82,13 @@
 
 .phone-input select {
   cursor: pointer;
+  appearance: auto;
+  padding-left: 34px;
 }
 
 .phone-input input:disabled,
-.phone-input select:disabled {
+.phone-input select:disabled,
+.country-select:has(+ input:disabled) {
   cursor: not-allowed;
   opacity: 0.68;
 }

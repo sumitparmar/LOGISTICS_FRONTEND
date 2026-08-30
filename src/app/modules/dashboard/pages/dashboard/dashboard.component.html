@@ -237,7 +237,7 @@
                                 (click)="goToOrder(order.id)" role="row" tabindex="0"
                                 (keydown.enter)="goToOrder(order.id)">
                                 <td>
-                                    <span class="mk-order-id">{{ truncateId(order.id) }}</span>
+                                    <span class="mk-order-id">{{ truncateId(order.borzoOrderId || order.id) }}</span>
                                 </td>
                                 <td>
                                     <div class="mk-addr-cell">

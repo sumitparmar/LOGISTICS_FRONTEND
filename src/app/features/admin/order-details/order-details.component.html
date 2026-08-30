@@ -38,7 +38,7 @@
             <div class="header">
                 <div>
                     <h2 class="title">
-                        Order #{{ order.borzoOrderId || '-' }}
+                        Order #{{ (order.borzoOrderId || order._id) | orderReference }}
                     </h2>
                     <p class="subtitle">
                         {{ order.provider || '-' }}

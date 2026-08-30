@@ -1,7 +1,8 @@
 <div class="phone-input">
-    <select [value]="countryCode" [disabled]="disabled" aria-label="Country code">
-        <option [value]="countryCode">{{ countryCode }} India</option>
-    </select>
+    <div class="country-select">
+        <span class="country-flag" role="img" aria-label="India"></span>
+        <span class="country-code" aria-label="Country code">{{ countryCode }} India</span>
+    </div>
     <input type="tel" [value]="value" [placeholder]="placeholder" [autocomplete]="autocomplete"
         inputmode="numeric" maxlength="10" [disabled]="disabled" (input)="onInput($event)"
         (blur)="onBlur()" aria-label="Mobile number" />

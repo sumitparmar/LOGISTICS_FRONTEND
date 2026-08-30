@@ -152,6 +152,12 @@
   flex-wrap: wrap;
 }
 
+.toolbar-right {
+  flex: 1 1 auto;
+  min-width: 250px;
+  justify-content: flex-end;
+}
+
 .search-box input {
   width: 260px;
   max-width: 100%;
@@ -773,6 +779,8 @@
   }
 
   .toolbar-right {
+    width: 100%;
+    min-width: 0;
     justify-content: space-between;
   }
 

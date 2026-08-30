@@ -35,7 +35,7 @@
             </button>
 
             <!-- Drivers -->
-            <button *ngIf="permissionService.has('drivers.read')" type="button"
+            <button *ngIf="permissionService.hasAny(['drivers.read', 'driver_onboarding.read'])" type="button"
                 [class.active]="isAdminRoute('/admin/drivers')" (click)="navigateAdmin('/admin/drivers', $event)">
                 <lucide-icon name="truck"></lucide-icon>
                 <span>Drivers</span>

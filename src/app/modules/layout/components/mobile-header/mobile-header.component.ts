@@ -1,9 +1,8 @@
 import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, interval } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { CustomerNotificationService } from 'src/app/modules/notifications/services/customer-notification.service';
 import { NotificationStateService } from 'src/app/shared/services/notification-state.service';
 
 @Component({
@@ -28,7 +27,6 @@ export class MobileHeaderComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificationService: CustomerNotificationService,
     private notificationState: NotificationStateService,
   ) {}
 
@@ -38,19 +36,12 @@ export class MobileHeaderComponent implements OnInit, OnDestroy {
     this.userInitial = user?.name?.charAt(0)?.toUpperCase() || 'U';
     this.isAdmin = user?.role?.toLowerCase() === 'admin';
 
-    this.loadUnreadCount();
-
     this.notificationState.unreadCount$
       .pipe(takeUntil(this.destroy$))
       .subscribe((count) => {
         this.unreadCount = count;
       });
 
-    interval(30000)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.loadUnreadCount();
-      });
   }
 
   openMenu(): void {
@@ -76,14 +67,7 @@ export class MobileHeaderComponent implements OnInit, OnDestroy {
   }
 
   loadUnreadCount(): void {
-    this.notificationService.getUnreadCount().subscribe({
-      next: (res) => {
-        this.notificationState.setUnreadCount(res.count || 0);
-      },
-      error: () => {
-        this.unreadCount = 0;
-      },
-    });
+    this.notificationState.refresh().subscribe();
   }
 
   logout(): void {

@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/core/services/socket.service';
 import { CustomerNotificationService } from 'src/app/modules/notifications/services/customer-notification.service';
+import { NotificationStateService } from 'src/app/shared/services/notification-state.service';
 @Component({
   selector: 'app-shell',
   templateUrl: './shell.component.html',
   styleUrls: ['./shell.component.css'],
 })
-export class ShellComponent implements OnInit {
+export class ShellComponent implements OnInit, OnDestroy {
   showOnboarding = false;
 
   isMobileMenuOpen = false;
@@ -19,6 +20,7 @@ export class ShellComponent implements OnInit {
     private router: Router,
     private socketService: SocketService,
     private notificationService: CustomerNotificationService,
+    private notificationState: NotificationStateService,
   ) {}
 
   ngOnInit(): void {
@@ -33,8 +35,10 @@ export class ShellComponent implements OnInit {
     const user = this.authService.getUser();
     const userId = user?._id || user?.id;
     if (userId) {
+      this.notificationState.startPolling();
       this.socketService.connect(userId);
       this.socketService.onCustomerNotification((notification: any) => {
+        this.notificationState.increment();
         this.handleFeedbackNotification(notification);
       });
       this.loadPendingFeedbackPrompt();
@@ -117,5 +121,9 @@ export class ShellComponent implements OnInit {
     this.isMobileMenuOpen = false;
 
     document.body.style.overflow = '';
+  }
+
+  ngOnDestroy(): void {
+    this.notificationState.stopPolling();
   }
 }

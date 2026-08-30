@@ -1,200 +1,206 @@
 <div class="contact-page">
-
     <section class="contact-hero">
-
         <div class="contact-container hero-grid">
-
             <div class="hero-text">
-                <h1>Contact & Support</h1>
-
+                <span class="eyebrow">MoveKart support desk</span>
+                <h1>
+                    Get logistics help
+                    <span>without waiting</span>
+                    <span>in circles.</span>
+                </h1>
                 <p>
-                    Need help with a delivery or have a business inquiry?
-                    Our support team is ready to assist you.
+                    Choose the right support path, send your details, and let MoveKart route your request to the team that can solve it fastest.
                 </p>
 
+                <div class="hero-actions">
+                    <a href="#contact-form" class="primary-btn">Send Message</a>
+                    <button type="button" class="secondary-btn" (click)="requestBusinessDemo()">Request Demo</button>
+                </div>
+
+                <div class="hero-points">
+                    <span *ngFor="let highlight of serviceHighlights">{{ highlight }}</span>
+                </div>
             </div>
 
-            <div class="hero-visual">
-                <img src="/assets/images/Movekart-post3.png">
-            </div>
-
+            <figure class="hero-visual">
+                <img [src]="heroImage.src" [alt]="heroImage.alt">
+            </figure>
         </div>
-
     </section>
-
-    <div class="section-divider"></div>
 
     <section class="support-section">
-
         <div class="contact-container">
-
-            <h2 class="section-title">How can we help you?</h2>
+            <div class="section-heading">
+                <span class="eyebrow">Support topics</span>
+                <h2 class="section-title">How can we help you?</h2>
+            </div>
 
             <div class="support-grid">
-
-                <div class="support-card">
-                    <div class="support-icon">🚚</div>
-                    <h3>Delivery Issues</h3>
-                    <p>Problems with pickup, courier assignment or delivery delays.</p>
-                </div>
-
-                <div class="support-card">
-                    <div class="support-icon">📦</div>
-                    <h3>Tracking Support</h3>
-                    <p>Help locating your shipment or understanding delivery updates.</p>
-                </div>
-
-                <div class="support-card">
-                    <div class="support-icon">🏢</div>
-                    <h3>Business Partnerships</h3>
-                    <p>Integrate MoveKart logistics into your business workflows.</p>
-                </div>
-
-                <div class="support-card">
-                    <div class="support-icon">🛵</div>
-                    <h3>Courier Applications</h3>
-                    <p>Join the MoveKart courier network and start delivering.</p>
-                </div>
-
+                <button
+                    type="button"
+                    class="support-card"
+                    *ngFor="let topic of supportTopics"
+                    [class.active]="selectedTopic === topic.value"
+                    (click)="chooseTopic(topic.value)"
+                >
+                    <span class="support-icon">{{ topic.icon }}</span>
+                    <h3>{{ topic.title }}</h3>
+                    <p>{{ topic.description }}</p>
+                </button>
             </div>
-
         </div>
-
     </section>
 
-    <div class="section-divider"></div>
-
     <section class="contact-methods">
-
         <div class="contact-container">
-
-            <h2 class="section-title">Reach Our Team</h2>
-
-            <div class="methods-grid">
-
-                <div class="method-card">
-                    <h3>Customer Support</h3>
-                    <p>support@MoveKartlogistics.com</p>
-                </div>
-
-                <div class="method-card">
-                    <h3>Business Inquiries</h3>
-                    <p>business@MoveKartlogistics.com</p>
-                </div>
-
-                <div class="method-card">
-                    <h3>Courier Support</h3>
-                    <p>partners@MoveKartlogistics.com</p>
-                </div>
-
+            <div class="section-heading">
+                <span class="eyebrow">Direct channels</span>
+                <h2 class="section-title">
+                    Reach the right
+                    <span>MoveKart team</span>
+                </h2>
             </div>
 
+            <div class="methods-grid">
+                <a class="method-card" *ngFor="let channel of contactChannels" [href]="channel.href">
+                    <span class="method-icon">{{ channel.icon }}</span>
+                    <h3>{{ channel.title }}</h3>
+                    <p class="method-value">{{ channel.value }}</p>
+                    <p class="method-description">{{ channel.description }}</p>
+                </a>
+            </div>
         </div>
-
     </section>
 
     <section id="contact-form" class="contact-form-section">
+        <div class="contact-container form-shell">
+            <div class="form-copy">
+                <span class="eyebrow">Message center</span>
+                <h2>Send a detailed support request</h2>
+                <p>
+                    The form connects to the existing support API and automatically attaches your logged-in user details when available.
+                </p>
 
-        <div class="contact-container form-container">
-
-            <h2 class="section-title">Send Us a Message</h2>
+                <div class="response-card">
+                    <strong>Better details get faster answers</strong>
+                    <span>Include order reference, pickup city, phone number, and a short description of what happened.</span>
+                </div>
+            </div>
 
             <form class="contact-form" [formGroup]="contactForm" (ngSubmit)="submitForm()">
                 <div class="form-grid">
+                    <label>
+                        <span>Your Name</span>
+                        <input type="text" formControlName="name" placeholder="Enter your name">
+                        <small *ngIf="contactForm.get('name')?.touched && contactForm.get('name')?.invalid">
+                            Name is required.
+                        </small>
+                    </label>
 
-                    <input type="text" formControlName="name" placeholder="Your Name">
-                    <input type="email" formControlName="email" placeholder="Email Address">
-                    <app-phone-input formControlName="phone" placeholder="10 digit phone number"></app-phone-input>
-                    <small *ngIf="contactForm.get('phone')?.touched && contactForm.get('phone')?.invalid">
-                        Enter a valid 10 digit phone number.
-                    </small>
-                    <select formControlName="inquiryType">
-                        <option value="" disabled selected hidden>
-                            Select inquiry type
-                        </option>
+                    <label>
+                        <span>Email Address</span>
+                        <input type="email" formControlName="email" placeholder="name@example.com">
+                        <small *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.invalid">
+                            Enter a valid email address.
+                        </small>
+                    </label>
 
-                        <option value="Delivery Issue">Delivery Issue</option>
-                        <option value="Tracking Support">Tracking Support</option>
-                        <option value="Business Partnership">Business Partnership</option>
-                        <option value="Courier Application">Courier Application</option>
-                    </select>
+                    <label>
+                        <span>Phone Number</span>
+                        <app-phone-input formControlName="phone" placeholder="10 digit phone number"></app-phone-input>
+                        <small *ngIf="contactForm.get('phone')?.touched && contactForm.get('phone')?.invalid">
+                            Enter a valid 10 digit phone number.
+                        </small>
+                    </label>
 
+                    <label>
+                        <span>Inquiry Type</span>
+                        <select formControlName="inquiryType">
+                            <option value="" disabled>Select inquiry type</option>
+                            <option *ngFor="let type of inquiryTypes" [value]="type">{{ type }}</option>
+                        </select>
+                        <small *ngIf="contactForm.get('inquiryType')?.touched && contactForm.get('inquiryType')?.invalid">
+                            Select an inquiry type.
+                        </small>
+                    </label>
                 </div>
 
-                <textarea formControlName="message" placeholder="Describe your request or issue"></textarea>
+                <label class="message-field">
+                    <span>Message</span>
+                    <textarea formControlName="message" placeholder="Describe your request or issue"></textarea>
+                    <small *ngIf="contactForm.get('message')?.touched && contactForm.get('message')?.invalid">
+                        Add at least 12 characters so the team has enough context.
+                    </small>
+                </label>
 
-                <div *ngIf="successMessage" class="coverage-text">
+                <div *ngIf="successMessage" class="form-alert success">
                     {{ successMessage }}
                 </div>
 
-                <div *ngIf="errorMessage" class="coverage-text">
+                <div *ngIf="errorMessage" class="form-alert error">
                     {{ errorMessage }}
                 </div>
 
-                <button type="submit" class="primary-btn" [disabled]="isSubmitting"> Send Message
+                <button type="submit" class="primary-btn submit-btn" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Sending...' : 'Send Message' }}
                 </button>
-
             </form>
-
         </div>
-
     </section>
 
     <section class="contact-business">
-
         <div class="contact-container business-grid">
-
             <div class="business-text">
-
-                <h2>Logistics Solutions for Businesses</h2>
-
+                <span class="eyebrow">For businesses</span>
+                <h2>Logistics solutions that fit into your workflow</h2>
                 <p>
-                    Integrate delivery into your product, automate fulfillment
-                    and manage shipments at scale with MoveKart logistics APIs.
+                    Integrate delivery into your product, automate fulfillment, and manage shipments at scale with MoveKart logistics support.
                 </p>
 
-                <a routerLink="/contact" fragment="contact-form" class="secondary-btn">
-                    Request Business Demo
-                </a>
-
+                <button type="button" class="secondary-btn" (click)="requestBusinessDemo()">Request Business Demo</button>
             </div>
 
-            <div class="business-visual">
-                <img src="/assets/images/Movekart-post-2.png">
-            </div>
-
+            <figure class="business-visual">
+                <img [src]="businessImage.src" [alt]="businessImage.alt">
+            </figure>
         </div>
-
     </section>
 
     <section class="coverage-section">
-
         <div class="contact-container">
-
-            <h2 class="section-title">Service Coverage</h2>
+            <div class="section-heading">
+                <span class="eyebrow">Coverage</span>
+                <h2 class="section-title">Service support across active cities</h2>
+            </div>
 
             <p class="coverage-text">
                 MoveKart operates across major metropolitan areas and continues expanding its courier partner network.
             </p>
-
         </div>
-
     </section>
 
-    <section class="help-cta">
+    <section class="faq-section">
+        <div class="contact-container faq-grid">
+            <div class="section-heading faq-heading">
+                <span class="eyebrow">Quick answers</span>
+                <h2 class="section-title">Common support questions</h2>
+            </div>
 
-        <div class="contact-container">
-
-            <h2>Looking for quick answers?</h2>
-
-            <p>Visit our Help Center to find answers to common delivery questions.</p>
-
-            <a routerLink="/contact" fragment="contact-form" class="secondary-btn">
-                Contact Support
-            </a>
-
+            <div class="faq-list">
+                <button
+                    type="button"
+                    class="faq-item"
+                    *ngFor="let faq of faqs; let index = index"
+                    [class.open]="activeFaqIndex === index"
+                    (click)="toggleFaq(index)"
+                >
+                    <span class="faq-row">
+                        <span class="faq-question">{{ faq.question }}</span>
+                        <span class="faq-toggle" aria-hidden="true">{{ activeFaqIndex === index ? '-' : '+' }}</span>
+                    </span>
+                    <span class="faq-answer" *ngIf="activeFaqIndex === index">{{ faq.answer }}</span>
+                </button>
+            </div>
         </div>
-
     </section>
-
 </div>

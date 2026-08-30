@@ -4,8 +4,7 @@
 
         <div class="order-header">
             <div class="order-title">
-                Order #{{ order.borzoOrderId || order.rawProviderResponse?.order?.order_id ||
-                order._id?.slice(-6)?.toUpperCase() }}
+                Order #{{ (order.borzoOrderId || order.rawProviderResponse?.order?.order_id || order._id) | orderReference }}
             </div>
 
             <div class="order-meta">

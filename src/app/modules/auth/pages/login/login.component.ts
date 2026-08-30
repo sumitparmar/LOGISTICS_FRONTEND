@@ -14,6 +14,36 @@ export class LoginComponent implements OnInit {
   loginMode: LoginMode = 'BUSINESS';
   otpStep: OtpStep = 'PHONE';
   hasPendingBooking = false;
+  readonly heroImage = 'assets/images/movekart-login-hero.png';
+  readonly trustPoints = [
+    'Role-aware dashboard access',
+    'OTP fallback for personal bookings',
+    'Saved quote recovery',
+  ];
+  readonly accessMetrics = [
+    { value: '2 ways', label: 'to sign in' },
+    { value: 'Live', label: 'delivery state' },
+    { value: 'Secure', label: 'session control' },
+  ];
+  readonly workflowCards = [
+    {
+      title: 'Business operations',
+      text: 'Manage orders, dashboards, and team delivery activity after login.',
+    },
+    {
+      title: 'Personal delivery',
+      text: 'Continue a saved quote with phone OTP when password access is not needed.',
+    },
+    {
+      title: 'Smart redirect',
+      text: 'MoveKart returns you to the dashboard or pending booking automatically.',
+    },
+  ];
+  readonly securityNotes = [
+    'Token stored through AuthService',
+    'Onboarding prompt preserved',
+    'Pending delivery state restored',
+  ];
   businessForm!: FormGroup;
   phoneForm!: FormGroup;
   otpForm!: FormGroup;

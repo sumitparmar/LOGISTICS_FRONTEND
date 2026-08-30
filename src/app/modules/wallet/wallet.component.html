@@ -309,7 +309,7 @@
 
             <b>Order ID:</b>
 
-            {{ item.order.borzoOrderId }}
+            {{ (item.order.borzoOrderId || item.order._id) | orderReference }}
 
           </span>
 
@@ -376,51 +376,16 @@
 
   </div>
 
-  <div class="wallet-pagination" *ngIf="pagination.pages > 1">
-
-    <div class="pagination-info">
-
-      Showing
-
-      {{ ledger.length }}
-
-      of
-
-      {{ pagination.total }}
-
-      transactions
-
-    </div>
-
-    <div class="pagination-buttons">
-
-      <button type="button" class="action-btn" [disabled]="currentPage===1"
-        (click)="currentPage=currentPage-1;loadWallet()">
-        Previous
-
-      </button>
-
-      <span>
-
-        Page
-
-        {{ pagination.page }}
-
-        of
-
-        {{ pagination.pages }}
-
-      </span>
-      <button type="button" class="action-btn" [disabled]="currentPage===pagination.pages"
-        (click)="currentPage=currentPage+1;loadWallet()">
-
-        Next
-
-      </button>
-
-    </div>
-
-  </div>
+  <app-pagination
+    *ngIf="pagination.total > 0"
+    [total]="pagination.total"
+    [totalPagesOverride]="pagination.pages"
+    [page]="currentPage"
+    [limit]="pageSize"
+    [limitOptions]="[20, 50, 100]"
+    (pageChange)="onPageChange($event)"
+    (limitChange)="onLimitChange($event)">
+  </app-pagination>
 
   <div class="wallet-modal-backdrop" *ngIf="showAddMoneyModal">
 

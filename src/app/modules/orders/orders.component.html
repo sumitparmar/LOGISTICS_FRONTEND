@@ -123,8 +123,7 @@
                             <td>
                                 <div class="mk-order-id-box">
                                     <span class="mk-order-id">
-                                        {{ order.borzoOrderId || order.rawProviderResponse?.order?.order_id ||
-                                        order._id?.slice(-6)?.toUpperCase() }}
+                                        {{ (order.borzoOrderId || order.rawProviderResponse?.order?.order_id || order._id) | orderReference }}
                                     </span> <small>{{ order.createdAt | date:'dd MMM, hh:mm a' }}</small>
                                 </div>
                             </td>

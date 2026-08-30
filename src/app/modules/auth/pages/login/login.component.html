@@ -1,155 +1,167 @@
-<div class="login-page">
+<main class="auth-page login-access-page">
+    <section class="auth-shell">
+        <div class="auth-copy">
+            <a class="brand-lockup" routerLink="/" aria-label="MoveKart home">
+                <img src="assets/images/movekart-logo.png" alt="MoveKart Logistics" />
+            </a>
 
-    <section class="hero">
+            <div class="eyebrow">Secure MoveKart Access</div>
 
-        <div class="layout-container">
+            <h1 class="page-title">Login to your logistics dashboard.</h1>
 
-            <!-- LEFT CONTENT -->
-            <div class="hero-left layout-left">
+            <p class="page-subtitle">
+                Continue with business credentials or personal OTP access.
+            </p>
 
-                <div class="eyebrow">
-                    Secure Access to MoveKart
-                </div>
-
-                <h1 class="page-title">
-                    Login to Manage Deliveries, Quotes & Orders
-                </h1>
-
-                <p class="page-subtitle">
-                    Access business logistics tools or continue instant personal delivery booking with OTP login.
-                </p>
-
-                <div class="trust-points">
-                    <span>Secure Authentication</span>
-                    <span>Fast OTP Login</span>
-                    <span>Real-Time Orders</span>
-                </div>
-
-                <div class="login-card">
-
-                    <div class="card-head">
-                        <h2>Welcome Back</h2>
-                        <p>Select your preferred login method</p>
-                    </div>
-
-                    <div class="pending-banner" *ngIf="hasPendingBooking"> Your delivery quote is saved. Login to
-                        continue booking.
-                    </div>
-
-                    <!-- MODE SWITCH -->
-                    <div class="mode-switch">
-                        <button type="button" [class.active]="loginMode === 'BUSINESS'"
-                            (click)="switchMode('BUSINESS')">
-                            Business Login
-                        </button>
-
-                        <button type="button" [class.active]="loginMode === 'INDIVIDUAL'"
-                            (click)="switchMode('INDIVIDUAL')">
-                            Personal OTP
-                        </button>
-                    </div>
-
-                    <!-- BUSINESS LOGIN -->
-                    <form *ngIf="loginMode === 'BUSINESS'" [formGroup]="businessForm" (ngSubmit)="submitBusiness()">
-
-                        <div class="input-group">
-                            <input type="email" autocomplete="username" placeholder="Business Email"
-                                formControlName="email" />
-                        </div>
-
-                        <div class="input-group">
-                            <input type="password" autocomplete="current-password" placeholder="Password"
-                                formControlName="password" />
-                        </div>
-
-                        <a class="forgot" routerLink="/auth/forgot-password">
-                            Forgot password?
-                        </a>
-
-                        <button type="submit" [disabled]="loading">
-                            {{ loading ? 'Signing In...' : 'Login to Dashboard' }}
-                        </button>
-
-                        <p class="switch">
-                            Don't have an account?
-                            <a routerLink="/auth/register">Register</a>
-                        </p>
-
-                    </form>
-
-                    <!-- INDIVIDUAL OTP LOGIN -->
-                    <div *ngIf="loginMode === 'INDIVIDUAL'">
-
-                        <!-- PHONE STEP -->
-                        <form *ngIf="otpStep === 'PHONE'" [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
-
-                            <div class="input-group">
-                                <app-phone-input formControlName="phone" placeholder="Enter 10 digit phone number"></app-phone-input>
-                            </div>
-                            <small *ngIf="phoneForm.get('phone')?.touched && phoneForm.get('phone')?.invalid">
-                                Enter a valid 10 digit phone number.
-                            </small>
-
-                            <div class="input-group">
-                                <input type="email" autocomplete="email" placeholder="Email for OTP fallback (optional)"
-                                    formControlName="email" />
-                            </div>
-                            <p class="otp-help">
-                                Email is optional. MoveKart will use SMS when configured, or the approved testing fallback while SMS integration is pending.
-                            </p>
-
-                            <button type="submit" [disabled]="loading">
-                                {{ loading ? 'Sending OTP...' : 'Send OTP' }}
-                            </button>
-
-                        </form>
-
-                        <!-- OTP STEP -->
-                        <form *ngIf="otpStep === 'OTP'" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
-
-                            <div class="otp-status">
-                                OTP sent to {{ phoneNumber }} and your linked email when available.
-                            </div>
-
-                            <div class="otp-status mock-otp" *ngIf="mockOtp">
-                                Testing OTP: <strong>{{ mockOtp }}</strong>
-                            </div>
-
-                            <div class="input-group">
-                                <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
-                                    placeholder="Enter OTP" formControlName="otp" />
-                            </div>
-
-                            <button type="submit" [disabled]="loading">
-                                {{ loading ? 'Verifying...' : 'Verify & Continue' }}
-                            </button>
-
-                            <p class="switch otp-switch">
-                                Wrong number?
-                                <button type="button" class="change-phone" (click)="otpStep = 'PHONE'">
-                                    Change phone
-                                </button>
-                            </p>
-
-                        </form>
-
-                    </div>
-
-                    <div class="error-message" *ngIf="errorMessage">
-                        {{ errorMessage }}
-                    </div>
-
-                </div>
-
+            <div class="trust-grid" aria-label="MoveKart access benefits">
+                <span *ngFor="let point of trustPoints">{{ point }}</span>
             </div>
 
-            <!-- RIGHT IMAGE -->
-            <div class="hero-image layout-right">
-                <img src="assets/images/rider.png" alt="MoveKart Delivery Login" />
-            </div>
+            <div class="visual-panel">
+                <img [src]="heroImage" alt="MoveKart logistics command center dashboard" />
 
+                <div class="metric-strip" aria-label="Login highlights">
+                    <div class="metric" *ngFor="let metric of accessMetrics">
+                        <strong>{{ metric.value }}</strong>
+                        <span>{{ metric.label }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-    </section>
+        <aside class="auth-card" aria-label="Login to MoveKart">
+            <div class="card-head">
+                <div>
+                    <span class="card-kicker">Welcome back</span>
+                    <h2>Choose access mode</h2>
+                    <p>Pick the method that matches your delivery workflow.</p>
+                </div>
+            </div>
 
-</div>
+            <div class="status-banner info" *ngIf="hasPendingBooking">
+                Your delivery quote is saved. Login to continue booking.
+            </div>
+
+            <div class="mode-switch" role="tablist" aria-label="Login method">
+                <button type="button" role="tab" [attr.aria-selected]="loginMode === 'BUSINESS'"
+                    [class.active]="loginMode === 'BUSINESS'" (click)="switchMode('BUSINESS')">
+                    Business Login
+                </button>
+
+                <button type="button" role="tab" [attr.aria-selected]="loginMode === 'INDIVIDUAL'"
+                    [class.active]="loginMode === 'INDIVIDUAL'" (click)="switchMode('INDIVIDUAL')">
+                    Personal OTP
+                </button>
+            </div>
+
+            <form *ngIf="loginMode === 'BUSINESS'" [formGroup]="businessForm" (ngSubmit)="submitBusiness()" novalidate>
+                <div class="input-group">
+                    <label for="business-email">Business email</label>
+                    <input id="business-email" type="email" autocomplete="username" placeholder="name@company.com"
+                        formControlName="email" />
+                    <small *ngIf="businessForm.get('email')?.touched && businessForm.get('email')?.invalid">
+                        Enter a valid business email.
+                    </small>
+                </div>
+
+                <div class="input-group">
+                    <label for="business-password">Password</label>
+                    <input id="business-password" type="password" autocomplete="current-password"
+                        placeholder="Enter password" formControlName="password" />
+                    <small *ngIf="businessForm.get('password')?.touched && businessForm.get('password')?.invalid">
+                        Password is required.
+                    </small>
+                </div>
+
+                <a class="forgot" routerLink="/auth/forgot-password">
+                    Forgot password?
+                </a>
+
+                <button class="submit-btn" type="submit" [disabled]="loading">
+                    {{ loading ? 'Signing In...' : 'Login to Dashboard' }}
+                </button>
+
+                <p class="switch">
+                    Don't have an account?
+                    <a routerLink="/auth/register">Register</a>
+                </p>
+            </form>
+
+            <div *ngIf="loginMode === 'INDIVIDUAL'">
+                <form *ngIf="otpStep === 'PHONE'" [formGroup]="phoneForm" (ngSubmit)="sendOtp()" novalidate>
+                    <div class="input-group">
+                        <label>Phone number</label>
+                        <app-phone-input formControlName="phone"
+                            placeholder="Enter 10 digit phone number"></app-phone-input>
+                        <small *ngIf="phoneForm.get('phone')?.touched && phoneForm.get('phone')?.invalid">
+                            Enter a valid 10 digit phone number.
+                        </small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="otp-email">Fallback email</label>
+                        <input id="otp-email" type="email" autocomplete="email"
+                            placeholder="Email for OTP fallback (optional)" formControlName="email" />
+                        <small *ngIf="phoneForm.get('email')?.touched && phoneForm.get('email')?.invalid">
+                            Enter a valid fallback email.
+                        </small>
+                    </div>
+
+                    <p class="otp-help">
+                        Email is optional. MoveKart uses SMS when configured, or the approved testing fallback while
+                        SMS integration is pending.
+                    </p>
+
+                    <button class="submit-btn" type="submit" [disabled]="loading">
+                        {{ loading ? 'Sending OTP...' : 'Send OTP' }}
+                    </button>
+                </form>
+
+                <form *ngIf="otpStep === 'OTP'" [formGroup]="otpForm" (ngSubmit)="verifyOtp()" novalidate>
+                    <div class="otp-status">
+                        OTP sent to {{ phoneNumber }} and your linked email when available.
+                    </div>
+
+                    <div class="otp-status mock-otp" *ngIf="mockOtp">
+                        Testing OTP: <strong>{{ mockOtp }}</strong>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="otp-code">One-time password</label>
+                        <input id="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+                            placeholder="Enter OTP" formControlName="otp" />
+                        <small *ngIf="otpForm.get('otp')?.touched && otpForm.get('otp')?.invalid">
+                            Enter the 6 digit OTP.
+                        </small>
+                    </div>
+
+                    <button class="submit-btn" type="submit" [disabled]="loading">
+                        {{ loading ? 'Verifying...' : 'Verify & Continue' }}
+                    </button>
+
+                    <p class="switch otp-switch">
+                        Wrong number?
+                        <button type="button" class="change-phone" (click)="otpStep = 'PHONE'">
+                            Change phone
+                        </button>
+                    </p>
+                </form>
+            </div>
+
+            <div class="status-banner error" *ngIf="errorMessage">
+                {{ errorMessage }}
+            </div>
+
+            <div class="security-notes">
+                <span *ngFor="let note of securityNotes">{{ note }}</span>
+            </div>
+        </aside>
+
+        <div class="process-rail" aria-label="MoveKart login workflow">
+            <article *ngFor="let item of workflowCards">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.text }}</p>
+            </article>
+        </div>
+    </section>
+</main>

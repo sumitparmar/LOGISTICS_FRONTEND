@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../../../services/dashboard.service';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { orderReference } from 'src/app/shared/utils/order-reference';
 
 interface DashboardStats {
   totalOrders: number;
@@ -290,7 +291,7 @@ export class DashboardComponent implements OnInit {
   }
 
   truncateId(id: string): string {
-    return id ? `#${id.slice(-8).toUpperCase()}` : '—';
+    return id ? `#${orderReference(id)}` : '—';
   }
 
   truncateAddress(address: string, maxLen = 28): string {

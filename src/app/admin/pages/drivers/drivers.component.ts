@@ -75,16 +75,32 @@ export class DriversComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupSearch();
 
-    this.loadDrivers();
-    this.loadOnboardingApplications();
+    if (this.canReadDrivers()) this.loadDrivers();
+    if (this.canReadOnboarding()) this.loadOnboardingApplications();
 
     this.socketService.orderUpdate$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadDrivers());
+      .subscribe(() => {
+        if (this.canReadDrivers()) this.loadDrivers();
+      });
 
     this.socketService.driverOnboardingUpdate$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadOnboardingApplications());
+      .subscribe(() => {
+        if (this.canReadOnboarding()) this.loadOnboardingApplications();
+      });
+  }
+
+  canReadDrivers(): boolean {
+    return this.permissionService.has('drivers.read');
+  }
+
+  canReadOnboarding(): boolean {
+    return this.permissionService.hasAny(['driver_onboarding.read', 'drivers.read']);
+  }
+
+  canUpdateOnboarding(): boolean {
+    return this.permissionService.hasAny(['driver_onboarding.update', 'drivers.update']);
   }
 
   private setupSearch(): void {
@@ -93,9 +109,9 @@ export class DriversComponent implements OnInit, OnDestroy {
       .subscribe((value: string) => {
         this.searchTerm = value.toLowerCase();
         this.page = 1;
-        this.loadDrivers();
+        if (this.canReadDrivers()) this.loadDrivers();
         this.onboardingPage = 1;
-        this.loadOnboardingApplications();
+        if (this.canReadOnboarding()) this.loadOnboardingApplications();
       });
   }
 
@@ -225,7 +241,7 @@ export class DriversComponent implements OnInit, OnDestroy {
     application: any,
     status: 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED',
   ): void {
-    if (!this.permissionService.has('drivers.update')) return;
+    if (!this.canUpdateOnboarding()) return;
     if (!application?._id || this.updatingApplicationId) return;
 
     this.updatingApplicationId = application._id;
