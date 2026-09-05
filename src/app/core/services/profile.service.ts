@@ -15,6 +15,10 @@ export class ProfileService {
     return this.api.put('/auth/profile', payload);
   }
 
+  updateProfilePhoto(profilePhoto: string) {
+    return this.api.put('/auth/profile-photo', { profilePhoto });
+  }
+
   changePassword(payload: any) {
     return this.api.post('/auth/change-password', payload);
   }

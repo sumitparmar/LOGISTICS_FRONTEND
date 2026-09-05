@@ -48,16 +48,17 @@
 }
 
 .avatar {
+  position: relative;
   width: 40px;
   height: 40px;
   overflow: hidden;
   padding: 0;
 
-  border: none;
+  border: 1px solid var(--mk-border);
 
   border-radius: 50%;
 
-  background: linear-gradient(135deg, var(--mk-primary), var(--mk-primary));
+  background: var(--mk-primary);
 
   color: var(--mk-text-inverse);
 
@@ -71,10 +72,19 @@
 }
 
 .avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
+  border-radius: inherit;
+}
+
+.avatar.has-photo {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .profile-dropdown {
@@ -465,18 +475,15 @@
 }
 
 .avatar {
+  position: relative;
   width: 44px;
   height: 44px;
 
-  border: none;
+  border: 1px solid var(--mk-border);
 
   border-radius: 50%;
 
-  background: linear-gradient(
-    135deg,
-    var(--mk-primary) 0%,
-    var(--mk-primary) 100%
-  );
+  background: var(--mk-primary);
 
   color: var(--mk-text-inverse);
 
@@ -492,6 +499,12 @@
   box-shadow: 0 10px 20px rgba(255, 122, 0, 0.18);
 
   user-select: none;
+}
+
+.avatar.has-photo {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .profile-dropdown {

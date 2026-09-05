@@ -1,24 +1,31 @@
 <div class="support-center">
     <section class="support-hero">
         <div>
-            <p class="section-kicker">Customer support</p>
             <h2>Support Center</h2>
-            <p>Track every ticket, reply to MoveKart support, and reopen a resolved conversation when needed.</p>
+            <p>Raise a request, follow replies, and continue the conversation whenever you need help.</p>
         </div>
 
-        <button type="button" class="primary-action compact" (click)="showCreatePanel = !showCreatePanel">
-            {{ visibleCreatePanel ? 'Close form' : 'New ticket' }}
-        </button>
+        <div class="support-hero-actions">
+            <button type="button" class="primary-action compact" *ngIf="!visibleCreatePanel" (click)="openCreatePanel()">
+                New ticket
+            </button>
+            <button type="button" class="secondary-action compact" *ngIf="visibleCreatePanel && tickets.length"
+                (click)="closeCreatePanel()">
+                Cancel
+            </button>
+        </div>
     </section>
+
+    <div class="flash-stack" *ngIf="successMessage || errorMessage">
+        <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    </div>
 
     <section class="support-create" *ngIf="visibleCreatePanel">
         <div class="section-heading">
             <h2>Raise a ticket</h2>
-            <p>Add one clear issue per ticket so the support team can respond faster.</p>
+            <p>Share the issue clearly so our team can help faster.</p>
         </div>
-
-        <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
-        <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
         <form class="ticket-form" (ngSubmit)="createTicket()">
             <div class="field full">
@@ -51,8 +58,8 @@
             </div>
 
             <button class="primary-action" type="submit"
-                [disabled]="isCreating || !form.subject.trim() || !form.message.trim()"> {{ isCreating ? 'Creating...' :
-                'Raise Ticket' }}
+                [disabled]="isCreating || !form.subject.trim() || !form.message.trim()"> {{ isCreating ? 'Submitting...' :
+                'Submit ticket' }}
             </button>
         </form>
     </section>
@@ -84,7 +91,7 @@
 
                     </div>
 
-                    <h3>Loading Tickets</h3>
+                    <h3>Loading tickets</h3>
                 </div>
 
 
@@ -96,7 +103,7 @@
 
                     </div>
 
-                    <h3>No Tickets</h3>
+                    <h3>No tickets yet</h3>
 
                     <p>
 
@@ -183,14 +190,13 @@
 
                 <h3>
 
-                    No Ticket Selected
+                    Select a ticket
 
                 </h3>
 
                 <p>
 
-                    Choose a support ticket from the left panel to view the complete conversation and reply to our
-                    support team.
+                    Choose a ticket from the list to view the conversation and send a reply.
 
                 </p>
 
@@ -215,7 +221,7 @@
 
                             <p>
 
-                                Ticket :
+                                Ticket
 
                                 {{ selectedTicket.ticketNumber }}
 
@@ -292,7 +298,7 @@
                     <button type="button" class="primary-action" (click)="sendReply()"
                         [disabled]="isSubmittingReply || !replyText.trim()">
 
-                        {{ isSubmittingReply ? 'Sending...' : 'Send Reply' }}
+                        {{ isSubmittingReply ? 'Sending...' : 'Send reply' }}
 
                     </button>
 

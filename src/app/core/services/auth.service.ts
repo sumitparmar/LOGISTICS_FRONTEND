@@ -131,6 +131,7 @@ export class AuthService {
     if (!user) return;
 
     localStorage.setItem(this.userKey, JSON.stringify(user));
+    window.dispatchEvent(new CustomEvent('movekart:user-updated'));
   }
 
   getUser() {

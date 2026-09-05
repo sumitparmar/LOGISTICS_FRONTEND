@@ -1,7 +1,10 @@
 <div class="settings-page">
   <section class="settings-hero">
     <div class="identity-card">
-      <div class="avatar">{{ initials }}</div>
+      <div class="avatar" [class.has-photo]="profilePhoto">
+        <img *ngIf="profilePhoto; else settingsInitials" [src]="profilePhoto" alt="Profile photo" />
+        <ng-template #settingsInitials>{{ initials }}</ng-template>
+      </div>
 
       <div class="identity-copy">
         <p class="eyebrow">Customer settings</p>
@@ -69,7 +72,7 @@
         <label class="field">
           <span>Email</span>
           <input formControlName="email" autocomplete="email" />
-          <small>Email changes are not supported by the current account API.</small>
+          <small>Contact support if you need to change your email.</small>
         </label>
 
         <label class="field">
@@ -229,9 +232,8 @@
     <section class="settings-panel preferences-panel">
       <div class="panel-head">
         <div>
-          <p class="section-kicker">Experience</p>
-          <h2>Theme preference</h2>
-          <p>Theme is applied globally across user and admin-aware shared UI.</p>
+          <h2>Theme</h2>
+          <p>Choose the look that feels best for your workspace.</p>
         </div>
       </div>
 
@@ -257,10 +259,6 @@
         </button>
       </div>
 
-      <div class="capability-note">
-        System/default mode and language preferences are not shown because the
-        current app does not expose persisted support for them.
-      </div>
     </section>
   </div>
 

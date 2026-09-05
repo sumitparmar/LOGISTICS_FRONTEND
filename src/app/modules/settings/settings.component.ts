@@ -30,6 +30,7 @@ interface UserProfile {
   authProvider?: string;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
+  profilePhoto?: string;
   createdAt?: string;
   lastLoginAt?: string;
 }
@@ -82,6 +83,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.themeSub?.unsubscribe();
   }
 
+  @HostListener('window:movekart:user-updated')
+  handleUserUpdated(): void {
+    const user = this.authService.getUser();
+
+    if (user) {
+      this.applyProfile(user, false);
+    }
+  }
+
   @HostListener('window:beforeunload', ['$event'])
   warnBeforeUnload(event: BeforeUnloadEvent): void {
     if (this.hasUnsavedProfileChanges()) {
@@ -98,6 +108,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .slice(0, 2)
       .map((part) => part.charAt(0).toUpperCase())
       .join('');
+  }
+
+  get profilePhoto(): string {
+    return this.profile?.profilePhoto || '';
   }
 
   get accountStatus(): string {

@@ -120,7 +120,8 @@
 }
 
 .avatar {
-  background: linear-gradient(135deg, var(--mk-primary), var(--mk-primary)) !important;
+  position: relative;
+  background: var(--mk-primary) !important;
 
   color: var(--mk-text-inverse);
 
@@ -130,10 +131,19 @@
 }
 
 .avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
+  border-radius: inherit;
+}
+
+.avatar.has-photo {
+  background: transparent !important;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .profile-wrapper {

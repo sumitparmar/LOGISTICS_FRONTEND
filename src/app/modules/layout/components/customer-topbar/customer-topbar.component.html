@@ -63,7 +63,7 @@
 
         <div class="profile-wrapper">
 
-            <button type="button" class="avatar" (click)="toggleDropdown($event)">
+            <button type="button" class="avatar" [class.has-photo]="userPhoto" (click)="toggleDropdown($event)">
                 <img *ngIf="userPhoto; else topbarInitial" [src]="userPhoto" alt="Profile photo" />
                 <ng-template #topbarInitial>{{ userInitial }}</ng-template>
 

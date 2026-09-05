@@ -3,10 +3,12 @@
     <div class="settings-container">
 
         <div class="settings-header">
-            <h2 class="page-title">Account Settings</h2>
-            <p class="page-subtitle">
-                Manage your profile information and account security
-            </p>
+            <div>
+                <h2 class="page-title">Account settings</h2>
+                <p class="page-subtitle">
+                    Manage your profile, photo and password.
+                </p>
+            </div>
         </div>
 
         <div class="settings-grid">
@@ -15,12 +17,14 @@
             <div class="settings-card">
 
                 <div class="card-header">
-                    <h3>Profile Information</h3>
+                    <div>
+                        <h3>Profile information</h3>
+                    </div>
                 </div>
 
                 <form [formGroup]="profileForm" (submit)="$event.preventDefault()">
                     <div class="photo-field">
-                        <div class="profile-photo-preview">
+                        <div class="profile-photo-preview" [class.has-photo]="profilePhotoPreview">
                             <img *ngIf="profilePhotoPreview; else initialsAvatar" [src]="profilePhotoPreview"
                                 alt="Profile photo" />
                             <ng-template #initialsAvatar>
@@ -29,18 +33,60 @@
                         </div>
 
                         <div class="photo-actions">
-                            <strong>Profile photo</strong>
+                            <div class="photo-title-row">
+                                <strong>Profile photo</strong>
+                            </div>
                             <p>Add a display picture for your MoveKart account. JPG, PNG or WebP under 2 MB.</p>
                             <div class="photo-buttons">
-                                <label class="photo-btn" for="profile-photo">Upload photo</label>
+                                <label class="photo-btn" for="profile-photo">
+                                    {{ profilePhotoPreview ? 'Change photo' : 'Choose photo' }}
+                                </label>
+                                <button *ngIf="hasPendingPhotoChange" type="button" class="photo-btn"
+                                    (click)="savePhoto()" [disabled]="photoSaving || loading">
+                                    {{ photoSaving ? 'Saving...' : 'Save photo' }}
+                                </button>
                                 <button *ngIf="profilePhotoPreview" type="button" class="photo-btn secondary"
                                     (click)="removePhoto()" aria-label="Remove profile photo">
-                                    Remove
+                                    Remove photo
                                 </button>
                             </div>
                             <input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp"
                                 (change)="onPhotoSelected($event)" />
                             <small *ngIf="photoError">{{ photoError }}</small>
+                            <small class="photo-message" *ngIf="photoMessage && !photoError">{{ photoMessage }}</small>
+                        </div>
+                    </div>
+
+                    <div class="crop-editor" *ngIf="cropSource">
+                        <div class="crop-stage" aria-label="Profile photo crop preview">
+                            <img [src]="cropSource" alt="Selected photo crop preview"
+                                [style.transform]="cropImageTransform" />
+                            <span class="crop-mask"></span>
+                        </div>
+
+                        <div class="crop-controls">
+                            <label>
+                                <span>Zoom</span>
+                                <input type="range" min="1" max="3" step="0.05" [(ngModel)]="cropZoom"
+                                    [ngModelOptions]="{ standalone: true }" />
+                            </label>
+
+                            <label>
+                                <span>Horizontal</span>
+                                <input type="range" min="-40" max="40" step="1" [(ngModel)]="cropOffsetX"
+                                    [ngModelOptions]="{ standalone: true }" />
+                            </label>
+
+                            <label>
+                                <span>Vertical</span>
+                                <input type="range" min="-40" max="40" step="1" [(ngModel)]="cropOffsetY"
+                                    [ngModelOptions]="{ standalone: true }" />
+                            </label>
+
+                            <div class="crop-actions">
+                                <button type="button" class="photo-btn" (click)="applyCrop()">Apply crop</button>
+                                <button type="button" class="photo-btn secondary" (click)="cancelCrop()">Cancel</button>
+                            </div>
                         </div>
                     </div>
 
@@ -63,7 +109,7 @@
                     </div>
 
                     <button type="button" class="btn-primary" (click)="updateProfile()"
-                        [disabled]="profileForm.invalid || loading"> Update Profile
+                        [disabled]="profileForm.invalid || loading"> Update profile
                     </button>
 
                 </form>
@@ -74,7 +120,9 @@
             <div class="settings-card">
 
                 <div class="card-header">
-                    <h3>Security</h3>
+                    <div>
+                        <h3>Password</h3>
+                    </div>
                 </div>
 
                 <form [formGroup]="passwordForm" (submit)="$event.preventDefault()">

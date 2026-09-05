@@ -55,6 +55,12 @@ export class AdminLayoutComponent implements OnInit {
     this.isMobileMenuOpen = false;
   }
 
+  @HostListener('window:movekart:user-updated')
+  handleUserUpdated(): void {
+    this.currentUser = this.authService.getUser();
+    this.isOnline = !!this.currentUser;
+  }
+
   constructor(
     private socketService: AdminSocketService,
     private ordersStore: OrdersStore,

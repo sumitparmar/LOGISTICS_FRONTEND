@@ -441,9 +441,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: 24px;
+  gap: 18px;
 
-  padding: 32px;
+  padding: 24px;
 
   min-height: calc(100vh - 90px);
   min-height: calc(100dvh - 90px);
@@ -465,7 +465,7 @@
 
   border: 1px solid var(--border);
 
-  border-radius: 24px;
+  border-radius: 16px;
 
   overflow: hidden;
 
@@ -486,7 +486,7 @@
 .support-create {
   flex-shrink: 0;
 
-  padding: 36px;
+  padding: 28px;
 }
 
 .support-hero {
@@ -494,17 +494,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 28px 34px;
+  padding: 22px 28px;
   background: var(--mk-surface-glass);
   border: 1px solid var(--mk-border);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow: var(--shadow-lg);
 }
 
 .support-hero h2 {
-  margin: 4px 0 8px;
-  font-size: clamp(26px, 4vw, 38px);
-  line-height: 1.08;
+  margin: 0 0 8px;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.12;
   font-weight: 900;
   color: var(--mk-text-primary);
 }
@@ -514,6 +514,13 @@
   max-width: 720px;
   color: var(--mk-text-secondary);
   line-height: 1.6;
+}
+
+.support-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 120px;
 }
 
 .section-kicker {
@@ -542,7 +549,7 @@
 .section-heading h2 {
   margin: 0;
 
-  font-size: 34px;
+  font-size: 30px;
 
   font-weight: 800;
 
@@ -699,12 +706,12 @@ textarea:disabled {
   justify-content: center;
   gap: 10px;
 
-  height: 54px;
+  height: 48px;
 
-  padding: 0 28px;
+  padding: 0 22px;
 
   border: 0;
-  border-radius: 16px;
+  border-radius: 12px;
 
   background: linear-gradient(135deg, var(--mk-secondary) 0%, var(--mk-secondary) 100%);
 
@@ -741,8 +748,40 @@ textarea:disabled {
 
 .primary-action.compact {
   width: auto;
-  min-width: 132px;
+  min-width: 112px;
   flex-shrink: 0;
+}
+
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  background: var(--mk-card-bg);
+  color: var(--mk-text-primary);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px var(--mk-shadow-color-soft, rgba(15, 23, 42, 0.05));
+}
+
+.secondary-action:hover:not(:disabled) {
+  border-color: var(--mk-secondary);
+  color: var(--mk-secondary);
+}
+
+.secondary-action.compact {
+  width: auto;
+  min-width: 92px;
+}
+
+.flash-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* ===========================================================
@@ -756,9 +795,9 @@ textarea:disabled {
 
   gap: 14px;
 
-  padding: 18px 22px;
+  padding: 12px 16px;
 
-  border-radius: 18px;
+  border-radius: 12px;
 
   font-size: 14px;
 
@@ -794,9 +833,9 @@ textarea:disabled {
 
   grid-template-columns: 360px minmax(0, 1fr);
 
-  height: 700px;
+  height: 660px;
 
-  margin-top: 24px;
+  margin-top: 6px;
 
   overflow: hidden;
 }

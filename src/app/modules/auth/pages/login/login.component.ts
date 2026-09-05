@@ -16,14 +16,14 @@ export class LoginComponent implements OnInit {
   hasPendingBooking = false;
   readonly heroImage = 'assets/images/movekart-login-hero.png';
   readonly trustPoints = [
-    'Role-aware dashboard access',
-    'OTP fallback for personal bookings',
+    'Dashboard access for your account',
+    'OTP sign-in for personal bookings',
     'Saved quote recovery',
   ];
   readonly accessMetrics = [
     { value: '2 ways', label: 'to sign in' },
-    { value: 'Live', label: 'delivery state' },
-    { value: 'Secure', label: 'session control' },
+    { value: 'Live', label: 'delivery updates' },
+    { value: 'Secure', label: 'account access' },
   ];
   readonly workflowCards = [
     {
@@ -40,9 +40,9 @@ export class LoginComponent implements OnInit {
     },
   ];
   readonly securityNotes = [
-    'Token stored through AuthService',
-    'Onboarding prompt preserved',
-    'Pending delivery state restored',
+    'Secure sign-in',
+    'Saved bookings stay ready',
+    'Fast return to your dashboard',
   ];
   businessForm!: FormGroup;
   phoneForm!: FormGroup;

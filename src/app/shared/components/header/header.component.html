@@ -40,7 +40,7 @@
                 </button>
 
                 <div class="profile-menu">
-                    <button class="avatar" type="button">
+                    <button class="avatar" [class.has-photo]="userPhoto" type="button">
                         <img *ngIf="userPhoto; else headerInitial" [src]="userPhoto" alt="Profile photo" />
                         <ng-template #headerInitial>{{ userInitial }}</ng-template>
                     </button>

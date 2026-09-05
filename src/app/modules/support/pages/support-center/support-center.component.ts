@@ -56,6 +56,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
 
   private search$ = new Subject<string>();
   private searchSub?: Subscription;
+  private messageTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private supportService: CustomerSupportService,
@@ -87,6 +88,16 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
 
   get visibleCreatePanel(): boolean {
     return this.showCreatePanel || (!this.isLoading && this.tickets.length === 0);
+  }
+
+  openCreatePanel(): void {
+    this.clearMessages();
+    this.showCreatePanel = true;
+  }
+
+  closeCreatePanel(): void {
+    this.clearMessages();
+    this.showCreatePanel = false;
   }
 
   loadTickets(silent = false): void {
@@ -134,8 +145,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage =
-          err?.error?.message || 'Unable to load support tickets.';
+        this.showError(err?.error?.message || 'Unable to load tickets.');
       },
     });
   }
@@ -181,7 +191,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isDetailLoading = false;
-        this.errorMessage = err?.error?.message || 'Unable to open ticket.';
+        this.showError(err?.error?.message || 'Unable to open this ticket.');
       },
     });
   }
@@ -193,7 +203,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
     this.clearMessages();
 
     if (!this.form.subject.trim() || !this.form.message.trim()) {
-      this.errorMessage = 'Please add a subject and message.';
+      this.showError('Please add a subject and message.');
       return;
     }
 
@@ -219,14 +229,13 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
             order: null,
           };
           this.isCreating = false;
-          this.successMessage = 'Your support ticket has been raised.';
+          this.showSuccess('Ticket submitted.');
           this.showCreatePanel = false;
           this.selectTicket(ticket);
         },
         error: (err) => {
           this.isCreating = false;
-          this.errorMessage =
-            err?.error?.message || 'Unable to create support ticket.';
+          this.showError(err?.error?.message || 'Unable to submit ticket.');
         },
       });
   }
@@ -258,10 +267,11 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
           this.applyRealtimeTicket(this.selectedTicket);
           this.loadTickets(true);
           this.scrollToBottom();
+          this.showSuccess('Reply sent.');
         },
         error: (err) => {
           this.isSubmittingReply = false;
-          this.errorMessage = err?.error?.message || 'Unable to send reply.';
+          this.showError(err?.error?.message || 'Unable to send reply.');
         },
       });
   }
@@ -337,8 +347,35 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
   }
 
   private clearMessages(): void {
+    this.clearMessageTimer();
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  private showSuccess(message: string): void {
+    this.setFlashMessage('success', message);
+  }
+
+  private showError(message: string): void {
+    this.setFlashMessage('error', message);
+  }
+
+  private setFlashMessage(type: 'success' | 'error', message: string): void {
+    this.clearMessageTimer();
+    this.successMessage = type === 'success' ? message : '';
+    this.errorMessage = type === 'error' ? message : '';
+    this.messageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+      this.messageTimer = undefined;
+    }, 3200);
+  }
+
+  private clearMessageTimer(): void {
+    if (this.messageTimer) {
+      clearTimeout(this.messageTimer);
+      this.messageTimer = undefined;
+    }
   }
 
   private scrollToBottom(): void {
@@ -351,6 +388,7 @@ export class SupportCenterComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearMessageTimer();
     this.searchSub?.unsubscribe();
     this.socketService.disconnect();
   }

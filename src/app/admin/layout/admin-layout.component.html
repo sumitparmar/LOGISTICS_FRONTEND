@@ -165,8 +165,10 @@
                 <div class="admin-user" (click)="toggleUserMenu($event)">
                     <div class="avatar-wrapper">
 
-                        <div class="avatar">
-                            {{ currentUser?.name?.charAt(0) || 'A' }}
+                        <div class="avatar" [class.has-photo]="currentUser?.profilePhoto">
+                            <img *ngIf="currentUser?.profilePhoto; else adminInitial"
+                                [src]="currentUser.profilePhoto" alt="Profile photo" />
+                            <ng-template #adminInitial>{{ currentUser?.name?.charAt(0) || 'A' }}</ng-template>
                         </div>
 
                         <span class="status-dot" [class.offline]="!isOnline"></span>
