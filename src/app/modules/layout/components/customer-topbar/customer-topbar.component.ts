@@ -14,6 +14,7 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   userName = '';
   userInitial = '';
+  userPhoto = '';
   isDropdownOpen = false;
   isAdmin = false;
   private destroy$ = new Subject<void>();
@@ -23,6 +24,11 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
     this.isDropdownOpen = false;
   }
 
+  @HostListener('window:movekart:user-updated')
+  handleUserUpdated(): void {
+    this.loadUser();
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -30,14 +36,7 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const user = this.authService.getUser();
-
-    if (user) {
-      this.userName = user.name || '';
-      this.userInitial = user.name?.charAt(0)?.toUpperCase() || 'U';
-
-      this.isAdmin = user.role?.toLowerCase() === 'admin';
-    }
+    this.loadUser();
 
     this.notificationState.unreadCount$
       .pipe(takeUntil(this.destroy$))
@@ -45,6 +44,15 @@ export class CustomerTopbarComponent implements OnInit, OnDestroy {
         this.unreadCount = count;
       });
 
+  }
+
+  private loadUser(): void {
+    const user = this.authService.getUser();
+
+    this.userName = user?.name || '';
+    this.userInitial = user?.name?.charAt(0)?.toUpperCase() || 'U';
+    this.userPhoto = user?.profilePhoto || '';
+    this.isAdmin = user?.role?.toLowerCase() === 'admin';
   }
 
   toggleDropdown(event: Event): void {

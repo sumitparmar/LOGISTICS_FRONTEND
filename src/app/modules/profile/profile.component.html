@@ -19,6 +19,31 @@
                 </div>
 
                 <form [formGroup]="profileForm" (submit)="$event.preventDefault()">
+                    <div class="photo-field">
+                        <div class="profile-photo-preview">
+                            <img *ngIf="profilePhotoPreview; else initialsAvatar" [src]="profilePhotoPreview"
+                                alt="Profile photo" />
+                            <ng-template #initialsAvatar>
+                                <span>{{ initials }}</span>
+                            </ng-template>
+                        </div>
+
+                        <div class="photo-actions">
+                            <strong>Profile photo</strong>
+                            <p>Add a display picture for your MoveKart account. JPG, PNG or WebP under 2 MB.</p>
+                            <div class="photo-buttons">
+                                <label class="photo-btn" for="profile-photo">Upload photo</label>
+                                <button *ngIf="profilePhotoPreview" type="button" class="photo-btn secondary"
+                                    (click)="removePhoto()" aria-label="Remove profile photo">
+                                    Remove
+                                </button>
+                            </div>
+                            <input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp"
+                                (change)="onPhotoSelected($event)" />
+                            <small *ngIf="photoError">{{ photoError }}</small>
+                        </div>
+                    </div>
+
                     <div class="field">
                         <label>Name</label>
                         <input formControlName="name" autocomplete="name">

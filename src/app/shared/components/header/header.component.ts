@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,6 +12,7 @@ export class HeaderComponent implements OnInit {
   currentUrl: string = '';
   userName: string = '';
   userInitial: string = '';
+  userPhoto: string = '';
   isLoggedIn: boolean = false;
   isAdmin: boolean = false;
   isMenuOpen: boolean = false;
@@ -50,6 +51,11 @@ export class HeaderComponent implements OnInit {
     this.isMenuOpen = false;
   }
 
+  @HostListener('window:movekart:user-updated')
+  handleUserUpdated(): void {
+    this.loadUser();
+  }
+
   // loadUser(): void {
   //   const user = this.authService.getUser();
 
@@ -66,6 +72,7 @@ export class HeaderComponent implements OnInit {
     if (user) {
       this.userName = user.name || '';
       this.userInitial = user.name?.charAt(0)?.toUpperCase() || '';
+      this.userPhoto = user.profilePhoto || '';
       this.isAdmin = user.role?.toLowerCase() === 'admin';
     }
   }
@@ -73,6 +80,7 @@ export class HeaderComponent implements OnInit {
   resetUser(): void {
     this.userName = '';
     this.userInitial = '';
+    this.userPhoto = '';
     this.isAdmin = false;
   }
 

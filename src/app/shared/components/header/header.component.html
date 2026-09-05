@@ -41,7 +41,8 @@
 
                 <div class="profile-menu">
                     <button class="avatar" type="button">
-                        {{ userInitial }}
+                        <img *ngIf="userPhoto; else headerInitial" [src]="userPhoto" alt="Profile photo" />
+                        <ng-template #headerInitial>{{ userInitial }}</ng-template>
                     </button>
 
                     <div class="dropdown">

@@ -1107,8 +1107,9 @@
 }
 
 .review-avatar {
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
@@ -1116,7 +1117,9 @@
   background: var(--mk-primary);
   color: var(--mk-text-inverse);
   font-size: 14px;
+  line-height: 1;
   font-weight: 900;
+  margin-top: 0;
 }
 
 .review-author strong {
@@ -1126,7 +1129,7 @@
   color: var(--mk-text-primary);
 }
 
-.review-author span {
+.review-author .review-date {
   display: block;
   margin-top: 4px;
   font-size: 13px;

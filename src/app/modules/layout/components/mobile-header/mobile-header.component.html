@@ -25,7 +25,8 @@
 
         <div class="profile-wrapper">
             <button class="avatar" type="button" aria-label="Account" (click)="toggleDropdown($event)">
-                {{ userInitial }}
+                <img *ngIf="userPhoto; else mobileInitial" [src]="userPhoto" alt="Profile photo" />
+                <ng-template #mobileInitial>{{ userInitial }}</ng-template>
             </button>
 
             <div class="profile-dropdown" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
